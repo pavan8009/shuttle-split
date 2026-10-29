@@ -215,6 +215,22 @@ label.row{cursor:pointer}
 .tabbar button[aria-selected="true"]{color:var(--accent)}
 .tabbar button[aria-selected="true"] .ic{stroke-width:2.3}
 .toast{position:fixed;left:50%;bottom:calc(80px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--surface);padding:11px 16px;border-radius:12px;font-weight:600;font-size:14px;z-index:40;width:max-content;max-width:calc(100% - 32px);text-align:center;box-shadow:0 8px 24px rgba(0,0,0,.18)}
+/* payouts person rows */
+.prow2{display:grid;grid-template-columns:32px minmax(0,1fr) auto;column-gap:10px;row-gap:4px;align-items:center;padding:11px 16px;border-top:1px solid var(--line2)}
+.prow2:first-child{border-top:0}
+.pinfo{display:flex;flex-direction:column;align-items:flex-start;text-align:left;min-width:0}
+.pinfo b{font-weight:800;font-size:15px;color:var(--accent)}
+.pinfo small{color:var(--muted);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.pright{display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+.pright b{font-size:15px}
+.paybtn{height:30px;padding:0 12px;border-radius:999px;background:var(--accent);color:var(--accent-ink);font-weight:800;font-size:12.5px;white-space:nowrap}
+.paybtn.red{background:var(--danger);color:#fff}
+.pnote{grid-column:2/-1;display:flex;flex-wrap:wrap;gap:4px 10px}
+.pnote .flag,.pnote .wait-chip{margin:0}
+.note-ok{font-size:11.5px;font-weight:700;color:var(--ok)}
+details.poster summary{list-style:none;cursor:pointer}
+details.poster summary::-webkit-details-marker{display:none}
+details.poster:not([open]) .card-h{border-bottom:0}
 /* levels */
 .lvl{height:30px;border-radius:999px;border:1px solid var(--lc,var(--line));color:var(--lc,var(--muted));background:color-mix(in srgb,var(--lc,var(--field)) 10%,var(--surface));font-size:12px;font-weight:800;padding:0 10px;appearance:none;-webkit-appearance:none;text-align:center;flex:none;max-width:118px}
 .lvl:disabled{opacity:1}
@@ -254,7 +270,7 @@ label.row{cursor:pointer}
 .sheet-h b{display:block;font-size:18px;font-weight:800}
 .sheet-h small{color:var(--muted);font-size:13px}
 .grab{width:40px;height:4px;border-radius:2px;background:var(--line);margin:8px auto 0}
-.btable td,.btable th{padding:11px 10px}
+.btable td,.btable th{padding:10px 7px;font-size:13.5px}.btable th{font-size:10.5px}.btable td:first-child,.btable th:first-child{padding-left:16px}.btable td:last-child,.btable th:last-child{padding-right:16px}
 .btable td:first-child{font-weight:700}
 .btable small{display:block;font-weight:500;color:var(--muted);font-size:11.5px}
 .btable td.zero{color:var(--muted)}
@@ -472,7 +488,7 @@ const waHref=t=>'https://wa.me/?text='+encodeURIComponent(t);
 const intro=(h,p)=>`<div class="intro"><h1>${h}</h1><p>${p}</p></div>`;
 const kpis=list=>`<div class="kpis">${list.map(([l,v,hl])=>`<div class="kpi${hl?' hl':''}"><span>${l}</span><b>${v}</b></div>`).join('')}</div>`;
 const cardH=(icon,title,meta,strong)=>`<div class="card-h"><span class="ico">${ic(icon)}</span><h2>${title}</h2>${meta!=null?`<span class="meta${strong?' strong':''}">${meta}</span>`:''}</div>`;
-const viewOnly=what=>db&&!isOrg?`<div class="note">${ic('lock')}<p>View only. Sign in as organizer to ${what}.</p><button class="btn sm primary" data-signin>Sign in</button></div>`:'';
+const viewOnly=what=>db&&!isOrg?`<div class="note">${ic('lock')}<p>You’re viewing. Only the organizer can ${what}.</p><button class="btn sm line" data-signin>Organizer</button></div>`:'';
 const PAGES={day:'Record a play day',polls:'Availability polls',pay:'Payouts',team:'Team & settings'};
 function renderHeader(){
   $('#gname').textContent=S.groupName||'Badminton Family';
@@ -491,8 +507,8 @@ function renderDay(){
   v.innerHTML=`
   ${intro('Today’s game','Tick who played and enter the costs. Everyone’s share is worked out as you go.')}
   <div id="daykpi"></div>
-  ${viewOnly('record days')}
-  <div id="duealert"></div>
+  ${viewOnly('record game days')}
+  ${canEdit()?'<div id="duealert"></div>':''}
   <section class="card">
     <div class="wk-h"><b>${esc(dlabel(curDate,{month:'long',year:'numeric'}))}</b>
       <button class="iconbtn" data-act="pw" aria-label="Previous week">${ic('left')}</button>
@@ -500,7 +516,8 @@ function renderDay(){
       <label class="iconbtn" aria-label="Pick a date">${ic('cal')}<input type="date" id="date" value="${curDate}"></label></div>
     <div class="week">${days.map(k=>`<button class="day${k===curDate?' sel':''}${k===t?' today':''}${S.days[k]&&S.days[k].present&&S.days[k].present.length?' has':''}" data-act="pick" data-v="${k}"><small>${dlabel(k,{weekday:'short'}).slice(0,3)}</small><b>${new Date(k+'T00:00').getDate()}</b><i></i></button>`).join('')}</div>
   </section>
-  <fieldset id="dayfs" ${canEdit()?'':'disabled'}>
+  <section class="card" id="viewsum" ${canEdit()?'hidden':''}></section>
+  <fieldset id="dayfs" ${canEdit()?'':'disabled hidden'}>
   <section class="card">
     ${cardH('users','Who played','<span id="pmeta"></span>')}
     <div class="pad"><div class="tiles" id="att"></div>
@@ -527,6 +544,7 @@ function renderDay(){
   </section>
   </fieldset>
   <section class="card" id="splitcard"></section>
+  ${canEdit()?'':'<div id="duealert"></div>'}
   ${S.days[curDate]&&canEdit()?`<div style="text-align:center">${dayConfirmClear?`<span class="hint">Remove everything recorded for this day?</span> <button class="lnk" data-act="clear-no">Keep</button> · <button class="lnk danger" data-act="clear-yes">Clear day</button>`:`<button class="lnk danger" data-act="clear">Clear this day</button>`}</div>`:''}`;
   refreshDay();
 }
@@ -554,6 +572,11 @@ function refreshDay(){
   $('#drwrap').hidden=!d.drinksOn;
   $('#drchips').innerHTML=d.present.length?orderNames(d.present).map(p=>`<button type="button" class="tile ${d.drinksSkip.includes(p)?'out':'on'}" data-act="dr" data-v="${esc(p)}">${ic('check')}<span>${esc(p)}</span></button>`).join(''):'<p class="hint">Tick who played first.</p>';
   const fp=$('#frompoll');if(fp)fp.hidden=!(db&&canEdit()&&pollForDate(curDate));
+  const vs=$('#viewsum');if(vs&&!canEdit()){vs.innerHTML=cardH('rupee','Costs for the day',inr(c.actual))+(c.n?`
+    <div class="row"><div class="l"><b>Court</b><small>${fmtH(d.hours)} h × ${inr(d.rate)}</small></div><span class="v">${inr(c.court)}</span></div>
+    ${c.shuttle?`<div class="row"><div class="l"><b>Shuttles</b><small>Shared by ${c.shN}</small></div><span class="v">${inr(c.shuttle)}</span></div>`:''}
+    ${c.drinks?`<div class="row"><div class="l"><b>Drinks</b><small>Shared by ${c.drN}</small></div><span class="v">${inr(c.drinks)}</span></div>`:''}`
+    :`<div class="empty">${ic('cal')}Nothing recorded for this day yet.</div>`)}
   const sc=$('#splitcard');
   if(!c.n){sc.innerHTML=cardH('wallet','Split')+`<div class="empty">${ic('users')}Tick who played to see each person’s share.</div>`;return}
   sc.innerHTML=cardH('wallet','Split',plural(c.n,'player'))+`<div class="split">${orderNames(d.present).map(p=>{const o=c.per[p],parts=['Court '+inr(o.court)];if(o.shuttle)parts.push('Shuttle '+inr(o.shuttle));if(o.drinks)parts.push('Drinks '+inr(o.drinks));
@@ -640,9 +663,12 @@ function renderPay(){
   const inRange=playedDays().filter(k=>k>=from&&k<=to).reverse();
   const R=report(inRange.filter(k=>!pay.off.has(k)));
   const period=esc(dlabel(from,{day:'numeric',month:'short'}))+(from!==to?' – '+esc(dlabel(to,{day:'numeric',month:'short'})):'');
+  const L=Object.fromEntries(R.rows.map(r=>[r.p,ledger(r.p)]));
+  const outstanding=R.rows.reduce((a,r)=>a+L[r.p].due,0), settled=R.rows.filter(r=>L[r.p].due<=0).length;
   v.innerHTML=`
-  ${intro('Payouts','Pick the days to settle. You get each person’s total and a poster to post in WhatsApp.')}
-  ${kpis([['Days',R.days.length],['Players',R.rows.length],['To collect',inr(R.total),true]])}
+  ${intro('Payouts','Who owes what for the days you pick, who has paid, and a poster for the group.')}
+  ${kpis([['Period total',inr(R.total)],['Paid up',settled+' / '+R.rows.length],['Due',inr(outstanding),true]])}
+  ${confirmCard()}
   ${myCard()}
   <section class="card">
     ${cardH('cal','Period',period)}
@@ -653,12 +679,10 @@ function renderPay(){
   ${R.rows.length?`
   <section class="card">
     ${cardH('rupee','Who pays what',inr(R.total),true)}
-    <div class="tablewrap"><table><thead><tr><th>Name</th>${R.days.map(d=>`<th>${esc(dlabel(d.date,{weekday:'short',day:'numeric'}))}</th>`).join('')}<th>To pay</th></tr></thead>
-      <tbody>${R.rows.map(r=>`<tr><td><button class="who" data-who="${esc(r.p)}">${esc(r.p)}${ic('right')}</button></td>${r.cells.map(x=>`<td>${x===null?'–':inr(x)}</td>`).join('')}<td class="t">${payCell(r)}</td></tr>`).join('')}</tbody>
-      <tfoot><tr><td>Total</td>${R.calcs.map(c=>`<td>${inr(c.collected)}</td>`).join('')}<td class="t">${inr(R.rows.reduce((a,r)=>a+ledger(r.p).due,0))}</td></tr></tfoot></table></div>
-    <div class="card-f"><p class="hint">Tap a <b>name</b> for the day-by-day split. Tap an <b>amount</b> to pay by UPI. <span style="color:var(--danger);font-weight:700">Red</span> = includes unpaid earlier dues.</p></div>
+    <div class="plist2">${R.rows.map(r=>personRow(r,R,L[r.p])).join('')}</div>
+    <div class="tot"><span>Outstanding now</span><b>${inr(outstanding)}</b></div>
+    <div class="card-f"><p class="hint">Tap a <b>name</b> for the day-by-day split. Tap <b>Pay</b> to pay by UPI.</p></div>
   </section>
-  ${payBook()}
   <section class="card">
     ${cardH('share','Send to the group')}
     <div class="pad">
@@ -667,15 +691,14 @@ function renderPay(){
       <p class="hint">Share poster sends the image with a short, friendly note and your UPI ID. WhatsApp text sends the full breakdown instead.</p>
     </div>
   </section>
-  <section class="card poster">${cardH('image','Poster preview','Long-press to save')}<img id="poster" alt="Payout poster"></section>`:payBook()}`;
+  <details class="card poster"><summary>${cardH('image','Poster preview','Tap to show')}</summary><img id="poster" alt="Payout poster"></details>`:''}
+  ${duesCards()}`;
   v.querySelectorAll('[data-range]').forEach(b=>b.onclick=()=>{pay.range=b.dataset.range;pay.off.clear();renderPay()});
   v.querySelectorAll('[data-k]').forEach(cb=>cb.onchange=()=>{cb.checked?pay.off.delete(cb.dataset.k):pay.off.add(cb.dataset.k);renderPay()});
   const pf=$('#pfrom'),pt=$('#pto');if(pf){pf.onchange=()=>{pay.from=pf.value||pay.from;renderPay()};pt.onchange=()=>{pay.to=pt.value||pay.to;renderPay()}}
-  bindMyCard(v);
-  if(!R.rows.length){bindPayBook(v);return}
+  bindMyCard(v);bindPayBook(v);
+  if(!R.rows.length)return;
   v.querySelectorAll('[data-who]').forEach(b=>b.onclick=()=>openWho(b.dataset.who,R));
-  v.querySelectorAll('[data-pay]').forEach(b=>b.onclick=()=>openPay(b.dataset.pay));
-  bindPayBook(v);
   const msg=payText(R);
   $('#watext').href=waHref(msg);
   $('#copytext').onclick=()=>copyText(msg);
@@ -686,6 +709,18 @@ function renderPay(){
       const cap=posterCaption(R);if(navigator.canShare&&navigator.canShare({files:[file]})){try{await navigator.clipboard.writeText(cap)}catch(e){}await navigator.share({files:[file],text:cap})}
       else{const a=document.createElement('a');a.href=url;a.download=fname;document.body.appendChild(a);a.click();a.remove();toast('Poster saved. Attach it in WhatsApp.')}
     }catch(e){if(!e||e.name!=='AbortError')toast('Couldn’t share. Long-press the poster to save it.')}}});
+}
+function personRow(r,R,L){
+  const days=r.cells.map((x,i)=>x===null?null:esc(dlabel(R.days[i].date,{weekday:'short'}))+' '+inr(x)).filter(Boolean).join(' · ');
+  const earlier=Math.max(0,r2(L.due-r.total)),paidPart=L.due>0&&L.due<r.total?r2(r.total-L.due):0;
+  let status;
+  if(L.due<=0)status=`<span class="ok-chip">${ic('check')}Paid</span>`;
+  else status=`<button class="paybtn${earlier?' red':''}" data-pay="${esc(r.p)}">Pay ${inr(L.due)}</button>`;
+  const note=earlier?`<span class="flag">incl. ${inr(earlier)} earlier dues</span>`:paidPart?`<span class="note-ok">${inr(paidPart)} already paid</span>`:'';
+  return`<div class="prow2"><span class="ini">${esc(initials(r.p))}</span>
+    <button class="pinfo" data-who="${esc(r.p)}"><b>${esc(r.p)}${earlier?'<i class="dotred"></i>':''}</b><small>${days}</small></button>
+    <div class="pright"><b>${inr(r.total)}</b>${status}</div>
+    ${note||L.claimed?`<div class="pnote">${note}${L.claimed?`<span class="wait-chip">${inr(L.claimed)} waiting for confirmation</span>`:''}</div>`:''}</div>`;
 }
 function myCard(){
   const names=allNames(),me=names.find(n=>nkey(n)===nkey(getMe()));
@@ -708,27 +743,23 @@ function bindMyCard(v){
     cl.disabled=true;const self=isOrg||!db;
     if(await addPayment(me,amt,self?'confirmed':'claimed',self?'self':'upi'))toast(self?'Your payment of '+inr(amt)+' is recorded.':'Thanks! '+inr(amt)+' sent to the organizer for confirmation.');else cl.disabled=false};
 }
-function payCell(r){
-  const L=ledger(r.p);
-  if(L.due<=0)return`<span class="ok-chip">${ic('check')}Paid</span>`;
-  const earlier=Math.max(0,r2(L.due-r.total));
-  return`<button class="payamt" data-pay="${esc(r.p)}" aria-label="Pay ${inr(L.due)} for ${esc(r.p)}"${earlier?' style="color:var(--danger);background:color-mix(in srgb,var(--danger) 10%,var(--surface))"':''}>${inr(L.due)}${ic('right')}</button>${earlier?`<span class="flag">+${inr(earlier)} earlier</span>`:''}${L.claimed?`<span class="wait-chip">${inr(L.claimed)} to confirm</span>`:''}`;
-}
 let payDel=null;
-function payBook(){
+const whenD=t=>t?new Date(t).toLocaleDateString('en-IN',{day:'numeric',month:'short'}):'';
+function confirmCard(){
   const claims=allPays().filter(x=>x.status==='claimed').sort((a,b)=>(b.at||0)-(a.at||0));
+  if(!isOrg||!claims.length)return'';
+  return`<section class="card due-card">${cardH('bell','Confirm payments',claims.length)}
+    ${claims.map(x=>`<div class="prow"><span class="ini">${esc(initials(x.name))}</span><span class="nm">${esc(x.name)} · ${inr(x.amount)}<small>Says paid on ${whenD(x.at)}. Check your UPI app.</small></span><span class="acts"><button class="btn sm primary" data-pconf="${esc(x.id)}" aria-label="Confirm">${ic('check')}</button><button class="btn sm line" data-prej="${esc(x.id)}" aria-label="Not received">${ic('x')}</button></span></div>`).join('')}</section>`;
+}
+function duesCards(){
   const dues=duesList();
   const recent=allPays().filter(x=>x.status==='confirmed').sort((a,b)=>(b.at||0)-(a.at||0)).slice(0,6);
-  const when=t=>t?new Date(t).toLocaleDateString('en-IN',{day:'numeric',month:'short'}):'';
-  return`
-  ${isOrg&&claims.length?`<section class="card due-card">${cardH('bell','Confirm payments',claims.length)}
-    ${claims.map(x=>`<div class="prow"><span class="ini">${esc(initials(x.name))}</span><span class="nm">${esc(x.name)} · ${inr(x.amount)}<small>Says paid on ${when(x.at)} · check your UPI app</small></span><span class="acts"><button class="btn sm primary" data-pconf="${esc(x.id)}">${ic('check')}</button><button class="btn sm line" data-prej="${esc(x.id)}" aria-label="Not received">${ic('x')}</button></span></div>`).join('')}</section>`:''}
-  <section class="card${dues.length?' due-card':''}">${cardH(dues.length?'bell':'check','Outstanding dues',dues.length?inr(dues.reduce((a,x)=>a+x.due,0)):'All clear')}
-    ${dues.length?dues.map(x=>`<button class="prow" style="width:100%;text-align:left" data-pay="${esc(x.name)}"><span class="ini">${esc(initials(x.name))}</span><span class="nm">${esc(x.name)}<small>${x.since?'Since '+esc(dlabel(x.since,{day:'numeric',month:'short'})):''}${x.claimed?' · '+inr(x.claimed)+' to confirm':''}</small></span><span class="due-amt">${inr(x.due)}</span></button>`).join('')
+  return`<section class="card${dues.length?' due-card':''}">${cardH(dues.length?'bell':'check','All outstanding dues',dues.length?inr(dues.reduce((a,x)=>a+x.due,0)):'All clear')}
+    ${dues.length?dues.map(x=>`<button class="prow" style="width:100%;text-align:left" data-pay="${esc(x.name)}"><span class="ini">${esc(initials(x.name))}</span><span class="nm">${esc(x.name)}<small>${x.since?'Unpaid since '+esc(dlabel(x.since,{day:'numeric',month:'short'})):''}${x.claimed?' · '+inr(x.claimed)+' to confirm':''}</small></span><span class="due-amt">${inr(x.due)}</span></button>`).join('')
       :`<div class="empty">${ic('check')}Everyone has paid in full.</div>`}
-    ${dues.length?`<div class="card-f"><a class="btn sm wa" href="${waHref(duesMsg(dues))}" target="_blank" rel="noopener">${ic('chat')}Remind everyone who owes</a></div>`:''}</section>
+    ${dues.length?`<div class="card-f"><a class="btn sm wa" href="${waHref(duesMsg(dues))}" target="_blank" rel="noopener">${ic('chat')}Gentle reminder to all</a><span class="hint" style="margin-left:auto">Across all days</span></div>`:''}</section>
   ${recent.length?`<section class="card">${cardH('wallet','Recent payments')}
-    ${recent.map(x=>`<div class="prow"><span class="ini">${esc(initials(x.name))}</span><span class="nm">${esc(x.name)}<small>${when(x.confirmedAt||x.at)} · ${x.by==='player'?'paid by UPI, confirmed':'marked received'}</small></span>${isOrg?(payDel===x.id?`<span class="acts"><button class="lnk" data-pkeep>Keep</button><button class="lnk danger" data-pdel="${esc(x.id)}">Undo</button></span>`:`<button class="am" style="color:var(--ok)" data-pask="${esc(x.id)}">${inr(x.amount)}</button>`):`<span class="am" style="color:var(--ok)">${inr(x.amount)}</span>`}</div>`).join('')}</section>`:''}`;
+    ${recent.map(x=>`<div class="prow"><span class="ini">${esc(initials(x.name))}</span><span class="nm">${esc(x.name)}<small>${whenD(x.confirmedAt||x.at)} · ${x.by==='player'?'paid by UPI, confirmed':x.method==='self'?'own share':'marked received'}</small></span>${isOrg?(payDel===x.id?`<span class="acts"><button class="lnk" data-pkeep>Keep</button><button class="lnk danger" data-pdel="${esc(x.id)}">Undo</button></span>`:`<button class="am" style="color:var(--ok)" data-pask="${esc(x.id)}">${inr(x.amount)}</button>`):`<span class="am" style="color:var(--ok)">${inr(x.amount)}</span>`}</div>`).join('')}</section>`:''}`;
 }
 function bindPayBook(v){
   v.querySelectorAll('[data-pay]').forEach(b=>b.onclick=()=>openPay(b.dataset.pay));
@@ -774,8 +805,8 @@ function openWho(name,R){
   bg.innerHTML=`<div class="sheet" role="dialog" aria-modal="true" aria-label="${esc(name)} breakdown">
     <div class="grab"></div>
     <div class="sheet-h"><span class="ini">${esc(initials(name))}</span><div><b>${esc(name)}</b><small>${plural(rows.length,'day')} played · ${inr(total)} to pay</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div>
-    <div class="tablewrap"><table class="btable"><thead><tr><th>Day</th><th>Court</th><th>Shuttles</th><th>Drinks</th><th>Amount</th></tr></thead>
-      <tbody>${rows.map(x=>`<tr><td>${esc(dlabel(x.d.date,{weekday:'short',day:'numeric',month:'short'}))}</td>${cell(x.o.court)}${cell(x.o.shuttle)}${cell(x.o.drinks)}<td class="t">${inr(x.o.total)}</td></tr>`).join('')}</tbody>
+    <div class="tablewrap"><table class="btable"><thead><tr><th>Day</th><th>Court</th><th>Shuttle</th><th>Drinks</th><th>Total</th></tr></thead>
+      <tbody>${rows.map(x=>`<tr><td>${esc(dlabel(x.d.date,{weekday:'short',day:'numeric'}))}</td>${cell(x.o.court)}${cell(x.o.shuttle)}${cell(x.o.drinks)}<td class="t">${inr(x.o.total)}</td></tr>`).join('')}</tbody>
       <tfoot><tr><td>Total</td><td>${inr(sum('court'))}</td><td>${inr(sum('shuttle'))}</td><td>${inr(sum('drinks'))}</td><td class="t">${inr(total)}</td></tr></tfoot></table></div>
     <div class="how"><span class="sublbl">How each day was worked out</span>
       ${rows.map(x=>{const d=x.d,c=x.c,p=[`Court ${fmtH(d.hours)} h × ${inr(d.rate)} = ${inr(c.court)} ÷ ${c.n} players = ${inr(c.cEach)}`];
@@ -905,27 +936,27 @@ function renderTeam(){
   Object.values(S.days).forEach(d=>(d.present||[]).forEach(p=>{const k=nkey(p);played[k]=(played[k]||0)+1}));
   const nDays=playedDays().length;
   v.innerHTML=`
-  ${intro('Team','Your players, group photo and how the app looks. Changes here apply to everyone.')}
+  ${intro('Team',canEdit()?'Your players, levels, group photo, payments and app look. Changes apply to everyone.':'Everyone in the group, their level and who’s settled up.')}
   ${kpis([['Players',S.roster.length],['Days played',nDays],['Owing',duesList().length,true]])}
   ${viewOnly('edit the team')}
   <fieldset ${canEdit()?'':'disabled'}>
   <section class="card">
     <div class="profile"><div class="gphoto">${photo?`<img src="${photo}" alt="Group photo">`:ic('users')}</div>
       <div style="display:flex;flex-direction:column;gap:8px;flex:1;min-width:0">
-        <input class="txt" id="gnamein" value="${esc(S.groupName)}" placeholder="Group name" aria-label="Group name">
-        <div style="display:flex;gap:10px;align-items:center"><label class="btn sm line filebtn">${ic('camera')}${photo?'Change photo':'Add group photo'}<input type="file" accept="image/*" id="photoin"></label>${photo?`<button type="button" class="lnk danger" data-act="nophoto">Remove</button>`:''}</div>
+        ${canEdit()?`<input class="txt" id="gnamein" value="${esc(S.groupName)}" placeholder="Group name" aria-label="Group name">
+        <div style="display:flex;gap:10px;align-items:center"><label class="btn sm line filebtn">${ic('camera')}${photo?'Change photo':'Add group photo'}<input type="file" accept="image/*" id="photoin"></label>${photo?`<button type="button" class="lnk danger" data-act="nophoto">Remove</button>`:''}</div>`:`<b style="font-size:18px">${esc(S.groupName||'Badminton Family')}</b><span class="hint">${plural(S.roster.length,'player')}${S.upiId?' · UPI '+esc(S.upiId):''}</span>`}
       </div></div>
-    <div class="card-f"><p class="hint">The photo shows at the top of the app and on every payout poster.</p></div>
+    ${canEdit()?`<div class="card-f"><p class="hint">The photo shows at the top of the app and on every payout poster.</p></div>`:''}
   </section>
   <section class="card">
     ${cardH('users','Players',S.roster.length)}
-    <div class="pad" style="padding-bottom:6px"><div class="inline"><input class="txt" id="newp" placeholder="New player name" autocomplete="off" enterkeyhint="done"><button type="button" class="btn sm primary" style="height:44px" data-act="addp">${ic('plus')}Add</button></div>
-      <p class="warn" id="pwarn" hidden></p></div>
-    <div class="split">${S.roster.map(p=>`<div class="prow"><span class="ini">${esc(initials(p))}</span><span class="nm">${esc(p)}<small>Played ${plural(played[nkey(p)]||0,'day')}${(()=>{const g=ledger(p);return g.due?` · <b style="color:var(--danger)">owes ${inr(g.due)}</b>`:g.charged?' · all paid':''})()}</small></span><span class="acts" style="align-items:center">${(()=>{const lv=levelOf(p);return`<select class="lvl" data-lvl="${esc(p)}"${lv?` style="--lc:${lv[2]}"`:''} aria-label="Level for ${esc(p)}"><option value="">Set level</option>${LEVELS.map(l=>`<option value="${l[0]}"${lv&&lv[0]===l[0]?' selected':''}>${l[1]}</option>`).join('')}</select>`})()}${teamConfirm===p?`<span><button type="button" class="lnk" data-act="rm-no">Keep</button> · <button type="button" class="lnk danger" data-act="rm-yes" data-v="${esc(p)}">Remove</button></span>`:`<button type="button" class="iconbtn" data-act="rm" data-v="${esc(p)}" aria-label="Remove ${esc(p)}">${ic('x')}</button>`}</span></div>`).join('')||`<div class="empty">Add your regular players.</div>`}</div>
+    ${canEdit()?`<div class="pad" style="padding-bottom:6px"><div class="inline"><input class="txt" id="newp" placeholder="New player name" autocomplete="off" enterkeyhint="done"><button type="button" class="btn sm primary" style="height:44px" data-act="addp">${ic('plus')}Add</button></div>
+      <p class="warn" id="pwarn" hidden></p></div>`:''}
+    <div class="split">${S.roster.map(p=>`<div class="prow"><span class="ini">${esc(initials(p))}</span><span class="nm">${esc(p)}<small>Played ${plural(played[nkey(p)]||0,'day')}${(()=>{const g=ledger(p);return g.due?` · <b style="color:var(--danger)">owes ${inr(g.due)}</b>`:g.charged?' · all paid':''})()}</small></span><span class="acts" style="align-items:center">${(()=>{const lv=levelOf(p);if(!canEdit())return lv?`<span class="lvl" style="--lc:${lv[2]};display:inline-flex;align-items:center">${lv[1]}</span>`:'';return`<select class="lvl" data-lvl="${esc(p)}"${lv?` style="--lc:${lv[2]}"`:''} aria-label="Level for ${esc(p)}"><option value="">Set level</option>${LEVELS.map(l=>`<option value="${l[0]}"${lv&&lv[0]===l[0]?' selected':''}>${l[1]}</option>`).join('')}</select>`})()}${!canEdit()?'':teamConfirm===p?`<span><button type="button" class="lnk" data-act="rm-no">Keep</button> · <button type="button" class="lnk danger" data-act="rm-yes" data-v="${esc(p)}">Remove</button></span>`:`<button type="button" class="iconbtn" data-act="rm" data-v="${esc(p)}" aria-label="Remove ${esc(p)}">${ic('x')}</button>`}</span></div>`).join('')||`<div class="empty">Add your regular players.</div>`}</div>
     <div class="card-f" style="flex-direction:column;align-items:flex-start"><div class="mix">${LEVELS.map(l=>`<span><i class="lvl-dot" style="background:${l[2]}"></i>${l[1]} ${S.roster.filter(n=>(S.levels||{})[nkey(n)]===l[0]).length}</span>`).join('')}<span>Not set ${S.roster.filter(n=>!levelOf(n)).length}</span></div>
       <p class="hint">Levels show as a coloured line on Today’s player tiles, and are ready for league team-making. Removing a player keeps them in past days.</p></div>
   </section>
-  <section class="card">
+  ${canEdit()?`<section class="card">
     ${cardH('palette','Theme')}
     <div class="swatches">${Object.entries(SKINS).map(([k,s])=>`<button type="button" class="sw" data-skin="${k}" aria-pressed="${S.skin===k}"><i style="background:linear-gradient(135deg,${s.accent} 0 60%,${s.pop===s.accent?'#D0D5DD':s.pop} 60%)"></i>${s.name}</button>`).join('')}</div>
   </section>
@@ -941,7 +972,7 @@ function renderTeam(){
     ${cardH('gear','Defaults')}
     <div class="row"><div class="l"><b>Court rate per hour</b><small>Used for new days. Shares round up to the next rupee.</small></div>
       <div class="amt"><span>₹</span><input id="defrate" type="number" inputmode="decimal" min="0" value="${S.rate}" aria-label="Default court rate"></div></div>
-  </section>
+  </section>`:''}
   </fieldset>
   <section class="card">
     ${cardH('lock','Account',db?(isOrg?'Organizer':'View only'):'This phone only')}
@@ -1084,19 +1115,21 @@ function renderPollDetail(v){
   const names=orderNames([...new Set([...S.roster,...t.voters.map(x=>x.name)])]);
   const known=names.some(n=>nkey(n)===nkey(P.myName));
   const best=t.res.reduce((a,r)=>Math.max(a,r.courts),0);
+  const sendCardHTML=`<section class="card">${cardH('chat',P.justCreated===p.id?'Poll ready. Send it now':'Send to WhatsApp')}
+    <div class="pad"><a class="btn wa block" href="${waHref(msgPoll(p))}" target="_blank" rel="noopener">${ic('chat')}Send poll on WhatsApp</a>
+      <div class="grid2"><button class="btn line" id="cplink">${ic('copy')}Copy message</button>${isOrg?`<button class="btn line" id="cpopts">${ic('poll')}As WA poll</button>`:`<button class="btn line" id="cplink2">${ic('copy')}Copy link</button>`}</div></div></section>`;
   v.innerHTML=`
   <button class="lnk" id="back" style="align-self:flex-start">‹ All polls</button>
   ${intro(esc(p.title),closed?'This poll is closed.':p.closesAt?'Voting closes '+esc(closeText(p.closesAt))+'.':'Voting is open.')}
   ${kpis([['Voted',t.voters.length],['Waiting',t.pending.length],['Courts',best||'–',true]])}
-  <section class="card">${cardH('chat',P.justCreated===p.id?'Poll ready. Send it now':'Send to WhatsApp')}
-    <div class="pad"><a class="btn wa block" href="${waHref(msgPoll(p))}" target="_blank" rel="noopener">${ic('chat')}Send poll on WhatsApp</a>
-      <div class="grid2"><button class="btn line" id="cplink">${ic('copy')}Copy message</button>${isOrg?`<button class="btn line" id="cpopts">${ic('poll')}As WA poll</button>`:`<button class="btn line" id="cplink2">${ic('copy')}Copy link</button>`}</div></div></section>
+  ${isOrg?sendCardHTML:''}
   ${closed?'':`<section class="card">${cardH('check','Your vote','<span id="vstat"></span>')}
     <div class="pad"><select class="txt" id="vname" aria-label="Your name"><option value="">Choose your name…</option>${names.map(n=>`<option ${nkey(n)===nkey(P.myName)?'selected':''}>${esc(n)}</option>`).join('')}<option value="__other" ${P.myName&&!known?'selected':''}>I’m not on the list…</option></select>
       <input class="txt" type="text" id="vother" placeholder="Type your name" value="${P.myName&&!known?esc(P.myName):''}" ${P.myName&&!known?'':'hidden'}>
       <p class="warn" id="vwarn" hidden></p></div>
     ${p.dates.map(dt=>`<div class="row" style="flex-direction:column;align-items:stretch;gap:8px"><b>${esc(waOpt(dt))}</b><div class="vote">${['yes|Yes','maybe|Maybe','no|No'].map(s=>{const[val,l]=s.split('|');return`<button type="button" class="${P.myAns[dt.date]===val?'on':''}" data-ans="${dt.date}|${val}">${l}</button>`}).join('')}</div></div>`).join('')}
     <div class="card-f"><button type="button" class="btn line block" id="cantmake">Not available on any of these</button></div></section>`}
+  ${isOrg?'':sendCardHTML}
   <section class="card">${cardH('poll','Results',t.per+' per court')}
     ${t.res.map(r=>`<div class="row" style="flex-direction:column;align-items:stretch;gap:8px">
       <div style="display:flex;justify-content:space-between;gap:8px;align-items:center"><b>${esc(waOpt(r))}</b><span class="badge solid">${r.courts?plural(r.courts,'court'):'No courts'}</span></div>
