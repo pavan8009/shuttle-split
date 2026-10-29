@@ -4,142 +4,261 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Shuttle Split</title>
-<meta name="theme-color" content="#132F78">
+<meta name="theme-color" content="#F5F8F3">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@600;700;800&family=Figtree:wght@400;500;600;700&display=swap">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..800;1,6..96,400..700&family=Archivo:wght@400;500;600;700;800&display=swap">
 <style>
-/* Layout: one narrow phone column — sticky header with tabs, stacked sections, a live summary card per day */
+/* Layout: one phone column, editorial page titles, colour-blocked step cards, fixed bottom tab bar */
 :root{
-  --bg:#EEF2FA; --surface:#FFFFFF; --sunk:#E3E9F5; --ink:#0E1B3D; --muted:#56637F; --line:#D5DDEC;
-  --navy:#132F78; --accent:#1F4FD1; --on-accent:#FFFFFF; --shuttle:#F2BE12; --good:#127A4B; --warn:#B4520B;
-  --display:"Saira Condensed","Arial Narrow",Impact,sans-serif;
-  --body:"Figtree",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --bg:#F5F8F3; --surface:#FFFFFF; --field:#F3F4F3; --ink:#141414; --muted:#6B6E6C; --line:rgba(20,20,20,.09);
+  --accent:#0B7A4E; --accent-ink:#FFFFFF; --pop:#FFD23F; --pop-ink:#1A1A1A; --soft:#E2F2E9;
+  --danger:#C62F3B;
+  --display:"Bodoni Moda","Bodoni 72",Didot,Georgia,serif;
+  --ui:"Archivo",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --r:18px;
 }
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --bg:#0A1020; --surface:#121B31; --sunk:#0E1528; --ink:#E7ECF8; --muted:#95A2C2; --line:#25304D;
-  --navy:#16306F; --accent:#7EA0FF; --on-accent:#0A1020; --shuttle:#F2BE12; --good:#4CC98C; --warn:#F0A060; color-scheme:dark}}
-:root[data-theme="dark"]{
-  --bg:#0A1020; --surface:#121B31; --sunk:#0E1528; --ink:#E7ECF8; --muted:#95A2C2; --line:#25304D;
-  --navy:#16306F; --accent:#7EA0FF; --on-accent:#0A1020; --shuttle:#F2BE12; --good:#4CC98C; --warn:#F0A060; color-scheme:dark}
-*{box-sizing:border-box}
-html{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);-webkit-text-size-adjust:100%}
-body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.45}
-body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--navy)}
+@media (prefers-color-scheme:dark){:root{
+  --surface:#191B1D; --field:#232628; --ink:#F2F3F2; --muted:#A3A7A5; --line:rgba(255,255,255,.1); color-scheme:dark}}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{padding-top:env(safe-area-inset-top,0px);-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 var(--ui);transition:background .25s}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--bg)}
 .wrap{max-width:560px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
-header{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--navy);color:#fff}
-header .wrap{padding-block:12px 0;display:flex;flex-direction:column;gap:10px}
-.brand{display:flex;align-items:center;gap:10px}
-.brand h1{font-family:var(--display);font-weight:800;font-size:28px;letter-spacing:.02em;margin:0;line-height:1}
-.brand small{color:#C7D3F5;font-size:12px;letter-spacing:.06em;text-transform:uppercase}
-.brand svg{flex:none}
-nav{display:flex;gap:4px}
-nav button{flex:1;background:none;border:0;color:#C7D3F5;font:600 14px var(--body);padding:10px 4px 12px;border-bottom:3px solid transparent;cursor:pointer;letter-spacing:.02em}
-nav button[aria-selected="true"]{color:#fff;border-bottom-color:var(--shuttle)}
-main .wrap{padding-block:16px 48px;display:flex;flex-direction:column;gap:14px}
-section.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:12px;min-width:0}
-.sec-h{display:flex;align-items:center;justify-content:space-between;gap:8px}
-.sec-h h2{font-family:var(--display);font-weight:700;font-size:20px;letter-spacing:.03em;text-transform:uppercase;margin:0}
-.badge{font:700 13px var(--body);background:var(--sunk);color:var(--ink);border-radius:999px;padding:3px 10px;font-variant-numeric:tabular-nums}
-.datebar{display:flex;align-items:center;gap:8px}
-.datebar input{flex:1;min-width:0;font:600 16px var(--body);padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink)}
-.iconbtn{width:44px;height:44px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:700 20px var(--body);cursor:pointer;flex:none}
-.daylabel{font-family:var(--display);font-size:26px;font-weight:700;margin:0;line-height:1.1}
-.chips{display:flex;flex-wrap:wrap;gap:8px}
-.chip{border:1.5px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:8px 14px;font:600 14px var(--body);cursor:pointer;display:inline-flex;align-items:center;gap:6px}
-.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
-.chip.off{background:var(--sunk);color:var(--muted);text-decoration:line-through;border-style:dashed}
-.chip.small{padding:6px 11px;font-size:13px}
-.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-.link{background:none;border:0;color:var(--accent);font:600 13px var(--body);cursor:pointer;padding:4px 2px}
-.field{display:flex;flex-direction:column;gap:6px;flex:1;min-width:120px}
-.field label,.lbl{font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
-.money{display:flex;align-items:center;border:1px solid var(--line);border-radius:10px;background:var(--surface);overflow:hidden}
-.money span{padding:0 4px 0 12px;color:var(--muted);font-weight:600}
-.money input,.textin{border:0;background:transparent;color:var(--ink);font:600 17px var(--body);padding:11px 12px 11px 4px;width:100%;min-width:0;font-variant-numeric:tabular-nums}
-.textin{border:1px solid var(--line);border-radius:10px;padding-left:12px;font-weight:500;font-size:15px;background:var(--surface)}
-.stepper{display:flex;align-items:center;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surface)}
-.stepper button{width:44px;height:44px;border:0;background:var(--sunk);color:var(--ink);font:700 20px var(--body);cursor:pointer}
-.stepper output{flex:1;text-align:center;font:700 17px var(--body);font-variant-numeric:tabular-nums}
-.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
-.toggle{display:flex;align-items:center;gap:10px;font-weight:600;cursor:pointer}
-.toggle input{width:22px;height:22px;accent-color:var(--accent)}
+svg.ic{width:20px;height:20px;flex:none;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+button:disabled{cursor:default}
+:focus-visible{outline:3px solid var(--pop);outline-offset:2px}
+
+/* header */
+.top .wrap{display:flex;align-items:center;gap:12px;padding-block:14px 6px}
+.avatar{width:44px;height:44px;border-radius:50%;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;overflow:hidden;flex:none;box-shadow:0 0 0 3px var(--bg),0 0 0 5px var(--pop)}
+.avatar img{width:100%;height:100%;object-fit:cover}
+.brandtxt{display:flex;flex-direction:column;min-width:0;line-height:1.15}
+.brandtxt b{font-weight:800;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.eyebrow{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.pill{margin-left:auto;border:1.5px solid var(--ink);background:transparent;border-radius:999px;padding:7px 13px;font-weight:700;font-size:13px;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.pill.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+
+/* pages */
+main{padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))}
+.view{display:flex;flex-direction:column;gap:14px;padding-block:8px 24px}
+.pagehead{display:flex;flex-direction:column;gap:4px;padding-top:6px}
+h1.page{font-family:var(--display);font-weight:500;font-size:46px;line-height:.95;letter-spacing:-.01em;margin:0;text-transform:uppercase;text-wrap:balance}
+h1.page em{font-style:italic;color:var(--accent);text-transform:none}
+.card{background:var(--surface);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0;border:1px solid var(--line)}
+fieldset{border:0;margin:0;padding:0;min-width:0;display:flex;flex-direction:column;gap:14px}
+.step-h{display:flex;align-items:center;gap:12px}
+.step-h h2{margin:0;font-size:19px;font-weight:800;letter-spacing:-.01em}
+.step-h > div{display:flex;flex-direction:column;min-width:0}
+.tile{width:40px;height:40px;border-radius:12px;background:var(--soft);color:var(--accent);display:grid;place-items:center;flex:none}
+.count{margin-left:auto;min-width:40px;height:40px;padding:0 10px;border-radius:999px;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font-weight:800;font-size:17px;font-variant-numeric:tabular-nums}
 .hint{font-size:13px;color:var(--muted);margin:0}
-.sum{background:var(--navy);color:#fff;border-color:var(--navy)}
-.sum .lbl{color:#C7D3F5}
-.sum-lines{display:flex;flex-direction:column;gap:6px;font-variant-numeric:tabular-nums}
-.sum-lines div{display:flex;justify-content:space-between;gap:12px}
-.sum-lines .eq{color:#C7D3F5;font-size:13px}
-.sum-total{display:flex;justify-content:space-between;align-items:baseline;border-top:1px dashed rgba(255,255,255,.3);padding-top:10px}
-.sum-total b{font-family:var(--display);font-size:32px;color:var(--shuttle);font-variant-numeric:tabular-nums}
-.pp{display:grid;grid-template-columns:1fr auto;gap:4px 12px;font-variant-numeric:tabular-nums}
-.pp span:nth-child(even){text-align:right;font-weight:700}
-.btn{border:0;border-radius:12px;padding:13px 16px;font:700 15px var(--body);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none}
-.btn.primary{background:var(--accent);color:var(--on-accent)}
-.btn.wa{background:#1F9D55;color:#fff}
-.btn.ghost{background:var(--sunk);color:var(--ink)}
-.btn.danger{background:var(--warn);color:#fff}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.row.center{justify-content:center}
+.link{background:none;border:0;color:var(--accent);font-weight:700;font-size:14px;padding:6px 2px}
+.link.danger{color:var(--danger)}
+
+/* chips */
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips.center{justify-content:center}
+.chip{border:1.5px solid var(--line);background:var(--field);border-radius:999px;padding:10px 15px;font-weight:600;font-size:15px;display:inline-flex;align-items:center;gap:6px;transition:background .15s,transform .1s}
+.chip:active{transform:scale(.96)}
+.chip .ic{width:16px;height:16px;stroke-width:2.6;display:none}
+.chip.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.chip.on .ic{display:block}
+.chip.sm{padding:7px 12px;font-size:13.5px}
+.chip.out{background:transparent;color:var(--muted);text-decoration:line-through;border-style:dashed}
+.chip.maybe{background:transparent;border-color:var(--accent);color:var(--accent);border-style:dashed}
+fieldset:disabled .chip,fieldset:disabled .round,fieldset:disabled .seg{opacity:.55}
+
+/* date bar */
+.datebar{flex-direction:row;align-items:center;padding:8px}
+.round{width:44px;height:44px;border-radius:50%;border:0;background:var(--field);display:grid;place-items:center;flex:none}
+.round.big{width:56px;height:56px;background:var(--accent);color:var(--accent-ink)}
+.round.big .ic{width:24px;height:24px;stroke-width:2.4}
+.datebtn{flex:1;position:relative;display:flex;flex-direction:column;align-items:center;line-height:1.15;padding:4px;min-width:0}
+.datebtn .d1{font-family:var(--display);font-size:26px;font-weight:600;font-style:italic}
+.datebtn .d2{font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.datebtn input{position:absolute;inset:0;opacity:0;width:100%;cursor:pointer}
+.todaytag{font-size:10px;font-weight:800;letter-spacing:.1em;background:var(--pop);color:var(--pop-ink);padding:2px 7px;border-radius:999px;margin-top:4px}
+
+/* hours */
+.hours{display:flex;align-items:center;justify-content:center;gap:22px;padding:4px 0}
+.hval{display:flex;flex-direction:column;align-items:center;min-width:96px}
+.hval b{font-family:var(--display);font-size:56px;line-height:1;font-weight:600;font-variant-numeric:tabular-nums}
+.hval span{font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+
+/* fields */
+.field{display:flex;flex-direction:column;gap:6px;min-width:0}
+.field > label,.lbl{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.money{display:flex;align-items:center;background:var(--field);border-radius:14px;border:1.5px solid transparent}
+.money:focus-within{border-color:var(--accent)}
+.money span{padding:0 2px 0 14px;color:var(--muted);font-weight:700;font-size:18px}
+.money .suf{padding:0 14px 0 0;font-size:14px;white-space:nowrap}
+.money input{border:0;background:transparent;font-weight:700;font-size:20px;padding:13px 10px 13px 4px;width:100%;min-width:0;font-variant-numeric:tabular-nums;outline:none}
+.txt{border:1.5px solid transparent;background:var(--field);border-radius:14px;padding:12px 14px;font-size:16px;width:100%;min-width:0;outline:none}
+.txt:focus{border-color:var(--accent)}
+.addrow{display:flex;gap:8px}
+.addrow .txt{flex:1}
+.totline{display:flex;justify-content:space-between;align-items:baseline;gap:10px;border-top:1px dashed var(--line);padding-top:10px;font-weight:600}
+.totline b{font-size:20px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.warn{margin:0;font-size:13.5px;background:color-mix(in srgb,var(--pop) 35%,var(--surface));color:var(--ink);padding:10px 12px;border-radius:12px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+
+/* segmented */
+.seg{display:grid;grid-template-columns:1fr 1fr;background:var(--field);border-radius:14px;padding:4px;gap:4px}
+.seg button{border:0;background:transparent;border-radius:11px;padding:12px 8px;font-weight:700;font-size:14.5px;display:flex;align-items:center;justify-content:center;gap:6px}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+.reveal{display:flex;flex-direction:column;gap:12px;animation:rise .2s ease}
+@keyframes rise{from{opacity:.4;transform:translateY(-4px)}to{opacity:1;transform:none}}
+
+/* buttons */
+.btn{border:0;border-radius:14px;padding:14px 16px;font-weight:800;font-size:15px;display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;letter-spacing:.01em;text-align:center}
+.btn.small{padding:10px 14px;font-size:14px}
+.btn.primary{background:var(--accent);color:var(--accent-ink)}
+.btn.pop{background:var(--pop);color:var(--pop-ink)}
+.btn.ghost{background:var(--field);color:var(--ink)}
+.btn.wa{background:#1FA855;color:#fff}
+.btn.danger{background:var(--danger);color:#fff}
 .btns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .btns .full{grid-column:1/-1}
+
+/* summary */
+.summary{background:var(--accent);color:var(--accent-ink);border:0}
+.summary .eyebrow{color:inherit;opacity:.75}
+.bigtot{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.bigtot b{font-family:var(--display);font-size:52px;line-height:1;font-weight:600;font-variant-numeric:tabular-nums}
+.sumlines{display:flex;flex-direction:column;gap:8px;font-variant-numeric:tabular-nums}
+.sumlines div{display:flex;align-items:center;gap:10px}
+.sumlines small{display:block;opacity:.75;font-size:12.5px}
+.sumlines .amt{margin-left:auto;font-weight:800;white-space:nowrap}
+.pp{display:grid;grid-template-columns:1fr auto;gap:6px 14px;background:rgba(255,255,255,.12);border-radius:14px;padding:12px 14px;font-variant-numeric:tabular-nums}
+.pp span:nth-child(even){text-align:right;font-weight:800}
+.sum-empty{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;padding:12px 0}
+.sum-empty .ic{width:44px;height:44px;stroke-width:1.3}
+
+/* banners */
+.notice{display:flex;gap:12px;align-items:center;background:var(--pop);color:var(--pop-ink);border-radius:var(--r);padding:14px}
+.notice p{margin:0;font-weight:600;font-size:14px;flex:1}
+.notice .btn{background:var(--pop-ink);color:var(--pop);padding:10px 14px}
+
+/* lists */
 .daylist{display:flex;flex-direction:column;gap:6px}
-.daylist label{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;cursor:pointer;font-variant-numeric:tabular-nums}
-.daylist label input{width:20px;height:20px;accent-color:var(--accent)}
-.daylist label span{flex:1}
-.daylist label em{font-style:normal;color:var(--muted);font-size:13px}
-.preview img{width:100%;border-radius:10px;border:1px solid var(--line);display:block}
-.tablewrap{overflow-x:auto}
-table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums;font-size:14px}
-th,td{padding:8px 6px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
-th:first-child,td:first-child{text-align:left}
-th{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
-td.tot{font-weight:800}
+.daylist label{display:flex;align-items:center;gap:12px;padding:12px;background:var(--field);border-radius:14px;cursor:pointer;font-variant-numeric:tabular-nums}
+.daylist input{width:22px;height:22px;accent-color:var(--accent);flex:none}
+.daylist span{flex:1;font-weight:700}
+.daylist em{font-style:normal;color:var(--muted);font-size:13px;text-align:right}
 .plist{display:flex;flex-direction:column}
-.plist div{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 0;border-bottom:1px solid var(--line)}
-.plist div:last-child{border-bottom:0}
-.empty{text-align:center;padding:20px 8px;color:var(--muted)}
-.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-weight:600;z-index:20;max-width:calc(100% - 32px)}
-.status{font-size:12px;color:#C7D3F5;margin-left:auto;text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:4px}
-.authbtn{background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.3);border-radius:999px;padding:5px 11px;font:600 12px var(--body);cursor:pointer}
-.ro .chip,.ro .stepper button{cursor:default}
-.setup{background:#FFF4D6;color:#5A3B00;border:1px solid #F2BE12;border-radius:12px;padding:12px 14px;font-size:14px}
-button:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid var(--shuttle);outline-offset:2px}
-@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+.plist > div{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+.plist > div:last-child{border-bottom:0}
+.ini{width:34px;height:34px;border-radius:50%;background:var(--soft);color:var(--accent);display:grid;place-items:center;font-weight:800;font-size:13px;flex:none}
+.plist .nm{flex:1;font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tablewrap{overflow-x:auto;margin:0 -4px}
+table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums;font-size:14.5px}
+th,td{padding:10px 6px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+th{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+td.tot{font-weight:800;color:var(--accent)}
+tfoot td{font-weight:800;border-bottom:0}
+.empty{text-align:center;padding:22px 8px;color:var(--muted)}
+.preview img{width:100%;border-radius:12px;display:block;border:1px solid var(--line)}
+.swatches{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.sw{border:2px solid transparent;border-radius:14px;padding:6px;background:var(--field);display:flex;flex-direction:column;align-items:center;gap:6px;font-size:11px;font-weight:700;min-width:0}
+.sw i{width:100%;aspect-ratio:1;border-radius:10px;display:block;max-width:100%}
+.sw[aria-pressed="true"]{border-color:var(--ink)}
+.groupcard{flex-direction:row;align-items:center;gap:14px}
+.gphoto{width:84px;height:84px;border-radius:50%;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;overflow:hidden;flex:none}
+.gphoto img{width:100%;height:100%;object-fit:cover}
+.gphoto .ic{width:34px;height:34px}
+.filebtn{position:relative;overflow:hidden}
+.filebtn input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.vote-row{display:flex;flex-direction:column;gap:8px;padding:12px;background:var(--field);border-radius:14px}
+.vote-row b{font-size:15px}
+.res{display:flex;flex-direction:column;gap:8px;padding:12px 0;border-bottom:1px solid var(--line)}
+.badge{display:inline-flex;align-items:center;gap:6px;padding:5px 11px;border-radius:999px;font-weight:800;font-size:13px;background:var(--soft);color:var(--accent);white-space:nowrap}
+.badge.solid{background:var(--accent);color:var(--accent-ink)}
+.pollcard{cursor:pointer}
+.pollcard b{font-size:17px}
+.cta{background:var(--pop);color:var(--pop-ink);border:0}
+.cta h2{font-family:var(--display);font-weight:600;font-size:28px;margin:0;line-height:1.05}
+
+/* tab bar */
+.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
+.tabbar .wrap{display:grid;grid-template-columns:repeat(4,1fr)}
+.tabbar button{border:0;background:none;display:flex;flex-direction:column;align-items:center;gap:3px;padding:10px 4px 9px;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.tabbar button .ic{width:24px;height:24px}
+.tabbar button[aria-selected="true"]{color:var(--accent)}
+.tabbar button[aria-selected="true"] .ic{stroke-width:2.3}
+.tabdot{width:5px;height:5px;border-radius:50%;background:transparent}
+.tabbar button[aria-selected="true"] .tabdot{background:var(--accent)}
+.toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--surface);padding:11px 16px;border-radius:14px;font-weight:600;font-size:14px;z-index:40;width:max-content;max-width:calc(100% - 32px);text-align:center}
+.savedot{margin-left:auto;font-size:12px;color:var(--muted);text-align:right}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
-<header>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-shuttle" viewBox="0 0 24 24"><circle cx="6.5" cy="17.5" r="3"/><path d="M8.6 15.4 18.5 5.5M7.8 14.6 13 4.2M9.4 16.2 19.8 11M13 4.2l3.2-1 4.6 4.6-1 3.2"/></symbol>
+  <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.6-3.6 3.2-5.6 6.5-5.6s5.9 2 6.5 5.6"/><circle cx="17" cy="9" r="2.6"/><path d="M16.5 14.5c2.7.1 4.4 1.8 5 4.7"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></symbol>
+  <symbol id="i-cup" viewBox="0 0 24 24"><path d="M6 4h12l-1.6 15.2a2 2 0 0 1-2 1.8H9.6a2 2 0 0 1-2-1.8L6 4z"/><path d="M6.6 9.5h10.8M13 4l2-2.5"/></symbol>
+  <symbol id="i-poll" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M8 16v-4M12 16V8M16 16v-6"/></symbol>
+  <symbol id="i-wallet" viewBox="0 0 24 24"><path d="M3 7.5A2.5 2.5 0 0 1 5.5 5H18v3"/><rect x="3" y="8" width="18" height="12" rx="2.5"/><circle cx="16.5" cy="14" r="1.3"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M4.5 12.5 9.5 17.5 19.5 6.5"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol>
+  <symbol id="i-left" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></symbol>
+  <symbol id="i-right" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></symbol>
+  <symbol id="i-share" viewBox="0 0 24 24"><path d="M12 3v12M7.5 7.5 12 3l4.5 4.5"/><path d="M5 12v6.5A2.5 2.5 0 0 0 7.5 21h9a2.5 2.5 0 0 0 2.5-2.5V12"/></symbol>
+  <symbol id="i-chat" viewBox="0 0 24 24"><path d="M20.5 11.6a8.4 8.4 0 0 1-12.4 7.4L3.5 20.5l1.5-4.4A8.4 8.4 0 1 1 20.5 11.6z"/><path d="M8.5 10.5h7M8.5 13.5h4.5"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2.5"/><path d="M16 8V6.5A2.5 2.5 0 0 0 13.5 4h-7A2.5 2.5 0 0 0 4 6.5v7A2.5 2.5 0 0 0 6.5 16H8"/></symbol>
+  <symbol id="i-camera" viewBox="0 0 24 24"><path d="M4 8.5A2.5 2.5 0 0 1 6.5 6h1.8l1.5-2h4.4l1.5 2h1.8A2.5 2.5 0 0 1 20 8.5v9a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 4 17.5z"/><circle cx="12" cy="12.5" r="3.5"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/></symbol>
+  <symbol id="i-rupee" viewBox="0 0 24 24"><path d="M6 4h12M6 8.5h12M9 4c3.5 0 6 1.5 6 4.5S12.5 13 9 13h-2l8.5 7.5"/></symbol>
+  <symbol id="i-cal" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/></symbol>
+  <symbol id="i-palette" viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 0 18c1.4 0 2-1 2-2 0-1.6-1.6-1.8-1.6-3.2 0-1 .8-1.8 1.8-1.8H17a4 4 0 0 0 4-4C21 6.2 17 3 12 3z"/><circle cx="7.5" cy="11" r="1.2"/><circle cx="10.5" cy="7" r="1.2"/><circle cx="15" cy="7.5" r="1.2"/></symbol>
+  <symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+</svg>
+
+<header class="top">
   <div class="wrap">
-    <div class="brand">
-      <svg width="30" height="30" viewBox="0 0 32 32" aria-hidden="true"><circle cx="9" cy="23" r="6" fill="#F2BE12"/><path d="M12 19 L26 4 M9 18 L18 3 M14 21 L29 10" stroke="#fff" stroke-width="2.4" stroke-linecap="round" fill="none"/><path d="M12 19 L18 3 L26 4 L29 10 L14 21Z" fill="#fff" opacity=".25"/></svg>
-      <div><h1>Shuttle Split</h1><small>Court · Shuttles · Drinks</small></div>
-      <div class="status"><span id="status">Loading…</span><button class="authbtn" id="authbtn" hidden>Sign in</button></div>
-    </div>
-    <nav role="tablist">
-      <button role="tab" id="tab-day" aria-selected="true">Day</button>
-      <button role="tab" id="tab-polls" aria-selected="false">Polls</button>
-      <button role="tab" id="tab-share" aria-selected="false">Share</button>
-      <button role="tab" id="tab-players" aria-selected="false">Players</button>
-    </nav>
+    <div class="avatar" id="avatar"><svg class="ic"><use href="#i-shuttle"/></svg></div>
+    <div class="brandtxt"><span class="eyebrow">Shuttle Split</span><b id="gname">Badminton Family</b></div>
+    <button class="pill" id="authbtn" hidden><svg class="ic" style="width:16px;height:16px"><use href="#i-lock"/></svg><span>Sign in</span></button>
   </div>
 </header>
 
 <main>
-  <div class="wrap" id="view-day"></div>
-  <div class="wrap" id="view-polls" hidden></div>
-  <div class="wrap" id="view-share" hidden></div>
-  <div class="wrap" id="view-players" hidden></div>
+  <div class="wrap view" id="view-day"></div>
+  <div class="wrap view" id="view-polls" hidden></div>
+  <div class="wrap view" id="view-pay" hidden></div>
+  <div class="wrap view" id="view-team" hidden></div>
 </main>
+
+<nav class="tabbar" aria-label="Sections">
+  <div class="wrap" role="tablist">
+    <button role="tab" data-tab="day" aria-selected="true"><svg class="ic"><use href="#i-shuttle"/></svg>Today<i class="tabdot"></i></button>
+    <button role="tab" data-tab="polls" aria-selected="false"><svg class="ic"><use href="#i-poll"/></svg>Polls<i class="tabdot"></i></button>
+    <button role="tab" data-tab="pay" aria-selected="false"><svg class="ic"><use href="#i-wallet"/></svg>Payouts<i class="tabdot"></i></button>
+    <button role="tab" data-tab="team" aria-selected="false"><svg class="ic"><use href="#i-users"/></svg>Team<i class="tabdot"></i></button>
+  </div>
+</nav>
+<div class="toast" id="toast" role="status" hidden></div>
 <canvas id="cv" hidden></canvas>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script>
-/* ===== 1. Paste your Firebase web config here (Firebase console → Project settings → Your apps) ===== */
+/* ===== Firebase web config (Project settings → Your apps) ===== */
 const FIREBASE_CONFIG = {
   apiKey: "AIzaSyAlY9WxJ8Q_pbDiJQ2XQmsLpBug3KBtyPQ",
   authDomain: "gg-dvg-badminton-league.firebaseapp.com",
@@ -148,632 +267,698 @@ const FIREBASE_CONFIG = {
   messagingSenderId: "426882143669",
   appId: "1:426882143669:web:b8acbcafbbb47756a035fc"
 };
-/* Collections get this prefix so they never clash with your league app's data in the same project */
+/* Collections get this prefix so they never clash with the league app's data */
 const COLLECTION_PREFIX = "shuttleSplit_";
 /* Starting player list, used only until the first save */
 const DEFAULT_PLAYERS = ["Manju","Ashwini","Pavan","Praveen","Santhosh","Karthik","Ram","Suresh","Sheela","Uma","Shwetha"];
 </script>
 <script>
 (function(){
+'use strict';
+/* ---------- helpers ---------- */
 const $=s=>document.querySelector(s);
-const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const LS='shuttle-split-v1';
-const S={roster:[],rate:300,courts:1,days:{}};
-let db=null, curDate=todayStr(), tab='day', shareSel=null, readOnly=false;
-
-function todayStr(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
-function shift(ds,n){const d=new Date(ds+'T00:00');d.setDate(d.getDate()+n);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
-function dlabel(ds,long){const d=new Date(ds+'T00:00');return d.toLocaleDateString('en-IN',long?{weekday:'long',day:'numeric',month:'short',year:'numeric'}:{weekday:'short',day:'numeric',month:'short'})}
-const inr=n=>'₹'+Number(n).toLocaleString('en-IN',{maximumFractionDigits:2});
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const ic=(n,st)=>`<svg class="ic"${st?` style="${st}"`:''}><use href="#i-${n}"/></svg>`;
+const norm=s=>String(s||'').trim().replace(/\s+/g,' ');
+const nkey=s=>norm(s).toLowerCase();
+const ymd=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+const todayStr=()=>ymd(new Date());
+const shift=(ds,n)=>{const d=new Date(ds+'T00:00');d.setDate(d.getDate()+n);return ymd(d)};
+const dlabel=(ds,o)=>new Date(ds+'T00:00').toLocaleDateString('en-IN',o||{weekday:'short',day:'numeric',month:'short'});
+const inr=n=>'₹'+Number(n||0).toLocaleString('en-IN',{maximumFractionDigits:2});
 const r2=n=>Math.round(n*100)/100;
+const fmtH=h=>(Math.round(h*100)/100).toString();
+const initials=n=>norm(n).split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
 
-function loadLocal(){try{const j=JSON.parse(localStorage.getItem(LS)||'null');if(j&&typeof j==='object'){Object.assign(S,j)}}catch(e){}}
+/* ---------- themes ---------- */
+const SKINS={
+  court:{name:'Court',accent:'#0B7A4E',ink:'#FFFFFF',pop:'#FFD23F',popInk:'#1A1A1A',bg:'#F5F8F3'},
+  smash:{name:'Smash',accent:'#E0344A',ink:'#FFFFFF',pop:'#1E2A5E',popInk:'#FFFFFF',bg:'#FBF5F4'},
+  ocean:{name:'Ocean',accent:'#1F4FD1',ink:'#FFFFFF',pop:'#F6BE2C',popInk:'#1A1A1A',bg:'#F3F6FC'},
+  sunset:{name:'Sunset',accent:'#7B3FE4',ink:'#FFFFFF',pop:'#FF8A3D',popInk:'#1A1A1A',bg:'#F8F5FD'},
+  mono:{name:'Mono',accent:'#111111',ink:'#FFFFFF',pop:'#111111',popInk:'#FFFFFF',bg:'#FFFFFF'}
+};
+const darkMQ=window.matchMedia?matchMedia('(prefers-color-scheme: dark)'):{matches:false};
+function mix(a,b,t){const p=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16));const A=p(a),B=p(b);return'#'+A.map((v,i)=>Math.round(v*t+B[i]*(1-t)).toString(16).padStart(2,'0')).join('')}
+function skinColors(){const k=SKINS[S.skin]?S.skin:'court',s={...SKINS[k]};
+  if(darkMQ.matches){if(k==='mono'){s.accent='#F2F2F2';s.ink='#111111';s.pop='#F2F2F2';s.popInk='#111111'}s.bg='#0F1011';s.soft=mix(s.accent,'#191B1D',.22)}
+  else s.soft=mix(s.accent,'#FFFFFF',.13);return s}
+function applySkin(){const s=skinColors(),r=document.documentElement.style;
+  r.setProperty('--accent',s.accent);r.setProperty('--accent-ink',s.ink);r.setProperty('--pop',s.pop);r.setProperty('--pop-ink',s.popInk);r.setProperty('--bg',s.bg);r.setProperty('--soft',s.soft);
+  const m=document.querySelector('meta[name=theme-color]');if(m)m.content=s.bg}
+if(darkMQ.addEventListener)darkMQ.addEventListener('change',applySkin);
+
+/* ---------- state ---------- */
+const LS='shuttle-split-v1', LSP='shuttle-split-photo';
+const S={roster:[],rate:300,courts:1,groupName:'',skin:'court',days:{}};
+let photo='', db=null, auth=null, isOrg=false, tab='day', curDate=todayStr();
+const canEdit=()=>!db||isOrg;
+function loadLocal(){try{const j=JSON.parse(localStorage.getItem(LS)||'null');if(j&&typeof j==='object')Object.assign(S,j);photo=localStorage.getItem(LSP)||''}catch(e){}
+  S.days=S.days||{};Object.keys(S.days).forEach(k=>S.days[k]=normDay(S.days[k],k))}
 function saveLocal(){try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}}
 
-/* ---------- writes (one at a time per doc, debounced) ---------- */
+/* ---------- writes: one at a time per document, debounced ---------- */
 const pending={},inflight={},timers={};
-function fsDoc(path){return db.doc(path.replace(/^([^/]+)\//,COLLECTION_PREFIX+'$1/'))}
-function queueWrite(path,val){if(db&&readOnly){toast('Sign in as the organizer to make changes.');return}saveLocal();if(!db)return;pending[path]=val;clearTimeout(timers[path]);timers[path]=setTimeout(()=>flush(path),450);setStatus('Saving…')}
+const fsDoc=path=>db.doc(path.replace(/^([^/]+)\//,COLLECTION_PREFIX+'$1/'));
+const busy=p=>(p in pending)||!!inflight[p];
+function queueWrite(path,val){saveLocal();if(!db)return;pending[path]=val;clearTimeout(timers[path]);timers[path]=setTimeout(()=>flush(path),450)}
 async function flush(path){
   if(inflight[path]||!(path in pending))return;
   const v=pending[path];delete pending[path];inflight[path]=true;
-  try{const ref=fsDoc(path);if(v===null)await ref.delete();else await ref.set(v);setStatus('Saved')}
-  catch(e){
-    if(e&&e.code==='permission-denied'){readOnly=true;setStatus('View only');toast('This account can view but not edit. Ask the organizer.')}
-    else toast('Could not save ('+((e&&e.code)||'error')+'). Your change is kept on this phone.');
-  }
+  try{const ref=fsDoc(path);if(v===null)await ref.delete();else await ref.set(v)}
+  catch(e){toast(e&&e.code==='permission-denied'?'Only the organizer can change this. Sign in first.':'Couldn’t save ('+((e&&e.code)||'error')+'). Kept on this phone.')}
   inflight[path]=false;if(path in pending)flush(path);
 }
-const busy=p=>(p in pending)||inflight[p];
+function saveConfig(){queueWrite('config/main',{roster:S.roster,rate:S.rate,courts:1,groupName:S.groupName||'',skin:S.skin||'court'})}
 
-/* ---------- model ---------- */
-function blankDay(date){return{date,present:[],hours:2,rate:S.rate,courts:S.courts,shuttle:0,shuttleSkip:[],drinksOn:false,drinks:0,drinksSkip:[]}}
-function getDay(date){return S.days[date]?JSON.parse(JSON.stringify(S.days[date])):blankDay(date)}
-function isEmpty(d){return !d.present.length&&!(+d.shuttle)&&!(+d.drinks)}
-function setDay(d){
-  if(readOnly){toast(db?'Sign in as the organizer to make changes.':'Set up Firebase to save changes.');return}
-  if(isEmpty(d)){delete S.days[d.date];queueWrite('days/'+d.date,null)}
-  else{S.days[d.date]=d;queueWrite('days/'+d.date,d)}
+/* ---------- days & money ---------- */
+function blankDay(date){return{date,present:[],hours:2,rate:S.rate,courts:1,shuttle:0,shuttleSkip:[],drinksOn:false,drinks:0,drinksSkip:[]}}
+function normDay(d,date){
+  const x=Object.assign(blankDay(date),d||{});
+  x.present=[...(x.present||[])];x.shuttleSkip=[...(x.shuttleSkip||[])];x.drinksSkip=[...(x.drinksSkip||[])];
+  x.hours=+x.hours||0;x.rate=+x.rate||0;x.shuttle=+x.shuttle||0;x.drinks=+x.drinks||0;x.drinksOn=!!x.drinksOn;
+  if(+x.courts>1)x.hours=r2(x.hours*(+x.courts)); /* older days: fold courts into total hours */
+  x.courts=1;return x;
 }
-function saveConfig(){queueWrite('config/main',{roster:S.roster,rate:S.rate,courts:S.courts})}
-
+const getDay=date=>S.days[date]?normDay(S.days[date],date):blankDay(date);
 function calc(d){
-  const n=d.present.length;
-  const court=(+d.hours||0)*(+d.rate||0)*(+d.courts||1);
-  const shSharers=d.present.filter(p=>!d.shuttleSkip.includes(p));
-  const drSharers=d.drinksOn?d.present.filter(p=>!d.drinksSkip.includes(p)):[];
+  const n=d.present.length, court=(+d.hours||0)*(+d.rate||0);
+  const shS=d.present.filter(p=>!d.shuttleSkip.includes(p));
+  const drS=d.drinksOn?d.present.filter(p=>!d.drinksSkip.includes(p)):[];
   const shuttle=+d.shuttle||0, drinks=d.drinksOn?(+d.drinks||0):0;
-  const cEach=n?Math.ceil(court/n):0, sEach=shSharers.length&&shuttle?Math.ceil(shuttle/shSharers.length):0, dEach=drSharers.length&&drinks?Math.ceil(drinks/drSharers.length):0;
-  const per={};
-  d.present.forEach(p=>{per[p]={court:cEach,shuttle:shSharers.includes(p)?sEach:0,drinks:drSharers.includes(p)?dEach:0};per[p].total=per[p].court+per[p].shuttle+per[p].drinks});
+  const cEach=n?Math.ceil(court/n):0, sEach=shS.length&&shuttle?Math.ceil(shuttle/shS.length):0, dEach=drS.length&&drinks?Math.ceil(drinks/drS.length):0;
+  const per={};d.present.forEach(p=>{const o={court:cEach,shuttle:shS.includes(p)?sEach:0,drinks:drS.includes(p)?dEach:0};o.total=o.court+o.shuttle+o.drinks;per[p]=o});
   const actual=court+shuttle+drinks, collected=Object.values(per).reduce((a,b)=>a+b.total,0);
-  return{n,court,shuttle,drinks,cEach,sEach,dEach,shN:shSharers.length,drN:drSharers.length,per,actual,collected,
-    courtExact:n?court/n:0,shExact:shSharers.length?shuttle/shSharers.length:0,drExact:drSharers.length?drinks/drSharers.length:0};
+  return{n,court,shuttle,drinks,cEach,sEach,dEach,shN:shS.length,drN:drS.length,per,actual,collected,
+    cExact:n?court/n:0,sExact:shS.length?shuttle/shS.length:0,dExact:drS.length?drinks/drS.length:0};
+}
+const playedDays=()=>Object.keys(S.days).filter(k=>S.days[k].present&&S.days[k].present.length).sort().reverse();
+function orderNames(arr){const ix=n=>{const i=S.roster.findIndex(r=>nkey(r)===nkey(n));return i<0?999:i};return[...arr].sort((a,b)=>ix(a)-ix(b)||a.localeCompare(b))}
+
+/* ---------- duplicate name check ---------- */
+function lev(a,b){const m=a.length,n=b.length;if(Math.abs(m-n)>2)return 9;const d=Array.from({length:m+1},(_,i)=>[i]);for(let j=1;j<=n;j++)d[0][j]=j;
+  for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)d[i][j]=Math.min(d[i-1][j]+1,d[i][j-1]+1,d[i-1][j-1]+(a[i-1]===b[j-1]?0:1));return d[m][n]}
+function nameCheck(n,list){const k=nkey(n);if(!k)return null;list=list||S.roster;
+  const ex=list.find(r=>nkey(r)===k);if(ex)return{type:'dup',name:ex};
+  const nr=list.find(r=>{const rk=nkey(r);return(k.length>3&&rk.length>3&&lev(rk,k)<=1)||rk.split(' ')[0]===k.split(' ')[0]});
+  return nr?{type:'near',name:nr}:null}
+
+/* ---------- UI bits ---------- */
+let toastT;function toast(m){const t=$('#toast');t.textContent=m;t.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>t.hidden=true,2800)}
+function copyText(t,msg){const ok=()=>toast(msg||'Copied. Paste it in your WhatsApp group.');
+  const fb=()=>{const a=document.createElement('textarea');a.value=t;a.style.position='fixed';a.style.opacity='0';document.body.appendChild(a);a.select();try{document.execCommand('copy');ok()}catch(e){toast('Select the text and copy it.')}a.remove()};
+  try{navigator.clipboard.writeText(t).then(ok,fb)}catch(e){fb()}}
+const waHref=t=>'https://wa.me/?text='+encodeURIComponent(t);
+const signinNotice=what=>db&&!isOrg?`<div class="notice">${ic('lock')}<p>You’re viewing. Sign in as the organizer to ${what}.</p><button class="btn" data-signin>Sign in</button></div>`:'';
+function renderHeader(){
+  $('#gname').textContent=S.groupName||'Badminton Family';
+  $('#avatar').innerHTML=photo?`<img src="${photo}" alt="">`:ic('shuttle');
+  const ab=$('#authbtn');ab.hidden=!db;ab.classList.toggle('on',isOrg);
+  ab.querySelector('span').textContent=isOrg?'Organizer':'Sign in';
 }
 
-/* ---------- UI helpers ---------- */
-let toastT;function toast(msg){let t=$('.toast');if(!t){t=document.createElement('div');t.className='toast';t.setAttribute('role','status');document.body.appendChild(t)}t.textContent=msg;t.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>t.hidden=true,2600)}
-function setStatus(s){$('#status').textContent=s}
-function orderNames(names){const idx=n=>{const i=S.roster.indexOf(n);return i<0?999:i};return [...names].sort((a,b)=>idx(a)-idx(b)||a.localeCompare(b))}
-
-/* ---------- DAY VIEW ---------- */
-function renderDay(full=true){
-  const v=$('#view-day'), d=getDay(curDate);
-  if(full||!v.firstChild){
-    v.innerHTML=`
+/* ================= TODAY ================= */
+let dayConfirmClear=false, guestPending='';
+function renderDay(){
+  const v=$('#view-day'), d=getDay(curDate), isToday=curDate===todayStr();
+  v.innerHTML=`
+  <div class="pagehead"><span class="eyebrow">Record a play day</span><h1 class="page">Today’s <em>game</em></h1></div>
+  ${signinNotice('record days')}
+  <div class="card datebar">
+    <button class="round" data-act="prev" aria-label="Previous day">${ic('left')}</button>
+    <label class="datebtn"><span class="d1">${esc(dlabel(curDate,{weekday:'long'}))}</span><span class="d2">${esc(dlabel(curDate,{day:'numeric',month:'long',year:'numeric'}))}</span>${isToday?'<span class="todaytag">TODAY</span>':''}
+      <input type="date" id="date" value="${curDate}" aria-label="Choose date"></label>
+    <button class="round" data-act="next" aria-label="Next day">${ic('right')}</button>
+  </div>
+  <fieldset id="dayfs" ${canEdit()?'':'disabled'}>
     <section class="card">
-      <div class="datebar">
-        <button class="iconbtn" id="prev" aria-label="Previous day">‹</button>
-        <input type="date" id="date" value="${curDate}" aria-label="Play date">
-        <button class="iconbtn" id="next" aria-label="Next day">›</button>
-      </div>
-      <p class="daylabel">${esc(dlabel(curDate,true))}</p>
-    </section>
-    <section class="card">
-      <div class="sec-h"><h2>Who played</h2><span class="badge" id="pcount"></span></div>
+      <div class="step-h"><span class="tile">${ic('users')}</span><div><span class="eyebrow">Step 1</span><h2>Who played?</h2></div><span class="count" id="pcount">0</span></div>
       <div class="chips" id="att"></div>
-      <div class="row"><button class="link" id="all">Mark all</button><button class="link" id="none">Clear</button><button class="link" id="frompoll" hidden>Fill from poll</button></div>
-      <div class="row"><input class="textin" id="guest" placeholder="Add a guest or new player" style="flex:1;min-width:0"><button class="btn ghost" id="addguest">Add</button></div>
+      <div class="row"><button type="button" class="link" data-act="all">Select all</button><button type="button" class="link" data-act="none">Clear</button><button type="button" class="link" data-act="frompoll" id="frompoll" hidden>${ic('poll','width:16px;height:16px;vertical-align:-3px')} Fill from poll</button></div>
+      <div class="addrow"><input class="txt" id="guest" placeholder="Add a guest or new player" autocomplete="off" enterkeyhint="done"><button type="button" class="btn primary small" data-act="addguest">${ic('plus')}Add</button></div>
+      <p class="warn" id="guestwarn" hidden></p>
     </section>
     <section class="card">
-      <div class="sec-h"><h2>Court</h2><span class="badge" id="courtamt"></span></div>
-      <div class="grid3">
-        <div class="field"><span class="lbl">Hours played</span><div class="stepper"><button id="h-" aria-label="Less time">−</button><output id="hours"></output><button id="h+" aria-label="More time">+</button></div></div>
-        <div class="field"><label for="rate">Per hour</label><div class="money"><span>₹</span><input id="rate" type="number" inputmode="decimal" min="0" value="${d.rate}"></div></div>
-        <div class="field"><span class="lbl">Courts</span><div class="stepper"><button id="c-" aria-label="Fewer courts">−</button><output id="courts"></output><button id="c+" aria-label="More courts">+</button></div></div>
+      <div class="step-h"><span class="tile">${ic('clock')}</span><div><span class="eyebrow">Step 2</span><h2>Court time</h2></div></div>
+      <div class="hours"><button type="button" class="round big" data-act="h-" aria-label="Half an hour less">${ic('minus')}</button><div class="hval"><b id="hval">2</b><span>hours</span></div><button type="button" class="round big" data-act="h+" aria-label="Half an hour more">${ic('plus')}</button></div>
+      <div class="chips center" id="hpre"></div>
+      <p class="hint" style="text-align:center">Total hours booked across all courts. 2 courts × 2 hrs = 4.</p>
+      <div class="field"><label for="rate">Court rate</label><div class="money"><span>₹</span><input id="rate" type="number" inputmode="decimal" min="0" value="${d.rate||''}" placeholder="300"><span class="suf">per hour</span></div></div>
+      <div class="totline"><span>Court cost</span><b id="courttot"></b></div>
+    </section>
+    <section class="card">
+      <div class="step-h"><span class="tile">${ic('shuttle')}</span><div><span class="eyebrow">Step 3</span><h2>Shuttles</h2></div></div>
+      <div class="field"><label for="shuttle">Shuttle cost for the day</label><div class="money"><span>₹</span><input id="shuttle" type="number" inputmode="decimal" min="0" placeholder="0 if none" value="${d.shuttle||''}"></div></div>
+      <div class="reveal" id="shwrap" hidden><span class="lbl">Shared by · tap to leave someone out</span><div class="chips" id="shchips"></div></div>
+    </section>
+    <section class="card">
+      <div class="step-h"><span class="tile">${ic('cup')}</span><div><span class="eyebrow">Step 4</span><h2>Drinks</h2></div></div>
+      <div class="seg" role="group" aria-label="Drinks taken?"><button type="button" data-act="drinks-no" id="drno">No drinks</button><button type="button" data-act="drinks-yes" id="dryes">${ic('cup','width:17px;height:17px')}Drinks taken</button></div>
+      <div class="reveal" id="drwrap" hidden>
+        <div class="field"><label for="drinks">Drinks total</label><div class="money"><span>₹</span><input id="drinks" type="number" inputmode="decimal" min="0" placeholder="Amount" value="${d.drinks||''}"></div></div>
+        <span class="lbl">Shared by · tap anyone who didn’t have one</span><div class="chips" id="drchips"></div>
       </div>
     </section>
-    <section class="card">
-      <div class="sec-h"><h2>Shuttles</h2></div>
-      <div class="field"><label for="shuttle">Shuttle cost for the day</label><div class="money"><span>₹</span><input id="shuttle" type="number" inputmode="decimal" min="0" placeholder="0" value="${+d.shuttle||''}"></div></div>
-      <div id="shWrap"><p class="hint">Shared by (tap to leave someone out)</p><div class="chips" id="shChips"></div></div>
-    </section>
-    <section class="card">
-      <div class="sec-h"><h2>Drinks</h2></div>
-      <label class="toggle"><input type="checkbox" id="drOn" ${d.drinksOn?'checked':''}> Drinks taken today</label>
-      <div id="drWrap">
-        <div class="field"><label for="drinks">Drinks total</label><div class="money"><span>₹</span><input id="drinks" type="number" inputmode="decimal" min="0" placeholder="0" value="${+d.drinks||''}"></div></div>
-        <p class="hint" style="margin-top:10px">Shared by (tap anyone who didn’t have a drink)</p><div class="chips" id="drChips"></div>
-      </div>
-    </section>
-    <section class="card sum" id="sum"></section>`;
-    bindDay();
-  }
-  // dynamic parts
-  {const fp=$('#frompoll');if(fp)fp.hidden=!(db&&!readOnly&&pollForDate(curDate));}
-  $('#pcount').textContent=d.present.length+' of '+S.roster.length;
-  $('#att').innerHTML=S.roster.length?S.roster.map(p=>`<button class="chip" data-p="${esc(p)}" aria-pressed="${d.present.includes(p)}">${esc(p)}</button>`).join('')
-    :`<p class="hint">No players yet. Add names below or in the Players tab.</p>`;
-  $('#hours').textContent=(+d.hours)+' hr';
-  $('#courts').textContent=d.courts;
-  const c=calc(d);
-  $('#courtamt').textContent=inr(c.court);
-  $('#shWrap').hidden=!(+d.shuttle)||!d.present.length;
-  $('#shChips').innerHTML=orderNames(d.present).map(p=>`<button class="chip small ${d.shuttleSkip.includes(p)?'off':''}" data-sh="${esc(p)}">${esc(p)}</button>`).join('');
-  $('#drWrap').hidden=!d.drinksOn;
-  $('#drChips').innerHTML=orderNames(d.present).map(p=>`<button class="chip small ${d.drinksSkip.includes(p)?'off':''}" data-dr="${esc(p)}">${esc(p)}</button>`).join('');
-  const diff=c.collected-c.actual;
-  $('#sum').innerHTML=c.n?`
-    <div class="sec-h"><h2>${esc(dlabel(curDate))}</h2><span class="lbl">${c.n} players</span></div>
-    <div class="sum-lines">
-      <div><span>Court ${inr(c.court)}</span><b>${inr(c.cEach)} each</b></div>
-      <div class="eq"><span>${+d.hours} hr × ${inr(d.rate)}${d.courts>1?' × '+d.courts+' courts':''} ÷ ${c.n} = ${inr(r2(c.courtExact))}</span></div>
-      ${c.shuttle?`<div><span>Shuttles ${inr(c.shuttle)}</span><b>${inr(c.sEach)} each</b></div><div class="eq"><span>÷ ${c.shN} players = ${inr(r2(c.shExact))}</span></div>`:''}
-      ${c.drinks?`<div><span>Drinks ${inr(c.drinks)}</span><b>${inr(c.dEach)} each</b></div><div class="eq"><span>÷ ${c.drN} players = ${inr(r2(c.drExact))}</span></div>`:''}
+  </fieldset>
+  <section class="card summary" id="sum"></section>
+  ${S.days[curDate]&&canEdit()?`<div class="row center">${dayConfirmClear?`<span class="hint">Remove everything recorded for this day?</span><button class="link" data-act="clear-no">Keep</button><button class="btn danger small" data-act="clear-yes">Clear day</button>`:`<button class="link danger" data-act="clear">${ic('trash','width:16px;height:16px;vertical-align:-3px')} Clear this day</button>`}</div>`:''}`;
+  refreshDay();
+}
+function refreshDay(){
+  const v=$('#view-day');if(!v.querySelector('#att'))return;
+  const d=getDay(curDate), c=calc(d);
+  $('#pcount').textContent=d.present.length;
+  const extra=d.present.filter(p=>!S.roster.some(r=>nkey(r)===nkey(p)));
+  const names=[...S.roster,...extra];
+  $('#att').innerHTML=names.length?names.map(p=>`<button type="button" class="chip ${d.present.includes(p)?'on':''}" data-act="toggle" data-v="${esc(p)}" aria-pressed="${d.present.includes(p)}">${ic('check')}${esc(p)}</button>`).join(''):'<p class="hint">No players yet. Add names below or in the Team tab.</p>';
+  $('#hval').textContent=fmtH(d.hours);
+  $('#hpre').innerHTML=[1,1.5,2,3,4,6].map(h=>`<button type="button" class="chip sm ${d.hours===h?'on':''}" data-act="hset" data-v="${h}">${ic('check')}${fmtH(h)} h</button>`).join('');
+  $('#courttot').textContent=fmtH(d.hours)+' h × '+inr(d.rate)+' = '+inr(c.court);
+  $('#shwrap').hidden=!(d.shuttle>0&&d.present.length);
+  $('#shchips').innerHTML=orderNames(d.present).map(p=>`<button type="button" class="chip sm ${d.shuttleSkip.includes(p)?'out':'on'}" data-act="sh" data-v="${esc(p)}">${ic('check')}${esc(p)}</button>`).join('');
+  $('#drno').setAttribute('aria-pressed',String(!d.drinksOn));$('#dryes').setAttribute('aria-pressed',String(d.drinksOn));
+  $('#drwrap').hidden=!d.drinksOn;
+  $('#drchips').innerHTML=d.present.length?orderNames(d.present).map(p=>`<button type="button" class="chip sm ${d.drinksSkip.includes(p)?'out':'on'}" data-act="dr" data-v="${esc(p)}">${ic('check')}${esc(p)}</button>`).join(''):'<p class="hint">Tick who played in Step 1 first.</p>';
+  const fp=$('#frompoll');if(fp)fp.hidden=!(db&&canEdit()&&pollForDate(curDate));
+  renderSummary(d,c);
+}
+function renderSummary(d,c){
+  const el=$('#sum');
+  if(!c.n){el.innerHTML=`<div class="sum-empty">${ic('shuttle')}<b>Tap who played</b><span style="opacity:.8">Everyone’s share shows up here as you go.</span></div>`;return}
+  const amts=[...new Set(Object.values(c.per).map(x=>x.total))];
+  el.innerHTML=`
+    <span class="eyebrow">${esc(dlabel(curDate,{weekday:'long',day:'numeric',month:'short'}))} · ${c.n} players</span>
+    <div class="bigtot"><span style="font-weight:700">${amts.length===1?'Each pays':'To collect'}</span><b>${inr(amts.length===1?amts[0]:c.collected)}</b></div>
+    <div class="sumlines">
+      <div>${ic('clock')}<span>Court<small>${fmtH(d.hours)} h × ${inr(d.rate)} ÷ ${c.n} = ${inr(r2(c.cExact))}</small></span><span class="amt">${inr(c.cEach)}</span></div>
+      ${c.shuttle?`<div>${ic('shuttle')}<span>Shuttles<small>${inr(c.shuttle)} ÷ ${c.shN} = ${inr(r2(c.sExact))}</small></span><span class="amt">${inr(c.sEach)}</span></div>`:''}
+      ${c.drinks?`<div>${ic('cup')}<span>Drinks<small>${inr(c.drinks)} ÷ ${c.drN} = ${inr(r2(c.dExact))}</small></span><span class="amt">${inr(c.dEach)}</span></div>`:''}
     </div>
-    <div class="pp">${orderNames(d.present).map(p=>`<span>${esc(p)}</span><span>${inr(c.per[p].total)}</span>`).join('')}</div>
-    <div class="sum-total"><span><span class="lbl">To collect</span><br><small style="color:#C7D3F5">Cost ${inr(c.actual)}${diff>0?' · +'+inr(diff)+' from rounding':''}</small></span><b>${inr(c.collected)}</b></div>
-    <button class="btn" style="background:var(--shuttle);color:#0E1B3D" id="goShare">Share to WhatsApp</button>`
-    :`<div class="empty" style="color:#C7D3F5">Tap the players who came today to see each person’s share.</div>`;
-  const gs=$('#goShare');if(gs)gs.onclick=()=>{shareSel=null;const sel=defaultSel();if(!sel.includes(curDate))sel.unshift(curDate);shareSel=sel;go('share')};
+    ${amts.length>1?`<div class="pp">${orderNames(d.present).map(p=>`<span>${esc(p)}</span><span>${inr(c.per[p].total)}</span>`).join('')}</div>`:''}
+    <div class="totline" style="border-color:rgba(255,255,255,.3)"><span>Cost ${inr(c.actual)}${c.collected>c.actual?' · rounded up':''}</span><b>${inr(c.collected)}</b></div>
+    <button class="btn pop" data-act="topay">${ic('share')}Make payout poster</button>`;
+}
+function editDay(fn){
+  if(!canEdit()){toast('Sign in as the organizer to make changes.');return}
+  const d=getDay(curDate);fn(d);S.days[curDate]=d;queueWrite('days/'+curDate,d);
+  if(dayConfirmClear){dayConfirmClear=false}
+  refreshDay();
+}
+function addGuest(force){
+  const inp=$('#guest'),n=norm(inp.value),w=$('#guestwarn');if(!n)return;
+  const chk=nameCheck(n,S.roster);
+  if(chk&&chk.type==='dup'){inp.value='';w.hidden=true;editDay(d=>{if(!d.present.includes(chk.name))d.present.push(chk.name)});toast(chk.name+' is already on the team. Marked as played.');return}
+  if(chk&&chk.type==='near'&&!force){guestPending=n;w.hidden=false;w.innerHTML=`<span>Looks like <b>${esc(chk.name)}</b>. Same person?</span><button type="button" class="btn ghost small" data-act="guest-same" data-v="${esc(chk.name)}">Yes, ${esc(chk.name)}</button><button type="button" class="btn primary small" data-act="guest-new">No, add ${esc(n)}</button>`;return}
+  inp.value='';w.hidden=true;S.roster.push(n);saveConfig();editDay(d=>{d.present.push(n)});toast(n+' added to the team.');
 }
 function bindDay(){
-  const upd=(fn,full)=>{const d=getDay(curDate);fn(d);setDay(d);renderDay(!!full||(readOnly&&!!db))};
-  $('#prev').onclick=()=>{curDate=shift(curDate,-1);renderDay()};
-  $('#next').onclick=()=>{curDate=shift(curDate,1);renderDay()};
-  $('#date').onchange=e=>{if(e.target.value){curDate=e.target.value;renderDay()}};
-  $('#att').onclick=e=>{const b=e.target.closest('[data-p]');if(!b)return;const p=b.dataset.p;upd(d=>{d.present=d.present.includes(p)?d.present.filter(x=>x!==p):[...d.present,p]})};
-  $('#all').onclick=()=>upd(d=>{d.present=[...S.roster]});
-  $('#none').onclick=()=>upd(d=>{d.present=[]});
-  $('#frompoll').onclick=()=>fillFromPoll(curDate);
-  const addG=()=>{const n=$('#guest').value.trim();if(!n)return;if(!S.roster.includes(n)){S.roster.push(n);saveConfig()}$('#guest').value='';upd(d=>{if(!d.present.includes(n))d.present.push(n)})};
-  $('#addguest').onclick=addG;$('#guest').onkeydown=e=>{if(e.key==='Enter')addG()};
-  $('#h-').onclick=()=>upd(d=>{d.hours=Math.max(.5,(+d.hours||0)-.5)});
-  $('#h+').onclick=()=>upd(d=>{d.hours=(+d.hours||0)+.5});
-  $('#c-').onclick=()=>upd(d=>{d.courts=Math.max(1,(+d.courts||1)-1)});
-  $('#c+').onclick=()=>upd(d=>{d.courts=(+d.courts||1)+1});
-  $('#rate').oninput=e=>upd(d=>{d.rate=Math.max(0,+e.target.value||0)});
-  $('#shuttle').oninput=e=>upd(d=>{d.shuttle=Math.max(0,+e.target.value||0)});
-  $('#drinks').oninput=e=>upd(d=>{d.drinks=Math.max(0,+e.target.value||0)});
-  $('#drOn').onchange=e=>upd(d=>{d.drinksOn=e.target.checked});
-  $('#shChips').onclick=e=>{const b=e.target.closest('[data-sh]');if(!b)return;const p=b.dataset.sh;upd(d=>{d.shuttleSkip=d.shuttleSkip.includes(p)?d.shuttleSkip.filter(x=>x!==p):[...d.shuttleSkip,p]})};
-  $('#drChips').onclick=e=>{const b=e.target.closest('[data-dr]');if(!b)return;const p=b.dataset.dr;upd(d=>{d.drinksSkip=d.drinksSkip.includes(p)?d.drinksSkip.filter(x=>x!==p):[...d.drinksSkip,p]})};
+  const v=$('#view-day');
+  v.addEventListener('click',e=>{
+    if(e.target.closest('[data-signin]')){signIn();return}
+    const b=e.target.closest('[data-act]');if(!b||b.disabled)return;
+    const a=b.dataset.act,val=b.dataset.v;
+    switch(a){
+      case'prev':curDate=shift(curDate,-1);dayConfirmClear=false;renderDay();break;
+      case'next':curDate=shift(curDate,1);dayConfirmClear=false;renderDay();break;
+      case'toggle':editDay(d=>{d.present=d.present.includes(val)?d.present.filter(x=>x!==val):[...d.present,val]});break;
+      case'all':editDay(d=>{d.present=[...new Set([...d.present,...S.roster])]});break;
+      case'none':editDay(d=>{d.present=[]});break;
+      case'h-':editDay(d=>{d.hours=Math.max(.5,r2(d.hours-.5))});break;
+      case'h+':editDay(d=>{d.hours=Math.min(48,r2(d.hours+.5))});break;
+      case'hset':editDay(d=>{d.hours=+val});break;
+      case'sh':editDay(d=>{d.shuttleSkip=d.shuttleSkip.includes(val)?d.shuttleSkip.filter(x=>x!==val):[...d.shuttleSkip,val]});break;
+      case'dr':editDay(d=>{d.drinksSkip=d.drinksSkip.includes(val)?d.drinksSkip.filter(x=>x!==val):[...d.drinksSkip,val]});break;
+      case'drinks-yes':editDay(d=>{d.drinksOn=true});setTimeout(()=>{const i=$('#drinks');if(i&&!i.value)i.focus()},60);break;
+      case'drinks-no':editDay(d=>{d.drinksOn=false});break;
+      case'addguest':addGuest(false);break;
+      case'guest-new':$('#guest').value=guestPending;addGuest(true);break;
+      case'guest-same':$('#guest').value='';$('#guestwarn').hidden=true;editDay(d=>{if(!d.present.includes(val))d.present.push(val)});break;
+      case'frompoll':fillFromPoll(curDate);break;
+      case'clear':dayConfirmClear=true;renderDay();break;
+      case'clear-no':dayConfirmClear=false;renderDay();break;
+      case'clear-yes':delete S.days[curDate];queueWrite('days/'+curDate,null);dayConfirmClear=false;renderDay();toast('Day cleared.');break;
+      case'topay':pay.range='day';pay.day=curDate;pay.off.clear();go('pay');break;
+    }
+  });
+  v.addEventListener('input',e=>{
+    const id=e.target.id,val=Math.max(0,+e.target.value||0);
+    if(id==='rate')editDay(d=>{d.rate=val});
+    else if(id==='shuttle')editDay(d=>{d.shuttle=val});
+    else if(id==='drinks')editDay(d=>{d.drinks=val});
+    else if(id==='guest')$('#guestwarn').hidden=true;
+  });
+  v.addEventListener('change',e=>{if(e.target.id==='date'&&e.target.value){curDate=e.target.value;dayConfirmClear=false;renderDay()}});
+  v.addEventListener('keydown',e=>{if(e.target.id==='guest'&&e.key==='Enter'){e.preventDefault();addGuest(false)}});
 }
 
-/* ---------- SHARE VIEW ---------- */
-function playedDays(){return Object.keys(S.days).filter(k=>S.days[k].present&&S.days[k].present.length).sort().reverse()}
-function defaultSel(){const ds=playedDays();if(!ds.length)return[];const last=ds[0];return ds.filter(k=>k>=shift(last,-2))}
-function report(sel){
-  const days=[...sel].sort().map(k=>S.days[k]).filter(Boolean);
-  const calcs=days.map(calc);
-  const names=orderNames([...new Set(days.flatMap(d=>d.present))]);
-  const rows=names.map(p=>{const cells=calcs.map(c=>c.per[p]?c.per[p].total:null);return{p,cells,total:cells.reduce((a,b)=>a+(b||0),0),count:cells.filter(x=>x!==null).length}});
-  const total=rows.reduce((a,b)=>a+b.total,0), actual=calcs.reduce((a,c)=>a+c.actual,0);
-  return{days,calcs,rows,total,actual};
+/* ================= PAYOUTS ================= */
+const pay={range:'last',from:shift(todayStr(),-6),to:todayStr(),day:null,off:new Set()};
+const RANGES=[['last','Latest'],['week','This week'],['lastweek','Last week'],['month','This month'],['lastmonth','Last month'],['custom','Pick dates']];
+function rangeOf(k){
+  const t=todayStr(),d=new Date(t+'T00:00'),dow=(d.getDay()+6)%7;
+  switch(k){
+    case'day':return[pay.day,pay.day];
+    case'week':return[shift(t,-dow),shift(t,6-dow)];
+    case'lastweek':return[shift(t,-dow-7),shift(t,-dow-1)];
+    case'month':return[t.slice(0,8)+'01',t];
+    case'lastmonth':return[ymd(new Date(d.getFullYear(),d.getMonth()-1,1)),ymd(new Date(d.getFullYear(),d.getMonth(),0))];
+    case'custom':return pay.from<=pay.to?[pay.from,pay.to]:[pay.to,pay.from];
+    default:{const ds=playedDays();if(!ds.length)return[t,t];return[shift(ds[0],-2),ds[0]]}
+  }
 }
-function renderShare(){
-  const v=$('#view-share');const ds=playedDays();
-  if(!ds.length){v.innerHTML=`<section class="card"><div class="empty">No days recorded yet. Mark who played on the Day tab, then come back here to share the split.</div></section>`;return}
-  if(!shareSel)shareSel=defaultSel();
-  shareSel=shareSel.filter(k=>S.days[k]);
-  const R=report(shareSel);
+function report(sel){
+  const days=[...sel].sort().map(k=>getDay(k)),calcs=days.map(calc);
+  const names=orderNames([...new Set(days.flatMap(d=>d.present))]);
+  const rows=names.map(p=>{const cells=calcs.map(c=>c.per[p]?c.per[p].total:null);return{p,cells,total:cells.reduce((a,b)=>a+(b||0),0)}});
+  return{days,calcs,rows,total:rows.reduce((a,b)=>a+b.total,0),actual:calcs.reduce((a,c)=>a+c.actual,0),hours:days.reduce((a,d)=>a+d.hours,0)};
+}
+function renderPay(){
+  const v=$('#view-pay'),[from,to]=rangeOf(pay.range);
+  const inRange=playedDays().filter(k=>k>=from&&k<=to).reverse();
+  const R=report(inRange.filter(k=>!pay.off.has(k)));
   v.innerHTML=`
+  <div class="pagehead"><span class="eyebrow">Roll out to the team</span><h1 class="page"><em>Pay</em>outs</h1></div>
   <section class="card">
-    <div class="sec-h"><h2>Days to include</h2><span class="badge">${shareSel.length} selected</span></div>
-    <div class="daylist">${ds.slice(0,21).map(k=>{const c=calc(S.days[k]);return`<label><input type="checkbox" data-k="${k}" ${shareSel.includes(k)?'checked':''}><span>${esc(dlabel(k))}</span><em>${c.n} players · ${inr(c.collected)}</em></label>`}).join('')}</div>
+    <div class="step-h"><span class="tile">${ic('cal')}</span><div><span class="eyebrow">Which days?</span><h2>${esc(dlabel(from,{day:'numeric',month:'short'}))}${from!==to?' – '+esc(dlabel(to,{day:'numeric',month:'short'})):''}</h2></div></div>
+    <div class="chips">${RANGES.map(([k,l])=>`<button class="chip sm ${pay.range===k?'on':''}" data-range="${k}">${ic('check')}${l}</button>`).join('')}</div>
+    ${pay.range==='custom'?`<div class="btns"><div class="field"><label for="pfrom">From</label><input class="txt" type="date" id="pfrom" value="${pay.from}"></div><div class="field"><label for="pto">To</label><input class="txt" type="date" id="pto" value="${pay.to}"></div></div>`:''}
+    ${inRange.length?`<div class="daylist">${inRange.map(k=>{const dd=getDay(k),c=calc(dd);return`<label><input type="checkbox" data-k="${k}" ${pay.off.has(k)?'':'checked'}><span>${esc(dlabel(k))}</span><em>${c.n} players · ${fmtH(dd.hours)} h<br>${inr(c.collected)}</em></label>`}).join('')}</div>`:`<div class="empty">No play days recorded in these dates.<br>Record a day on the Today tab.</div>`}
   </section>
   ${R.rows.length?`
   <section class="card">
-    <div class="sec-h"><h2>Split</h2><span class="badge">${inr(R.total)}</span></div>
-    <div class="tablewrap"><table><thead><tr><th>Name</th>${R.days.map(d=>`<th>${esc(dlabel(d.date).replace(',',''))}</th>`).join('')}${R.days.length>1?'<th>Total</th>':''}</tr></thead>
-    <tbody>${R.rows.map(r=>`<tr><td>${esc(r.p)}</td>${r.cells.map(x=>`<td>${x===null?'–':inr(x)}</td>`).join('')}${R.days.length>1?`<td class="tot">${inr(r.total)}</td>`:''}</tr>`).join('')}</tbody></table></div>
-    <div class="btns">
-      <button class="btn primary" id="copy">Copy message</button>
-      <a class="btn wa" id="wa" target="_blank" rel="noopener">Open WhatsApp</a>
-      <button class="btn wa full" id="shareimg">Share poster to WhatsApp</button>
-    </div>
+    <div class="step-h"><span class="tile">${ic('rupee')}</span><div><span class="eyebrow">${R.days.length} day${R.days.length>1?'s':''} · ${fmtH(R.hours)} court hours</span><h2>Who pays what</h2></div><span class="badge solid" style="margin-left:auto">${inr(R.total)}</span></div>
+    <div class="tablewrap"><table><thead><tr><th>Name</th>${R.days.map(d=>`<th>${esc(dlabel(d.date,{weekday:'short',day:'numeric'}))}</th>`).join('')}${R.days.length>1?'<th>Total</th>':''}</tr></thead>
+      <tbody>${R.rows.map(r=>`<tr><td>${esc(r.p)}</td>${r.cells.map(x=>`<td>${x===null?'–':inr(x)}</td>`).join('')}${R.days.length>1?`<td class="tot">${inr(r.total)}</td>`:''}</tr>`).join('')}</tbody>
+      <tfoot><tr><td>Total</td>${R.calcs.map(c=>`<td>${inr(c.collected)}</td>`).join('')}${R.days.length>1?`<td class="tot">${inr(R.total)}</td>`:''}</tr></tfoot></table></div>
   </section>
-  <section class="card preview">
-    <div class="sec-h"><h2>Poster</h2></div>
-    <p class="hint">Long-press the image to save or share it to your WhatsApp group.</p>
-    <img id="poster" alt="Badminton cost sharing poster">
-  </section>`:`<section class="card"><div class="empty">Tick at least one day above.</div></section>`}`;
-  v.querySelectorAll('[data-k]').forEach(cb=>cb.onchange=()=>{const k=cb.dataset.k;shareSel=cb.checked?[...shareSel,k]:shareSel.filter(x=>x!==k);renderShare()});
+  <section class="card">
+    <div class="step-h"><span class="tile">${ic('share')}</span><div><span class="eyebrow">Send to the group</span><h2>Share</h2></div></div>
+    <button class="btn primary" id="shareimg">${ic('share')}Share payout poster</button>
+    <div class="btns"><a class="btn wa" id="watext" target="_blank" rel="noopener">${ic('chat')}WhatsApp text</a><button class="btn ghost" id="copytext">${ic('copy')}Copy text</button></div>
+    <p class="hint">“Share payout poster” opens your phone’s share sheet. Pick WhatsApp, then your group.</p>
+  </section>
+  <section class="card preview"><span class="lbl">Poster preview · long-press to save</span><img id="poster" alt="Payout poster"></section>`:''}`;
+  v.querySelectorAll('[data-range]').forEach(b=>b.onclick=()=>{pay.range=b.dataset.range;pay.off.clear();renderPay()});
+  v.querySelectorAll('[data-k]').forEach(cb=>cb.onchange=()=>{cb.checked?pay.off.delete(cb.dataset.k):pay.off.add(cb.dataset.k);renderPay()});
+  const pf=$('#pfrom'),pt=$('#pto');if(pf){pf.onchange=()=>{pay.from=pf.value||pay.from;renderPay()};pt.onchange=()=>{pay.to=pt.value||pay.to;renderPay()}}
   if(!R.rows.length)return;
-  const msg=waText(R);
-  $('#wa').href='https://wa.me/?text='+encodeURIComponent(msg);
-  $('#copy').onclick=()=>{const done=()=>toast('Message copied. Paste it in your group.');
-    try{navigator.clipboard.writeText(msg).then(done,()=>fallbackCopy(msg))}catch(e){fallbackCopy(msg)}};
-  const fname='badminton-split-'+R.days.map(d=>d.date.slice(5)).join('_')+'.png';
-  drawPoster(R).then(url=>{const img=$('#poster');if(img)img.src=url;
-    const sb=$('#shareimg');if(!sb)return;
-    sb.onclick=async()=>{
-      try{
-        const blob=await (await fetch(url)).blob();const file=new File([blob],fname,{type:'image/png'});
-        if(navigator.canShare&&navigator.canShare({files:[file]})){
-          try{await navigator.clipboard.writeText(msg)}catch(e){}
-          await navigator.share({files:[file],text:msg});
-        }else{
-          const a=document.createElement('a');a.href=url;a.download=fname;document.body.appendChild(a);a.click();a.remove();
-          toast('Poster saved. Attach it in WhatsApp.');
-        }
-      }catch(e){if(!e||e.name!=='AbortError')toast('Could not share. Long-press the poster instead.')}
-    };
-  });
+  const msg=payText(R);
+  $('#watext').href=waHref(msg);
+  $('#copytext').onclick=()=>copyText(msg);
+  const fname='payouts-'+R.days.map(d=>d.date.slice(5)).join('_')+'.png';
+  drawPoster(R).then(url=>{const img=$('#poster');if(img)img.src=url;const sb=$('#shareimg');if(!sb)return;
+    sb.onclick=async()=>{try{
+      const blob=await(await fetch(url)).blob(),file=new File([blob],fname,{type:'image/png'});
+      if(navigator.canShare&&navigator.canShare({files:[file]})){try{await navigator.clipboard.writeText(msg)}catch(e){}await navigator.share({files:[file],text:msg})}
+      else{const a=document.createElement('a');a.href=url;a.download=fname;document.body.appendChild(a);a.click();a.remove();toast('Poster saved. Attach it in WhatsApp.')}
+    }catch(e){if(!e||e.name!=='AbortError')toast('Couldn’t share. Long-press the poster to save it.')}}});
 }
-function fallbackCopy(t){const ta=document.createElement('textarea');ta.value=t;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();try{document.execCommand('copy');toast('Message copied. Paste it in your group.')}catch(e){toast('Select the text and copy it manually.')}ta.remove()}
-function waText(R){
-  const L=[];L.push('🏸 *Badminton Cost Sharing*');L.push(R.days.map(d=>dlabel(d.date)).join(' | '));L.push('');
-  R.rows.forEach(r=>L.push(r.p+' – *'+inr(r.total)+'*'+(R.days.length>1&&r.count<R.days.length?' ('+r.count+' day)':'')));
-  L.push('');
-  R.days.forEach((d,i)=>{const c=R.calcs[i];L.push('*'+dlabel(d.date)+'* · '+c.n+' players');
-    L.push('Court: '+(+d.hours)+' hr × '+inr(d.rate)+(d.courts>1?' × '+d.courts+' courts':'')+' = '+inr(c.court)+' → '+inr(c.cEach)+' each');
-    if(c.shuttle)L.push('Shuttles: '+inr(c.shuttle)+' ÷ '+c.shN+' → '+inr(c.sEach)+' each');
-    if(c.drinks)L.push('Drinks: '+inr(c.drinks)+' ÷ '+c.drN+' → '+inr(c.dEach)+' each');L.push('')});
-  L.push('*Total to collect: '+inr(R.total)+'*');
-  return L.join('\n');
+function payText(R){
+  const L=['🏸 *'+(S.groupName||'Badminton')+' — Payouts*',R.days.map(d=>dlabel(d.date)).join(' | '),''];
+  R.rows.forEach(r=>L.push('• '+r.p+' – *'+inr(r.total)+'*'));L.push('');
+  R.days.forEach((d,i)=>{const c=R.calcs[i];L.push('📅 *'+dlabel(d.date)+'* · '+c.n+' players');
+    L.push('   Court: '+fmtH(d.hours)+' h × '+inr(d.rate)+' = '+inr(c.court)+' → '+inr(c.cEach)+' each');
+    if(c.shuttle)L.push('   Shuttles: '+inr(c.shuttle)+' ÷ '+c.shN+' → '+inr(c.sEach)+' each');
+    if(c.drinks)L.push('   Drinks: '+inr(c.drinks)+' ÷ '+c.drN+' → '+inr(c.dEach)+' each');});
+  L.push('');L.push('💰 *Total to collect: '+inr(R.total)+'*');return L.join('\n');
 }
 
-/* ---------- POSTER (canvas) ---------- */
+/* ---------- poster ---------- */
+function loadImg(src){return new Promise(r=>{if(!src)return r(null);const i=new Image();i.onload=()=>r(i);i.onerror=()=>r(null);i.src=src})}
 async function drawPoster(R){
-  try{await document.fonts.load('700 40px "Saira Condensed"');await document.fonts.load('600 20px Figtree');}catch(e){}
-  const cv=$('#cv'),W=1080,P=44;
-  const nd=R.days.length, multi=nd>1;
-  const rowH=50, headH=200, thH=78;
-  const brkH=R.calcs.map(c=>70+38*(1+(c.shuttle?1:0)+(c.drinks?1:0))).reduce((a,b)=>Math.max(a,b),0);
-  const brkCols=Math.min(nd,3), brkRows=Math.ceil(nd/brkCols);
-  const H=headH+30+thH+R.rows.length*rowH+36+brkRows*(brkH+16)+20+150+40;
+  try{await Promise.all([document.fonts.load('600 60px "Bodoni Moda"'),document.fonts.load('italic 600 60px "Bodoni Moda"'),document.fonts.load('700 24px Archivo'),document.fonts.load('800 24px Archivo')])}catch(e){}
+  const k=SKINS[S.skin]?S.skin:'court',sk=SKINS[k],soft=mix(sk.accent,'#FFFFFF',.1),acc=sk.accent;
+  const img=await loadImg(photo);
+  const cv=$('#cv'),W=1080,P=56,nd=R.days.length,multi=nd>1;
+  const heroH=img?520:320,rowH=58,thH=84;
+  const lines=R.calcs.map(c=>1+(c.shuttle?1:0)+(c.drinks?1:0));
+  const cols=Math.min(nd,2),crow=Math.ceil(nd/cols),cardH=86+Math.max(...lines)*40;
+  const tableTop=heroH+96+54;
+  const H=tableTop+thH+R.rows.length*rowH+rowH+48+crow*(cardH+18)+12+170+110;
   cv.width=W;cv.height=H;const g=cv.getContext('2d');
-  const D='"Saira Condensed","Arial Narrow",sans-serif', B='Figtree,system-ui,sans-serif';
-  const navy='#132F78', blue='#1F4FD1', yel='#F2BE12', ink='#0E1B3D', muted='#56637F', line='#D5DDEC';
-  g.fillStyle='#F4F7FD';g.fillRect(0,0,W,H);
-  // header
-  g.fillStyle=navy;g.fillRect(0,0,W,headH);
-  g.fillStyle=yel;g.beginPath();g.arc(P+30,90,26,0,7);g.fill();
-  g.strokeStyle='#fff';g.lineWidth=5;g.lineCap='round';g.beginPath();
-  [[P+46,70,P+92,22],[P+38,64,P+64,14],[P+52,80,P+104,48]].forEach(a=>{g.moveTo(a[0],a[1]);g.lineTo(a[2],a[3])});g.stroke();
-  g.fillStyle='#fff';g.font='800 64px '+D;g.textBaseline='alphabetic';g.fillText('Badminton Cost Sharing',P+124,92);
-  g.fillStyle='#C7D3F5';g.font='600 28px '+B;
-  const range=R.days.map(d=>dlabel(d.date)).join('  |  ');fitText(g,range,P+124,140,W-P*2-124);
-  g.fillStyle=yel;g.font='italic 600 22px '+B;g.fillText('Same Court · Same People · Stronger Together',P+124,180);
+  const D='"Bodoni Moda",Didot,Georgia,serif',U='Archivo,system-ui,sans-serif';
+  g.fillStyle=sk.bg==='#FFFFFF'?'#F7F7F7':sk.bg;g.fillRect(0,0,W,H);
+  // hero
+  if(img){const s=Math.max(W/img.width,heroH/img.height),iw=img.width*s,ih=img.height*s;g.drawImage(img,(W-iw)/2,(heroH-ih)/2,iw,ih);
+    const gr=g.createLinearGradient(0,heroH*.3,0,heroH);gr.addColorStop(0,'rgba(0,0,0,0)');gr.addColorStop(1,'rgba(0,0,0,.75)');g.fillStyle=gr;g.fillRect(0,0,W,heroH)}
+  else{g.fillStyle=acc;g.fillRect(0,0,W,heroH);g.save();g.globalAlpha=.14;g.strokeStyle=sk.ink;g.lineWidth=3;
+    for(let i=-2;i<9;i++){g.beginPath();g.moveTo(i*160,heroH);g.lineTo(i*160+260,0);g.stroke()}g.restore();
+    g.fillStyle=sk.pop===acc?sk.ink:sk.pop;g.beginPath();g.arc(W-160,140,46,0,7);g.fill();g.strokeStyle=sk.ink;g.lineWidth=7;g.lineCap='round';g.beginPath();
+    [[W-128,108,W-50,30],[W-140,102,W-102,20],[W-120,118,W-32,70]].forEach(a=>{g.moveTo(a[0],a[1]);g.lineTo(a[2],a[3])});g.stroke()}
+  g.fillStyle=img?'#FFFFFF':sk.ink;g.textBaseline='alphabetic';g.textAlign='left';
+  g.font='800 24px '+U;fit(g,(S.groupName||'Badminton Family').toUpperCase().split('').join(' '),P,heroH-150,W-P*2);
+  g.font='italic 600 104px '+D;g.fillText('Payouts',P,heroH-52);
+  // date strip
+  let y=heroH;g.fillStyle=sk.pop;g.fillRect(0,y,W,96);g.fillStyle=sk.popInk;g.font='800 30px '+U;
+  fit(g,R.days.map(d=>dlabel(d.date,{weekday:'short',day:'numeric',month:'short'})).join('   ·   '),P,y+60,W-P*2);
+  y=tableTop;
   // table
-  let y=headH+30;
-  const cols=[];const nameW=multi?300:520;const totW=multi?200:0;const dayW=(W-P*2-nameW-totW)/nd;
-  g.fillStyle=blue;roundRect(g,P,y,W-P*2,thH,14,true,true);g.fillRect(P,y+20,W-P*2,thH-20);
-  g.fillStyle='#fff';g.font='700 24px '+B;g.textAlign='left';g.fillText('Name',P+24,y+47);
-  R.days.forEach((d,i)=>{const cx=P+nameW+dayW*i+dayW/2;g.textAlign='center';g.font='700 24px '+B;g.fillText(dlabel(d.date).replace(',',''),cx,y+36);g.font='500 18px '+B;g.fillStyle='#C7D3F5';g.fillText(R.calcs[i].n+' players',cx,y+62);g.fillStyle='#fff'});
-  if(multi){g.textAlign='center';g.font='700 24px '+B;g.fillText('Total (₹)',W-P-totW/2,y+47)}
+  const nameW=multi?330:560,totW=multi?190:0,dayW=(W-P*2-nameW-totW)/nd;
+  g.fillStyle=acc;rr(g,P,y,W-P*2,thH,20);g.fill();g.fillRect(P,y+30,W-P*2,thH-30);
+  g.fillStyle=sk.ink;g.font='800 22px '+U;g.textAlign='left';g.fillText('NAME',P+26,y+52);
+  R.days.forEach((d,i)=>{const cx=P+nameW+dayW*i+dayW/2;g.textAlign='center';g.font='800 22px '+U;g.fillText(dlabel(d.date,{weekday:'short',day:'numeric'}).toUpperCase(),cx,y+42);g.font='600 17px '+U;g.globalAlpha=.8;g.fillText(R.calcs[i].n+' players',cx,y+66);g.globalAlpha=1});
+  if(multi){g.textAlign='center';g.font='800 22px '+U;g.fillText('TOTAL',W-P-totW/2,y+52)}
   y+=thH;
-  R.rows.forEach((r,ri)=>{
-    g.fillStyle=ri%2?'#F3F6FC':'#FFFFFF';g.fillRect(P,y,W-P*2,rowH);
-    g.fillStyle=ink;g.textAlign='left';g.font='600 24px '+B;fitText(g,r.p,P+24,y+33,nameW-36);
-    g.font='500 24px '+B;g.textAlign='center';
-    r.cells.forEach((x,i)=>{g.fillStyle=x===null?muted:ink;g.fillText(x===null?'–':String(x),P+nameW+dayW*i+dayW/2,y+33)});
-    if(multi){g.fillStyle=navy;g.font='800 26px '+B;g.fillText(String(r.total),W-P-totW/2,y+34)}
-    y+=rowH;
-  });
-  g.strokeStyle=line;g.lineWidth=2;g.strokeRect(P,headH+30,W-P*2,y-headH-30);
-  // breakdown cards
-  y+=36;const bw=(W-P*2-16*(brkCols-1))/brkCols;
-  R.days.forEach((d,i)=>{const c=R.calcs[i];const col=i%brkCols,row=Math.floor(i/brkCols);const x=P+col*(bw+16),yy=y+row*(brkH+16);
-    g.fillStyle='#fff';g.strokeStyle=line;roundRect(g,x,yy,bw,brkH,14,true,true);
-    g.fillStyle=navy;roundRect(g,x,yy,bw,50,14,true,false);g.fillRect(x,yy+30,bw,20);
-    g.fillStyle='#fff';g.textAlign='center';g.font='700 26px '+D;g.fillText((dlabel(d.date)+' · '+c.n+' players').toUpperCase(),x+bw/2,yy+34);
-    g.textAlign='left';g.font='500 '+(brkCols>2?19:22)+'px '+B;let ly=yy+88;
-    const line1=(+d.hours)+' hr × ₹'+d.rate+(d.courts>1?' × '+d.courts:'')+' ÷ '+c.n+' = ₹'+c.cEach;
-    g.fillStyle=ink;fitText(g,'Court  '+line1,x+18,ly,bw-36);ly+=38;
-    if(c.shuttle){fitText(g,'Shuttles  ₹'+c.shuttle+' ÷ '+c.shN+' = ₹'+c.sEach,x+18,ly,bw-36);ly+=38}
-    if(c.drinks){fitText(g,'Drinks  ₹'+c.drinks+' ÷ '+c.drN+' = ₹'+c.dEach,x+18,ly,bw-36);ly+=38}
-  });
-  y+=brkRows*(brkH+16)+4;
+  R.rows.forEach((r,ri)=>{g.fillStyle=ri%2?soft:'#FFFFFF';g.fillRect(P,y,W-P*2,rowH);
+    g.fillStyle='#161616';g.textAlign='left';g.font='700 26px '+U;fit(g,r.p,P+26,y+38,nameW-40);
+    g.textAlign='center';g.font='600 26px '+U;r.cells.forEach((x,i)=>{g.fillStyle=x===null?'#9A9A9A':'#161616';g.fillText(x===null?'–':'₹'+x,P+nameW+dayW*i+dayW/2,y+38)});
+    if(multi){g.fillStyle=acc;g.font='800 28px '+U;g.fillText('₹'+r.total,W-P-totW/2,y+39)}y+=rowH});
+  g.fillStyle='#FFFFFF';g.fillRect(P,y,W-P*2,rowH);g.strokeStyle='rgba(0,0,0,.12)';g.lineWidth=2;g.beginPath();g.moveTo(P,y);g.lineTo(W-P,y);g.stroke();
+  g.fillStyle='#161616';g.textAlign='left';g.font='800 24px '+U;g.fillText('TOTAL',P+26,y+38);
+  g.textAlign='center';R.calcs.forEach((c,i)=>g.fillText('₹'+c.collected.toLocaleString('en-IN'),P+nameW+dayW*i+dayW/2,y+38));if(multi){g.fillStyle=acc;g.fillText('₹'+R.total.toLocaleString('en-IN'),W-P-totW/2,y+38)}
+  g.strokeStyle='rgba(0,0,0,.1)';g.strokeRect(P,tableTop,W-P*2,y+rowH-tableTop);
+  y+=rowH+48;
+  // per-day cards
+  const cw=(W-P*2-18*(cols-1))/cols;
+  R.days.forEach((d,i)=>{const c=R.calcs[i],x=P+(i%cols)*(cw+18),yy=y+Math.floor(i/cols)*(cardH+18);
+    g.fillStyle='#FFFFFF';rr(g,x,yy,cw,cardH,22);g.fill();g.strokeStyle='rgba(0,0,0,.08)';g.stroke();
+    g.fillStyle=acc;g.textAlign='left';g.font='italic 600 36px '+D;g.fillText(dlabel(d.date,{weekday:'long'}),x+24,yy+52);
+    g.fillStyle='#6B6B6B';g.font='700 18px '+U;g.textAlign='right';g.fillText(c.n+' PLAYERS',x+cw-24,yy+48);
+    g.textAlign='left';g.fillStyle='#161616';g.font='600 23px '+U;let ly=yy+98;
+    fit(g,'Court  '+fmtH(d.hours)+' h × ₹'+d.rate+' ÷ '+c.n+' = ₹'+c.cEach,x+24,ly,cw-48);ly+=40;
+    if(c.shuttle){fit(g,'Shuttles  ₹'+c.shuttle+' ÷ '+c.shN+' = ₹'+c.sEach,x+24,ly,cw-48);ly+=40}
+    if(c.drinks)fit(g,'Drinks  ₹'+c.drinks+' ÷ '+c.drN+' = ₹'+c.dEach,x+24,ly,cw-48)});
+  y+=crow*(cardH+18)+12;
   // total band
-  g.fillStyle=navy;roundRect(g,P,y,W-P*2,150,18,true,false);
-  g.fillStyle='#fff';g.textAlign='left';g.font='700 38px '+D;g.fillText('TOTAL TO COLLECT',P+32,y+66);
-  g.font='500 20px '+B;g.fillStyle='#C7D3F5';const diff=R.total-R.actual;
-  g.fillText('Actual cost ₹'+R.actual.toLocaleString('en-IN',{maximumFractionDigits:2})+(diff>0?' · rounded up per head':''),P+32,y+104);
-  g.textAlign='right';g.fillStyle=yel;g.font='800 92px '+D;g.fillText('₹'+R.total.toLocaleString('en-IN'),W-P-32,y+108);
-  g.textAlign='center';g.fillStyle=muted;g.font='italic 500 20px '+B;g.fillText('Play Badminton • Stay Fit • Enjoy Together!',W/2,H-20);
+  g.fillStyle=acc;rr(g,P,y,W-P*2,170,28);g.fill();
+  g.fillStyle=sk.ink;g.textAlign='left';g.font='800 22px '+U;g.fillText('T O T A L   T O   C O L L E C T',P+36,y+66);
+  g.globalAlpha=.8;g.font='600 20px '+U;g.fillText('Cost ₹'+R.actual.toLocaleString('en-IN',{maximumFractionDigits:2})+(R.total>R.actual?' · rounded up per head':''),P+36,y+104);g.globalAlpha=1;
+  g.textAlign='right';g.fillStyle=sk.pop===acc?sk.ink:sk.pop;g.font='600 104px '+D;g.fillText('₹'+R.total.toLocaleString('en-IN'),W-P-36,y+124);
+  g.textAlign='center';g.fillStyle='#6B6B6B';g.font='italic 500 28px '+D;g.fillText('Same court · Same people · Stronger together',W/2,H-46);
   return cv.toDataURL('image/png');
 }
-function fitText(g,t,x,y,max){let s=t;while(g.measureText(s).width>max&&s.length>3)s=s.slice(0,-2)+'…';g.fillText(s,x,y)}
-function roundRect(g,x,y,w,h,r,fill,stroke){g.beginPath();g.moveTo(x+r,y);g.arcTo(x+w,y,x+w,y+h,r);g.arcTo(x+w,y+h,x,y+h,r);g.arcTo(x,y+h,x,y,r);g.arcTo(x,y,x+w,y,r);g.closePath();if(fill)g.fill();if(stroke)g.stroke()}
+function fit(g,t,x,y,max){let s=String(t);while(g.measureText(s).width>max&&s.length>3)s=s.slice(0,-2)+'…';g.fillText(s,x,y)}
+function rr(g,x,y,w,h,r){g.beginPath();g.moveTo(x+r,y);g.arcTo(x+w,y,x+w,y+h,r);g.arcTo(x+w,y+h,x,y+h,r);g.arcTo(x,y+h,x,y,r);g.arcTo(x,y,x+w,y,r);g.closePath()}
 
-/* ---------- PLAYERS VIEW ---------- */
-let confirmRm=null;
-function renderPlayers(){
-  const v=$('#view-players');
+/* ================= TEAM ================= */
+let teamConfirm=null, teamPending='';
+function renderTeam(){
+  const v=$('#view-team');
   v.innerHTML=`
-  <section class="card">
-    <div class="sec-h"><h2>Players</h2><span class="badge">${S.roster.length}</span></div>
-    <div class="row"><input class="textin" id="newp" placeholder="Player name" style="flex:1;min-width:0"><button class="btn primary" id="addp">Add</button></div>
-    <div class="plist">${S.roster.length?S.roster.map(p=>`<div><span>${esc(p)}</span>${confirmRm===p?`<span class="row"><button class="link" data-cancel>Keep</button><button class="btn danger" style="padding:8px 12px" data-rmok="${esc(p)}">Remove</button></span>`:`<button class="link" data-rm="${esc(p)}">Remove</button>`}</div>`).join(''):'<p class="empty">Add the regulars here. Guests can be added on the Day tab.</p>'}</div>
-    <p class="hint">Removing someone keeps them in past days’ records.</p>
+  <div class="pagehead"><span class="eyebrow">Your badminton family</span><h1 class="page">The <em>squad</em></h1></div>
+  ${signinNotice('edit the team')}
+  <fieldset ${canEdit()?'':'disabled'}>
+  <section class="card groupcard">
+    <div class="gphoto">${photo?`<img src="${photo}" alt="Group photo">`:ic('users')}</div>
+    <div style="display:flex;flex-direction:column;gap:8px;flex:1;min-width:0">
+      <input class="txt" id="gnamein" value="${esc(S.groupName)}" placeholder="Group name" aria-label="Group name">
+      <div class="row"><label class="btn ghost small filebtn">${ic('camera')}${photo?'Change photo':'Add group photo'}<input type="file" accept="image/*" id="photoin"></label>${photo?`<button type="button" class="link danger" data-act="nophoto">Remove</button>`:''}</div>
+    </div>
   </section>
   <section class="card">
-    <div class="sec-h"><h2>Defaults for new days</h2></div>
-    <div class="grid3">
-      <div class="field"><label for="defrate">Court per hour</label><div class="money"><span>₹</span><input id="defrate" type="number" inputmode="decimal" min="0" value="${S.rate}"></div></div>
-      <div class="field"><label for="defcourts">Courts</label><div class="money"><span>#</span><input id="defcourts" type="number" inputmode="numeric" min="1" value="${S.courts}"></div></div>
-    </div>
-    <p class="hint">Each share is rounded up to the next rupee, so the collector never runs short.</p>
-  </section>`;
-  const add=()=>{const n=$('#newp').value.trim();if(!n)return;if(S.roster.includes(n)){toast(n+' is already on the list.');return}S.roster.push(n);saveConfig();renderPlayers();$('#newp').focus()};
-  $('#addp').onclick=add;$('#newp').onkeydown=e=>{if(e.key==='Enter')add()};
-  v.onclick=e=>{const a=e.target.closest('[data-rm]'),b=e.target.closest('[data-rmok]'),c=e.target.closest('[data-cancel]');
-    if(a){confirmRm=a.dataset.rm;renderPlayers()} else if(c){confirmRm=null;renderPlayers()}
-    else if(b){S.roster=S.roster.filter(x=>x!==b.dataset.rmok);confirmRm=null;saveConfig();renderPlayers()}};
-  $('#defrate').onchange=e=>{S.rate=Math.max(0,+e.target.value||0);saveConfig()};
-  $('#defcourts').onchange=e=>{S.courts=Math.max(1,Math.round(+e.target.value||1));saveConfig()};
+    <div class="step-h"><span class="tile">${ic('palette')}</span><div><span class="eyebrow">Look &amp; feel</span><h2>Theme</h2></div></div>
+    <div class="swatches">${Object.entries(SKINS).map(([k,s])=>`<button type="button" class="sw" data-skin="${k}" aria-pressed="${S.skin===k}"><i style="background:linear-gradient(135deg,${s.accent} 0 58%,${s.pop===s.accent?'#DDDDDD':s.pop} 58%)"></i>${s.name}</button>`).join('')}</div>
+  </section>
+  <section class="card">
+    <div class="step-h"><span class="tile">${ic('users')}</span><div><span class="eyebrow">Players</span><h2>${S.roster.length} on the team</h2></div></div>
+    <div class="addrow"><input class="txt" id="newp" placeholder="New player name" autocomplete="off" enterkeyhint="done"><button type="button" class="btn primary small" data-act="addp">${ic('plus')}Add</button></div>
+    <p class="warn" id="pwarn" hidden></p>
+    <div class="plist">${S.roster.map(p=>`<div><span class="ini">${esc(initials(p))}</span><span class="nm">${esc(p)}</span>${teamConfirm===p?`<button type="button" class="link" data-act="rm-no">Keep</button><button type="button" class="btn danger small" data-act="rm-yes" data-v="${esc(p)}">Remove</button>`:`<button type="button" class="link danger" data-act="rm" data-v="${esc(p)}" aria-label="Remove ${esc(p)}">${ic('x','width:18px;height:18px')}</button>`}</div>`).join('')||'<p class="empty">Add your regulars here.</p>'}</div>
+    <p class="hint">Removing a player keeps them in past days.</p>
+  </section>
+  <section class="card">
+    <div class="step-h"><span class="tile">${ic('rupee')}</span><div><span class="eyebrow">Default for new days</span><h2>Court rate</h2></div></div>
+    <div class="money"><span>₹</span><input id="defrate" type="number" inputmode="decimal" min="0" value="${S.rate}"><span class="suf">per hour</span></div>
+    <p class="hint">Shares are rounded up to the next rupee so the collector is never short.</p>
+  </section>
+  </fieldset>
+  ${db?`<section class="card"><div class="step-h"><span class="tile">${ic('lock')}</span><div><span class="eyebrow">Account</span><h2>${isOrg?'Signed in as organizer':'Viewing only'}</h2></div></div>
+    <button class="btn ${isOrg?'ghost':'primary'}" data-signin>${isOrg?'Sign out':'Organizer sign in'}</button></section>`:`<div class="notice">${ic('lock')}<p>Saving on this phone only. The shared database isn’t connected.</p></div>`}
+  <p class="hint" style="text-align:center">Tip: in Safari tap Share → Add to Home Screen to use this like an app.</p>`;
 }
+function addPlayer(force){
+  const inp=$('#newp'),n=norm(inp.value),w=$('#pwarn');if(!n)return;
+  const chk=nameCheck(n);
+  if(chk&&chk.type==='dup'){w.hidden=false;w.innerHTML=`<span><b>${esc(chk.name)}</b> is already on the team.</span>`;return}
+  if(chk&&chk.type==='near'&&!force){teamPending=n;w.hidden=false;w.innerHTML=`<span>Similar to <b>${esc(chk.name)}</b>. Add anyway?</span><button type="button" class="btn primary small" data-act="addp-force">Add ${esc(n)}</button>`;return}
+  S.roster.push(n);saveConfig();renderTeam();toast(n+' added.');$('#newp').focus();
+}
+function bindTeam(){
+  const v=$('#view-team');
+  v.addEventListener('click',e=>{
+    if(e.target.closest('[data-signin]')){isOrg?auth.signOut():signIn();return}
+    const sw=e.target.closest('[data-skin]');if(sw&&!sw.disabled){S.skin=sw.dataset.skin;applySkin();saveConfig();renderTeam();return}
+    const b=e.target.closest('[data-act]');if(!b||b.disabled)return;const a=b.dataset.act,val=b.dataset.v;
+    if(a==='addp')addPlayer(false);
+    else if(a==='addp-force'){$('#newp').value=teamPending;addPlayer(true)}
+    else if(a==='rm'){teamConfirm=val;renderTeam()}
+    else if(a==='rm-no'){teamConfirm=null;renderTeam()}
+    else if(a==='rm-yes'){S.roster=S.roster.filter(x=>x!==val);teamConfirm=null;saveConfig();renderTeam()}
+    else if(a==='nophoto'){photo='';try{localStorage.removeItem(LSP)}catch(x){}queueWrite('config/photo',null);renderHeader();renderTeam()}
+  });
+  v.addEventListener('input',e=>{const id=e.target.id;
+    if(id==='gnamein'){S.groupName=norm(e.target.value);renderHeader();saveConfig()}
+    else if(id==='defrate'){S.rate=Math.max(0,+e.target.value||0);saveConfig()}
+    else if(id==='newp')$('#pwarn').hidden=true});
+  v.addEventListener('keydown',e=>{if(e.target.id==='newp'&&e.key==='Enter'){e.preventDefault();addPlayer(false)}});
+  v.addEventListener('change',async e=>{if(e.target.id!=='photoin'||!e.target.files[0])return;
+    try{photo=await shrinkPhoto(e.target.files[0]);try{localStorage.setItem(LSP,photo)}catch(x){}queueWrite('config/photo',{data:photo,updatedAt:Date.now()});renderHeader();renderTeam();toast('Group photo updated.')}
+    catch(x){toast('Couldn’t read that photo. Try another one.')}});
+}
+function shrinkPhoto(file){return new Promise((res,rej)=>{const u=URL.createObjectURL(file),im=new Image();
+  im.onload=()=>{const s=Math.min(1,1000/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*s);c.height=Math.round(im.height*s);
+    c.getContext('2d').drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(u);res(c.toDataURL('image/jpeg',.8))};im.onerror=rej;im.src=u})}
 
-/* ---------- POLLS (availability voting) ---------- */
-let auth=null, isOrg=false;
-const P={list:[],sel:null,votes:[],mode:'list',unsubPoll:null,unsubVotes:null,draft:null,confirmDel:false,myName:'',myAns:{},saveT:null,listening:false};
+/* ================= POLLS ================= */
+const P={list:[],sel:null,votes:[],mode:'list',unsubPoll:null,unsubVotes:null,draft:null,confirmDel:false,myName:'',myAns:{},saveT:null,listening:false,justCreated:null};
 try{P.myName=localStorage.getItem('ss-voter')||''}catch(e){}
 const pollsCol=()=>db.collection(COLLECTION_PREFIX+'polls');
 const pollLink=id=>location.origin+location.pathname+'#poll-'+id;
 const slug=s=>s.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,60)||'x';
-const firstName=s=>String(s||'').trim().split(/\s+/)[0];
-function nextWeekend(addWeeks){const d=new Date();const sat=shift(todayStr(),((6-d.getDay()+7)%7)+7*addWeeks);return[sat,shift(sat,1)]}
-function latestByName(arr){const m={};arr.forEach(v=>{if(!v||!v.name)return;const k=v.name.trim().toLowerCase();if(!m[k]||(v.updatedAt||0)>(m[k].updatedAt||0))m[k]=v});return Object.values(m)}
-function tally(poll,votes){
-  const voters=latestByName(votes);const per=Math.max(1,+poll.perCourt||6);
-  const res=(poll.dates||[]).map(dt=>{const yes=[],maybe=[],no=[];voters.forEach(v=>{const a=(v.answers||{})[dt.date];if(a==='yes')yes.push(v.name);else if(a==='maybe')maybe.push(v.name);else if(a==='no')no.push(v.name)});
-    return{...dt,yes:orderNames(yes),maybe:orderNames(maybe),no:orderNames(no),courts:yes.length?Math.ceil(yes.length/per):0,courtsMax:(yes.length+maybe.length)?Math.ceil((yes.length+maybe.length)/per):0}});
-  const replied=new Set(voters.map(v=>v.name.trim().toLowerCase()));
-  return{voters,res,pending:S.roster.filter(n=>!replied.has(n.toLowerCase())),per};
-}
-function dateLine(dt){return dlabel(dt.date)+(dt.note?' | '+dt.note:'')}
+const first=s=>norm(s).split(' ')[0];
+function nextWeekend(w){const d=new Date(),sat=shift(todayStr(),((6-d.getDay()+7)%7)+7*w);return[sat,shift(sat,1)]}
+function latestByName(arr){const m={};arr.forEach(v=>{if(!v||!v.name)return;const k=nkey(v.name);if(!m[k]||(v.updatedAt||0)>(m[k].updatedAt||0))m[k]=v});return Object.values(m)}
 function waOpt(dt){const d=new Date(dt.date+'T00:00');return d.getDate()+'-'+d.toLocaleDateString('en-IN',{month:'short'})+' ('+d.toLocaleDateString('en-IN',{weekday:'long'})+')'+(dt.note?' | '+dt.note:'')}
 const isClosed=p=>!!p&&(p.closed||(p.closesAt&&Date.now()>p.closesAt));
-function closeText(ms){const d=new Date(ms),t=new Date();const tm=d.toLocaleTimeString('en-IN',{hour:'numeric',minute:'2-digit'}).replace(':00','').toUpperCase();
-  const ds=todayStr(),dd=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+function closeText(ms){const d=new Date(ms),ds=todayStr(),dd=ymd(d);const tm=d.toLocaleTimeString('en-IN',{hour:'numeric',minute:'2-digit'}).replace(':00','').toUpperCase();
   return(dd===ds?'today':dd===shift(ds,1)?'tomorrow':d.toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'short'}))+' at '+tm}
-function msgOptions(p){const o=p.dates.map((dt,i)=>(i+1)+'. '+waOpt(dt));if(p.dates.length===2)o.push('3. Both 1&2');o.push(o.length+1+'. Not available');return[p.title,'',...o].join('\n')}
+function tally(poll,votes){
+  const voters=latestByName(votes),per=Math.max(1,+poll.perCourt||6);
+  const res=(poll.dates||[]).map(dt=>{const yes=[],maybe=[],no=[];voters.forEach(v=>{const a=(v.answers||{})[dt.date];if(a==='yes')yes.push(v.name);else if(a==='maybe')maybe.push(v.name);else if(a==='no')no.push(v.name)});
+    return{...dt,yes:orderNames(yes),maybe:orderNames(maybe),no:orderNames(no),courts:yes.length?Math.ceil(yes.length/per):0,courtsMax:(yes.length+maybe.length)?Math.ceil((yes.length+maybe.length)/per):0}});
+  const replied=new Set(voters.map(v=>nkey(v.name)));
+  return{voters,res,pending:S.roster.filter(n=>!replied.has(nkey(n))),per};
+}
 function msgPoll(p){return['🏸 *'+p.title+'*','','Please cast your vote 🗳️ so we can book the courts accordingly!','',...p.dates.map(dt=>'• '+waOpt(dt)),'','👉 Vote here: '+pollLink(p.id),...(p.closesAt?['','⏰ Poll closes '+closeText(p.closesAt)+' sharp. No vote = No game! 🙇']:[])].join('\n')}
-function msgReminder(p,t){return['⏰ *'+p.title+'*','Still waiting for: '+t.pending.join(', ')+(p.closesAt&&!isClosed(p)?'\nPoll closes '+closeText(p.closesAt)+'. No vote = No game!':''),'','Mark your availability here 👉 '+pollLink(p.id)].join('\n')}
-function msgResults(p,t){const L=['📋 *'+p.title+' — availability*',''];t.res.forEach(r=>{L.push('*'+waOpt(r)+'*');L.push('✅ '+r.yes.length+(r.yes.length?': '+r.yes.join(', '):''));if(r.maybe.length)L.push('🤔 '+r.maybe.length+': '+r.maybe.join(', '));L.push('🏸 Courts: '+(r.courts||'none')+(r.courtsMax>r.courts?' (up to '+r.courtsMax+' if maybes come)':''));L.push('')});if(t.pending.length)L.push('No reply yet: '+t.pending.join(', '));return L.join('\n').trim()}
-function copyBtn(text){try{navigator.clipboard.writeText(text).then(()=>toast('Copied. Paste it in your group.'),()=>fallbackCopy(text))}catch(e){fallbackCopy(text)}}
-const waHref=t=>'https://wa.me/?text='+encodeURIComponent(t);
+function msgReminder(p,t){return['⏰ *'+p.title+'*','Still waiting for: '+t.pending.join(', ')+(p.closesAt&&!isClosed(p)?'\nPoll closes '+closeText(p.closesAt)+'. No vote = No game!':''),'','Vote here 👉 '+pollLink(p.id)].join('\n')}
+function msgResults(p,t){const L=['📋 *'+p.title+' — results*',''];t.res.forEach(r=>{L.push('*'+waOpt(r)+'*');L.push('✅ '+r.yes.length+(r.yes.length?': '+r.yes.join(', '):''));if(r.maybe.length)L.push('🤔 '+r.maybe.length+': '+r.maybe.join(', '));L.push('🏸 Courts: '+(r.courts||'none')+(r.courtsMax>r.courts?' (up to '+r.courtsMax+' if maybes come)':''));L.push('')});if(t.pending.length)L.push('No vote: '+t.pending.join(', '));return L.join('\n').trim()}
+function msgOptions(p){const o=p.dates.map((dt,i)=>(i+1)+'. '+waOpt(dt));if(p.dates.length===2)o.push('3. Both 1&2');o.push((o.length+1)+'. Not available');return['🏸 '+p.title,'',...o].join('\n')}
 
-function startPollsListener(){
-  if(P.listening||!db)return;P.listening=true;
-  pollsCol().orderBy('createdAt','desc').limit(30).onSnapshot(q=>{P.list=q.docs.map(d=>({id:d.id,...d.data()}));if(tab==='polls'&&P.mode==='list')render(true);if(tab==='day')renderDay(false)},e=>{});
-}
-function openPoll(id){
-  if(!db)return;
-  if(P.unsubPoll)P.unsubPoll();if(P.unsubVotes)P.unsubVotes();
-  P.mode='detail';P.confirmDel=false;P.sel={id,loading:true};P.votes=[];P.myAns={};
+function startPollsListener(){if(P.listening||!db)return;P.listening=true;
+  pollsCol().orderBy('createdAt','desc').limit(30).onSnapshot(q=>{P.list=q.docs.map(d=>({id:d.id,...d.data()}));if(tab==='polls'&&P.mode==='list')renderPolls();if(tab==='day')refreshDay()},()=>{})}
+function openPoll(id){if(!db)return;stopPoll();P.mode='detail';P.confirmDel=false;P.sel={id,loading:true};P.votes=[];P.myAns={};
   const ref=pollsCol().doc(id);
-  P.unsubPoll=ref.onSnapshot(s=>{P.sel=s.exists?{id,...s.data()}:{id,missing:true};pollRender()},e=>{P.sel={id,missing:true};pollRender()});
-  P.unsubVotes=ref.collection('votes').onSnapshot(q=>{P.votes=q.docs.map(d=>d.data());pollRender()},e=>{});
-}
+  P.unsubPoll=ref.onSnapshot(s=>{P.sel=s.exists?{id,...s.data()}:{id,missing:true};pollRender()},()=>{P.sel={id,missing:true};pollRender()});
+  P.unsubVotes=ref.collection('votes').onSnapshot(q=>{P.votes=q.docs.map(d=>d.data());pollRender()},()=>{})}
+function stopPoll(){if(P.unsubPoll)P.unsubPoll();if(P.unsubVotes)P.unsubVotes();P.unsubPoll=P.unsubVotes=null}
 function pollRender(){if(tab!=='polls')return;const a=document.activeElement;if(a&&a.tagName==='INPUT'&&a.type==='text'&&$('#view-polls').contains(a))return;renderPolls()}
 function routeHash(){const m=location.hash.match(/^#poll-([A-Za-z0-9_-]+)$/);if(m){openPoll(m[1]);go('polls')}}
-function leavePoll(){if(P.unsubPoll)P.unsubPoll();if(P.unsubVotes)P.unsubVotes();P.unsubPoll=P.unsubVotes=null;P.mode='list';P.sel=null;try{history.replaceState(null,'',location.pathname)}catch(e){}renderPolls()}
-
+function leavePoll(){stopPoll();P.mode='list';P.sel=null;try{history.replaceState(null,'',location.pathname)}catch(e){}renderPolls()}
 function renderPolls(){
   const v=$('#view-polls');
-  if(!db){v.innerHTML=`<section class="card"><div class="empty">Availability polls need the shared Firebase database. Paste your Firebase config into index.html to turn them on.</div></section>`;return}
+  if(!db){v.innerHTML=`<div class="pagehead"><span class="eyebrow">Who’s playing?</span><h1 class="page"><em>Polls</em></h1></div><section class="card"><div class="empty">Polls need the shared database, which isn’t connected on this device.</div></section>`;return}
   if(P.mode==='new')return renderNewPoll(v);
   if(P.mode==='detail')return renderPollDetail(v);
   v.innerHTML=`
-  <section class="card">
-    <div class="sec-h"><h2>Availability polls</h2>${isOrg?'<button class="btn primary" id="newpoll" style="padding:9px 14px">New poll</button>':''}</div>
-    <p class="hint">Ask the group who can play on which dates, then book courts to match.</p>
+  <div class="pagehead"><span class="eyebrow">Who’s playing?</span><h1 class="page"><em>Polls</em></h1></div>
+  <section class="card cta">
+    <h2>Ask the group who can play</h2>
+    <p class="hint" style="color:inherit;opacity:.8">Pick dates and time slots, send the poll to WhatsApp, and see how many courts to book.</p>
+    <button class="btn" style="background:var(--pop-ink);color:var(--pop)" data-act="newpoll">${ic(isOrg?'plus':'lock')}${isOrg?'New poll':'Sign in to create a poll'}</button>
   </section>
-  ${P.list.length?P.list.map(p=>`<section class="card" style="gap:6px;cursor:pointer" data-open="${esc(p.id)}" role="button" tabindex="0">
-    <div class="sec-h"><b style="font-size:16px">${esc(p.title)}</b><span class="badge">${isClosed(p)?'Closed':'Open'}</span></div>
-    <span class="hint">${(p.dates||[]).map(dt=>esc(dlabel(dt.date))).join(' · ')}</span></section>`).join('')
-  :`<section class="card"><div class="empty">${isOrg?'No polls yet. Tap New poll to ask about the coming weekend.':'No polls yet.'}</div></section>`}`;
-  const np=$('#newpoll');if(np)np.onclick=()=>{const[sa,su]=nextWeekend(0);P.draft={title:'Who’s up for Badminton this weekend?',dates:[{date:sa,note:'5-7 PM'},{date:su,note:'9-11 AM'}],perCourt:6,closes:shift(sa,-1)+'T22:00'};P.mode='new';renderPolls()};
+  ${P.list.length?`<span class="lbl">Recent polls</span>`+P.list.map(p=>`<section class="card pollcard" data-open="${esc(p.id)}" role="button" tabindex="0">
+    <div class="step-h"><span class="tile">${ic('poll')}</span><div style="flex:1"><b>${esc(p.title)}</b><span class="hint">${(p.dates||[]).map(dt=>esc(dlabel(dt.date))).join(' · ')}</span></div><span class="badge ${isClosed(p)?'':'solid'}">${isClosed(p)?'Closed':'Open'}</span></div></section>`).join(''):''}`;
+  v.querySelector('[data-act=newpoll]').onclick=()=>{if(!isOrg){signIn();return}const[sa,su]=nextWeekend(0);P.draft={title:'Who’s up for Badminton this weekend?',dates:[{date:sa,note:'5-7 PM'},{date:su,note:'9-11 AM'}],perCourt:6,closes:shift(sa,-1)+'T22:00'};P.mode='new';renderPolls();window.scrollTo(0,0)};
   v.querySelectorAll('[data-open]').forEach(el=>{const f=()=>{location.hash='poll-'+el.dataset.open};el.onclick=f;el.onkeydown=e=>{if(e.key==='Enter')f()}});
 }
-
 function renderNewPoll(v){
-  const D=P.draft;if(D.closes===undefined)D.closes='';
+  const D=P.draft;
   v.innerHTML=`
+  <button class="link" id="cancelnew" style="align-self:flex-start">${ic('left','width:16px;height:16px;vertical-align:-3px')} All polls</button>
+  <div class="pagehead"><span class="eyebrow">New poll</span><h1 class="page">Who’s <em>in?</em></h1></div>
+  <section class="card"><div class="field"><label for="ptitle">Question</label><input class="txt" type="text" id="ptitle" value="${esc(D.title)}"></div></section>
   <section class="card">
-    <div class="sec-h"><h2>New poll</h2><button class="link" id="cancelnew">Cancel</button></div>
-    <div class="field"><label for="ptitle">Question</label><input class="textin" type="text" id="ptitle" value="${esc(D.title)}"></div>
+    <div class="step-h"><span class="tile">${ic('cal')}</span><div><span class="eyebrow">Options</span><h2>Dates &amp; slots</h2></div><span class="count">${D.dates.length}</span></div>
+    <div class="row"><button type="button" class="chip sm" id="wk0">This weekend</button><button type="button" class="chip sm" id="wk1">Next weekend</button></div>
+    <div class="plist">${D.dates.map((dt,i)=>`<div><span class="ini">${new Date(dt.date+'T00:00').getDate()}</span><span class="nm">${esc(waOpt(dt))}</span><button type="button" class="link danger" data-rmdate="${i}" aria-label="Remove date">${ic('x','width:18px;height:18px')}</button></div>`).join('')||'<p class="hint">Add at least one date.</p>'}</div>
+    <div class="btns"><div class="field"><label for="ndate">Date</label><input class="txt" type="date" id="ndate" value="${shift(D.dates.length?D.dates[D.dates.length-1].date:todayStr(),1)}"></div>
+      <div class="field"><label for="nnote">Time slot</label><input class="txt" type="text" id="nnote" placeholder="5-7 PM"></div></div>
+    <button type="button" class="btn ghost" id="adddate">${ic('plus')}Add this date</button>
   </section>
   <section class="card">
-    <div class="sec-h"><h2>Dates</h2><span class="badge">${D.dates.length}</span></div>
-    <div class="row"><button class="chip small" id="wk0">This weekend</button><button class="chip small" id="wk1">Next weekend</button></div>
-    <div class="plist">${D.dates.map((dt,i)=>`<div><span>${esc(dlabel(dt.date))}${dt.note?' · <span class="hint" style="display:inline">'+esc(dt.note)+'</span>':''}</span><button class="link" data-rmdate="${i}">Remove</button></div>`).join('')||'<p class="hint">Add at least one date.</p>'}</div>
-    <div class="grid3">
-      <div class="field"><label for="ndate">Date</label><input class="textin" type="date" id="ndate" value="${shift(D.dates.length?D.dates[D.dates.length-1].date:todayStr(),1)}"></div>
-      <div class="field"><label for="nnote">Time (optional)</label><input class="textin" type="text" id="nnote" placeholder="5-7 PM"></div>
-    </div>
-    <button class="btn ghost" id="adddate">Add date</button>
+    <div class="step-h"><span class="tile">${ic('bell')}</span><div><span class="eyebrow">Deadline</span><h2>Voting closes</h2></div></div>
+    <input class="txt" type="datetime-local" id="pclose" value="${esc(D.closes||'')}" aria-label="Poll closes at">
+    <p class="hint">No more votes after this. Leave empty to close it yourself.</p>
   </section>
   <section class="card">
-    <div class="sec-h"><h2>Voting closes</h2></div>
-    <input class="textin" type="datetime-local" id="pclose" value="${esc(D.closes)}" aria-label="Poll closes at">
-    <p class="hint">After this, no more votes. Leave empty to close it yourself.</p>
+    <div class="step-h"><span class="tile">${ic('users')}</span><div><span class="eyebrow">For court booking</span><h2>Players per court</h2></div></div>
+    <div class="hours"><button type="button" class="round big" id="pcm" aria-label="Fewer">${ic('minus')}</button><div class="hval"><b>${D.perCourt}</b><span>per court</span></div><button type="button" class="round big" id="pcp" aria-label="More">${ic('plus')}</button></div>
+    <p class="hint" style="text-align:center">4 = everyone plays every game. 6 or more = people rotate.</p>
   </section>
-  <section class="card">
-    <div class="sec-h"><h2>Courts</h2></div>
-    <div class="field"><span class="lbl">Players per court</span><div class="stepper"><button id="pc-" aria-label="Fewer players per court">−</button><output>${D.perCourt}</output><button id="pc+" aria-label="More players per court">+</button></div></div>
-    <p class="hint">Used to work out how many courts to book. 4 means everyone plays every game; 6 or more means people rotate.</p>
-    <button class="btn primary" id="createpoll">Create poll</button>
-  </section>`;
+  <button class="btn primary" id="createpoll">${ic('check')}Create poll</button>`;
   const keep=()=>{D.title=$('#ptitle').value;D.closes=$('#pclose').value};
   $('#cancelnew').onclick=()=>{P.mode='list';renderPolls()};
   const setWk=w=>{keep();const[a,b]=nextWeekend(w);D.dates=[{date:a,note:'5-7 PM'},{date:b,note:'9-11 AM'}];D.closes=shift(a,-1)+'T22:00';renderPolls()};
   $('#wk0').onclick=()=>setWk(0);$('#wk1').onclick=()=>setWk(1);
   v.querySelectorAll('[data-rmdate]').forEach(b=>b.onclick=()=>{keep();D.dates.splice(+b.dataset.rmdate,1);renderPolls()});
-  $('#adddate').onclick=()=>{keep();const d=$('#ndate').value;if(!d)return;const note=$('#nnote').value.trim();D.dates=D.dates.filter(x=>!(x.date===d&&x.note===note));D.dates.push({date:d,note});D.dates.sort((a,b)=>a.date.localeCompare(b.date));renderPolls()};
-  $('#pc-').onclick=()=>{keep();D.perCourt=Math.max(2,D.perCourt-1);renderPolls()};
-  $('#pc+').onclick=()=>{keep();D.perCourt=Math.min(12,D.perCourt+1);renderPolls()};
-  $('#createpoll').onclick=async()=>{
-    keep();if(!D.title.trim())return toast('Add a question for the poll.');if(!D.dates.length)return toast('Add at least one date.');
+  $('#adddate').onclick=()=>{keep();const d=$('#ndate').value;if(!d)return;const note=norm($('#nnote').value);D.dates=D.dates.filter(x=>!(x.date===d&&x.note===note));D.dates.push({date:d,note});D.dates.sort((a,b)=>a.date.localeCompare(b.date));renderPolls()};
+  $('#pcm').onclick=()=>{keep();D.perCourt=Math.max(2,D.perCourt-1);renderPolls()};
+  $('#pcp').onclick=()=>{keep();D.perCourt=Math.min(12,D.perCourt+1);renderPolls()};
+  $('#createpoll').onclick=async()=>{keep();if(!norm(D.title))return toast('Add a question for the poll.');if(!D.dates.length)return toast('Add at least one date.');
+    const ca=D.closes?new Date(D.closes).getTime():null;if(ca&&ca<Date.now())return toast('The closing time has already passed.');
     const b=$('#createpoll');b.disabled=true;b.textContent='Creating…';
-    try{const ref=pollsCol().doc();const ca=D.closes?new Date(D.closes).getTime():null;if(ca&&ca<Date.now()){b.disabled=false;b.textContent='Create poll';return toast('The closing time is already past.')}
-    await ref.set({title:D.title.trim(),dates:D.dates,perCourt:D.perCourt,closed:false,closesAt:ca,createdAt:Date.now()});P.draft=null;location.hash='poll-'+ref.id;toast('Poll created. Share it to your group.')}
-    catch(e){b.disabled=false;b.textContent='Create poll';toast(e.code==='permission-denied'?'Only the organizer can create polls. Sign in first.':'Could not create the poll ('+e.code+').')}
-  };
+    try{const ref=pollsCol().doc();await ref.set({title:norm(D.title),dates:D.dates,perCourt:D.perCourt,closed:false,closesAt:ca,createdAt:Date.now()});P.draft=null;P.justCreated=ref.id;location.hash='poll-'+ref.id}
+    catch(e){b.disabled=false;b.textContent='Create poll';toast(e.code==='permission-denied'?'Only the organizer can create polls. Sign in first.':'Couldn’t create the poll ('+e.code+').')}};
 }
-
 function renderPollDetail(v){
   const p=P.sel;
   if(!p||p.loading){v.innerHTML=`<section class="card"><div class="empty">Loading poll…</div></section>`;return}
   if(p.missing){v.innerHTML=`<section class="card"><div class="empty">This poll was deleted or the link is wrong.</div><button class="btn ghost" id="back">See all polls</button></section>`;$('#back').onclick=leavePoll;return}
-  const t=tally(p,P.votes);
-  const mine=t.voters.find(x=>P.myName&&x.name.trim().toLowerCase()===P.myName.trim().toLowerCase());
+  const t=tally(p,P.votes),closed=isClosed(p);
+  const mine=t.voters.find(x=>P.myName&&nkey(x.name)===nkey(P.myName));
   if(mine&&!Object.keys(P.myAns).length)P.myAns={...(mine.answers||{})};
   const names=orderNames([...new Set([...S.roster,...t.voters.map(x=>x.name)])]);
-  const known=names.some(n=>n.toLowerCase()===P.myName.trim().toLowerCase());
-  const ansBtn=(date,val,label)=>`<button class="chip small" data-ans="${date}|${val}" aria-pressed="${P.myAns[date]===val}">${label}</button>`;
+  const known=names.some(n=>nkey(n)===nkey(P.myName));
+  const fresh=P.justCreated===p.id;
   v.innerHTML=`
-  <button class="link" id="back" style="align-self:flex-start">‹ All polls</button>
-  <section class="card">
-    <div class="sec-h"><h2 style="text-transform:none;font-size:22px">${esc(p.title)}</h2><span class="badge">${isClosed(p)?'Closed':t.voters.length+' voted'}</span></div>
-    ${p.closesAt?`<span class="hint">⏰ ${isClosed(p)&&!p.closed?'Closed':'Closes'} ${esc(closeText(p.closesAt))}</span>`:''}
-    <div class="btns">
-      <a class="btn wa" href="${waHref(msgPoll(p))}" target="_blank" rel="noopener">Post poll in WhatsApp</a>
-      <button class="btn ghost" id="cplink">Copy message</button>
-      ${isOrg?'<button class="btn ghost full" id="cpopts">Copy as WhatsApp poll options</button>':''}
-    </div>
+  <button class="link" id="back" style="align-self:flex-start">${ic('left','width:16px;height:16px;vertical-align:-3px')} All polls</button>
+  <div class="pagehead"><span class="eyebrow">${closed?'Poll closed':'Poll open'} · ${t.voters.length} voted</span><h1 class="page" style="font-size:34px;text-transform:none">${esc(p.title)}</h1>
+    ${p.closesAt?`<span class="hint">${ic('bell','width:15px;height:15px;vertical-align:-3px')} ${closed&&!p.closed?'Closed':'Closes'} ${esc(closeText(p.closesAt))}</span>`:''}</div>
+  <section class="card ${fresh?'cta':''}">
+    ${fresh?'<h2>Poll ready. Send it to your group 👇</h2>':`<div class="step-h"><span class="tile">${ic('chat')}</span><div><span class="eyebrow">WhatsApp</span><h2>Send to the group</h2></div></div>`}
+    <a class="btn wa" href="${waHref(msgPoll(p))}" target="_blank" rel="noopener">${ic('chat')}Send poll on WhatsApp</a>
+    <div class="btns"><button class="btn ghost" id="cplink">${ic('copy')}Copy message</button>${isOrg?`<button class="btn ghost" id="cpopts">${ic('poll')}Copy as WA poll</button>`:`<button class="btn ghost" id="cplink2">${ic('copy')}Copy link</button>`}</div>
   </section>
   ${isOrg?orgGrid(p,t):''}
-  ${isClosed(p)||isOrg?'':`<section class="card">
-    <div class="sec-h"><h2>${isOrg?'Mark a reply':'Your vote'}</h2><span class="hint" id="vstat"></span></div>
-    <div class="field"><label for="vname">${isOrg?'Player':'Your name'}</label>
-      <select class="textin" id="vname"><option value="">Choose a name…</option>${names.map(n=>`<option ${n.toLowerCase()===P.myName.trim().toLowerCase()?'selected':''}>${esc(n)}</option>`).join('')}<option value="__other" ${P.myName&&!known?'selected':''}>Someone else…</option></select></div>
-    <input class="textin" type="text" id="vother" placeholder="Type the name" value="${P.myName&&!known?esc(P.myName):''}" ${P.myName&&!known?'':'hidden'}>
-    ${p.dates.map(dt=>`<div class="field" style="gap:8px"><span style="font-weight:700">${esc(waOpt(dt))}</span><div class="row">${ansBtn(dt.date,'yes','✅ Yes')}${ansBtn(dt.date,'maybe','🤔 Maybe')}${ansBtn(dt.date,'no','❌ No')}</div></div>`).join('')}
-    <button class="btn ghost" id="cantmake">😭 Not available on any of these</button>
-    ${isOrg?'<p class="hint">For people who replied in the WhatsApp chat instead of the link.</p>':''}
+  ${closed||isOrg?'':`<section class="card">
+    <div class="step-h"><span class="tile">${ic('check')}</span><div><span class="eyebrow">Takes 10 seconds</span><h2>Your vote</h2></div><span class="savedot" id="vstat"></span></div>
+    <div class="field"><label for="vname">Your name</label>
+      <select class="txt" id="vname"><option value="">Choose your name…</option>${names.map(n=>`<option ${nkey(n)===nkey(P.myName)?'selected':''}>${esc(n)}</option>`).join('')}<option value="__other" ${P.myName&&!known?'selected':''}>I’m not on the list…</option></select></div>
+    <input class="txt" type="text" id="vother" placeholder="Type your name" value="${P.myName&&!known?esc(P.myName):''}" ${P.myName&&!known?'':'hidden'}>
+    <p class="warn" id="vwarn" hidden></p>
+    ${p.dates.map(dt=>`<div class="vote-row"><b>${esc(waOpt(dt))}</b><div class="row">${['yes|✅ Yes','maybe|🤔 Maybe','no|❌ No'].map(s=>{const[val,l]=s.split('|');return`<button type="button" class="chip sm ${P.myAns[dt.date]===val?'on':''}" data-ans="${dt.date}|${val}">${l}</button>`}).join('')}</div></div>`).join('')}
+    <button type="button" class="btn ghost" id="cantmake">😭 Not available on any of these</button>
   </section>`}
   <section class="card">
-    <div class="sec-h"><h2>Results</h2><span class="hint">${t.per} per court</span></div>
-    ${t.res.map(r=>`<div style="display:flex;flex-direction:column;gap:8px;padding-bottom:10px;border-bottom:1px solid var(--line)">
-      <div class="sec-h"><b>${esc(waOpt(r))}</b><span class="badge" style="background:var(--accent);color:var(--on-accent)">${r.courts?r.courts+' court'+(r.courts>1?'s':''):'No courts'}</span></div>
+    <div class="step-h"><span class="tile">${ic('poll')}</span><div><span class="eyebrow">${t.per} players per court</span><h2>Results</h2></div></div>
+    ${t.res.map(r=>`<div class="res">
+      <div class="row" style="justify-content:space-between"><b>${esc(waOpt(r))}</b><span class="badge solid">${ic('shuttle','width:15px;height:15px')}${r.courts?r.courts+' court'+(r.courts>1?'s':''):'No courts'}</span></div>
       <span class="hint">✅ ${r.yes.length} yes · 🤔 ${r.maybe.length} maybe · ❌ ${r.no.length} no${r.courtsMax>r.courts?' · up to '+r.courtsMax+' courts if maybes come':''}</span>
-      <div class="chips">${r.yes.map(n=>`<span class="chip small" aria-pressed="true">${esc(n)}</span>`).join('')}${r.maybe.map(n=>`<span class="chip small">${esc(n)}?</span>`).join('')}</div>
-    </div>`).join('')}
-    ${t.pending.length?`<div class="field"><span class="lbl">No reply yet (${t.pending.length})</span><span>${t.pending.map(esc).join(', ')}</span></div>`:'<span class="hint">Everyone on the player list has replied.</span>'}
-    <div class="btns">
-      ${t.pending.length&&!isClosed(p)?`<a class="btn ghost" href="${waHref(msgReminder(p,t))}" target="_blank" rel="noopener">Send reminder</a>`:''}
-      <a class="btn wa ${t.pending.length&&!isClosed(p)?'':'full'}" href="${waHref(msgResults(p,t))}" target="_blank" rel="noopener">Post results</a>
-    </div>
+      <div class="chips">${r.yes.map(n=>`<span class="chip sm on">${ic('check')}${esc(n)}</span>`).join('')}${r.maybe.map(n=>`<span class="chip sm maybe">${esc(n)}?</span>`).join('')}</div></div>`).join('')}
+    ${t.pending.length?`<div class="field"><span class="lbl">No vote yet (${t.pending.length})</span><span>${t.pending.map(esc).join(', ')}</span></div>`:'<span class="hint">Everyone on the team has voted. 🎉</span>'}
+    <div class="btns">${t.pending.length&&!closed?`<a class="btn ghost" href="${waHref(msgReminder(p,t))}" target="_blank" rel="noopener">${ic('bell')}Remind</a>`:''}<a class="btn wa ${t.pending.length&&!closed?'':'full'}" href="${waHref(msgResults(p,t))}" target="_blank" rel="noopener">${ic('chat')}Post results</a></div>
   </section>
-  ${isOrg?`<section class="card">
-    <div class="sec-h"><h2>Organizer</h2></div>
-    <div class="btns">
-      <button class="btn ghost" id="toggleclose">${p.closed?'Reopen poll':'Close poll'}</button>
-      ${P.confirmDel?`<button class="btn danger" id="delok">Delete for good</button>`:`<button class="btn ghost" id="delpoll">Delete poll</button>`}
-    </div>
-    <p class="hint">Closing stops new replies. On the Day tab, “Fill from poll” marks everyone who said yes.</p>
-  </section>`:''}`;
-  $('#back').onclick=leavePoll;
-  $('#cplink').onclick=()=>copyBtn(msgPoll(p));
-  const co=$('#cpopts');if(co)co.onclick=()=>copyBtn(msgOptions(p));
+  ${isOrg?`<section class="card"><div class="step-h"><span class="tile">${ic('lock')}</span><div><span class="eyebrow">Organizer</span><h2>Manage poll</h2></div></div>
+    <div class="btns"><button class="btn ghost" id="toggleclose">${p.closed?'Reopen poll':'Close poll'}</button>${P.confirmDel?`<button class="btn danger" id="delok">Delete for good</button>`:`<button class="btn ghost" id="delpoll">${ic('trash')}Delete</button>`}</div>
+    <p class="hint">On game day, Today → “Fill from poll” ticks everyone who voted yes.</p></section>`:''}`;
+  $('#back').onclick=()=>{P.justCreated=null;leavePoll()};
+  $('#cplink').onclick=()=>copyText(msgPoll(p));
+  const c2=$('#cplink2');if(c2)c2.onclick=()=>copyText(pollLink(p.id),'Link copied.');
+  const co=$('#cpopts');if(co)co.onclick=()=>copyText(msgOptions(p),'Poll options copied. Paste them into a WhatsApp poll.');
   bindOrgGrid(v,p,t);
-  const cm=$('#cantmake');if(cm)cm.onclick=()=>{if(!P.myName.trim()){toast('Choose your name first.');return}p.dates.forEach(dt=>P.myAns[dt.date]='no');renderPolls();saveVote()};
   const sel=$('#vname');
   if(sel){
-    sel.onchange=()=>{const val=sel.value;if(val==='__other'){$('#vother').hidden=false;$('#vother').focus();P.myName='';}else{P.myName=val;$('#vother').hidden=true}
-      P.myAns={};const m=t.voters.find(x=>x.name.trim().toLowerCase()===P.myName.toLowerCase());if(m)P.myAns={...(m.answers||{})};
-      if(!isOrg)try{localStorage.setItem('ss-voter',P.myName)}catch(e){}
-      renderPolls()};
-    $('#vother').oninput=e=>{P.myName=e.target.value;if(!isOrg)try{localStorage.setItem('ss-voter',P.myName)}catch(e){}};
+    const setName=n=>{P.myName=n;P.myAns={};const m=t.voters.find(x=>nkey(x.name)===nkey(n));if(m)P.myAns={...(m.answers||{})};try{localStorage.setItem('ss-voter',n)}catch(e){}};
+    sel.onchange=()=>{if(sel.value==='__other'){$('#vother').hidden=false;$('#vother').focus();P.myName=''}else{setName(sel.value);renderPolls()}};
+    $('#vother').oninput=e=>{P.myName=norm(e.target.value);$('#vwarn').hidden=true};
+    $('#vother').onblur=e=>{const n=norm(e.target.value);if(!n)return;const chk=nameCheck(n,names);
+      if(chk&&chk.type==='dup'){setName(chk.name);renderPolls()}
+      else if(chk&&chk.type==='near'){const w=$('#vwarn');w.hidden=false;w.innerHTML=`<span>Are you <b>${esc(chk.name)}</b>?</span><button type="button" class="btn ghost small" id="yesme">Yes, that’s me</button>`;$('#yesme').onclick=()=>{setName(chk.name);renderPolls()}}
+      else setName(n)};
     v.querySelectorAll('[data-ans]').forEach(b=>b.onclick=()=>{
-      if(!P.myName.trim()){toast(isOrg?'Choose the player first.':'Choose your name first.');sel.focus();return}
+      if(!norm(P.myName)){toast('Choose your name first.');sel.focus();return}
       const[date,val]=b.dataset.ans.split('|');P.myAns[date]=val;
-      b.parentElement.querySelectorAll('[data-ans]').forEach(x=>x.setAttribute('aria-pressed',x===b));
-      $('#vstat').textContent='Saving…';clearTimeout(P.saveT);P.saveT=setTimeout(saveVote,350);
-    });
+      b.parentElement.querySelectorAll('[data-ans]').forEach(x=>x.classList.toggle('on',x===b));
+      $('#vstat').textContent='Saving…';clearTimeout(P.saveT);P.saveT=setTimeout(saveVote,350)});
+    $('#cantmake').onclick=()=>{if(!norm(P.myName)){toast('Choose your name first.');return}p.dates.forEach(dt=>P.myAns[dt.date]='no');renderPolls();saveVote()};
   }
-  const tc=$('#toggleclose');if(tc)tc.onclick=async()=>{try{await pollsCol().doc(p.id).update({closed:!p.closed})}catch(e){toast('Could not update the poll ('+e.code+').')}};
+  const tc=$('#toggleclose');if(tc)tc.onclick=async()=>{try{await pollsCol().doc(p.id).update({closed:!p.closed})}catch(e){toast('Couldn’t update the poll ('+e.code+').')}};
   const dp=$('#delpoll');if(dp)dp.onclick=()=>{P.confirmDel=true;renderPolls()};
-  const dk=$('#delok');if(dk)dk.onclick=async()=>{try{const ref=pollsCol().doc(p.id);const vs=await ref.collection('votes').get();await Promise.all(vs.docs.map(d=>d.ref.delete()));await ref.delete();leavePoll();toast('Poll deleted.')}catch(e){toast('Could not delete ('+e.code+').')}};
+  const dk=$('#delok');if(dk)dk.onclick=async()=>{try{const ref=pollsCol().doc(p.id);const vs=await ref.collection('votes').get();await Promise.all(vs.docs.map(d=>d.ref.delete()));await ref.delete();leavePoll();toast('Poll deleted.')}catch(e){toast('Couldn’t delete ('+e.code+').')}};
 }
 function orgGrid(p,t){
   const names=orderNames([...new Set([...S.roster,...t.voters.map(x=>x.name)])]);
-  const ans=n=>{const m=t.voters.find(x=>x.name.trim().toLowerCase()===n.toLowerCase());return m?(m.answers||{}):{}};
+  const ans=n=>{const m=t.voters.find(x=>nkey(x.name)===nkey(n));return m?(m.answers||{}):{}};
   const out=n=>{const a=ans(n);return p.dates.length&&p.dates.every(dt=>a[dt.date]==='no')};
   return`<section class="card">
-    <div class="sec-h"><h2>Record votes</h2><span class="hint" id="gstat"></span></div>
-    <p class="hint">Tap the names who picked each option, e.g. from your WhatsApp poll’s “View votes”. “Both” voters go in every date.</p>
-    ${p.dates.map(dt=>`<div class="field" style="gap:8px"><span style="font-weight:700">${esc(waOpt(dt))}</span><div class="chips">${names.map(n=>`<button class="chip small" data-g="${esc(n)}|${dt.date}" aria-pressed="${ans(n)[dt.date]==='yes'}">${esc(n)}</button>`).join('')}</div></div>`).join('')}
-    <div class="field" style="gap:8px"><span style="font-weight:700">😭 Not available</span><div class="chips">${names.map(n=>`<button class="chip small" data-g="${esc(n)}|__out" aria-pressed="${out(n)}">${esc(n)}</button>`).join('')}</div></div>
+    <div class="step-h"><span class="tile">${ic('check')}</span><div><span class="eyebrow">Organizer</span><h2>Record votes</h2></div><span class="savedot" id="gstat"></span></div>
+    <p class="hint">For replies in the chat or a WhatsApp poll: tap the names under each option. “Both” voters go under each date.</p>
+    ${p.dates.map(dt=>`<div class="vote-row"><b>${esc(waOpt(dt))}</b><div class="chips">${names.map(n=>`<button type="button" class="chip sm ${ans(n)[dt.date]==='yes'?'on':''}" data-g="${esc(n)}|${dt.date}">${ic('check')}${esc(n)}</button>`).join('')}</div></div>`).join('')}
+    <div class="vote-row"><b>😭 Not available</b><div class="chips">${names.map(n=>`<button type="button" class="chip sm ${out(n)?'on':''}" data-g="${esc(n)}|__out">${ic('check')}${esc(n)}</button>`).join('')}</div></div>
   </section>`;
 }
 const gTimers={};
 function bindOrgGrid(v,p,t){
   v.querySelectorAll('[data-g]').forEach(b=>b.onclick=()=>{
-    const i=b.dataset.g.lastIndexOf('|'),name=b.dataset.g.slice(0,i),key=b.dataset.g.slice(i+1);
-    const prev=t.voters.find(x=>x.name.trim().toLowerCase()===name.toLowerCase());
-    const a={...((prev&&prev.answers)||{})};
-    const on=b.getAttribute('aria-pressed')!=='true';
-    if(key==='__out'){p.dates.forEach(dt=>{if(on)a[dt.date]='no';else if(a[dt.date]==='no')delete a[dt.date]})}
-    else{if(on)a[key]='yes';else delete a[key];
-      // picking a date clears "not available"
-      if(on)p.dates.forEach(dt=>{if(a[dt.date]==='no')delete a[dt.date]})}
-    // optimistic local update so taps feel instant
-    const nv={name,answers:a,updatedAt:Date.now()};P.votes=[...P.votes.filter(x=>x.name.trim().toLowerCase()!==name.toLowerCase()),nv];renderPolls();
+    const i=b.dataset.g.lastIndexOf('|'),name=b.dataset.g.slice(0,i),k=b.dataset.g.slice(i+1);
+    const prev=t.voters.find(x=>nkey(x.name)===nkey(name)),a={...((prev&&prev.answers)||{})},on=!b.classList.contains('on');
+    if(k==='__out')p.dates.forEach(dt=>{if(on)a[dt.date]='no';else if(a[dt.date]==='no')delete a[dt.date]});
+    else{if(on){a[k]='yes';p.dates.forEach(dt=>{if(a[dt.date]==='no')delete a[dt.date]})}else delete a[k]}
+    const nv={name,answers:a,updatedAt:Date.now()};
+    P.votes=[...P.votes.filter(x=>nkey(x.name)!==nkey(name)),nv];renderPolls();
     const st=$('#gstat');if(st)st.textContent='Saving…';
-    clearTimeout(gTimers[name]);gTimers[name]=setTimeout(async()=>{
-      try{await pollsCol().doc(p.id).collection('votes').doc('n-'+slug(name)).set(nv);const s2=$('#gstat');if(s2)s2.textContent='Saved'}
-      catch(e){toast('Could not save '+firstName(name)+'’s vote ('+e.code+').')}
-    },400);
-  });
+    clearTimeout(gTimers[name]);gTimers[name]=setTimeout(async()=>{try{await pollsCol().doc(p.id).collection('votes').doc('n-'+slug(name)).set(nv);const s=$('#gstat');if(s)s.textContent='✓ Saved'}catch(e){toast('Couldn’t save '+first(name)+'’s vote ('+e.code+').')}},400)});
 }
 async function saveVote(){
-  const p=P.sel;if(!p||!p.id)return;const name=P.myName.trim();
-  try{
-    let id;
-    if(isOrg)id='n-'+slug(name);
-    else{if(!auth.currentUser)await auth.signInAnonymously();id=auth.currentUser.uid}
+  const p=P.sel;if(!p||!p.id)return;const name=norm(P.myName);
+  try{if(!auth.currentUser)await auth.signInAnonymously();const id=auth.currentUser.isAnonymous?auth.currentUser.uid:'n-'+slug(name);
     await pollsCol().doc(p.id).collection('votes').doc(id).set({name,answers:{...P.myAns},updatedAt:Date.now()});
-    const s=$('#vstat');if(s)s.textContent=isOrg?'Saved for '+firstName(name):'Saved. Thanks, '+firstName(name)+'!';
-  }catch(e){
-    const s=$('#vstat');if(s)s.textContent='';
-    toast(e.code==='permission-denied'?(isClosed(p)?'This poll is closed.':'Could not save your reply. Ask the organizer to check the poll rules.'):e.code==='auth/admin-restricted-operation'||e.code==='auth/operation-not-allowed'?'Voting isn’t switched on yet. Ask the organizer to enable Anonymous sign-in in Firebase.':'Could not save ('+(e.code||'error')+').');
-  }
+    const s=$('#vstat');if(s)s.textContent='✓ Saved. Thanks, '+first(name)+'!'}
+  catch(e){const s=$('#vstat');if(s)s.textContent='';
+    toast(e.code==='permission-denied'?(isClosed(p)?'This poll is closed.':'Couldn’t save your vote. Ask the organizer to check the poll rules.'):(e.code==='auth/admin-restricted-operation'||e.code==='auth/operation-not-allowed')?'Voting isn’t switched on yet. Ask the organizer to enable Anonymous sign-in in Firebase.':'Couldn’t save ('+(e.code||'error')+').')}
 }
-function pollForDate(date){return P.list.find(p=>!!(p.dates||[]).find(dt=>dt.date===date))}
-async function fillFromPoll(date){
-  const p=pollForDate(date);if(!p)return;
-  try{
-    const vs=await pollsCol().doc(p.id).collection('votes').get();
-    const yes=latestByName(vs.docs.map(d=>d.data())).filter(v=>(v.answers||{})[date]==='yes').map(v=>v.name.trim());
-    if(!yes.length)return toast('Nobody said yes for this date yet.');
-    let added=false;yes.forEach(n=>{if(!S.roster.some(r=>r.toLowerCase()===n.toLowerCase())){S.roster.push(n);added=true}});if(added)saveConfig();
-    const canon=yes.map(n=>S.roster.find(r=>r.toLowerCase()===n.toLowerCase())||n);
-    const d=getDay(curDate);d.present=[...new Set([...d.present,...canon])];setDay(d);renderDay(false);
-    toast('Marked '+canon.length+' players from the poll. Untick anyone who didn’t turn up.');
-  }catch(e){toast('Could not read the poll ('+e.code+').')}
-}
+function pollForDate(date){return P.list.find(p=>(p.dates||[]).some(dt=>dt.date===date))}
+async function fillFromPoll(date){const p=pollForDate(date);if(!p)return;
+  try{const vs=await pollsCol().doc(p.id).collection('votes').get();
+    const yes=latestByName(vs.docs.map(d=>d.data())).filter(v=>(v.answers||{})[date]==='yes').map(v=>norm(v.name));
+    if(!yes.length)return toast('Nobody voted yes for this date yet.');
+    let added=false;const canon=yes.map(n=>{const c=S.roster.find(r=>nkey(r)===nkey(n));if(c)return c;S.roster.push(n);added=true;return n});if(added)saveConfig();
+    editDay(d=>{d.present=[...new Set([...d.present,...canon])]});toast('Ticked '+canon.length+' players from the poll. Untick anyone who didn’t come.')}
+  catch(e){toast('Couldn’t read the poll ('+e.code+').')}}
 
-/* ---------- tabs & boot ---------- */
-function go(t){tab=t;['day','polls','share','players'].forEach(k=>{$('#view-'+k).hidden=k!==t;$('#tab-'+k).setAttribute('aria-selected',k===t)});render(true);window.scrollTo(0,0)}
-['day','polls','share','players'].forEach(k=>$('#tab-'+k).onclick=()=>{if(k==='share')shareSel=null;if(k==='polls'&&P.mode==='new'){}go(k)});
-function render(full){
-  if(tab==='day'){const a=document.activeElement;const typing=a&&a.tagName==='INPUT'&&$('#view-day').contains(a)&&a.type!=='checkbox';renderDay(full&&!typing)}
-  else if(tab==='polls'){pollRender()}
-  else if(tab==='share'){const img=$('#poster');renderShare()}
-  else if(tab==='players'){const a=document.activeElement;if(!(a&&a.tagName==='INPUT'))renderPlayers()}
+/* ================= navigation & boot ================= */
+function go(t){tab=t;document.querySelectorAll('.tabbar [data-tab]').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.tab===t)));
+  ['day','polls','pay','team'].forEach(k=>$('#view-'+k).hidden=k!==t);renderTab(true);window.scrollTo(0,0)}
+document.querySelectorAll('.tabbar [data-tab]').forEach(b=>b.onclick=()=>{if(b.dataset.tab==='pay'&&tab!=='pay'&&pay.range==='day'){pay.range='last';pay.off.clear()}go(b.dataset.tab)});
+function typingIn(id){const a=document.activeElement;return!!a&&(a.tagName==='INPUT'||a.tagName==='SELECT')&&$(id).contains(a)&&a.type!=='checkbox'&&a.type!=='file'}
+function renderTab(force){
+  renderHeader();
+  if(tab==='day'){if(force||!typingIn('#view-day'))renderDay();else refreshDay()}
+  else if(tab==='polls')pollRender();
+  else if(tab==='pay')renderPay();
+  else if(tab==='team'){if(force||!typingIn('#view-team'))renderTeam()}
 }
-loadLocal();if(!S.roster.length)S.roster=[...DEFAULT_PLAYERS];render(true);setStatus('This phone only');
+async function signIn(){if(!auth)return;const prov=new firebase.auth.GoogleAuthProvider();
+  try{await auth.signInWithPopup(prov)}catch(e){
+    if(['auth/popup-blocked','auth/operation-not-supported-in-this-environment','auth/cancelled-popup-request'].includes(e.code))auth.signInWithRedirect(prov);
+    else if(e.code!=='auth/popup-closed-by-user')toast('Sign-in failed: '+(e.message||e.code))}}
+$('#authbtn').onclick=()=>{if(isOrg)go('team');else signIn()};
 
-if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}))}
+loadLocal();if(!S.roster.length)S.roster=[...DEFAULT_PLAYERS];
+applySkin();bindDay();bindTeam();renderTab(true);
+if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
 
 (function boot(){
-  const configured=typeof firebase!=='undefined'&&FIREBASE_CONFIG.apiKey&&!FIREBASE_CONFIG.apiKey.startsWith('PASTE');
-  if(!configured){
-    const b=document.createElement('div');b.className='wrap';b.style.paddingTop='14px';
-    b.innerHTML='<div class="setup"><b>Saving on this phone only.</b> Paste your Firebase config at the top of index.html to sync with the group.</div>';
-    document.querySelector('main').prepend(b);return;
-  }
-  firebase.initializeApp(FIREBASE_CONFIG);
-  db=firebase.firestore();
+  const ok=typeof firebase!=='undefined'&&FIREBASE_CONFIG.apiKey&&!/^PASTE/.test(FIREBASE_CONFIG.apiKey);
+  if(!ok)return;
+  firebase.initializeApp(FIREBASE_CONFIG);db=firebase.firestore();
   try{db.enablePersistence({synchronizeTabs:true}).catch(()=>{})}catch(e){}
-  auth=firebase.auth();const ab=$('#authbtn');ab.hidden=false;
-  readOnly=true;setStatus('Syncing…');
+  auth=firebase.auth();
+  let cfgMissing=false,authInit=false;
   auth.getRedirectResult().catch(e=>toast('Sign-in failed: '+(e.message||e.code)));
-  ab.onclick=async()=>{
-    if(isOrg){await auth.signOut();return}
-    const prov=new firebase.auth.GoogleAuthProvider();
-    try{await auth.signInWithPopup(prov)}
-    catch(e){if(e.code==='auth/popup-blocked'||e.code==='auth/operation-not-supported-in-this-environment'||e.code==='auth/cancelled-popup-request')auth.signInWithRedirect(prov);else if(e.code!=='auth/popup-closed-by-user')toast('Sign-in failed: '+(e.message||e.code))}
-  };
-  auth.onAuthStateChanged(u=>{
-    isOrg=!!u&&!u.isAnonymous;readOnly=!isOrg;ab.textContent=isOrg?'Sign out':'Organizer sign in';
-    document.body.classList.toggle('ro',readOnly);
-    setStatus(isOrg?(u.displayName||u.email||'Signed in').split(' ')[0]+' · editing':'View only');
-    if(isOrg&&!P.myName)P.myName='';
-    settleRef&&settleRef();render(true);
-  });
-  startPollsListener();routeHash();window.addEventListener('hashchange',routeHash);
-  let settleRef=null;
-  let gotCfg=false,gotDays=false,cfgMissing=false;
-  const settle=()=>{if(gotCfg&&gotDays){if(cfgMissing&&!readOnly){cfgMissing=false;saveConfig()}render(true)}};
-  settleRef=settle;
-  fsDoc('config/main').onSnapshot(s=>{
-    if(busy('config/main'))return;
-    if(!s.exists&&!s.metadata.fromCache)cfgMissing=true;
-    if(s.exists){cfgMissing=false;const d=s.data();S.roster=Array.isArray(d.roster)?[...d.roster]:[];S.rate=+d.rate||300;S.courts=+d.courts||1;saveLocal()}
-    gotCfg=true;settle();
-  },e=>{setStatus('Not synced');toast('Could not load shared data ('+e.code+'). Check the Firestore rules.')});
+  auth.onAuthStateChanged(u=>{const was=isOrg;isOrg=!!u&&!u.isAnonymous;
+    if(!authInit||was!==isOrg){authInit=true;renderTab(true);if(isOrg&&cfgMissing){cfgMissing=false;saveConfig()}}});
+  fsDoc('config/main').onSnapshot(s=>{if(busy('config/main'))return;
+    if(!s.exists&&!s.metadata.fromCache){cfgMissing=true;if(isOrg){cfgMissing=false;saveConfig()}}
+    if(s.exists){const d=s.data();if(Array.isArray(d.roster))S.roster=[...d.roster];S.rate=+d.rate||300;S.groupName=d.groupName||'';S.skin=SKINS[d.skin]?d.skin:'court';applySkin();saveLocal()}
+    renderTab(false)},e=>toast('Couldn’t load shared data ('+e.code+').'));
+  fsDoc('config/photo').onSnapshot(s=>{if(busy('config/photo'))return;photo=s.exists?(s.data().data||''):'';try{photo?localStorage.setItem(LSP,photo):localStorage.removeItem(LSP)}catch(e){}renderHeader();if(tab==='team'&&!typingIn('#view-team'))renderTeam()},()=>{});
   db.collection(COLLECTION_PREFIX+'days').onSnapshot(q=>{
-    const next={};q.docs.forEach(doc=>{const d=doc.data();next[doc.id]=Object.assign(blankDay(doc.id),JSON.parse(JSON.stringify(d)))});
+    const next={};q.docs.forEach(doc=>next[doc.id]=normDay(doc.data(),doc.id));
     Object.keys(S.days).forEach(k=>{if(busy('days/'+k))next[k]=S.days[k]});
     Object.keys(pending).forEach(p=>{if(p.startsWith('days/')&&pending[p]===null)delete next[p.slice(5)]});
-    S.days=next;saveLocal();gotDays=true;settle();
-  },e=>setStatus('Not synced'));
+    S.days=next;saveLocal();renderTab(false)},()=>{});
+  startPollsListener();routeHash();window.addEventListener('hashchange',routeHash);
 })();
 })();
 </script>
