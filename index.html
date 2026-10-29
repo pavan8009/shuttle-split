@@ -105,7 +105,7 @@ select.txt{appearance:none;-webkit-appearance:none;background-image:linear-gradi
 .btn .ic{width:18px;height:18px}
 .btn.sm{height:38px;padding:0 12px;font-size:13.5px;border-radius:10px}
 .btn.primary{background:var(--accent);color:var(--accent-ink)}
-.btn.line{border:1px solid var(--line);background:var(--surface)}
+.btn.line{border:1px solid var(--line);background:var(--surface);color:var(--ink)}
 .btn.wa{background:#1FA855;color:#fff}
 .btn.danger{background:var(--danger);color:#fff}
 .btn.block{width:100%}
@@ -116,7 +116,7 @@ select.txt{appearance:none;-webkit-appearance:none;background-image:linear-gradi
 
 /* player tiles: equal-width grid so everything lines up */
 .tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
-.tile{height:44px;border:1px solid var(--line);border-radius:10px;background:var(--surface);font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center;gap:5px;padding:0 6px;min-width:0}
+.tile{position:relative;height:44px;border:1px solid var(--line);border-radius:10px;background:var(--surface);font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center;gap:5px;padding:0 6px;min-width:0}
 .tile span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .tile .ic{width:15px;height:15px;stroke-width:2.8;display:none}
 .tile.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
@@ -215,7 +215,30 @@ label.row{cursor:pointer}
 .tabbar button[aria-selected="true"]{color:var(--accent)}
 .tabbar button[aria-selected="true"] .ic{stroke-width:2.3}
 .toast{position:fixed;left:50%;bottom:calc(80px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--surface);padding:11px 16px;border-radius:12px;font-weight:600;font-size:14px;z-index:40;width:max-content;max-width:calc(100% - 32px);text-align:center;box-shadow:0 8px 24px rgba(0,0,0,.18)}
+/* dues flags */
+.tile.due::after{content:"";position:absolute;top:5px;right:5px;width:8px;height:8px;border-radius:50%;background:var(--danger);box-shadow:0 0 0 2px var(--surface)}
+.flag{display:block;font-size:11.5px;font-weight:700;color:var(--danger);margin-top:2px}
+.ok-chip{display:inline-flex;align-items:center;gap:4px;font-weight:800;color:var(--ok);font-size:13px}
+.ok-chip .ic{width:14px;height:14px;stroke-width:2.8}
+.wait-chip{display:block;font-size:11.5px;font-weight:700;color:#B54708;margin-top:2px}
+.due-card .card-h .ico{background:color-mix(in srgb,var(--danger) 12%,var(--surface));color:var(--danger)}
+.due-amt{font-weight:800;color:var(--danger)}
+.prow .acts{display:flex;gap:6px}
+.dotred{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--danger);margin-left:6px;vertical-align:2px}
+.acct{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding:12px 16px;border-top:1px solid var(--line2)}
+.acct div{background:var(--field);border-radius:10px;padding:8px 10px}
+.acct span{display:block;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.acct b{font-size:16px}
+.acct .bad b{color:var(--danger)}
+.acct .good b{color:var(--ok)}
 /* tappable names + personal breakdown sheet */
+.payamt{display:inline-flex;align-items:center;gap:2px;font-weight:800;color:var(--accent);background:var(--soft);border-radius:8px;padding:4px 6px 4px 8px}
+.payamt .ic{width:13px;height:13px;stroke-width:2.6}
+.payhero{display:flex;flex-direction:column;align-items:center;gap:4px;padding:20px 16px;background:var(--soft);text-align:center}
+.payhero .sublbl{display:inline-flex;align-items:center;gap:4px}
+.payhero .sublbl .ic{width:13px;height:13px}
+.payhero b{font-size:40px;font-weight:800;letter-spacing:-.02em;color:var(--accent);line-height:1.1}
+.payhero small{color:var(--muted);font-size:13.5px;word-break:break-all}
 .who{display:inline-flex;align-items:center;gap:4px;font-weight:700;color:var(--accent);text-decoration:underline;text-decoration-color:color-mix(in srgb,var(--accent) 35%,transparent);text-underline-offset:3px}
 .who .ic{width:14px;height:14px;stroke-width:2.4}
 .sheet-bg{position:fixed;inset:0;z-index:50;background:rgba(16,24,40,.45);display:flex;align-items:flex-end;justify-content:center;animation:fade .15s ease}
@@ -349,8 +372,8 @@ if(darkMQ.addEventListener)darkMQ.addEventListener('change',applySkin);
 
 /* ---------- state ---------- */
 const LS='shuttle-split-v1', LSP='shuttle-split-photo';
-const S={roster:[],rate:300,courts:1,groupName:'',skin:'court',days:{}};
-let photo='', db=null, auth=null, isOrg=false, tab='day', curDate=todayStr();
+const S={roster:[],rate:300,courts:1,groupName:'',skin:'court',upiId:'',upiName:'',days:{}};
+let PAYS=[], photo='', db=null, auth=null, isOrg=false, tab='day', curDate=todayStr();
 const canEdit=()=>!db||isOrg;
 function loadLocal(){try{const j=JSON.parse(localStorage.getItem(LS)||'null');if(j&&typeof j==='object')Object.assign(S,j);photo=localStorage.getItem(LSP)||''}catch(e){}
   S.days=S.days||{};Object.keys(S.days).forEach(k=>S.days[k]=normDay(S.days[k],k))}
@@ -368,7 +391,7 @@ async function flush(path){
   catch(e){toast(e&&e.code==='permission-denied'?'Only the organizer can change this. Sign in first.':'Couldn’t save ('+((e&&e.code)||'error')+'). Kept on this phone.')}
   inflight[path]=false;if(path in pending)flush(path);
 }
-function saveConfig(){queueWrite('config/main',{roster:S.roster,rate:S.rate,courts:1,groupName:S.groupName||'',skin:S.skin||'court'})}
+function saveConfig(){queueWrite('config/main',{roster:S.roster,rate:S.rate,courts:1,groupName:S.groupName||'',skin:S.skin||'court',upiId:S.upiId||'',upiName:S.upiName||''})}
 
 /* ---------- days & money ---------- */
 function blankDay(date){return{date,present:[],hours:2,rate:S.rate,courts:1,shuttle:0,shuttleSkip:[],drinksOn:false,drinks:0,drinksSkip:[]}}
@@ -390,6 +413,34 @@ function calc(d){
   const actual=court+shuttle+drinks, collected=Object.values(per).reduce((a,b)=>a+b.total,0);
   return{n,court,shuttle,drinks,cEach,sEach,dEach,shN:shS.length,drN:drS.length,per,actual,collected};
 }
+/* ---------- payments ledger: charges from every recorded day minus confirmed payments ---------- */
+const allPays=()=>db?PAYS:(S.payments||[]);
+function allNames(){return orderNames([...new Set([...S.roster,...Object.values(S.days).flatMap(d=>d.present||[]),...allPays().map(p=>p.name)].map(norm).filter(Boolean))].filter((n,i,a)=>a.findIndex(x=>nkey(x)===nkey(n))===i))}
+function ledger(name,before){
+  const k=nkey(name);let charged=0;const days=[];
+  Object.keys(S.days).sort().forEach(ds=>{if(before&&ds>=before)return;const d=getDay(ds);const p=d.present.find(x=>nkey(x)===k);if(!p)return;const amt=calc(d).per[p].total;charged+=amt;days.push({date:ds,amt})});
+  let paid=0,claimed=0;const hist=[];
+  allPays().forEach(x=>{if(nkey(x.name)!==k)return;if(x.status==='confirmed'){paid+=+x.amount||0}else if(x.status==='claimed'){claimed+=+x.amount||0}hist.push(x)});
+  const due=Math.max(0,r2(charged-paid));
+  let left=paid,since=null;for(const d of days){if(left>=d.amt){left-=d.amt}else{since=d.date;break}}
+  hist.sort((a,b)=>(b.at||0)-(a.at||0));
+  return{charged,paid,claimed,due,since,hist};
+}
+function duesList(before){return allNames().map(n=>({name:n,...ledger(n,before)})).filter(x=>x.due>0).sort((a,b)=>b.due-a.due)}
+const payCol=()=>db.collection(COLLECTION_PREFIX+'payments');
+async function addPayment(name,amount,status,method){
+  const doc={name:norm(name),amount:r2(+amount),at:Date.now(),status,method:method||'upi',by:isOrg||!db?'organizer':'player'};
+  if(!db){S.payments=S.payments||[];S.payments.push({id:'l'+Date.now(),...doc,status:'confirmed'});saveLocal();renderTab(false);return true}
+  try{if(!isOrg){if(!auth.currentUser)await auth.signInAnonymously();doc.uid=auth.currentUser.uid}
+    await payCol().add(doc);return true}
+  catch(e){toast(e.code==='permission-denied'?'Couldn’t record the payment. Ask the organizer to update the app rules.':(e.code==='auth/admin-restricted-operation'||e.code==='auth/operation-not-allowed')?'Ask the organizer to enable Anonymous sign-in in Firebase.':'Couldn’t record the payment ('+(e.code||'error')+').');return false}
+}
+async function setPayStatus(id,status){
+  if(!db){const x=(S.payments||[]).find(p=>p.id===id);if(x){if(status==='delete')S.payments=S.payments.filter(p=>p.id!==id);else x.status=status}saveLocal();renderTab(false);return}
+  try{const ref=payCol().doc(id);if(status==='delete')await ref.delete();else await ref.update({status,confirmedAt:Date.now()})}catch(e){toast('Couldn’t update the payment ('+e.code+').')}
+}
+function duesMsg(list){const L=['🔔 *'+(S.groupName||'Badminton')+' — pending dues*',''];list.forEach(x=>L.push('• '+x.name+' – *'+inr(x.due)+'*'+(x.since?' (since '+dlabel(x.since,{day:'numeric',month:'short'})+')':'')));
+  L.push('');if(S.upiId)L.push('📲 UPI: '+S.upiId);L.push('Tap your amount in the app to pay: '+location.origin+location.pathname);return L.join('\n')}
 const playedDays=()=>Object.keys(S.days).filter(k=>S.days[k].present&&S.days[k].present.length).sort().reverse();
 function orderNames(arr){const ix=n=>{const i=S.roster.findIndex(r=>nkey(r)===nkey(n));return i<0?999:i};return[...arr].sort((a,b)=>ix(a)-ix(b)||a.localeCompare(b))}
 
@@ -430,6 +481,7 @@ function renderDay(){
   ${intro('Today’s game','Tick who played and enter the costs. Everyone’s share is worked out as you go.')}
   <div id="daykpi"></div>
   ${viewOnly('record days')}
+  <div id="duealert"></div>
   <section class="card">
     <div class="wk-h"><b>${esc(dlabel(curDate,{month:'long',year:'numeric'}))}</b>
       <button class="iconbtn" data-act="pw" aria-label="Previous week">${ic('left')}</button>
@@ -474,7 +526,12 @@ function refreshDay(){
   $('#pmeta').textContent=d.present.length+' of '+S.roster.length;
   const extra=d.present.filter(p=>!S.roster.some(r=>nkey(r)===nkey(p)));
   const names=[...S.roster,...extra];
-  $('#att').innerHTML=names.length?names.map(p=>`<button type="button" class="tile ${d.present.includes(p)?'on':''}" data-act="toggle" data-v="${esc(p)}" aria-pressed="${d.present.includes(p)}">${ic('check')}<span>${esc(p)}</span></button>`).join(''):'<p class="hint">No players yet. Add names below.</p>';
+  const dueB=duesList(curDate),dueSet=new Set(dueB.map(x=>nkey(x.name)));
+  $('#duealert').innerHTML=dueB.length?`<section class="card due-card">${cardH('bell','Unpaid from earlier days',inr(dueB.reduce((a,x)=>a+x.due,0)))}
+    ${dueB.slice(0,6).map(x=>`<div class="prow"><span class="ini">${esc(initials(x.name))}</span><span class="nm">${esc(x.name)}<small>${x.since?'Due since '+esc(dlabel(x.since,{day:'numeric',month:'short'})):''}${x.claimed?' · '+inr(x.claimed)+' waiting confirmation':''}</small></span><span class="due-amt">${inr(x.due)}</span></div>`).join('')}
+    ${dueB.length>6?`<div class="row"><small class="hint">and ${dueB.length-6} more</small></div>`:''}
+    <div class="card-f"><a class="btn sm wa" href="${waHref(duesMsg(dueB))}" target="_blank" rel="noopener">${ic('chat')}Remind on WhatsApp</a><span class="hint" style="margin-left:auto">Red dot = owes money</span></div></section>`:'';
+  $('#att').innerHTML=names.length?names.map(p=>`<button type="button" class="tile ${d.present.includes(p)?'on':''}${dueSet.has(nkey(p))?' due':''}" data-act="toggle" data-v="${esc(p)}" aria-pressed="${d.present.includes(p)}">${ic('check')}<span>${esc(p)}</span></button>`).join(''):'<p class="hint">No players yet. Add names below.</p>';
   $('#hval').textContent=fmtH(d.hours)+' h';
   $('#courtcalc').textContent=fmtH(d.hours)+' h × '+inr(d.rate)+' = '+inr(c.court);
   $('#costmeta').textContent=inr(c.actual);
@@ -584,11 +641,12 @@ function renderPay(){
   ${R.rows.length?`
   <section class="card">
     ${cardH('rupee','Who pays what',inr(R.total),true)}
-    <div class="tablewrap"><table><thead><tr><th>Name</th>${R.days.map(d=>`<th>${esc(dlabel(d.date,{weekday:'short',day:'numeric'}))}</th>`).join('')}${R.days.length>1?'<th>Total</th>':''}</tr></thead>
-      <tbody>${R.rows.map(r=>`<tr><td><button class="who" data-who="${esc(r.p)}">${esc(r.p)}${ic('right')}</button></td>${r.cells.map(x=>`<td>${x===null?'–':inr(x)}</td>`).join('')}${R.days.length>1?`<td class="t">${inr(r.total)}</td>`:''}</tr>`).join('')}</tbody>
-      <tfoot><tr><td>Total</td>${R.calcs.map(c=>`<td>${inr(c.collected)}</td>`).join('')}${R.days.length>1?`<td class="t">${inr(R.total)}</td>`:''}</tr></tfoot></table></div>
-    <div class="card-f"><p class="hint">Tap a name to see that person’s court, shuttle and drinks split for each day.</p></div>
+    <div class="tablewrap"><table><thead><tr><th>Name</th>${R.days.map(d=>`<th>${esc(dlabel(d.date,{weekday:'short',day:'numeric'}))}</th>`).join('')}<th>To pay</th></tr></thead>
+      <tbody>${R.rows.map(r=>`<tr><td><button class="who" data-who="${esc(r.p)}">${esc(r.p)}${ic('right')}</button></td>${r.cells.map(x=>`<td>${x===null?'–':inr(x)}</td>`).join('')}<td class="t">${payCell(r)}</td></tr>`).join('')}</tbody>
+      <tfoot><tr><td>Total</td>${R.calcs.map(c=>`<td>${inr(c.collected)}</td>`).join('')}<td class="t">${inr(R.rows.reduce((a,r)=>a+ledger(r.p).due,0))}</td></tr></tfoot></table></div>
+    <div class="card-f"><p class="hint">Tap a <b>name</b> for the day-by-day split. Tap an <b>amount</b> to pay by UPI. <span style="color:var(--danger);font-weight:700">Red</span> = includes unpaid earlier dues.</p></div>
   </section>
+  ${payBook()}
   <section class="card">
     ${cardH('share','Send to the group')}
     <div class="pad">
@@ -597,12 +655,14 @@ function renderPay(){
       <p class="hint">Share poster opens your phone’s share sheet. Choose WhatsApp, then your group.</p>
     </div>
   </section>
-  <section class="card poster">${cardH('image','Poster preview','Long-press to save')}<img id="poster" alt="Payout poster"></section>`:''}`;
+  <section class="card poster">${cardH('image','Poster preview','Long-press to save')}<img id="poster" alt="Payout poster"></section>`:payBook()}`;
   v.querySelectorAll('[data-range]').forEach(b=>b.onclick=()=>{pay.range=b.dataset.range;pay.off.clear();renderPay()});
   v.querySelectorAll('[data-k]').forEach(cb=>cb.onchange=()=>{cb.checked?pay.off.delete(cb.dataset.k):pay.off.add(cb.dataset.k);renderPay()});
   const pf=$('#pfrom'),pt=$('#pto');if(pf){pf.onchange=()=>{pay.from=pf.value||pay.from;renderPay()};pt.onchange=()=>{pay.to=pt.value||pay.to;renderPay()}}
-  if(!R.rows.length)return;
+  if(!R.rows.length){bindPayBook(v);return}
   v.querySelectorAll('[data-who]').forEach(b=>b.onclick=()=>openWho(b.dataset.who,R));
+  v.querySelectorAll('[data-pay]').forEach(b=>b.onclick=()=>openPay(b.dataset.pay));
+  bindPayBook(v);
   const msg=payText(R);
   $('#watext').href=waHref(msg);
   $('#copytext').onclick=()=>copyText(msg);
@@ -614,14 +674,46 @@ function renderPay(){
       else{const a=document.createElement('a');a.href=url;a.download=fname;document.body.appendChild(a);a.click();a.remove();toast('Poster saved. Attach it in WhatsApp.')}
     }catch(e){if(!e||e.name!=='AbortError')toast('Couldn’t share. Long-press the poster to save it.')}}});
 }
+function payCell(r){
+  const L=ledger(r.p);
+  if(L.due<=0)return`<span class="ok-chip">${ic('check')}Paid</span>`;
+  const earlier=Math.max(0,r2(L.due-r.total));
+  return`<button class="payamt" data-pay="${esc(r.p)}" aria-label="Pay ${inr(L.due)} for ${esc(r.p)}"${earlier?' style="color:var(--danger);background:color-mix(in srgb,var(--danger) 10%,var(--surface))"':''}>${inr(L.due)}${ic('right')}</button>${earlier?`<span class="flag">+${inr(earlier)} earlier</span>`:''}${L.claimed?`<span class="wait-chip">${inr(L.claimed)} to confirm</span>`:''}`;
+}
+let payDel=null;
+function payBook(){
+  const claims=allPays().filter(x=>x.status==='claimed').sort((a,b)=>(b.at||0)-(a.at||0));
+  const dues=duesList();
+  const recent=allPays().filter(x=>x.status==='confirmed').sort((a,b)=>(b.at||0)-(a.at||0)).slice(0,6);
+  const when=t=>t?new Date(t).toLocaleDateString('en-IN',{day:'numeric',month:'short'}):'';
+  return`
+  ${isOrg&&claims.length?`<section class="card due-card">${cardH('bell','Confirm payments',claims.length)}
+    ${claims.map(x=>`<div class="prow"><span class="ini">${esc(initials(x.name))}</span><span class="nm">${esc(x.name)} · ${inr(x.amount)}<small>Says paid on ${when(x.at)} · check your UPI app</small></span><span class="acts"><button class="btn sm primary" data-pconf="${esc(x.id)}">${ic('check')}</button><button class="btn sm line" data-prej="${esc(x.id)}" aria-label="Not received">${ic('x')}</button></span></div>`).join('')}</section>`:''}
+  <section class="card${dues.length?' due-card':''}">${cardH(dues.length?'bell':'check','Outstanding dues',dues.length?inr(dues.reduce((a,x)=>a+x.due,0)):'All clear')}
+    ${dues.length?dues.map(x=>`<button class="prow" style="width:100%;text-align:left" data-pay="${esc(x.name)}"><span class="ini">${esc(initials(x.name))}</span><span class="nm">${esc(x.name)}<small>${x.since?'Since '+esc(dlabel(x.since,{day:'numeric',month:'short'})):''}${x.claimed?' · '+inr(x.claimed)+' to confirm':''}</small></span><span class="due-amt">${inr(x.due)}</span></button>`).join('')
+      :`<div class="empty">${ic('check')}Everyone has paid in full.</div>`}
+    ${dues.length?`<div class="card-f"><a class="btn sm wa" href="${waHref(duesMsg(dues))}" target="_blank" rel="noopener">${ic('chat')}Remind everyone who owes</a></div>`:''}</section>
+  ${recent.length?`<section class="card">${cardH('wallet','Recent payments')}
+    ${recent.map(x=>`<div class="prow"><span class="ini">${esc(initials(x.name))}</span><span class="nm">${esc(x.name)}<small>${when(x.confirmedAt||x.at)} · ${x.by==='player'?'paid by UPI, confirmed':'marked received'}</small></span>${isOrg?(payDel===x.id?`<span class="acts"><button class="lnk" data-pkeep>Keep</button><button class="lnk danger" data-pdel="${esc(x.id)}">Undo</button></span>`:`<button class="am" style="color:var(--ok)" data-pask="${esc(x.id)}">${inr(x.amount)}</button>`):`<span class="am" style="color:var(--ok)">${inr(x.amount)}</span>`}</div>`).join('')}</section>`:''}`;
+}
+function bindPayBook(v){
+  v.querySelectorAll('[data-pay]').forEach(b=>b.onclick=()=>openPay(b.dataset.pay));
+  v.querySelectorAll('[data-pconf]').forEach(b=>b.onclick=async()=>{b.disabled=true;await setPayStatus(b.dataset.pconf,'confirmed');toast('Payment confirmed.')});
+  v.querySelectorAll('[data-prej]').forEach(b=>b.onclick=async()=>{b.disabled=true;await setPayStatus(b.dataset.prej,'delete');toast('Marked as not received. The amount is still due.')});
+  v.querySelectorAll('[data-pask]').forEach(b=>b.onclick=()=>{payDel=b.dataset.pask;renderPay()});
+  v.querySelectorAll('[data-pkeep]').forEach(b=>b.onclick=()=>{payDel=null;renderPay()});
+  v.querySelectorAll('[data-pdel]').forEach(b=>b.onclick=async()=>{payDel=null;await setPayStatus(b.dataset.pdel,'delete');toast('Payment removed. The amount is due again.')});
+}
 function payText(R){
   const L=['🏸 *'+(S.groupName||'Badminton')+' — Payouts*',R.days.map(d=>dlabel(d.date)).join(' | '),''];
-  R.rows.forEach(r=>L.push('• '+r.p+' – *'+inr(r.total)+'*'));L.push('');
+  R.rows.forEach(r=>{const g=ledger(r.p),e=Math.max(0,r2(g.due-r.total));L.push('• '+r.p+' – *'+inr(r.total)+'*'+(g.due<=0?' ✅ paid':e?' ⚠️ +'+inr(e)+' earlier = '+inr(g.due):''))});L.push('');
   R.days.forEach((d,i)=>{const c=R.calcs[i];L.push('📅 *'+dlabel(d.date)+'* · '+c.n+' players');
     L.push('   Court: '+fmtH(d.hours)+' h × '+inr(d.rate)+' = '+inr(c.court)+' → '+inr(c.cEach)+' each');
     if(c.shuttle)L.push('   Shuttles: '+inr(c.shuttle)+' ÷ '+c.shN+' → '+inr(c.sEach)+' each');
     if(c.drinks)L.push('   Drinks: '+inr(c.drinks)+' ÷ '+c.drN+' → '+inr(c.dEach)+' each');});
-  L.push('');L.push('💰 *Total to collect: '+inr(R.total)+'*');return L.join('\n');
+  L.push('');L.push('💰 *Total to collect: '+inr(R.total)+'*');
+  if(S.upiId)L.push('📲 Pay by UPI: '+S.upiId+(S.upiName?' ('+S.upiName+')':''));
+  L.push('Tap your amount in the app to pay: '+location.origin+location.pathname);return L.join('\n');
 }
 
 /* ---------- personal breakdown ---------- */
@@ -631,9 +723,10 @@ function openWho(name,R){
   const sum=k=>rows.reduce((a,x)=>a+x.o[k],0);
   const cell=n=>n?`<td>${inr(n)}</td>`:`<td class="zero">–</td>`;
   const total=sum('total');
+  const acc=ledger(name);
   const lines=['🏸 *'+name+' — my share*'];
   rows.forEach(x=>{const p=[];p.push('Court '+inr(x.o.court));if(x.o.shuttle)p.push('Shuttles '+inr(x.o.shuttle));if(x.o.drinks)p.push('Drinks '+inr(x.o.drinks));lines.push(dlabel(x.d.date)+': *'+inr(x.o.total)+'* ('+p.join(' + ')+')')});
-  lines.push('*Total: '+inr(total)+'*');
+  lines.push('*Total: '+inr(total)+'*');if(acc.due!==total)lines.push(acc.due?'Balance due overall: *'+inr(acc.due)+'*':'All paid ✅');
   const bg=document.createElement('div');bg.className='sheet-bg';bg.id='whosheet';
   bg.innerHTML=`<div class="sheet" role="dialog" aria-modal="true" aria-label="${esc(name)} breakdown">
     <div class="grab"></div>
@@ -647,15 +740,58 @@ function openWho(name,R){
         if(c.drinks)p.push(x.o.drinks?`Drinks ${inr(c.drinks)} ÷ ${c.drN} = ${inr(c.dEach)}`:'Drinks: not included');
         return`<div><b>${esc(dlabel(d.date,{weekday:'long',day:'numeric',month:'short'}))}</b><br>${p.join('<br>')}</div>`}).join('')}
       <p class="hint">Each share is rounded up to the next rupee.</p></div>
-    <div class="card-f" style="display:grid;grid-template-columns:1fr 1fr"><a class="btn wa" href="${waHref(lines.join('\n'))}" target="_blank" rel="noopener">${ic('chat')}WhatsApp</a><button class="btn line" id="whocopy">${ic('copy')}Copy</button></div>
+    <div class="acct"><div><span>All games so far</span><b>${inr(acc.charged)}</b></div><div class="good"><span>Paid</span><b>${inr(acc.paid)}</b></div>
+      <div><span>Waiting to confirm</span><b>${inr(acc.claimed)}</b></div><div class="${acc.due?'bad':'good'}"><span>Balance due</span><b>${acc.due?inr(acc.due):'Nil ✓'}</b></div></div>
+    <div class="card-f" style="display:grid;grid-template-columns:1fr 1fr">${acc.due?`<button class="btn primary full" style="grid-column:1/-1" id="whopay">${ic('rupee')}Pay ${inr(acc.due)}</button>`:''}<a class="btn wa" href="${waHref(lines.join('\n'))}" target="_blank" rel="noopener">${ic('chat')}WhatsApp</a><button class="btn line" id="whocopy">${ic('copy')}Copy</button></div>
   </div>`;
   document.body.appendChild(bg);document.body.style.overflow='hidden';
   bg.addEventListener('click',e=>{if(e.target===bg)closeWho()});
   $('#whoclose').onclick=closeWho;$('#whocopy').onclick=()=>copyText(lines.join('\n'),'Breakdown copied.');
+  const wp=$('#whopay');if(wp)wp.onclick=()=>openPay(name);
   $('#whoclose').focus();
 }
 function closeWho(){const s=$('#whosheet');if(s){s.remove();document.body.style.overflow=''}}
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeWho()});
+
+/* ---------- UPI payment ---------- */
+const UPI_RE=/^[a-zA-Z0-9._-]{2,256}@[a-zA-Z][a-zA-Z0-9.-]{1,63}$/;
+const isIOS=/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+function upiQuery(amount,note){const e=encodeURIComponent;return'pa='+S.upiId.trim()+'&pn='+e(S.upiName||S.groupName||'Badminton')+'&am='+Number(amount).toFixed(2)+'&cu=INR&tn='+e(note)}
+function openPay(name){
+  closeWho();
+  const L=ledger(name),amount=L.due;
+  const bg=document.createElement('div');bg.className='sheet-bg';bg.id='whosheet';
+  const head=`<div class="grab"></div><div class="sheet-h"><span class="ini">${esc(initials(name))}</span><div><b>${esc(name)}</b><small>${L.since?'Unpaid since '+esc(dlabel(L.since,{day:'numeric',month:'short'})):'Balance'}</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div>`;
+  const orgBox=isOrg||!db?`<div class="row"><div class="l"><b>Mark as received</b><small>Cash, or a UPI payment you can see. Change the amount for part payments.</small></div></div>
+    <div class="sub"><div class="inline"><div class="amt" style="flex:1;width:auto"><span>₹</span><input id="rcvamt" type="number" inputmode="decimal" min="1" value="${amount}" aria-label="Amount received"></div><button class="btn primary" id="rcvbtn">${ic('check')}Received</button></div></div>`:'';
+  let body;
+  if(amount<=0){
+    body=`<div class="payhero"><span class="sublbl">${ic('check')} All paid</span><b style="color:var(--ok)">Nil</b><small>${L.claimed?inr(L.claimed)+' waiting for the organizer to confirm':'Nothing due right now. Thank you!'}</small></div>`;
+  }else if(!S.upiId){
+    body=`<div class="payhero"><span class="sublbl">Balance due</span><b>${inr(amount)}</b><small>The organizer hasn’t added a UPI ID yet.</small></div>
+      ${isOrg?`<div class="pad"><button class="btn line block" id="gotoupi">${ic('gear')}Add UPI ID in Team</button></div>`:''}`;
+  }else{
+    const note=('Badminton '+name+' dues').slice(0,50),q=upiQuery(amount,note);
+    const apps=[['Google Pay',isIOS?'gpay://upi/pay?':'tez://upi/pay?'],['PhonePe','phonepe://pay?'],['Paytm','paytmmp://pay?'],['BHIM','bhim://upi/pay?']];
+    body=`<div class="payhero"><span class="sublbl">${ic('lock')} Amount fixed</span><b>${inr(amount)}</b><small>to ${esc(S.upiName||'organizer')} · ${esc(S.upiId)}</small>${L.claimed?`<span class="wait-chip">${inr(L.claimed)} already waiting for confirmation</span>`:''}</div>
+      <div class="pad">
+        ${isIOS?'':`<a class="btn primary block" href="upi://pay?${q}">${ic('rupee')}Pay with any UPI app</a>`}
+        <div class="grid2">${apps.map(([n,u])=>`<a class="btn line" href="${u}${q}">${esc(n)}</a>`).join('')}</div>
+        <button class="btn line block" id="copyupi">${ic('copy')}Copy UPI ID</button>
+        ${!isOrg&&db?`<button class="btn block" style="background:var(--ok);color:#fff" id="claimbtn">${ic('check')}I’ve paid ${inr(amount)}</button>
+        <p class="hint">After paying in your UPI app, come back and tap “I’ve paid”. The organizer confirms it, then your dues clear.</p>`:''}
+      </div>`;
+  }
+  bg.innerHTML=`<div class="sheet" role="dialog" aria-modal="true" aria-label="Pay ${esc(name)}">${head}${body}${orgBox?`<div style="border-top:1px solid var(--line2)">${orgBox}</div>`:''}</div>`;
+  document.body.appendChild(bg);document.body.style.overflow='hidden';
+  bg.addEventListener('click',e=>{if(e.target===bg)closeWho()});
+  $('#whoclose').onclick=closeWho;
+  const cu=$('#copyupi');if(cu)cu.onclick=()=>copyText(S.upiId,'UPI ID copied.');
+  const gu=$('#gotoupi');if(gu)gu.onclick=()=>{closeWho();go('team');setTimeout(()=>{const i=$('#upiin');if(i){i.scrollIntoView({block:'center'});i.focus()}},120)};
+  const cb=$('#claimbtn');if(cb)cb.onclick=async()=>{cb.disabled=true;if(await addPayment(name,amount,'claimed','upi')){closeWho();toast('Thanks! Marked as paid. The organizer will confirm it.')}else cb.disabled=false};
+  const rb=$('#rcvbtn');if(rb)rb.onclick=async()=>{const v=r2(+$('#rcvamt').value||0);if(v<=0)return toast('Enter the amount received.');rb.disabled=true;
+    if(await addPayment(name,v,'confirmed','manual')){closeWho();toast(inr(v)+' recorded for '+first(name)+'.'+(v<amount?' '+inr(r2(amount-v))+' still due.':''))}else rb.disabled=false};
+}
 
 /* ---------- poster ---------- */
 function loadImg(src){return new Promise(r=>{if(!src)return r(null);const i=new Image();i.onload=()=>r(i);i.onerror=()=>r(null);i.src=src})}
@@ -742,12 +878,20 @@ function renderTeam(){
     ${cardH('users','Players',S.roster.length)}
     <div class="pad" style="padding-bottom:6px"><div class="inline"><input class="txt" id="newp" placeholder="New player name" autocomplete="off" enterkeyhint="done"><button type="button" class="btn sm primary" style="height:44px" data-act="addp">${ic('plus')}Add</button></div>
       <p class="warn" id="pwarn" hidden></p></div>
-    <div class="split">${S.roster.map(p=>`<div class="prow"><span class="ini">${esc(initials(p))}</span><span class="nm">${esc(p)}<small>Played ${plural(played[nkey(p)]||0,'day')}</small></span>${teamConfirm===p?`<span><button type="button" class="lnk" data-act="rm-no">Keep</button> · <button type="button" class="lnk danger" data-act="rm-yes" data-v="${esc(p)}">Remove</button></span>`:`<button type="button" class="iconbtn" data-act="rm" data-v="${esc(p)}" aria-label="Remove ${esc(p)}">${ic('x')}</button>`}</div>`).join('')||`<div class="empty">Add your regular players.</div>`}</div>
+    <div class="split">${S.roster.map(p=>`<div class="prow"><span class="ini">${esc(initials(p))}</span><span class="nm">${esc(p)}<small>Played ${plural(played[nkey(p)]||0,'day')}${(()=>{const g=ledger(p);return g.due?` · <b style="color:var(--danger)">owes ${inr(g.due)}</b>`:g.charged?' · all paid':''})()}</small></span>${teamConfirm===p?`<span><button type="button" class="lnk" data-act="rm-no">Keep</button> · <button type="button" class="lnk danger" data-act="rm-yes" data-v="${esc(p)}">Remove</button></span>`:`<button type="button" class="iconbtn" data-act="rm" data-v="${esc(p)}" aria-label="Remove ${esc(p)}">${ic('x')}</button>`}</div>`).join('')||`<div class="empty">Add your regular players.</div>`}</div>
     <div class="card-f"><p class="hint">Removing a player keeps them in past days.</p></div>
   </section>
   <section class="card">
     ${cardH('palette','Theme')}
     <div class="swatches">${Object.entries(SKINS).map(([k,s])=>`<button type="button" class="sw" data-skin="${k}" aria-pressed="${S.skin===k}"><i style="background:linear-gradient(135deg,${s.accent} 0 60%,${s.pop===s.accent?'#D0D5DD':s.pop} 60%)"></i>${s.name}</button>`).join('')}</div>
+  </section>
+  <section class="card">
+    ${cardH('rupee','Payments',S.upiId?'UPI on':'Not set')}
+    <div class="row"><div class="l"><b>UPI ID</b><small>Where players send money</small></div></div>
+    <div class="sub"><input class="txt" id="upiin" value="${esc(S.upiId)}" placeholder="name@okaxis" autocomplete="off" autocapitalize="off" spellcheck="false" inputmode="email" aria-label="UPI ID"><p class="warn" id="upiwarn" hidden>That doesn’t look like a UPI ID. It should look like name@bank.</p></div>
+    <div class="row"><div class="l"><b>Name shown in UPI app</b><small>Usually the account holder’s name</small></div></div>
+    <div class="sub"><input class="txt" id="upiname" value="${esc(S.upiName)}" placeholder="e.g. Pavan K" aria-label="Payee name"></div>
+    <div class="card-f"><p class="hint">Players tap their amount in Payouts to pay this UPI ID with the amount filled in.</p></div>
   </section>
   <section class="card">
     ${cardH('gear','Defaults')}
@@ -784,6 +928,8 @@ function bindTeam(){
   v.addEventListener('input',e=>{const id=e.target.id;
     if(id==='gnamein'){S.groupName=norm(e.target.value);renderHeader();saveConfig()}
     else if(id==='defrate'){S.rate=Math.max(0,+e.target.value||0);saveConfig()}
+    else if(id==='upiin'){const val=e.target.value.trim();const ok=!val||UPI_RE.test(val);$('#upiwarn').hidden=ok;if(ok){S.upiId=val;saveConfig()}}
+    else if(id==='upiname'){S.upiName=norm(e.target.value);saveConfig()}
     else if(id==='newp')$('#pwarn').hidden=true});
   v.addEventListener('keydown',e=>{if(e.target.id==='newp'&&e.key==='Enter'){e.preventDefault();addPlayer(false)}});
   v.addEventListener('change',async e=>{if(e.target.id!=='photoin'||!e.target.files[0])return;
@@ -1011,7 +1157,7 @@ if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.ser
     if(!authInit||was!==isOrg){authInit=true;renderTab(true);if(isOrg&&cfgMissing){cfgMissing=false;saveConfig()}}});
   fsDoc('config/main').onSnapshot(s=>{if(busy('config/main'))return;
     if(!s.exists&&!s.metadata.fromCache){cfgMissing=true;if(isOrg){cfgMissing=false;saveConfig()}}
-    if(s.exists){const d=s.data();if(Array.isArray(d.roster))S.roster=[...d.roster];S.rate=+d.rate||300;S.groupName=d.groupName||'';S.skin=SKINS[d.skin]?d.skin:'court';applySkin();saveLocal()}
+    if(s.exists){const d=s.data();if(Array.isArray(d.roster))S.roster=[...d.roster];S.rate=+d.rate||300;S.groupName=d.groupName||'';S.upiId=d.upiId||'';S.upiName=d.upiName||'';S.skin=SKINS[d.skin]?d.skin:'court';applySkin();saveLocal()}
     renderTab(false)},e=>toast('Couldn’t load shared data ('+e.code+').'));
   fsDoc('config/photo').onSnapshot(s=>{if(busy('config/photo'))return;photo=s.exists?(s.data().data||''):'';try{photo?localStorage.setItem(LSP,photo):localStorage.removeItem(LSP)}catch(e){}renderHeader();if(tab==='team'&&!typingIn('#view-team'))renderTeam()},()=>{});
   db.collection(COLLECTION_PREFIX+'days').onSnapshot(q=>{
@@ -1019,6 +1165,7 @@ if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.ser
     Object.keys(S.days).forEach(k=>{if(busy('days/'+k))next[k]=S.days[k]});
     Object.keys(pending).forEach(p=>{if(p.startsWith('days/')&&pending[p]===null)delete next[p.slice(5)]});
     S.days=next;saveLocal();renderTab(false)},()=>{});
+  payCol().onSnapshot(q=>{PAYS=q.docs.map(d=>({id:d.id,...d.data()}));if(!typingIn('#view-day')&&!typingIn('#view-team'))renderTab(false)},()=>{});
   startPollsListener();routeHash();window.addEventListener('hashchange',routeHash);
 })();
 })();
