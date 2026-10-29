@@ -1,0 +1,53 @@
+// Shuttle Split — Firestore rules.
+// Add the `match` blocks below INSIDE your existing
+//   match /databases/{database}/documents { ... }
+// block (next to your league app's rules). Don't replace your existing rules.
+// Put the Google account email(s) of whoever runs the app in organizers().
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function organizers() {
+      return ['YOUR_GOOGLE_EMAIL@gmail.com'];
+    }
+    function isOrganizer() {
+      return request.auth != null && request.auth.token.email in organizers();
+    }
+
+    // Cost sharing: anyone with the link can see it; only organizers change it.
+    match /shuttleSplit_config/{doc} {
+      allow read: if true;
+      allow write: if isOrganizer();
+    }
+    match /shuttleSplit_days/{day} {
+      allow read: if true;
+      allow write: if isOrganizer();
+    }
+
+    // Availability polls: organizers create and close them.
+    match /shuttleSplit_polls/{poll} {
+      allow read: if true;
+      allow write: if isOrganizer();
+
+      function pollOpen() {
+        let p = get(/databases/$(database)/documents/shuttleSplit_polls/$(poll)).data;
+        return p.closed != true && (p.closesAt == null || request.time.toMillis() < p.closesAt);
+      }
+
+      // Each phone can only write its own vote, and only while the poll is open.
+      // Organizers can record or fix anyone's vote.
+      match /votes/{voter} {
+        allow read: if true;
+        allow write: if isOrganizer()
+          || (request.auth != null && request.auth.uid == voter && pollOpen()
+              && request.resource.data.keys().hasOnly(['name', 'answers', 'updatedAt'])
+              && request.resource.data.name is string
+              && request.resource.data.name.size() <= 60);
+        allow delete: if isOrganizer();
+      }
+    }
+
+    // ...your league app's existing rules stay here...
+  }
+}
