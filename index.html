@@ -215,6 +215,26 @@ label.row{cursor:pointer}
 .tabbar button[aria-selected="true"]{color:var(--accent)}
 .tabbar button[aria-selected="true"] .ic{stroke-width:2.3}
 .toast{position:fixed;left:50%;bottom:calc(80px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--surface);padding:11px 16px;border-radius:12px;font-weight:600;font-size:14px;z-index:40;width:max-content;max-width:calc(100% - 32px);text-align:center;box-shadow:0 8px 24px rgba(0,0,0,.18)}
+/* tappable names + personal breakdown sheet */
+.who{display:inline-flex;align-items:center;gap:4px;font-weight:700;color:var(--accent);text-decoration:underline;text-decoration-color:color-mix(in srgb,var(--accent) 35%,transparent);text-underline-offset:3px}
+.who .ic{width:14px;height:14px;stroke-width:2.4}
+.sheet-bg{position:fixed;inset:0;z-index:50;background:rgba(16,24,40,.45);display:flex;align-items:flex-end;justify-content:center;animation:fade .15s ease}
+.sheet{background:var(--surface);width:100%;max-width:560px;max-height:88vh;overflow:auto;border-radius:20px 20px 0 0;padding-bottom:env(safe-area-inset-bottom,0px);animation:up .2s ease}
+.sheet-h{display:flex;align-items:center;gap:12px;padding:16px;border-bottom:1px solid var(--line2);position:sticky;top:0;background:var(--surface);z-index:1}
+.sheet-h .ini{width:42px;height:42px;font-size:15px}
+.sheet-h div{flex:1;min-width:0}
+.sheet-h b{display:block;font-size:18px;font-weight:800}
+.sheet-h small{color:var(--muted);font-size:13px}
+.grab{width:40px;height:4px;border-radius:2px;background:var(--line);margin:8px auto 0}
+.btable td,.btable th{padding:11px 10px}
+.btable td:first-child{font-weight:700}
+.btable small{display:block;font-weight:500;color:var(--muted);font-size:11.5px}
+.btable td.zero{color:var(--muted)}
+.how{padding:12px 16px;display:flex;flex-direction:column;gap:10px;border-top:1px solid var(--line2)}
+.how div{font-size:13px;color:var(--muted);line-height:1.5}
+.how div b{color:var(--ink)}
+@keyframes up{from{transform:translateY(30px);opacity:.6}to{transform:none;opacity:1}}
+@keyframes fade{from{opacity:0}to{opacity:1}}
 @media (max-width:360px){.tiles{grid-template-columns:repeat(2,minmax(0,1fr))}.amt{width:118px}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
@@ -565,8 +585,9 @@ function renderPay(){
   <section class="card">
     ${cardH('rupee','Who pays what',inr(R.total),true)}
     <div class="tablewrap"><table><thead><tr><th>Name</th>${R.days.map(d=>`<th>${esc(dlabel(d.date,{weekday:'short',day:'numeric'}))}</th>`).join('')}${R.days.length>1?'<th>Total</th>':''}</tr></thead>
-      <tbody>${R.rows.map(r=>`<tr><td>${esc(r.p)}</td>${r.cells.map(x=>`<td>${x===null?'–':inr(x)}</td>`).join('')}${R.days.length>1?`<td class="t">${inr(r.total)}</td>`:''}</tr>`).join('')}</tbody>
+      <tbody>${R.rows.map(r=>`<tr><td><button class="who" data-who="${esc(r.p)}">${esc(r.p)}${ic('right')}</button></td>${r.cells.map(x=>`<td>${x===null?'–':inr(x)}</td>`).join('')}${R.days.length>1?`<td class="t">${inr(r.total)}</td>`:''}</tr>`).join('')}</tbody>
       <tfoot><tr><td>Total</td>${R.calcs.map(c=>`<td>${inr(c.collected)}</td>`).join('')}${R.days.length>1?`<td class="t">${inr(R.total)}</td>`:''}</tr></tfoot></table></div>
+    <div class="card-f"><p class="hint">Tap a name to see that person’s court, shuttle and drinks split for each day.</p></div>
   </section>
   <section class="card">
     ${cardH('share','Send to the group')}
@@ -581,6 +602,7 @@ function renderPay(){
   v.querySelectorAll('[data-k]').forEach(cb=>cb.onchange=()=>{cb.checked?pay.off.delete(cb.dataset.k):pay.off.add(cb.dataset.k);renderPay()});
   const pf=$('#pfrom'),pt=$('#pto');if(pf){pf.onchange=()=>{pay.from=pf.value||pay.from;renderPay()};pt.onchange=()=>{pay.to=pt.value||pay.to;renderPay()}}
   if(!R.rows.length)return;
+  v.querySelectorAll('[data-who]').forEach(b=>b.onclick=()=>openWho(b.dataset.who,R));
   const msg=payText(R);
   $('#watext').href=waHref(msg);
   $('#copytext').onclick=()=>copyText(msg);
@@ -601,6 +623,39 @@ function payText(R){
     if(c.drinks)L.push('   Drinks: '+inr(c.drinks)+' ÷ '+c.drN+' → '+inr(c.dEach)+' each');});
   L.push('');L.push('💰 *Total to collect: '+inr(R.total)+'*');return L.join('\n');
 }
+
+/* ---------- personal breakdown ---------- */
+function openWho(name,R){
+  closeWho();
+  const rows=R.days.map((d,i)=>({d,c:R.calcs[i],o:R.calcs[i].per[name]})).filter(x=>x.o);
+  const sum=k=>rows.reduce((a,x)=>a+x.o[k],0);
+  const cell=n=>n?`<td>${inr(n)}</td>`:`<td class="zero">–</td>`;
+  const total=sum('total');
+  const lines=['🏸 *'+name+' — my share*'];
+  rows.forEach(x=>{const p=[];p.push('Court '+inr(x.o.court));if(x.o.shuttle)p.push('Shuttles '+inr(x.o.shuttle));if(x.o.drinks)p.push('Drinks '+inr(x.o.drinks));lines.push(dlabel(x.d.date)+': *'+inr(x.o.total)+'* ('+p.join(' + ')+')')});
+  lines.push('*Total: '+inr(total)+'*');
+  const bg=document.createElement('div');bg.className='sheet-bg';bg.id='whosheet';
+  bg.innerHTML=`<div class="sheet" role="dialog" aria-modal="true" aria-label="${esc(name)} breakdown">
+    <div class="grab"></div>
+    <div class="sheet-h"><span class="ini">${esc(initials(name))}</span><div><b>${esc(name)}</b><small>${plural(rows.length,'day')} played · ${inr(total)} to pay</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div>
+    <div class="tablewrap"><table class="btable"><thead><tr><th>Day</th><th>Court</th><th>Shuttles</th><th>Drinks</th><th>Amount</th></tr></thead>
+      <tbody>${rows.map(x=>`<tr><td>${esc(dlabel(x.d.date,{weekday:'short',day:'numeric',month:'short'}))}</td>${cell(x.o.court)}${cell(x.o.shuttle)}${cell(x.o.drinks)}<td class="t">${inr(x.o.total)}</td></tr>`).join('')}</tbody>
+      <tfoot><tr><td>Total</td><td>${inr(sum('court'))}</td><td>${inr(sum('shuttle'))}</td><td>${inr(sum('drinks'))}</td><td class="t">${inr(total)}</td></tr></tfoot></table></div>
+    <div class="how"><span class="sublbl">How each day was worked out</span>
+      ${rows.map(x=>{const d=x.d,c=x.c,p=[`Court ${fmtH(d.hours)} h × ${inr(d.rate)} = ${inr(c.court)} ÷ ${c.n} players = ${inr(c.cEach)}`];
+        if(c.shuttle)p.push(x.o.shuttle?`Shuttles ${inr(c.shuttle)} ÷ ${c.shN} = ${inr(c.sEach)}`:'Shuttles: not included');
+        if(c.drinks)p.push(x.o.drinks?`Drinks ${inr(c.drinks)} ÷ ${c.drN} = ${inr(c.dEach)}`:'Drinks: not included');
+        return`<div><b>${esc(dlabel(d.date,{weekday:'long',day:'numeric',month:'short'}))}</b><br>${p.join('<br>')}</div>`}).join('')}
+      <p class="hint">Each share is rounded up to the next rupee.</p></div>
+    <div class="card-f" style="display:grid;grid-template-columns:1fr 1fr"><a class="btn wa" href="${waHref(lines.join('\n'))}" target="_blank" rel="noopener">${ic('chat')}WhatsApp</a><button class="btn line" id="whocopy">${ic('copy')}Copy</button></div>
+  </div>`;
+  document.body.appendChild(bg);document.body.style.overflow='hidden';
+  bg.addEventListener('click',e=>{if(e.target===bg)closeWho()});
+  $('#whoclose').onclick=closeWho;$('#whocopy').onclick=()=>copyText(lines.join('\n'),'Breakdown copied.');
+  $('#whoclose').focus();
+}
+function closeWho(){const s=$('#whosheet');if(s){s.remove();document.body.style.overflow=''}}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeWho()});
 
 /* ---------- poster ---------- */
 function loadImg(src){return new Promise(r=>{if(!src)return r(null);const i=new Image();i.onload=()=>r(i);i.onerror=()=>r(null);i.src=src})}
@@ -923,7 +978,7 @@ async function fillFromPoll(date){const p=pollForDate(date);if(!p)return;
   catch(e){toast('Couldn’t read the poll ('+e.code+').')}}
 
 /* ================= navigation & boot ================= */
-function go(t){tab=t;document.querySelectorAll('.tabbar [data-tab]').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.tab===t)));
+function go(t){closeWho();tab=t;document.querySelectorAll('.tabbar [data-tab]').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.tab===t)));
   ['day','polls','pay','team'].forEach(k=>$('#view-'+k).hidden=k!==t);renderTab(true);window.scrollTo(0,0)}
 document.querySelectorAll('.tabbar [data-tab]').forEach(b=>b.onclick=()=>{if(b.dataset.tab==='pay'&&tab!=='pay'&&pay.range==='day'){pay.range='last';pay.off.clear()}go(b.dataset.tab)});
 function typingIn(id){const a=document.activeElement;return!!a&&(a.tagName==='INPUT'||a.tagName==='SELECT')&&$(id).contains(a)&&a.type!=='checkbox'&&a.type!=='file'}
