@@ -228,6 +228,7 @@ label.row{cursor:pointer}
 details.inact{border-top:1px solid var(--line2)}
 details.inact summary{padding:12px 16px;font-size:13px;font-weight:700;color:var(--muted);cursor:pointer}
 .stage{font-size:11.5px;font-weight:800;padding:4px 10px;border-radius:999px;white-space:nowrap}
+.stage.s0{background:var(--field);color:var(--muted)}
 .stage.s1{background:color-mix(in srgb,var(--danger) 12%,var(--surface));color:var(--danger)}
 .stage.s2{background:#FEF0C7;color:#93370D}
 .stage.s3{background:var(--soft);color:var(--accent)}
@@ -376,7 +377,7 @@ const FIREBASE_CONFIG = {
 /* Collections get this prefix so they never clash with the league app's data */
 const COLLECTION_PREFIX = "shuttleSplit_";
 /* App version shown in Team → About */
-const APP_VERSION = "1.0.0", APP_BUILD = "30 Oct 2026";
+const APP_VERSION = "1.1.0", APP_BUILD = "30 Oct 2026";
 /* Owner of the main group (the link without ?g=) */
 const LEGACY_OWNER = "pavankaki.cool@gmail.com";
 /* Starting player list, used only until the first save */
@@ -423,8 +424,8 @@ const GID=(new URLSearchParams(location.search).get('g')||'').toLowerCase().repl
 const BASE=GID?COLLECTION_PREFIX+'groups/'+GID+'/':COLLECTION_PREFIX, SUF=GID?'-'+GID:'';
 const HERE=location.origin+location.pathname+(GID?'?g='+GID:'');
 const LS='shuttle-split-v1'+SUF, LSP='shuttle-split-photo'+SUF;
-const S={roster:[],rate:300,courts:1,groupName:'',skin:'court',upiId:'',upiName:'',levels:{},admins:[],inactive:[],ignored:[],openNames:true,days:{}};
-let GROUP=null, GROUP_MISSING=false, SEEN=[], PDATA={votes:[],at:0,loading:false};
+const S={roster:[],rate:300,courts:1,groupName:'',skin:'court',upiId:'',upiName:'',levels:{},admins:[],inactive:[],ignored:[],openNames:true,idleWeeks:4,since:{},autoOff:{},days:{}};
+let CFG_READY=false, DAYS_READY=false, GROUP=null, GROUP_MISSING=false, SEEN=[], PDATA={votes:[],at:0,loading:false};
 let PAYS=[], photo='', db=null, auth=null, isOrg=false, tab='day', curDate=todayStr();
 const canEdit=()=>!db||isOrg;
 function loadLocal(){try{const j=JSON.parse(localStorage.getItem(LS)||'null');if(j&&typeof j==='object')Object.assign(S,j);photo=localStorage.getItem(LSP)||''}catch(e){}
@@ -444,7 +445,7 @@ async function flush(path){
   catch(e){toast(e&&e.code==='permission-denied'?'Only the organizer can change this. Sign in first.':'Couldn’t save ('+((e&&e.code)||'error')+'). Kept on this phone.')}
   inflight[path]=false;if(path in pending)flush(path);
 }
-function saveConfig(){queueWrite('config/main',{roster:S.roster,rate:S.rate,courts:1,groupName:S.groupName||'',skin:S.skin||'court',upiId:S.upiId||'',upiName:S.upiName||'',levels:S.levels||{},admins:S.admins||[],inactive:S.inactive||[],ignored:S.ignored||[],openNames:S.openNames!==false})}
+function saveConfig(){queueWrite('config/main',{roster:S.roster,rate:S.rate,courts:1,groupName:S.groupName||'',skin:S.skin||'court',upiId:S.upiId||'',upiName:S.upiName||'',levels:S.levels||{},admins:S.admins||[],inactive:S.inactive||[],ignored:S.ignored||[],openNames:S.openNames!==false,idleWeeks:S.idleWeeks==null?4:S.idleWeeks,since:S.since||{},autoOff:S.autoOff||{}})}
 /* ---------- organizers ---------- */
 const userEmail=()=>{const u=auth&&auth.currentUser;return u&&!u.isAnonymous&&u.email?u.email.toLowerCase():''};
 const ownerEmail=()=>String((GID?(GROUP&&GROUP.owner):LEGACY_OWNER)||'').toLowerCase();
@@ -663,7 +664,10 @@ function refreshDay(){
 }
 function editDay(fn){
   if(!canEdit()){toast('Sign in as the organizer to make changes.');return}
-  const d=getDay(curDate);fn(d);S.days[curDate]=d;queueWrite('days/'+curDate,d);dayConfirmClear=false;refreshDay();
+  const d=getDay(curDate);fn(d);S.days[curDate]=d;queueWrite('days/'+curDate,d);dayConfirmClear=false;
+  const back=d.present.filter(p=>(S.inactive||[]).includes(nkey(p))&&S.autoOff&&S.autoOff[nkey(p)]);
+  if(back.length){back.forEach(p=>{delete S.autoOff[nkey(p)];S.inactive=S.inactive.filter(x=>x!==nkey(p))});saveConfig()}
+  refreshDay();
 }
 function setDate(k){curDate=k;dayConfirmClear=false;renderDay()}
 function addGuest(force){
@@ -1007,14 +1011,14 @@ function fit(g,t,x,y,max){let s=String(t);while(g.measureText(s).width>max&&s.le
 function rr(g,x,y,w,h,r){g.beginPath();g.moveTo(x+r,y);g.arcTo(x+w,y,x+w,y+h,r);g.arcTo(x+w,y+h,x,y+h,r);g.arcTo(x,y+h,x,y,r);g.arcTo(x,y,x+w,y,r);g.closePath()}
 
 /* ================= TEAM ================= */
-let teamPending='', teamUI={reset:{pays:true,days:true,polls:false},resetBusy:false,newGroup:false};
+let teamPending='', teamWarn={html:'',val:''}, teamUI={reset:{pays:true,days:true,polls:false},resetBusy:false,newGroup:false};
 /* ---------- organizer data: poll votes + who opened the app ---------- */
 async function loadOrgData(force){
   if(!db||!isOrg||PDATA.loading)return;if(!force&&Date.now()-PDATA.at<30000)return;
   PDATA.loading=true;
   try{const out=[];for(const pl of P.list){try{const vs=await pollsCol().doc(pl.id).collection('votes').get();vs.docs.forEach(d=>out.push({poll:pl.id,id:d.id,...d.data()}))}catch(e){}}PDATA.votes=out}catch(e){}
   try{const q=await col('seen').get();SEEN=q.docs.map(d=>({uid:d.id,...d.data()}))}catch(e){SEEN=[]}
-  PDATA.at=Date.now();PDATA.loading=false;if(tab==='team'&&!typingIn('#view-team'))renderTeam();
+  PDATA.at=Date.now();PDATA.loading=false;autoInactive();if(tab==='team'&&!typingIn('#view-team'))renderTeam();
 }
 /* newcomers (names seen in polls, days or payments that aren't on the team) + likely duplicates */
 function attention(){
@@ -1029,15 +1033,33 @@ function attention(){
   return{fresh,dups};
 }
 /* adoption: has the player opened the app, do they vote and pay through it */
+/* last sign of life for a player: opened the app, played, voted or paid */
+function lastActivity(n){const k=nkey(n);let t=0;
+  SEEN.forEach(x=>{if(nkey(x.name)===k&&x.at>t)t=x.at});
+  Object.keys(S.days).forEach(ds=>{const d=S.days[ds];if((d.present||[]).some(x=>nkey(x)===k)){const ms=new Date(ds+'T20:00').getTime();if(ms>t)t=ms}});
+  PDATA.votes.forEach(v=>{if(nkey(v.name)===k&&(v.updatedAt||0)>t)t=v.updatedAt});
+  allPays().forEach(x=>{if(nkey(x.name)===k&&(x.at||0)>t)t=x.at});return t}
+/* players with no activity for N weeks go inactive automatically, and come back the moment they're active again */
+function autoInactive(){
+  if(!isOrg||!PDATA.at||!CFG_READY||!DAYS_READY)return;const wk=+S.idleWeeks||0;let changed=false,quiet=false;const now=Date.now();
+  S.since=S.since||{};S.autoOff=S.autoOff||{};S.inactive=S.inactive||[];
+  S.roster.forEach(n=>{const k=nkey(n);if(!S.since[k]){S.since[k]=now;quiet=true}});
+  Object.keys(S.autoOff).forEach(k=>{const n=S.roster.find(r=>nkey(r)===k);if(!n){delete S.autoOff[k];changed=true;return}
+    if(lastActivity(n)>S.autoOff[k]){delete S.autoOff[k];S.inactive=S.inactive.filter(x=>x!==k);changed=true;toast(first(n)+' is back. Marked active again.')}});
+  if(wk>0)S.roster.forEach(n=>{const k=nkey(n);if(S.inactive.includes(k))return;
+    const last=Math.max(lastActivity(n),S.since[k]||now);if(now-last>wk*7*864e5){S.inactive.push(k);S.autoOff[k]=now;changed=true}});
+  if(changed){saveConfig();if(tab==='team'&&!typingIn('#view-team'))renderTeam()}else if(quiet)saveConfig();
+}
 function adoption(){
   const seen={};SEEN.forEach(x=>{const k=nkey(x.name);if(!seen[k]||x.at>seen[k])seen[k]=x.at});
   const selfV={},orgV={};PDATA.votes.forEach(v=>{const k=nkey(v.name);if(String(v.id).startsWith('n-'))orgV[k]=(orgV[k]||0)+1;else selfV[k]=(selfV[k]||0)+1});
   const appPaid={};allPays().forEach(x=>{if(x.by==='player')appPaid[nkey(x.name)]=(appPaid[nkey(x.name)]||0)+1});
   const rows=activeRoster().map(n=>{const k=nkey(n),sv=selfV[k]||0,ov=orgV[k]||0,pp=appPaid[k]||0,on=!!seen[k]||sv>0||pp>0;
     const stage=sv||pp?3:on?2:1;return{n,k,on,last:seen[k]||0,sv,ov,pp,stage,lvl:levelOf(n)}});
+  const idle=Object.keys(S.autoOff||{}).map(k=>{const n=S.roster.find(r=>nkey(r)===k);return n?{n,k,since:S.autoOff[k],act:lastActivity(n)}:null}).filter(Boolean);
   const pct=f=>rows.length?Math.round(rows.filter(f).length*100/rows.length):0;
   const byLvl=[...LEVELS.map(l=>[l[1],l[2],rows.filter(r=>r.lvl&&r.lvl[0]===l[0])]),['Not set','#98A2B3',rows.filter(r=>!r.lvl)]].filter(x=>x[2].length);
-  return{rows,joined:pct(r=>r.on),voting:pct(r=>r.sv>0),paying:pct(r=>r.pp>0),byLvl};
+  return{rows,idle,joined:pct(r=>r.on),voting:pct(r=>r.sv>0),paying:pct(r=>r.pp>0),byLvl};
 }
 function nudgeMsg(list){return['🏸 *'+(S.groupName||'Badminton Family')+'*','Hey '+list.map(first).join(', ')+'! 👋','',
   'We’re moving polls, costs and payments to our app so the group chat stays clean. Takes 30 seconds:','',
@@ -1084,14 +1106,17 @@ function renderTeam(){
     <div class="acct" style="border-top:0;grid-template-columns:repeat(3,minmax(0,1fr))"><div><span>Opened app</span><b>${AD.joined}%</b></div><div><span>Vote in app</span><b>${AD.voting}%</b></div><div><span>Pay in app</span><b>${AD.paying}%</b></div></div>
     <div class="sub"><span class="sublbl">By level</span>${AD.byLvl.map(([l,c,rs])=>{const pc=Math.round(rs.filter(r=>r.on).length*100/rs.length);return`<div class="bar"><span><i class="lvl-dot" style="background:${c}"></i>${l}</span><div><i style="width:${pc}%;background:${c}"></i></div><b>${rs.filter(r=>r.on).length}/${rs.length}</b></div>`}).join('')}</div>
     ${AD.rows.sort((a,b)=>a.stage-b.stage||a.n.localeCompare(b.n)).map(r=>`<div class="prow"><span class="ini">${esc(initials(r.n))}</span><span class="nm">${esc(r.n)}<small>${r.on?'Last opened '+timeAgo(r.last):'Hasn’t opened the app'}${r.sv?' · voted '+r.sv+'×':''}${r.ov?' · '+r.ov+' vote'+(r.ov>1?'s':'')+' via WhatsApp':''}${r.pp?' · paid in app':''}</small></span><span class="stage s${r.stage}">${['','Not yet','Joined','Active'][r.stage]}</span></div>`).join('')}
+    ${AD.idle.map(r=>`<div class="prow"><span class="ini" style="opacity:.6">${esc(initials(r.n))}</span><span class="nm" style="opacity:.75">${esc(r.n)}<small>No activity since ${r.act?timeAgo(r.act):'joining'} · auto-paused ${timeAgo(r.since)}</small></span><span class="stage s0">Inactive</span></div>`).join('')}
     ${AD.rows.some(r=>r.stage<3)?`<div class="card-f"><a class="btn sm wa" href="${waHref(nudgeMsg(AD.rows.filter(r=>r.stage<2).map(r=>r.n).concat(AD.rows.filter(r=>r.stage===2).map(r=>r.n))))}" target="_blank" rel="noopener">${ic('chat')}Nudge ${AD.rows.filter(r=>r.stage<3).length} on WhatsApp</a><button class="lnk" data-act="refreshad" style="margin-left:auto">Refresh</button></div>`:`<div class="card-f"><span class="ok-chip">${ic('check')}Everyone uses the app. 🎉</span></div>`}
-    <div class="card-f"><p class="hint"><b>Joined</b> = opened the app and picked their name. <b>Active</b> = votes or pays inside the app. “Via WhatsApp” counts votes you recorded for them by hand.</p></div>
+    <div class="card-f"><p class="hint"><b>Not yet</b> = hasn’t used the app. <b>Joined</b> = opened it and picked their name. <b>Active</b> = votes or pays inside the app. <b>Inactive</b> = no app use, game or payment for ${S.idleWeeks||4} weeks. They come back automatically the moment they vote, play or open the app. “Via WhatsApp” = votes you recorded by hand.</p></div>
   </section>`:''}
   ${org?`<section class="card">
     ${cardH('lock','Access','')}
     <div class="row"><div class="l"><b>${esc(ownerEmail()||'—')}</b><small>Owner · full control</small></div><span class="badge on">Owner</span></div>
     ${adminList().map(e=>`<div class="row"><div class="l"><b>${esc(e)}</b><small>Co-organizer · can record days, polls and payments</small></div>${isOwner()?`<button class="iconbtn" data-rmadmin="${esc(e)}" aria-label="Remove ${esc(e)}">${ic('x')}</button>`:''}</div>`).join('')}
     ${isOwner()?`<div class="sub" style="padding-top:12px;border-top:1px solid var(--line2)"><span class="sublbl">Add a co-organizer (their Google email)</span><div class="inline"><input class="txt" id="adminin" type="email" inputmode="email" autocapitalize="off" placeholder="name@gmail.com"><button class="btn sm primary" style="height:44px" data-act="addadmin">${ic('plus')}Add</button></div></div>`:''}
+    <div class="row"><div class="l"><b>Auto-inactive after</b><small>${+S.idleWeeks?'No app use, game or payment for this long hides a player. They return automatically when active.':'Off. Players stay active until you pause them.'}</small></div>
+      <select class="txt" id="idlewk" style="width:118px;height:40px" aria-label="Auto-inactive after">${[[0,'Off'],[2,'2 weeks'],[3,'3 weeks'],[4,'4 weeks'],[6,'6 weeks'],[8,'8 weeks']].map(([v,l])=>`<option value="${v}"${(+S.idleWeeks||0)===v?' selected':''}>${l}</option>`).join('')}</select></div>
     <div class="row"><div class="l"><b>New names from poll links</b><small>${S.openNames!==false?'Anyone with the link can vote under a new name. You review them above.':'Only players on the team can vote.'}</small></div><label class="switch"><input type="checkbox" id="opennames" ${S.openNames!==false?'checked':''} aria-label="Allow new names"><i></i></label></div>
     <div class="card-f"><p class="hint">Players never need an account. Organizers sign in with Google.</p></div>
   </section>
@@ -1135,6 +1160,7 @@ function renderTeam(){
       <p class="hint">Install: in Safari tap Share → Add to Home Screen.</p></div>
   </section>
   <p class="ver">Shuttle Split v${APP_VERSION} · ${APP_BUILD}${GID?' · group '+esc(GID):''}</p>`;
+  if(teamWarn.html&&$('#newp')){$('#newp').value=teamWarn.val;const w=$('#pwarn');w.hidden=false;w.innerHTML=teamWarn.html}
   attachSuggest($('#newp'),()=>allNames(),n=>{const c=canon(n);if(S.roster.some(r=>nkey(r)===nkey(c))){if((S.inactive||[]).includes(nkey(c))){S.inactive=S.inactive.filter(k=>k!==nkey(c));saveConfig();renderTeam();toast(c+' is active again.')}else toast(c+' is already on the team.')}else{S.roster.push(c);saveConfig();renderTeam();toast(c+' added.')}},'in the group');
   const ri=$('#resetin');if(ri)ri.oninput=()=>{$('#resetbtn').disabled=ri.value.trim().toUpperCase()!=='RESET'||teamUI.resetBusy};
 }
@@ -1144,9 +1170,9 @@ function addPlayer(force){
   const inp=$('#newp'),n=tcase(inp.value),w=$('#pwarn');if(!n)return;
   const chk=nameCheck(n,allNames());
   if(chk&&chk.type==='dup'){const c=chk.name;if(!S.roster.some(r=>nkey(r)===nkey(c))){S.roster.push(c);saveConfig();renderTeam();toast(c+' added.');return}
-    w.hidden=false;w.innerHTML=`<span><b>${esc(c)}</b> is already on the team${(S.inactive||[]).includes(nkey(c))?' (inactive)':''}.</span>`;return}
-  if(chk&&chk.type==='near'&&!force){teamPending=n;w.hidden=false;w.innerHTML=`<span style="flex:1">Looks like <b>${esc(chk.name)}</b>. Same person?</span><button type="button" class="btn sm line" data-act="addp-same" data-v="${esc(chk.name)}">Yes</button><button type="button" class="btn sm primary" data-act="addp-force">No, add ${esc(n)}</button>`;return}
-  S.roster.push(n);saveConfig();renderTeam();toast(n+' added.');$('#newp').focus();
+    w.hidden=false;w.innerHTML=`<span><b>${esc(c)}</b> is already on the team${(S.inactive||[]).includes(nkey(c))?' (inactive)':''}.</span>`;teamWarn={html:w.innerHTML,val:inp.value};return}
+  if(chk&&chk.type==='near'&&!force){teamPending=n;w.hidden=false;w.innerHTML=`<span style="flex:1">Looks like <b>${esc(chk.name)}</b>. Same person?</span><button type="button" class="btn sm line" data-act="addp-same" data-v="${esc(chk.name)}">Yes</button><button type="button" class="btn sm primary" data-act="addp-force">No, add ${esc(n)}</button>`;teamWarn={html:w.innerHTML,val:inp.value};return}
+  teamWarn={html:'',val:''};S.roster.push(n);S.since=S.since||{};S.since[nkey(n)]=Date.now();saveConfig();renderTeam();toast(n+' added.');$('#newp').focus();
 }
 /* rename one player, or merge them into another, across every record */
 async function renamePlayer(from,to){
@@ -1181,7 +1207,7 @@ function openManage(name){
     if(ex&&!into){into=ex;const w=$('#rnwarn');w.hidden=false;w.innerHTML=`<b>${esc(ex)}</b> already exists. Tap Merge to combine them.`;$('#rnbtn').textContent='Merge';return}
     if(val===name&&!into){closeWho();return}
     $('#rnbtn').disabled=true;$('#rnbtn').textContent='Saving…';const r=await renamePlayer(name,into||val);closeWho();toast(r.merging?name+' merged into '+r.fin+'.':'Renamed to '+r.fin+'.')};
-  $('#actin').onchange=e=>{const k=nkey(name);S.inactive=(S.inactive||[]).filter(x=>x!==k);if(!e.target.checked)S.inactive.push(k);saveConfig();renderTab(true);toast(e.target.checked?name+' is active.':name+' is now inactive.')};
+  $('#actin').onchange=e=>{const k=nkey(name);S.inactive=(S.inactive||[]).filter(x=>x!==k);if(S.autoOff)delete S.autoOff[k];S.since=S.since||{};if(e.target.checked)S.since[k]=Date.now();else S.inactive.push(k);saveConfig();renderTab(true);toast(e.target.checked?name+' is active.':name+' is now inactive.')};
   const rb=$('#rmbtn');if(rb)rb.onclick=()=>{S.roster=S.roster.filter(r=>nkey(r)!==nkey(name));saveConfig();closeWho();renderTab(true);toast(name+' removed.')};
 }
 async function resetData(){
@@ -1221,7 +1247,7 @@ function bindTeam(){
     const b=e.target.closest('[data-act]');if(!b||b.disabled)return;const a=b.dataset.act,val=b.dataset.v;
     if(a==='addp')addPlayer(false);
     else if(a==='addp-force'){$('#newp').value=teamPending;addPlayer(true)}
-    else if(a==='addp-same'){$('#newp').value='';$('#pwarn').hidden=true;toast(val+' is already on the team.')}
+    else if(a==='addp-same'){teamWarn={html:'',val:''};$('#newp').value='';$('#pwarn').hidden=true;toast(val+' is already on the team.')}
     else if(a==='nophoto'){photo='';try{localStorage.removeItem(LSP)}catch(x){}queueWrite('config/photo',null);renderHeader();renderTeam()}
     else if(a==='addadmin'){const em=($('#adminin').value||'').trim().toLowerCase();if(!/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/.test(em))return toast('Enter a valid email address.');if(em===ownerEmail()||adminList().includes(em))return toast('Already an organizer.');await saveAdmins([...adminList(),em]);renderTeam();toast(em+' can now organize. They sign in with that Google account.')}
     else if(a==='copylink')copyText(HERE,'Group link copied.');
@@ -1234,11 +1260,12 @@ function bindTeam(){
     else if(id==='defrate'){S.rate=Math.max(0,+e.target.value||0);saveConfig()}
     else if(id==='upiin'){const val=e.target.value.trim();const ok=!val||UPI_RE.test(val);$('#upiwarn').hidden=ok;if(ok){S.upiId=val;saveConfig()}}
     else if(id==='upiname'){S.upiName=norm(e.target.value);saveConfig()}
-    else if(id==='newp')$('#pwarn').hidden=true});
+    else if(id==='newp'){$('#pwarn').hidden=true;teamWarn={html:'',val:''}}});
   v.addEventListener('keydown',e=>{if(e.target.id==='newp'&&e.key==='Enter'){e.preventDefault();addPlayer(false)}if(e.target.id==='newgroup'&&e.key==='Enter'){e.preventDefault();createGroup()}});
   v.addEventListener('change',async e=>{
     if(e.target.id==='mesel2'){setMe(e.target.value);toast(e.target.value?'Hi '+first(e.target.value)+'! Saved on this phone.':'Cleared.');return}
     if(e.target.id==='opennames'){S.openNames=e.target.checked;saveConfig();renderTeam();return}
+    if(e.target.id==='idlewk'){S.idleWeeks=+e.target.value;saveConfig();autoInactive();renderTeam();toast(S.idleWeeks?'Players inactive for '+S.idleWeeks+' weeks will be paused automatically.':'Auto-inactive is off.');return}
     if(e.target.dataset&&e.target.dataset.reset){teamUI.reset[e.target.dataset.reset]=e.target.checked;return}
     if(e.target.dataset&&e.target.dataset.lvl!==undefined){if(!canEdit())return;const k=nkey(e.target.dataset.lvl);S.levels=S.levels||{};if(e.target.value)S.levels[k]=e.target.value;else delete S.levels[k];saveConfig();renderTeam();return}
     if(e.target.id!=='photoin'||!e.target.files[0])return;
@@ -1342,7 +1369,7 @@ function renderPollDetail(v){
   const t=tally(p,P.votes),closed=isClosed(p);
   const mine=t.voters.find(x=>P.myName&&nkey(x.name)===nkey(P.myName));
   if(mine&&!Object.keys(P.myAns).length)P.myAns={...(mine.answers||{})};
-  const names=orderNames(uniq([...activeRoster(),...t.voters.map(x=>canon(x.name))]));
+  const names=orderNames(uniq([...activeRoster(),...Object.keys(S.autoOff||{}).map(k=>S.roster.find(r=>nkey(r)===k)).filter(Boolean),...t.voters.map(x=>canon(x.name))]));
   const known=names.some(n=>nkey(n)===nkey(P.myName));
   const best=t.res.reduce((a,r)=>Math.max(a,r.courts),0);
   const sendCardHTML=`<section class="card">${cardH('chat',P.justCreated===p.id?'Poll ready. Send it now':'Send to WhatsApp')}
@@ -1399,7 +1426,7 @@ function renderPollDetail(v){
   const dk=$('#delok');if(dk)dk.onclick=async()=>{try{const ref=pollsCol().doc(p.id);const vs=await ref.collection('votes').get();await Promise.all(vs.docs.map(d=>d.ref.delete()));await ref.delete();leavePoll();toast('Poll deleted.')}catch(e){toast('Couldn’t delete ('+e.code+').')}};
 }
 function orgGrid(p,t){
-  const names=orderNames(uniq([...activeRoster(),...t.voters.map(x=>canon(x.name))]));
+  const names=orderNames(uniq([...activeRoster(),...Object.keys(S.autoOff||{}).map(k=>S.roster.find(r=>nkey(r)===k)).filter(Boolean),...t.voters.map(x=>canon(x.name))]));
   const ans=n=>{const m=t.voters.find(x=>nkey(x.name)===nkey(n));return m?(m.answers||{}):{}};
   const out=n=>{const a=ans(n);return p.dates.length&&p.dates.every(dt=>a[dt.date]==='no')};
   return`<section class="card">${cardH('check','Record votes','<span id="gstat"></span>')}
@@ -1477,15 +1504,16 @@ if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.ser
     if(!s.exists&&!s.metadata.fromCache){GROUP_MISSING=true;renderHeader();return}
     if(s.exists){GROUP=s.data();GROUP_MISSING=false;if(!S.groupName)S.groupName=GROUP.name||'';rememberGroup();if(computeOrg()){renderTab(true);if(isOrg)loadOrgData(true)}else renderHeader()}},()=>{});
   fsDoc('config/main').onSnapshot(s=>{if(busy('config/main'))return;
+    if(!s.metadata.fromCache)CFG_READY=true;
     if(!s.exists&&!s.metadata.fromCache){cfgMissing=true;if(isOrg){cfgMissing=false;saveConfig()}}
-    if(s.exists){const d=s.data();if(Array.isArray(d.roster))S.roster=[...d.roster];S.rate=+d.rate||300;S.groupName=d.groupName||'';S.upiId=d.upiId||'';S.upiName=d.upiName||'';S.levels=d.levels&&typeof d.levels==='object'?d.levels:{};S.admins=Array.isArray(d.admins)?d.admins:[];S.inactive=Array.isArray(d.inactive)?d.inactive:[];S.ignored=Array.isArray(d.ignored)?d.ignored:[];S.openNames=d.openNames!==false;S.skin=SKINS[d.skin]?d.skin:'court';applySkin();saveLocal();if(GID)rememberGroup();if(computeOrg())renderTab(true)}
+    if(s.exists){const d=s.data();if(Array.isArray(d.roster))S.roster=[...d.roster];S.rate=+d.rate||300;S.groupName=d.groupName||'';S.upiId=d.upiId||'';S.upiName=d.upiName||'';S.levels=d.levels&&typeof d.levels==='object'?d.levels:{};S.admins=Array.isArray(d.admins)?d.admins:[];S.inactive=Array.isArray(d.inactive)?d.inactive:[];S.ignored=Array.isArray(d.ignored)?d.ignored:[];S.openNames=d.openNames!==false;S.idleWeeks=d.idleWeeks==null?4:+d.idleWeeks;S.since=d.since||{};S.autoOff=d.autoOff||{};setTimeout(autoInactive,0);S.skin=SKINS[d.skin]?d.skin:'court';applySkin();saveLocal();if(GID)rememberGroup();if(computeOrg())renderTab(true)}
     renderTab(false)},e=>toast('Couldn’t load shared data ('+e.code+').'));
   fsDoc('config/photo').onSnapshot(s=>{if(busy('config/photo'))return;photo=s.exists?(s.data().data||''):'';try{photo?localStorage.setItem(LSP,photo):localStorage.removeItem(LSP)}catch(e){}renderHeader();if(tab==='team'&&!typingIn('#view-team'))renderTeam()},()=>{});
   col('days').onSnapshot(q=>{
     const next={};q.docs.forEach(doc=>next[doc.id]=normDay(doc.data(),doc.id));
     Object.keys(S.days).forEach(k=>{if(busy('days/'+k))next[k]=S.days[k]});
     Object.keys(pending).forEach(p=>{if(p.startsWith('days/')&&pending[p]===null)delete next[p.slice(5)]});
-    S.days=next;saveLocal();renderTab(false)},()=>{});
+    S.days=next;if(!q.metadata||!q.metadata.fromCache)DAYS_READY=true;saveLocal();renderTab(false);autoInactive()},()=>{});
   payCol().onSnapshot(q=>{PAYS=q.docs.map(d=>({id:d.id,...d.data()}));if(!typingIn('#view-day')&&!typingIn('#view-team'))renderTab(false)},()=>{});
   startPollsListener();routeHash();window.addEventListener('hashchange',routeHash);
   setTimeout(()=>pingSeen(false),1500);
