@@ -387,7 +387,7 @@ const FIREBASE_CONFIG = {
 /* Collections get this prefix so they never clash with the league app's data */
 const COLLECTION_PREFIX = "shuttleSplit_";
 /* App version shown in Team → About */
-const APP_VERSION = "1.3.0", APP_BUILD = "31 Oct 2026";
+const APP_VERSION = "1.4.0", APP_BUILD = "31 Oct 2026";
 /* Owner of the main group (the link without ?g=) */
 const LEGACY_OWNER = "pavankaki.cool@gmail.com";
 /* Starting player list, used only until the first save */
@@ -505,7 +505,7 @@ function ledger(name,before){
   const k=nkey(name);let charged=0;const days=[];
   Object.keys(S.days).sort().forEach(ds=>{if(before&&ds>=before)return;const d=getDay(ds);const p=d.present.find(x=>nkey(x)===k);if(!p)return;const amt=calc(d).per[p].total;charged+=amt;days.push({date:ds,amt})});
   let paid=0,claimed=0;const hist=[];
-  allPays().forEach(x=>{if(nkey(x.name)!==k)return;if(x.status==='confirmed'){paid+=+x.amount||0}else if(x.status==='claimed'){claimed+=+x.amount||0}hist.push(x)});
+  allPays().forEach(x=>{if(nkey(x.name)!==k)return;if(x.kind==='adjust'){charged+=+x.amount||0}else if(x.status==='confirmed'){paid+=+x.amount||0}else if(x.status==='claimed'){claimed+=+x.amount||0}hist.push(x)});
   const due=Math.max(0,r2(charged-paid));
   let left=paid,since=null;for(const d of days){if(left>=d.amt){left-=d.amt}else{since=d.date;break}}
   hist.sort((a,b)=>(b.at||0)-(a.at||0));
@@ -517,24 +517,39 @@ function statement(name){
   const k=nkey(name),rows=[];
   Object.keys(S.days).sort().forEach(ds=>{const d=getDay(ds),o=perOf(calc(d),name);if(!o)return;
     rows.push({type:'game',date:ds,at:new Date(ds+'T12:00').getTime(),court:o.court,shuttle:o.shuttle,drinks:o.drinks,amt:o.total,hours:d.hours})});
-  allPays().forEach(x=>{if(nkey(x.name)!==k)return;rows.push({type:'pay',date:ymd(new Date(x.at||0)),at:x.at||0,amt:+x.amount||0,status:x.status,method:x.method,id:x.id})});
-  rows.sort((a,b)=>a.at-b.at);let bal=0;rows.forEach(r=>{if(r.type==='game')bal+=r.amt;else if(r.status==='confirmed')bal-=r.amt;r.bal=r2(bal)});
-  let paid=allPays().filter(x=>nkey(x.name)===k&&x.status==='confirmed').reduce((a,x)=>a+(+x.amount||0),0);
-  const unpaid=[];rows.filter(r=>r.type==='game').forEach(r=>{const use=Math.min(paid,r.amt);paid-=use;const left=r2(r.amt-use);if(left>0)unpaid.push({...r,left,part:use>0})});
+  allPays().forEach(x=>{if(nkey(x.name)!==k)return;const base={date:ymd(new Date(x.at||0)),at:x.at||0,amt:+x.amount||0,note:x.note||'',id:x.id};
+    rows.push(x.kind==='adjust'?{...base,type:'adj'}:{...base,type:'pay',status:x.status,method:x.method})});
+  rows.sort((a,b)=>a.at-b.at);let bal=0;
+  rows.forEach(r=>{if(r.type==='game'||r.type==='adj')bal+=r.amt;else if(r.status==='confirmed')bal-=r.amt;r.bal=r2(bal)});
+  /* oldest charges are cleared first by payments and credits */
+  let pool=rows.filter(r=>(r.type==='pay'&&r.status==='confirmed')).reduce((a,r)=>a+r.amt,0)+rows.filter(r=>r.type==='adj'&&r.amt<0).reduce((a,r)=>a-r.amt,0);
+  const unpaid=[];rows.filter(r=>r.type==='game'||(r.type==='adj'&&r.amt>0)).forEach(r=>{const use=Math.min(pool,r.amt);pool-=use;const left=r2(r.amt-use);if(left>0)unpaid.push({...r,left,part:use>0})});
   return{rows,unpaid};
 }
-function unpaidLine(x){const u=statement(x.name).unpaid;return'• '+x.name+' – *'+inr(x.due)+'*'+(u.length?' ('+u.map(i=>dlabel(i.date,{day:'numeric',month:'short'})+' '+inr(i.left)+(i.part?' bal':'')).join(', ')+')':'')}
+const itemLbl=u=>u.type==='adj'?'Extra'+(u.note?': '+u.note:''):dlabel(u.date,{day:'numeric',month:'short'});
+function unpaidLine(x){const u=statement(x.name).unpaid;return'• '+x.name+' – *'+inr(x.due)+'*'+(u.length?' ('+u.map(i=>itemLbl(i)+' '+inr(i.left)+(i.part?' bal':'')).join(', ')+')':'')}
+/* plain-text statement for one player, to send in a private chat */
+function statementText(name){const st=statement(name),L=ledger(name),out=['🏸 *'+(S.groupName||'Badminton Family')+'* · statement for *'+name+'*',''];
+  st.rows.forEach(r=>{const d=dlabel(r.date,{day:'numeric',month:'short'});
+    if(r.type==='game')out.push(d+' · Game '+fmtH(r.hours)+' h: '+inr(r.amt)+' (court '+inr(r.court)+(r.shuttle?', shuttle '+inr(r.shuttle):'')+(r.drinks?', drinks '+inr(r.drinks):'')+')');
+    else if(r.type==='adj')out.push(d+' · '+(r.amt>=0?'Extra charge':'Credit')+': '+(r.amt>=0?'':'−')+inr(Math.abs(r.amt))+(r.note?' – '+r.note:''));
+    else out.push(d+' · Paid: −'+inr(r.amt)+(r.status!=='confirmed'?' (awaiting confirmation)':'')+(r.note?' – '+r.note:''))});
+  out.push('','*Balance due: '+(L.due?inr(L.due):'Nil ✅')+'*');
+  if(L.due){if(S.upiId)out.push('📲 UPI: '+S.upiId);out.push('👉 Pay & check: '+appLink('payouts'));out.push('Already paid? Open the app → Payouts → My dues → tap “I’ve paid” so it’s recorded. 🙏')}
+  out.push('','Questions about any line? Just reply here 💚');return out.join('\n')}
 function statementHTML(name){const st=statement(name);if(!st.rows.length)return'';
   return`<div class="sub" style="padding-top:12px;border-top:1px solid var(--line2)"><span class="sublbl">Statement · every game and payment</span></div>
   <div class="tablewrap"><table class="btable"><thead><tr><th>Date</th><th>Item</th><th>Amount</th><th>Balance</th></tr></thead><tbody>
   ${st.rows.map(r=>r.type==='game'?`<tr><td>${esc(dlabel(r.date,{day:'numeric',month:'short'}))}</td><td>Game · ${fmtH(r.hours)} h<small>Court ${inr(r.court)}${r.shuttle?' · Shuttle '+inr(r.shuttle):''}${r.drinks?' · Drinks '+inr(r.drinks):''}</small></td><td>${inr(r.amt)}</td><td>${inr(r.bal)}</td></tr>`
-    :`<tr><td>${esc(dlabel(r.date,{day:'numeric',month:'short'}))}</td><td style="color:${r.status==='confirmed'?'var(--ok)':'#B54708'}">${r.status==='confirmed'?'Paid':'Paid · awaiting confirmation'}<small>${r.method==='upi'?'UPI':r.method==='self'?'Own share':r.method==='manual'?'Marked received':esc(r.method||'')}</small></td><td style="color:var(--ok)">−${inr(r.amt)}</td><td>${inr(r.bal)}</td></tr>`).join('')}
+    :r.type==='adj'?`<tr><td>${esc(dlabel(r.date,{day:'numeric',month:'short'}))}</td><td style="color:${r.amt>=0?'var(--danger)':'var(--ok)'}">${r.amt>=0?'Extra charge':'Credit'}<small>${esc(r.note||'Adjustment')}</small></td><td style="color:${r.amt>=0?'var(--danger)':'var(--ok)'}">${r.amt>=0?'+':'−'}${inr(Math.abs(r.amt))}</td><td>${inr(r.bal)}</td></tr>`
+    :`<tr><td>${esc(dlabel(r.date,{day:'numeric',month:'short'}))}</td><td style="color:${r.status==='confirmed'?'var(--ok)':'#B54708'}">${r.status==='confirmed'?'Paid':'Paid · awaiting confirmation'}<small>${r.method==='upi'?'UPI':r.method==='self'?'Own share':r.method==='manual'?'Marked received':esc(r.method||'')}${r.note?' · '+esc(r.note):''}</small></td><td style="color:var(--ok)">−${inr(r.amt)}</td><td>${inr(r.bal)}</td></tr>`).join('')}
   </tbody></table></div>
-  ${st.unpaid.length?`<div class="sub" style="padding-top:10px"><span class="sublbl" style="color:var(--danger)">Still unpaid</span>${st.unpaid.map(u=>`<div class="mix" style="justify-content:space-between"><span>${esc(dlabel(u.date,{weekday:'short',day:'numeric',month:'short'}))}${u.part?' (balance)':''}</span><b style="color:var(--danger)">${inr(u.left)}</b></div>`).join('')}</div>`:''}`}
+  ${st.unpaid.length?`<div class="sub" style="padding-top:10px"><span class="sublbl" style="color:var(--danger)">Still unpaid</span>${st.unpaid.map(u=>`<div class="mix" style="justify-content:space-between"><span>${u.type==='adj'?'Extra charge'+(u.note?' · '+esc(u.note):''):esc(dlabel(u.date,{weekday:'short',day:'numeric',month:'short'}))}${u.part?' (balance)':''}</span><b style="color:var(--danger)">${inr(u.left)}</b></div>`).join('')}</div>`:''}`}
 function duesList(before){return allNames().map(n=>({name:n,...ledger(n,before)})).filter(x=>x.due>0).sort((a,b)=>b.due-a.due)}
 const payCol=()=>col('payments');
-async function addPayment(name,amount,status,method,at){
+async function addPayment(name,amount,status,method,at,extra){
   const doc={name:canon(name),amount:r2(+amount),at:at||Date.now(),status,method:method||'upi',by:isOrg||!db?'organizer':'player'};
+  if(extra&&(isOrg||!db))Object.assign(doc,extra);
   if(!db){S.payments=S.payments||[];S.payments.push({id:'l'+Date.now(),...doc,status:status||'confirmed'});saveLocal();renderTab(false);return true}
   try{if(!isOrg){if(!auth.currentUser)await auth.signInAnonymously();doc.uid=auth.currentUser.uid}
     await payCol().add(doc);return true}
@@ -693,7 +708,7 @@ function refreshDay(){
   sc.innerHTML=cardH('wallet','Split',plural(c.n,'player'))+`<div class="split">${orderNames(d.present).map(p=>{const o=c.per[p],parts=['Court '+inr(o.court)];if(o.shuttle)parts.push('Shuttle '+inr(o.shuttle));if(o.drinks)parts.push('Drinks '+inr(o.drinks));
       return`<div class="prow"><span class="ini">${esc(initials(p))}</span><span class="nm">${esc(p)}<small>${parts.join(' · ')}</small></span><span class="am">${inr(o.total)}</span></div>`}).join('')}</div>
     <div class="tot"><span>To collect${c.collected>c.actual?` <small style="font-weight:600;color:var(--muted)">(cost ${inr(c.actual)}, rounded up)</small>`:''}</span><b>${inr(c.collected)}</b></div>
-    <div class="card-f"><button class="btn primary block" data-act="topay">${ic('share')}Share payout for this day</button></div>`;
+    <div class="card-f"><button class="btn primary block" data-act="topay">${ic('share')}Send ${esc(dlabel(curDate,{weekday:'short',day:'numeric',month:'short'}))} bill to group</button></div>`;
 }
 function editDay(fn){
   if(!canEdit()){toast('Sign in as the organizer to make changes.');return}
@@ -734,7 +749,7 @@ function bindDay(){
       case'clear':dayConfirmClear=true;renderDay();break;
       case'clear-no':dayConfirmClear=false;renderDay();break;
       case'clear-yes':delete S.days[curDate];queueWrite('days/'+curDate,null);dayConfirmClear=false;renderDay();toast('Day cleared.');break;
-      case'topay':pay.range='day';pay.day=curDate;pay.off.clear();go('pay');break;
+      case'topay':openBillReady(curDate);break;
     }
   });
   v.addEventListener('input',e=>{
@@ -818,11 +833,28 @@ function renderPay(){
   $('#copytext').onclick=()=>copyText(msg);
   const fname='payouts-'+R.days.map(d=>d.date.slice(5)).join('_')+'.png';
   drawPoster(R).then(url=>{const img=$('#poster');if(img)img.src=url;const sb=$('#shareimg');if(!sb)return;
-    sb.onclick=async()=>{try{
-      const blob=await(await fetch(url)).blob(),file=new File([blob],fname,{type:'image/png'});
-      const cap=posterCaption(R);if(navigator.canShare&&navigator.canShare({files:[file]})){try{await navigator.clipboard.writeText(cap)}catch(e){}await navigator.share({files:[file],text:cap})}
-      else{const a=document.createElement('a');a.href=url;a.download=fname;document.body.appendChild(a);a.click();a.remove();toast('Poster saved. Attach it in WhatsApp.')}
-    }catch(e){if(!e||e.name!=='AbortError')toast('Couldn’t share. Long-press the poster to save it.')}}});
+    sb.onclick=()=>sharePoster(url,fname,posterCaption(R))});
+}
+async function sharePoster(url,fname,cap){try{
+  const blob=await(await fetch(url)).blob(),file=new File([blob],fname,{type:'image/png'});
+  if(navigator.canShare&&navigator.canShare({files:[file]})){try{await navigator.clipboard.writeText(cap)}catch(e){}await navigator.share({files:[file],text:cap});return true}
+  const a=document.createElement('a');a.href=url;a.download=fname;document.body.appendChild(a);a.click();a.remove();try{await navigator.clipboard.writeText(cap)}catch(e){}toast('Poster saved and message copied. Attach it in WhatsApp.');return true
+}catch(e){if(!e||e.name!=='AbortError')toast('Couldn’t share. Long-press the poster to save it.');return false}}
+/* after entering a day's details: a clear "ready to send?" step instead of jumping tabs */
+function openBillReady(ds){
+  const R=report([ds]),c=R.calcs[0];if(!c||!c.n)return toast('Tick who played first.');
+  const day=dlabel(ds,{weekday:'long',day:'numeric',month:'short'}),fname='bill-'+ds+'.png';
+  const bg=sheetOpen(`<div class="sheet-h"><span class="ini">${ic('check')}</span><div><b>Bill for ${esc(day)} is ready</b><small>${plural(c.n,'player')} · ${inr(c.collected)} to collect · saved automatically</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div>
+    <p class="hint" style="margin:0 0 10px">Ready to share it with the group? Everyone sees their share, and it also adds to their dues in the app.</p>
+    <img id="billimg" alt="Bill poster" style="width:100%;border-radius:14px;border:1px solid var(--line);min-height:120px;background:var(--soft)">
+    <div style="display:grid;gap:8px;margin-top:12px">
+      <button class="btn primary block" id="billshare">${ic('share')}Yes, share poster on WhatsApp</button>
+      <a class="btn wa block" href="${waHref(payText(R))}" target="_blank" rel="noopener">${ic('chat')}Send as text instead</a>
+      <div class="grid2"><button class="btn line" id="billpay">Open in Payouts</button><button class="btn line" id="billlater">Not now</button></div>
+    </div>`,'Bill ready');
+  drawPoster(R).then(url=>{const i=$('#billimg');if(i)i.src=url;const b=$('#billshare');if(b)b.onclick=()=>sharePoster(url,fname,posterCaption(R))});
+  $('#billpay').onclick=()=>{closeWho();pay.range='day';pay.day=ds;pay.off.clear();go('pay')};
+  $('#billlater').onclick=()=>{closeWho();toast('Saved. You can share it any time from Payouts.')};
 }
 function personRow(r,R,L){
   const days=r.cells.map((x,i)=>x===null?null:esc(dlabel(R.days[i].date,{weekday:'short'}))+' '+inr(x)).filter(Boolean).join(' · ');
@@ -867,15 +899,16 @@ function confirmCard(){
 }
 function duesCards(){
   const dues=duesList();
-  const recent=allPays().filter(x=>x.status==='confirmed').sort((a,b)=>(b.at||0)-(a.at||0)).slice(0,6);
+  const recent=allPays().filter(x=>x.status==='confirmed'&&x.kind!=='adjust').sort((a,b)=>(b.at||0)-(a.at||0)).slice(0,6);
   return`<section class="card${dues.length?' due-card':''}">${cardH(dues.length?'bell':'check','All outstanding dues',dues.length?inr(dues.reduce((a,x)=>a+x.due,0)):'All clear')}
-    ${dues.length?dues.map(x=>`<button class="prow" style="width:100%;text-align:left" data-pay="${esc(x.name)}"><span class="ini">${esc(initials(x.name))}</span><span class="nm">${esc(x.name)}<small>${statement(x.name).unpaid.map(u=>esc(dlabel(u.date,{day:'numeric',month:'short'}))+' '+inr(u.left)).join(' · ')}${x.claimed?' · '+inr(x.claimed)+' to confirm':''}</small></span><span class="due-amt">${inr(x.due)}</span></button>`).join('')
+    ${dues.length?dues.map(x=>`<button class="prow" style="width:100%;text-align:left" data-pay="${esc(x.name)}"><span class="ini">${esc(initials(x.name))}</span><span class="nm">${esc(x.name)}<small>${statement(x.name).unpaid.map(u=>esc(itemLbl(u))+' '+inr(u.left)).join(' · ')}${x.claimed?' · '+inr(x.claimed)+' to confirm':''}</small></span><span class="due-amt">${inr(x.due)}</span></button>`).join('')
       :`<div class="empty">${ic('check')}Everyone has paid in full.</div>`}
-    ${dues.length?`<div class="card-f"><a class="btn sm wa" href="${waHref(duesMsg(dues))}" target="_blank" rel="noopener">${ic('chat')}Gentle reminder to all</a><span class="hint" style="margin-left:auto">Across all days</span></div>`:''}</section>
+    ${dues.length?`<div class="card-f" style="flex-wrap:wrap;gap:8px">${isOrg||!db?`<button class="btn sm primary" id="duesposter">${ic('share')}Dues poster</button>`:''}<a class="btn sm wa" href="${waHref(duesMsg(dues))}" target="_blank" rel="noopener">${ic('chat')}Reminder as text</a><span class="hint" style="margin-left:auto">Only players with dues · ${plural(dues.length,'player')}</span></div>`:''}</section>
   ${recent.length?`<section class="card">${cardH('wallet','Recent payments')}
     ${recent.map(x=>`<div class="prow"><span class="ini">${esc(initials(x.name))}</span><span class="nm">${esc(x.name)}<small>${whenD(x.confirmedAt||x.at)} · ${x.by==='player'?'paid by UPI, confirmed':x.method==='self'?'own share':'marked received'}</small></span>${isOrg?(payDel===x.id?`<span class="acts"><button class="lnk" data-pkeep>Keep</button><button class="lnk danger" data-pdel="${esc(x.id)}">Undo</button></span>`:`<button class="am" style="color:var(--ok)" data-pask="${esc(x.id)}">${inr(x.amount)}</button>`):`<span class="am" style="color:var(--ok)">${inr(x.amount)}</span>`}</div>`).join('')}</section>`:''}`;
 }
 function bindPayBook(v){
+  const dp=v.querySelector('#duesposter');if(dp)dp.onclick=async()=>{dp.disabled=true;const list=duesList();const url=await drawDuesPoster(list);dp.disabled=false;openDuesPoster(url,list)};
   v.querySelectorAll('[data-pay]').forEach(b=>b.onclick=()=>openPay(b.dataset.pay));
   v.querySelectorAll('[data-pconf]').forEach(b=>b.onclick=async()=>{b.disabled=true;await setPayStatus(b.dataset.pconf,'confirmed');toast('Payment confirmed.')});
   v.querySelectorAll('[data-prej]').forEach(b=>b.onclick=async()=>{b.disabled=true;await setPayStatus(b.dataset.prej,'delete');toast('Marked as not received. The amount is still due.')});
@@ -952,7 +985,12 @@ function openPay(name){
   const bg=document.createElement('div');bg.className='sheet-bg';bg.id='whosheet';
   const head=`<div class="grab"></div><div class="sheet-h"><span class="ini">${esc(initials(name))}</span><div><b>${esc(name)}</b><small>${L.since?'Unpaid since '+esc(dlabel(L.since,{day:'numeric',month:'short'})):'Balance'}</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div>`;
   const orgBox=isOrg||!db?`<div class="row"><div class="l"><b>Mark as received</b><small>Cash, or a UPI payment you can see. Change the amount for part payments.</small></div></div>
-    <div class="sub"><div class="inline"><div class="amt" style="flex:1;width:auto"><span>₹</span><input id="rcvamt" type="number" inputmode="decimal" min="1" value="${amount}" aria-label="Amount received"></div><button class="btn primary" id="rcvbtn">${ic('check')}Received</button></div></div>`:'';
+    <div class="sub"><div class="inline"><div class="amt" style="flex:1;width:auto"><span>₹</span><input id="rcvamt" type="number" inputmode="decimal" min="1" value="${amount}" aria-label="Amount received"></div><button class="btn primary" id="rcvbtn">${ic('check')}Received</button></div>
+      <input class="txt" id="rcvnote" placeholder="Note (optional), e.g. paid in cash on 31 Oct"></div>
+    <div class="row"><div class="l"><b>Fix the balance</b><small>For a mismatch or dispute: add a charge or give a credit, with a note the player will see</small></div></div>
+    <div class="sub"><div class="grid2"><select class="txt" id="adjtype"><option value="1">Extra charge (+)</option><option value="-1">Credit (−)</option></select><div class="amt" style="width:auto"><span>₹</span><input id="adjamt" type="number" inputmode="decimal" min="1" placeholder="Amount"></div></div>
+      <div class="inline"><input class="txt" id="adjnote" placeholder="Reason, e.g. UPI of ₹200 not received on 24 Oct"><button class="btn line" style="height:44px" id="adjbtn">Save</button></div></div>
+    ${statement(name).rows.length?`<div class="sub"><a class="btn wa block" href="${waHref(statementText(name))}" target="_blank" rel="noopener">${ic('chat')}Send ${esc(first(name))} their statement</a><p class="hint">Opens WhatsApp with every line item and note. Choose ${esc(first(name))}’s chat.</p></div>`:''}`:'';
   let body;
   if(amount<=0){
     body=`<div class="payhero"><span class="sublbl">${ic('check')} All paid</span><b style="color:var(--ok)">Nil</b><small>${L.claimed?inr(L.claimed)+' waiting for the organizer to confirm':'Nothing due right now. Thank you!'}</small></div>`;
@@ -978,8 +1016,11 @@ function openPay(name){
   const cu=$('#copyupi');if(cu)cu.onclick=()=>copyText(S.upiId,'UPI ID copied.');
   const gu=$('#gotoupi');if(gu)gu.onclick=()=>{closeWho();go('team');setTimeout(()=>{const i=$('#upiin');if(i){i.scrollIntoView({block:'center'});i.focus()}},120)};
   const cb=$('#claimbtn');if(cb)cb.onclick=async()=>{cb.disabled=true;if(await addPayment(name,amount,'claimed','upi')){closeWho();toast('Thanks! Marked as paid. The organizer will confirm it.')}else cb.disabled=false};
+  const ab=$('#adjbtn');if(ab)ab.onclick=async()=>{const amt=r2(+$('#adjamt').value||0),note=norm($('#adjnote').value),sign=+$('#adjtype').value;
+    if(!(amt>0))return toast('Enter the amount.');if(!note)return toast('Add a short reason so '+first(name)+' understands it.');
+    ab.disabled=true;if(await addPayment(name,sign*amt,'confirmed','adjust',null,{kind:'adjust',note})){toast((sign>0?'Charge of ':'Credit of ')+inr(amt)+' added for '+first(name)+'.');setTimeout(()=>openPay(name),450)}else ab.disabled=false};
   const rb=$('#rcvbtn');if(rb)rb.onclick=async()=>{const v=r2(+$('#rcvamt').value||0);if(v<=0)return toast('Enter the amount received.');rb.disabled=true;
-    if(await addPayment(name,v,'confirmed','manual')){closeWho();toast(inr(v)+' recorded for '+first(name)+'.'+(v<amount?' '+inr(r2(amount-v))+' still due.':''))}else rb.disabled=false};
+    const nt=norm(($('#rcvnote')||{}).value||'');if(await addPayment(name,v,'confirmed','manual',null,nt?{note:nt}:null)){closeWho();toast(inr(v)+' recorded for '+first(name)+'.'+(v<amount?' '+inr(r2(amount-v))+' still due.':''))}else rb.disabled=false};
 }
 
 /* ---------- poster ---------- */
@@ -1041,6 +1082,41 @@ async function drawPoster(R){
   g.textAlign='center';g.fillStyle='#667085';g.font='600 24px '+F;g.fillText('Same court · Same people · Stronger together',W/2,H-42);
   return cv.toDataURL('image/png');
 }
+function duesCaption(list){const L=['🔔 *'+(S.groupName||'Badminton Family')+': friendly payment reminder*','',
+  'A quick nudge for the pending amounts in the poster above. Whenever it suits you this week, please clear it. It keeps the courts booked and shuttles flying for all of us 💚',''];
+  if(S.upiId)L.push('📲 UPI: '+S.upiId+(S.upiName?' ('+S.upiName+')':''));
+  L.push('📊 Line-by-line details: '+appLink('payouts'));
+  L.push('','✅ *Already paid?* Open the app → Payouts → My dues → tap “I’ve paid” so it’s recorded. 🙏','❓ Something looks off? Message the organizer and we’ll sort it out.');return L.join('\n')}
+function openDuesPoster(url,list){
+  sheetOpen(`<div class="sheet-h"><span class="ini">${ic('bell')}</span><div><b>Payment reminder poster</b><small>${plural(list.length,'player')} · ${inr(list.reduce((a,x)=>a+x.due,0))} pending</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div>
+    <img src="${url}" alt="Dues poster" style="width:100%;border-radius:14px;border:1px solid var(--line)">
+    <p class="hint">Only players who owe are listed. The message tells them how to mark payments in the app.</p>
+    <div style="display:grid;gap:8px;margin-top:8px"><button class="btn primary block" id="dpshare">${ic('share')}Share on WhatsApp</button><a class="btn wa block" href="${waHref(duesMsg(list))}" target="_blank" rel="noopener">${ic('chat')}Send as text instead</a></div>`,'Dues poster');
+  $('#dpshare').onclick=()=>sharePoster(url,'dues-'+todayStr()+'.png',duesCaption(list));
+}
+async function drawDuesPoster(list){
+  try{await Promise.all(['500','700','800'].map(w=>document.fonts.load(w+' 30px Manrope')))}catch(e){}
+  const k=SKINS[S.skin]?S.skin:'court',sk=SKINS[k],acc=sk.accent,soft=mix(acc,'#FFFFFF',.08),F='Manrope,system-ui,sans-serif';
+  const cv=$('#cv'),W=1080,P=56,heroH=260,rowH=92,top=heroH+40;
+  const H=top+84+list.length*rowH+rowH+40+190+90;cv.width=W;cv.height=H;const g=cv.getContext('2d');
+  g.fillStyle='#F6F7F6';g.fillRect(0,0,W,H);
+  g.fillStyle=acc;g.fillRect(0,0,W,heroH);g.save();g.globalAlpha=.12;g.strokeStyle=sk.ink;g.lineWidth=3;for(let i=-2;i<9;i++){g.beginPath();g.moveTo(i*160,heroH);g.lineTo(i*160+260,0);g.stroke()}g.restore();
+  g.fillStyle=sk.ink;g.textAlign='left';g.font='800 24px '+F;g.globalAlpha=.85;fit(g,(S.groupName||'Badminton Family').toUpperCase(),P,92,W-P*2);g.globalAlpha=1;
+  g.font='800 80px '+F;g.fillText('Payment reminder',P,180);g.font='600 26px '+F;g.globalAlpha=.85;g.fillText('As of '+dlabel(todayStr(),{weekday:'short',day:'numeric',month:'short',year:'numeric'}),P,226);g.globalAlpha=1;
+  let y=top;const tw=W-P*2,tblH=84+list.length*rowH+rowH;
+  g.save();rr(g,P,y,tw,tblH,22);g.clip();g.fillStyle=acc;g.fillRect(P,y,tw,84);g.fillStyle=sk.ink;g.font='800 22px '+F;g.fillText('NAME · PENDING FOR',P+28,y+52);g.textAlign='right';g.fillText('DUE',W-P-28,y+52);y+=84;
+  list.forEach((x,i)=>{g.fillStyle=i%2?soft:'#FFFFFF';g.fillRect(P,y,tw,rowH);g.textAlign='left';g.fillStyle='#101828';g.font='700 29px '+F;fit(g,x.name,P+28,y+40,tw-280);
+    const u=statement(x.name).unpaid;g.fillStyle='#667085';g.font='600 20px '+F;fit(g,u.map(i=>itemLbl(i)+' ₹'+i.left).join('  ·  ')||'Earlier balance',P+28,y+72,tw-280);
+    g.textAlign='right';g.fillStyle='#B42318';g.font='800 32px '+F;g.fillText('₹'+x.due.toLocaleString('en-IN'),W-P-28,y+56);y+=rowH});
+  const tot=list.reduce((a,x)=>a+x.due,0);g.fillStyle=mix(acc,'#FFFFFF',.14);g.fillRect(P,y,tw,rowH);g.textAlign='left';g.fillStyle='#101828';g.font='800 26px '+F;g.fillText('TOTAL PENDING · '+list.length+' PLAYERS',P+28,y+56);g.textAlign='right';g.fillText('₹'+tot.toLocaleString('en-IN'),W-P-28,y+56);
+  g.restore();g.strokeStyle='#E4E7EC';g.lineWidth=2;rr(g,P,top,tw,tblH,22);g.stroke();y+=rowH+40;
+  g.fillStyle='#FFFFFF';rr(g,P,y,tw,190,24);g.fill();g.strokeStyle=acc;g.lineWidth=3;g.stroke();g.textAlign='left';
+  g.fillStyle=acc;g.font='800 28px '+F;g.fillText(S.upiId?'Pay by UPI: '+S.upiId:'Pay the organizer',P+32,y+58);
+  g.fillStyle='#101828';g.font='700 24px '+F;fit(g,'Already paid? App → Payouts → My dues → tap “I’ve paid”',P+32,y+108,tw-64);
+  g.fillStyle='#667085';g.font='600 22px '+F;fit(g,'Something looks off? Message the organizer and we’ll sort it out.',P+32,y+152,tw-64);
+  g.textAlign='center';g.fillStyle='#667085';g.font='600 24px '+F;g.fillText('Same court · Same people · Stronger together',W/2,H-42);
+  return cv.toDataURL('image/png');
+}
 function fit(g,t,x,y,max){let s=String(t);while(g.measureText(s).width>max&&s.length>3)s=s.slice(0,-2)+'…';g.fillText(s,x,y)}
 function rr(g,x,y,w,h,r){g.beginPath();g.moveTo(x+r,y);g.arcTo(x+w,y,x+w,y+h,r);g.arcTo(x+w,y+h,x,y+h,r);g.arcTo(x,y+h,x,y,r);g.arcTo(x,y,x+w,y,r);g.closePath()}
 
@@ -1086,8 +1162,8 @@ function autoInactive(){
 }
 function adoption(){
   const seen={};SEEN.forEach(x=>{const k=nkey(x.name);if(!seen[k]||x.at>seen[k])seen[k]=x.at});
-  const selfV={},orgV={};PDATA.votes.forEach(v=>{const k=nkey(v.name);if(String(v.id).startsWith('n-'))orgV[k]=(orgV[k]||0)+1;else selfV[k]=(selfV[k]||0)+1});
-  const appPaid={};allPays().forEach(x=>{if(x.by==='player')appPaid[nkey(x.name)]=(appPaid[nkey(x.name)]||0)+1});
+  const me=nkey(getMe()),selfV={},orgV={};PDATA.votes.forEach(v=>{const k=nkey(v.name);const own=!String(v.id).startsWith('n-')||v.self||(isOrg&&me&&k===me);if(own)selfV[k]=(selfV[k]||0)+1;else orgV[k]=(orgV[k]||0)+1});
+  const appPaid={};allPays().forEach(x=>{if(x.by==='player'||x.method==='self')appPaid[nkey(x.name)]=(appPaid[nkey(x.name)]||0)+1});
   const rows=activeRoster().map(n=>{const k=nkey(n),sv=selfV[k]||0,ov=orgV[k]||0,pp=appPaid[k]||0,on=!!seen[k]||sv>0||pp>0;
     const stage=sv||pp?3:on?2:1;return{n,k,on,last:seen[k]||0,sv,ov,pp,stage,lvl:levelOf(n)}});
   const idle=Object.keys(S.autoOff||{}).map(k=>{const n=S.roster.find(r=>nkey(r)===k);return n?{n,k,since:S.autoOff[k],act:lastActivity(n)}:null}).filter(Boolean);
@@ -1214,10 +1290,11 @@ function renderRecords(v){
    pays:`<section class="card">${cardH('plus','Add a payment')}
       <div class="sub" style="padding-top:12px"><select class="txt" id="rp_name"><option value="">Player…</option>${names.map(n=>`<option>${esc(n)}</option>`).join('')}</select>
       <div class="grid2"><div class="amt" style="width:auto"><span>₹</span><input id="rp_amt" type="number" inputmode="decimal" min="1" placeholder="Amount"></div><input class="txt" type="date" id="rp_date" value="${todayStr()}"></div>
-      <select class="txt" id="rp_status"><option value="confirmed">Received (confirmed)</option><option value="claimed">Waiting for confirmation</option></select>
+      <select class="txt" id="rp_status"><option value="confirmed">Payment received</option><option value="claimed">Payment waiting for confirmation</option><option value="adj+">Extra charge (adds to their due)</option><option value="adj-">Credit (reduces their due)</option></select>
+      <input class="txt" id="rp_note" placeholder="Note (optional for payments, needed for charges and credits)">
       <button class="btn primary" id="rp_add">${ic('plus')}Add payment</button></div></section>
     <section class="card">${cardH('wallet','All payments',pays.length)}
-      ${pays.length?pays.map(x=>`<button class="prow" style="width:100%;text-align:left" data-editpay="${esc(x.id)}"><span class="ini">${esc(initials(x.name))}</span><span class="nm">${esc(x.name)}<small>${esc(dlabel(ymd(new Date(x.at||0)),{day:'numeric',month:'short',year:'numeric'}))} · ${x.status==='confirmed'?'Confirmed':'Awaiting confirmation'} · ${x.by==='player'?'by player':'by organizer'}</small></span><span class="am" style="color:${x.status==='confirmed'?'var(--ok)':'#B54708'}">${inr(x.amount)}</span></button>`).join(''):`<div class="empty">${ic('wallet')}No payments recorded.</div>`}
+      ${pays.length?pays.map(x=>`<button class="prow" style="width:100%;text-align:left" data-editpay="${esc(x.id)}"><span class="ini">${esc(initials(x.name))}</span><span class="nm">${esc(x.name)}<small>${esc(dlabel(ymd(new Date(x.at||0)),{day:'numeric',month:'short',year:'numeric'}))} · ${x.kind==='adjust'?(x.amount>=0?'Extra charge':'Credit'):x.status==='confirmed'?'Confirmed':'Awaiting confirmation'} · ${x.by==='player'?'by player':'by organizer'}${x.note?' · '+esc(x.note):''}</small></span><span class="am" style="color:${x.kind==='adjust'?(x.amount>=0?'var(--danger)':'var(--ok)'):x.status==='confirmed'?'var(--ok)':'#B54708'}">${x.kind==='adjust'?(x.amount>=0?'+':'−')+inr(Math.abs(x.amount)):inr(x.amount)}</span></button>`).join(''):`<div class="empty">${ic('wallet')}No payments recorded.</div>`}
       <div class="card-f"><p class="hint">Tap a payment to change the name, amount, date or status, or to delete it.</p></div></section>`,
    days:`<section class="card">${cardH('plus','Add or edit a game day')}
       <div class="sub" style="padding-top:12px"><div class="inline"><input class="txt" type="date" id="rd_date" value="${todayStr()}"><button class="btn primary" style="height:44px" id="rd_open">Open on Today</button></div>
@@ -1236,7 +1313,10 @@ function renderRecords(v){
   v.querySelector('[data-recback]').onclick=()=>{teamUI.page='';teamUI.del=null;renderTeam();window.scrollTo(0,0)};
   v.querySelectorAll('[data-rec]').forEach(b=>b.onclick=()=>{teamUI.rec=b.dataset.rec;teamUI.del=null;renderTeam()});
   const add=$('#rp_add');if(add)add.onclick=async()=>{const n=$('#rp_name').value,a=+$('#rp_amt').value,d=$('#rp_date').value;if(!n)return toast('Choose the player.');if(!(a>0))return toast('Enter the amount.');
-    add.disabled=true;const at=new Date((d||todayStr())+'T12:00').getTime();if(await addPayment(n,a,$('#rp_status').value,'manual',at)){toast(inr(a)+' recorded for '+first(n)+'.');renderTeam()}else add.disabled=false};
+    const st=$('#rp_status').value,nt=norm($('#rp_note').value);if(st.startsWith('adj')&&!nt)return toast('Add a reason for the charge or credit.');
+    add.disabled=true;const at=new Date((d||todayStr())+'T12:00').getTime();
+    const ok=st.startsWith('adj')?await addPayment(n,(st==='adj+'?1:-1)*a,'confirmed','adjust',at,{kind:'adjust',note:nt}):await addPayment(n,a,st,'manual',at,nt?{note:nt}:null);
+    if(ok){toast(inr(a)+' recorded for '+first(n)+'.');renderTeam()}else add.disabled=false};
   v.querySelectorAll('[data-editpay]').forEach(b=>b.onclick=()=>editPay(b.dataset.editpay));
   const ro=$('#rd_open');if(ro)ro.onclick=()=>{const d=$('#rd_date').value;if(!d)return;teamUI.page='';curDate=d;go('day')};
   v.querySelectorAll('[data-openday]').forEach(b=>b.onclick=()=>{teamUI.page='';curDate=b.dataset.openday;go('day')});
@@ -1253,11 +1333,13 @@ function editPay(id){
   const bg=sheetOpen(`<div class="sheet-h"><span class="ini">${esc(initials(x.name))}</span><div><b>Edit payment</b><small>${esc(x.name)} · ${inr(x.amount)}</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div>
     <div class="sub" style="padding-top:12px"><span class="sublbl">Player</span><select class="txt" id="ep_name">${names.map(n=>`<option ${nkey(n)===nkey(x.name)?'selected':''}>${esc(n)}</option>`).join('')}</select>
     <div class="grid2"><div><span class="sublbl">Amount</span><div class="amt" style="width:auto"><span>₹</span><input id="ep_amt" type="number" inputmode="decimal" value="${+x.amount||0}"></div></div><div><span class="sublbl">Date</span><input class="txt" type="date" id="ep_date" value="${ymd(new Date(x.at||Date.now()))}"></div></div>
-    <span class="sublbl">Status</span><select class="txt" id="ep_status"><option value="confirmed"${x.status==='confirmed'?' selected':''}>Received (confirmed)</option><option value="claimed"${x.status!=='confirmed'?' selected':''}>Waiting for confirmation</option></select></div>
+    <span class="sublbl">Note</span><input class="txt" id="ep_note" value="${esc(x.note||'')}" placeholder="Optional">
+    ${x.kind==='adjust'?`<p class="hint">This is a balance adjustment. A positive amount is an extra charge, a negative amount is a credit.</p>`:''}
+    <span class="sublbl"${x.kind==='adjust'?' hidden':''}>Status</span><select class="txt" id="ep_status"${x.kind==='adjust'?' hidden':''}><option value="confirmed"${x.status==='confirmed'?' selected':''}>Received (confirmed)</option><option value="claimed"${x.status!=='confirmed'?' selected':''}>Waiting for confirmation</option></select></div>
     <div class="card-f" style="display:grid;grid-template-columns:1fr 1fr"><button class="btn line" id="ep_del" style="color:var(--danger)">${ic('trash')}Delete</button><button class="btn primary" id="ep_save">${ic('check')}Save</button></div>`,'Edit payment');
   let confirmDel=false;
-  $('#ep_save').onclick=async()=>{const upd={name:canon($('#ep_name').value),amount:r2(+$('#ep_amt').value||0),at:new Date($('#ep_date').value+'T12:00').getTime(),status:$('#ep_status').value};
-    if(!(upd.amount>0))return toast('Enter an amount above zero.');
+  $('#ep_save').onclick=async()=>{const upd={name:canon($('#ep_name').value),amount:r2(+$('#ep_amt').value||0),at:new Date($('#ep_date').value+'T12:00').getTime(),status:x.kind==='adjust'?'confirmed':$('#ep_status').value,note:norm($('#ep_note').value)};
+    if(x.kind!=='adjust'&&!(upd.amount>0))return toast('Enter an amount above zero.');if(!upd.amount)return toast('Enter an amount.');
     if(db){try{await payCol().doc(id).update(upd)}catch(e){return toast('Couldn’t save ('+e.code+').')}}else{Object.assign(x,upd);saveLocal()}
     closeWho();renderTab(true);toast('Payment updated.')};
   $('#ep_del').onclick=async()=>{if(!confirmDel){confirmDel=true;$('#ep_del').textContent='Tap again to delete';return}
@@ -1484,7 +1566,7 @@ const TPL_DEFAULT={
   remind:"🗳️ *{title}*\n\n{status}\n\n{pending_count} haven’t voted yet. Takes 5 seconds 👉 {link}\n⏰ Closes {closes}",
   last:"⏰ *Last call! Voting closes in 1 hour* ({closes})\n\n{status}\n\n👉 {link}\nOnly app votes count for the game 🙏",
   game:"🏸 *Game in {lead} hours!* {date} · {time}\n\nPlaying ({count}): {players}\n\nSee you on court! 💚",
-  dues:"🔔 *{group}: gentle reminder*\n\n{dues_lines}\n\n📲 UPI: {upi}\n👉 Details & pay: {payouts_link}\nAfter paying, tap “I’ve paid” in My dues. Thank you! 💚"};
+  dues:"🔔 *{group}: gentle reminder*\n\n{dues_lines}\n\n📲 UPI: {upi}\n👉 Details & pay: {payouts_link}\n\n✅ *Already paid?* Open the app → Payouts → My dues → tap “I’ve paid”. It takes 5 seconds and keeps the books straight for everyone 🙏\n\nThank you! 💚"};
 const TPL_INFO=[['start','Poll started','{title} {dates} {slots} {link} {closes} {group}'],['startRule','Poll started + app-votes-only rule','{title} {dates} {slots} {link} {closes} {group}'],
   ['remind','Vote reminder','{title} {status} {pending} {pending_count} {link} {closes} {threshold}'],['last','Last call (before close)','{title} {status} {link} {closes}'],
   ['game','Game-day reminder','{date} {time} {lead} {players} {count} {group}'],['dues','Payment reminder','{group} {dues_lines} {upi} {payouts_link}']];
@@ -1739,7 +1821,7 @@ function bindOrgGrid(v,p,t){
 async function saveVote(){
   const p=P.sel;if(!p||!p.id)return;const name=canon(tcase(P.myName));
   try{if(!auth.currentUser)await auth.signInAnonymously();const id=auth.currentUser.isAnonymous?auth.currentUser.uid:'n-'+slug(name);
-    await pollsCol().doc(p.id).collection('votes').doc(id).set({name,answers:{...P.myAns},updatedAt:Date.now()});
+    await pollsCol().doc(p.id).collection('votes').doc(id).set(Object.assign({name,answers:{...P.myAns},updatedAt:Date.now()},auth.currentUser.isAnonymous?{}:{self:true}));
     const s=$('#vstat');if(s)s.textContent='Saved. Thanks, '+first(name)+'!'}
   catch(e){const s=$('#vstat');if(s)s.textContent='';
     toast(e.code==='permission-denied'?(isClosed(p)?'This poll is closed.':'Couldn’t save your vote. Ask the organizer to check the poll rules.'):(e.code==='auth/admin-restricted-operation'||e.code==='auth/operation-not-allowed')?'Voting isn’t switched on yet. Ask the organizer to enable Anonymous sign-in in Firebase.':'Couldn’t save ('+(e.code||'error')+').')}
