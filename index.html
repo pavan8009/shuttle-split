@@ -377,7 +377,7 @@ const FIREBASE_CONFIG = {
 /* Collections get this prefix so they never clash with the league app's data */
 const COLLECTION_PREFIX = "shuttleSplit_";
 /* App version shown in Team → About */
-const APP_VERSION = "1.2.0", APP_BUILD = "31 Oct 2026";
+const APP_VERSION = "1.2.1", APP_BUILD = "31 Oct 2026";
 /* Owner of the main group (the link without ?g=) */
 const LEGACY_OWNER = "pavankaki.cool@gmail.com";
 /* Starting player list, used only until the first save */
@@ -650,7 +650,9 @@ function refreshDay(){
   $('#drwrap').hidden=!d.drinksOn;
   $('#drchips').innerHTML=d.present.length?orderNames(d.present).map(p=>`<button type="button" class="tile ${d.drinksSkip.includes(p)?'out':'on'}" data-act="dr" data-v="${esc(p)}">${ic('check')}<span>${esc(p)}</span></button>`).join(''):'<p class="hint">Tick who played first.</p>';
   const fp=$('#frompoll');if(fp)fp.hidden=!(db&&canEdit()&&pollForDate(curDate));
-  const pn=$('#pollnote');if(pn)pn.innerHTML=d.src==='poll'?`<div class="note" style="margin-bottom:10px">${ic('poll')}<p>Pre-filled from the poll: ${plural(d.present.length,'player')} voted yes${d.slot?' for '+esc(d.slot):''}${d.courtsBooked?' · '+plural(d.courtsBooked,'court'):''}. Untick anyone who didn’t come and add guests below.</p></div>`:'';
+  const pv=pollForDate(curDate),yesN=pv?latestByName(PDATA.votes.filter(x=>x.poll===pv.id)).filter(x=>(x.answers||{})[curDate]==='yes').length:0;
+  const pn=$('#pollnote');if(pn)pn.innerHTML=d.src==='poll'?`<div class="note" style="margin-bottom:10px">${ic('poll')}<p>${d.autoSync?`Auto-selected from the poll: ${plural(d.present.length,'player')} voted Yes${d.slot?' for '+esc(d.slot):''}. Late Yes votes are added automatically until you change the list.`:`Started from the poll’s Yes votes. You’ve adjusted the list, so it’s yours now.`} Untick anyone who didn’t come, add guests below.</p></div>`
+    :(canEdit()&&db&&pv&&yesN&&!d.present.length?`<div class="note" style="margin-bottom:10px">${ic('poll')}<p>${plural(yesN,'player')} voted Yes for this date.</p><button class="btn sm line" data-act="frompoll">Select them</button></div>`:'');
   const vs=$('#viewsum');if(vs&&!canEdit()){vs.innerHTML=cardH('rupee','Costs for the day',inr(c.actual))+(c.n?`
     <div class="row"><div class="l"><b>Court</b><small>${fmtH(d.hours)} h × ${inr(d.rate)}</small></div><span class="v">${inr(c.court)}</span></div>
     ${c.shuttle?`<div class="row"><div class="l"><b>Shuttles</b><small>Shared by ${c.shN}</small></div><span class="v">${inr(c.shuttle)}</span></div>`:''}
@@ -665,12 +667,12 @@ function refreshDay(){
 }
 function editDay(fn){
   if(!canEdit()){toast('Sign in as the organizer to make changes.');return}
-  const d=getDay(curDate);fn(d);S.days[curDate]=d;queueWrite('days/'+curDate,d);dayConfirmClear=false;
+  const d=getDay(curDate),before=JSON.stringify(d.present);fn(d);if(d.autoSync&&JSON.stringify(d.present)!==before)d.autoSync=false;S.days[curDate]=d;queueWrite('days/'+curDate,d);dayConfirmClear=false;
   const back=d.present.filter(p=>(S.inactive||[]).includes(nkey(p))&&S.autoOff&&S.autoOff[nkey(p)]);
   if(back.length){back.forEach(p=>{delete S.autoOff[nkey(p)];S.inactive=S.inactive.filter(x=>x!==nkey(p))});saveConfig()}
   refreshDay();
 }
-function setDate(k){curDate=k;dayConfirmClear=false;renderDay()}
+function setDate(k){curDate=k;dayConfirmClear=false;renderDay();if(isOrg&&pollForDate(k))loadOrgData(false)}
 function addGuest(force){
   const inp=$('#guest'),n=norm(inp.value),w=$('#guestwarn');if(!n)return;
   const chk=nameCheck(n,S.roster);
@@ -1062,10 +1064,10 @@ function adoption(){
   const byLvl=[...LEVELS.map(l=>[l[1],l[2],rows.filter(r=>r.lvl&&r.lvl[0]===l[0])]),['Not set','#98A2B3',rows.filter(r=>!r.lvl)]].filter(x=>x[2].length);
   return{rows,idle,joined:pct(r=>r.on),voting:pct(r=>r.sv>0),paying:pct(r=>r.pp>0),byLvl};
 }
-function nudgeMsg(list){return['🏸 *'+(S.groupName||'Badminton Family')+'*','Hey '+list.map(first).join(', ')+'! 👋','',
-  'We’re moving polls, costs and payments to our app so the group chat stays clean. Takes 30 seconds:','',
-  '1️⃣ Open: '+HERE,'2️⃣ Team tab → *This phone belongs to* → pick your name','3️⃣ Vote in polls and tap *I’ve paid* right there','',
-  'Thank you! It saves everyone a lot of scrolling 💚'].join('\n')}
+function nudgeMsg(list){return['🏸 *'+(S.groupName||'Badminton Family')+'*','Hi '+list.map(first).join(', ')+' 👋','',
+  'Whenever you get a moment, our app is ready for you. It takes about 30 seconds:','',
+  '1️⃣ Open: '+HERE,'2️⃣ Team → *This phone belongs to* → pick your name','3️⃣ Vote in the next poll right from the app','',
+  'That’s it! It makes polls and payments easier for all of us 💚'].join('\n')}
 const timeAgo=t=>{if(!t)return'never';const d=Math.floor((Date.now()-t)/864e5);return d<=0?'today':d===1?'yesterday':d<30?d+' days ago':dlabel(ymd(new Date(t)),{day:'numeric',month:'short'})};
 
 function renderTeam(){
@@ -1108,7 +1110,7 @@ function renderTeam(){
     <div class="sub"><span class="sublbl">By level</span>${AD.byLvl.map(([l,c,rs])=>{const pc=Math.round(rs.filter(r=>r.on).length*100/rs.length);return`<div class="bar"><span><i class="lvl-dot" style="background:${c}"></i>${l}</span><div><i style="width:${pc}%;background:${c}"></i></div><b>${rs.filter(r=>r.on).length}/${rs.length}</b></div>`}).join('')}</div>
     ${AD.rows.sort((a,b)=>a.stage-b.stage||a.n.localeCompare(b.n)).map(r=>`<div class="prow"><span class="ini">${esc(initials(r.n))}</span><span class="nm">${esc(r.n)}<small>${r.on?'Last opened '+timeAgo(r.last):'Hasn’t opened the app'}${r.sv?' · voted '+r.sv+'×':''}${r.ov?' · '+r.ov+' vote'+(r.ov>1?'s':'')+' via WhatsApp':''}${r.pp?' · paid in app':''}</small></span><span class="stage s${r.stage}">${['','Not yet','Joined','Active'][r.stage]}</span></div>`).join('')}
     ${AD.idle.map(r=>`<div class="prow"><span class="ini" style="opacity:.6">${esc(initials(r.n))}</span><span class="nm" style="opacity:.75">${esc(r.n)}<small>No activity since ${r.act?timeAgo(r.act):'joining'} · auto-paused ${timeAgo(r.since)}</small></span><span class="stage s0">Inactive</span></div>`).join('')}
-    ${AD.rows.some(r=>r.stage<3)?`<div class="card-f"><a class="btn sm wa" href="${waHref(nudgeMsg(AD.rows.filter(r=>r.stage<2).map(r=>r.n).concat(AD.rows.filter(r=>r.stage===2).map(r=>r.n))))}" target="_blank" rel="noopener">${ic('chat')}Nudge ${AD.rows.filter(r=>r.stage<3).length} on WhatsApp</a><button class="lnk" data-act="refreshad" style="margin-left:auto">Refresh</button></div>`:`<div class="card-f"><span class="ok-chip">${ic('check')}Everyone uses the app. 🎉</span></div>`}
+    ${AD.rows.some(r=>r.stage===1)?`<div class="card-f"><a class="btn sm wa" href="${waHref(nudgeMsg(AD.rows.filter(r=>r.stage===1).map(r=>r.n)))}" target="_blank" rel="noopener">${ic('chat')}Nudge ${AD.rows.filter(r=>r.stage===1).length} who haven’t started</a><button class="lnk" data-act="refreshad" style="margin-left:auto">Refresh</button></div>`:`<div class="card-f"><span class="ok-chip">${ic('check')}Everyone has started using the app. 🎉</span><button class="lnk" data-act="refreshad" style="margin-left:auto">Refresh</button></div>`}
     <div class="card-f"><p class="hint"><b>Not yet</b> = hasn’t used the app. <b>Joined</b> = opened it and picked their name. <b>Active</b> = votes or pays inside the app. <b>Inactive</b> = no app use, game or payment for ${S.idleWeeks||4} weeks. They come back automatically the moment they vote, play or open the app. “Via WhatsApp” = votes you recorded by hand.</p></div>
   </section>`:''}
   ${org?`<section class="card">
@@ -1326,22 +1328,37 @@ function recapHTML(p,title){
     <div class="card-f"><p class="hint">${isClosed(p)?'Voting closed.':'Voting still open.'} ${t.voters.length} of ${activeRoster().length} players voted.</p></div></section>`;
 }
 /* when voting closes, pre-fill "Who played" with everyone who voted yes, so billing starts from the poll */
+/* fill "Who played" from Yes votes: on the game day itself (even if the poll is still open) or once voting closes.
+   New Yes votes keep being added until the organizer changes the list by hand. */
 async function autoBillFromPolls(){
-  if(!isOrg||!CFG_READY||!DAYS_READY||!PDATA.at)return;S.billed=S.billed||[];let made=[],rosterChanged=false;
-  for(const p of P.list){if(!isClosed(p)||isArchived(p))continue;
+  if(!isOrg||!CFG_READY||!DAYS_READY||!PDATA.at)return;S.billed=S.billed||[];
+  const today=todayStr();let made=[],synced=[],cfgChanged=false;
+  const toRoster=name=>{const c=canon(tcase(name)),k=nkey(c);
+    if(!S.roster.some(r=>nkey(r)===k)){S.roster.push(c);S.since=S.since||{};S.since[k]=Date.now();cfgChanged=true}
+    if((S.inactive||[]).includes(k)){S.inactive=S.inactive.filter(x=>x!==k);if(S.autoOff)delete S.autoOff[k];cfgChanged=true}
+    return S.roster.find(r=>nkey(r)===k)||c};
+  for(const p of P.list){if(isArchived(p))continue;
     const voters=latestByName(PDATA.votes.filter(v=>v.poll===p.id));
-    for(const dt of p.dates||[]){const key=p.id+'|'+dt.date;if(S.billed.includes(key))continue;
-      if(S.days[dt.date]&&(S.days[dt.date].present||[]).length){S.billed.push(key);continue}
-      const yes=voters.filter(v=>(v.answers||{})[dt.date]==='yes').map(v=>{const c=canon(tcase(v.name));
-        if(!S.roster.some(r=>nkey(r)===nkey(c))){S.roster.push(c);S.since=S.since||{};S.since[nkey(c)]=Date.now();rosterChanged=true}
-        if((S.inactive||[]).includes(nkey(c))){S.inactive=S.inactive.filter(x=>x!==nkey(c));if(S.autoOff)delete S.autoOff[nkey(c)];rosterChanged=true}
-        return S.roster.find(r=>nkey(r)===nkey(c))||c});
-      S.billed.push(key);if(!yes.length)continue;
+    for(const dt of p.dates||[]){
+      if(!(isClosed(p)||dt.date<=today))continue;
+      const key=p.id+'|'+dt.date,cur=S.days[dt.date];
+      const yesRaw=voters.filter(v=>(v.answers||{})[dt.date]==='yes');
+      if(cur&&cur.autoSync&&cur.poll===p.id){
+        const yes=uniq(yesRaw.map(v=>toRoster(v.name)));
+        const same=yes.length===(cur.present||[]).length&&yes.every(n=>(cur.present||[]).some(x=>nkey(x)===nkey(n)));
+        if(!same&&yes.length){const d=getDay(dt.date);d.present=yes;S.days[dt.date]=d;queueWrite('days/'+dt.date,d);synced.push(dt.date)}
+        continue}
+      if(S.billed.includes(key))continue;
+      if(cur&&(cur.present||[]).length){S.billed.push(key);cfgChanged=true;continue}
+      if(!yesRaw.length)continue;
+      const yes=uniq(yesRaw.map(v=>toRoster(v.name)));S.billed.push(key);cfgChanged=true;
       const per=Math.max(1,+p.perCourt||6),courts=Math.max(1,Math.ceil(yes.length/per)),h=slotHours(dt.note);
-      const d=Object.assign(blankDay(dt.date),{present:uniq(yes),hours:h?h*courts:2,src:'poll',poll:p.id,slot:dt.note||'',courtsBooked:courts});
+      const base=cur?getDay(dt.date):Object.assign(blankDay(dt.date),{hours:h?h*courts:2});
+      const d=Object.assign(base,{present:yes,src:'poll',poll:p.id,slot:dt.note||'',courtsBooked:courts,autoSync:true});
       S.days[dt.date]=d;queueWrite('days/'+dt.date,d);made.push(dt.date)}}
-  if(made.length||rosterChanged)saveConfig();else if(S.billed.length)saveConfig();
-  if(made.length){toast('“Who played” pre-filled from the poll for '+made.map(x=>dlabel(x,{weekday:'short',day:'numeric'})).join(', ')+'. Review on Today.');renderTab(false)}
+  if(cfgChanged)saveConfig();
+  if(made.length)toast('“Who played” auto-selected from Yes votes for '+made.map(x=>dlabel(x,{weekday:'short',day:'numeric'})).join(', ')+'. Review on Today.');
+  if(made.length||synced.length)renderTab(false);
 }
 function startPollsListener(){if(P.listening||!db)return;P.listening=true;
   pollsCol().orderBy('createdAt','desc').limit(30).onSnapshot(q=>{P.list=q.docs.map(d=>({id:d.id,...d.data()}));if(isOrg)loadOrgData(true);if(tab==='polls'&&P.mode==='list')renderPolls();if(tab==='day')refreshDay()},()=>{})}
@@ -1513,7 +1530,7 @@ async function fillFromPoll(date){const p=pollForDate(date);if(!p)return;
   catch(e){toast('Couldn’t read the poll ('+e.code+').')}}
 
 /* ================= navigation & boot ================= */
-function go(t){closeWho();tab=t;if(t==='team'&&isOrg)loadOrgData(false);document.querySelectorAll('.tabbar [data-tab]').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.tab===t)));
+function go(t){closeWho();tab=t;if((t==='team'||t==='day')&&isOrg)loadOrgData(false);document.querySelectorAll('.tabbar [data-tab]').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.tab===t)));
   ['day','polls','pay','team'].forEach(k=>$('#view-'+k).hidden=k!==t);renderTab(true);window.scrollTo(0,0)}
 document.querySelectorAll('.tabbar [data-tab]').forEach(b=>b.onclick=()=>{if(b.dataset.tab==='pay'&&tab!=='pay'&&pay.range==='day'){pay.range='last';pay.off.clear()}go(b.dataset.tab)});
 function typingIn(id){const a=document.activeElement;return!!a&&(a.tagName==='INPUT'||a.tagName==='SELECT')&&$(id).contains(a)&&a.type!=='checkbox'&&a.type!=='file'}
