@@ -387,7 +387,7 @@ const FIREBASE_CONFIG = {
 /* Collections get this prefix so they never clash with the league app's data */
 const COLLECTION_PREFIX = "shuttleSplit_";
 /* App version shown in Team → About */
-const APP_VERSION = "1.4.0", APP_BUILD = "31 Oct 2026";
+const APP_VERSION = "1.5.0", APP_BUILD = "31 Oct 2026";
 /* Owner of the main group (the link without ?g=) */
 const LEGACY_OWNER = "pavankaki.cool@gmail.com";
 /* Starting player list, used only until the first save */
@@ -630,6 +630,7 @@ function renderDay(){
   ${intro('Today’s game','Tick who played and enter the costs. Everyone’s share is worked out as you go.')}
   <div id="daykpi"></div>
   ${viewOnly('record game days')}
+  ${billTray()}
   ${canEdit()?'<div id="duealert"></div>':''}
   <section class="card">
     <div class="wk-h"><b>${esc(dlabel(curDate,{month:'long',year:'numeric'}))}</b>
@@ -708,11 +709,12 @@ function refreshDay(){
   sc.innerHTML=cardH('wallet','Split',plural(c.n,'player'))+`<div class="split">${orderNames(d.present).map(p=>{const o=c.per[p],parts=['Court '+inr(o.court)];if(o.shuttle)parts.push('Shuttle '+inr(o.shuttle));if(o.drinks)parts.push('Drinks '+inr(o.drinks));
       return`<div class="prow"><span class="ini">${esc(initials(p))}</span><span class="nm">${esc(p)}<small>${parts.join(' · ')}</small></span><span class="am">${inr(o.total)}</span></div>`}).join('')}</div>
     <div class="tot"><span>To collect${c.collected>c.actual?` <small style="font-weight:600;color:var(--muted)">(cost ${inr(c.actual)}, rounded up)</small>`:''}</span><b>${inr(c.collected)}</b></div>
-    <div class="card-f"><button class="btn primary block" data-act="topay">${ic('share')}Send ${esc(dlabel(curDate,{weekday:'short',day:'numeric',month:'short'}))} bill to group</button></div>`;
+    ${canEdit()?billFooter(d):''}`;
 }
 function editDay(fn){
   if(!canEdit()){toast('Sign in as the organizer to make changes.');return}
-  const d=getDay(curDate),before=JSON.stringify(d.present);fn(d);if(d.autoSync&&JSON.stringify(d.present)!==before)d.autoSync=false;S.days[curDate]=d;queueWrite('days/'+curDate,d);dayConfirmClear=false;
+  const d=getDay(curDate),before=JSON.stringify(d.present);const snap=JSON.stringify(d);fn(d);if(d.autoSync&&JSON.stringify(d.present)!==before)d.autoSync=false;
+  if(d.bill==='sent'&&JSON.stringify(d)!==snap&&d.present.length){d.bill='queued';d.billChanged=true;toast('Changed after it was sent, so it’s back in the bill to send again.')}S.days[curDate]=d;queueWrite('days/'+curDate,d);dayConfirmClear=false;
   const back=d.present.filter(p=>(S.inactive||[]).includes(nkey(p))&&S.autoOff&&S.autoOff[nkey(p)]);
   if(back.length){back.forEach(p=>{delete S.autoOff[nkey(p)];S.inactive=S.inactive.filter(x=>x!==nkey(p))});saveConfig()}
   refreshDay();
@@ -749,7 +751,9 @@ function bindDay(){
       case'clear':dayConfirmClear=true;renderDay();break;
       case'clear-no':dayConfirmClear=false;renderDay();break;
       case'clear-yes':delete S.days[curDate];queueWrite('days/'+curDate,null);dayConfirmClear=false;renderDay();toast('Day cleared.');break;
-      case'topay':openBillReady(curDate);break;
+      case'billadd':setBill([curDate],'queued');toast(dlabel(curDate,{weekday:'short',day:'numeric',month:'short'})+' added to the bill.');break;
+      case'billrm':setBill([curDate],null);toast('Taken out of the bill.');break;
+      case'billsend':openBillSend();break;
     }
   });
   v.addEventListener('input',e=>{
@@ -797,6 +801,7 @@ function renderPay(){
   v.innerHTML=`
   ${intro('Payouts','Who owes what for the days you pick, who has paid, and a poster for the group.')}
   ${kpis([['Period total',inr(R.total)],['Paid up',settled+' / '+R.rows.length],['Due',inr(outstanding),true]])}
+  ${billTray()}
   ${confirmCard()}
   ${myCard()}
   <section class="card">
@@ -840,21 +845,41 @@ async function sharePoster(url,fname,cap){try{
   if(navigator.canShare&&navigator.canShare({files:[file]})){try{await navigator.clipboard.writeText(cap)}catch(e){}await navigator.share({files:[file],text:cap});return true}
   const a=document.createElement('a');a.href=url;a.download=fname;document.body.appendChild(a);a.click();a.remove();try{await navigator.clipboard.writeText(cap)}catch(e){}toast('Poster saved and message copied. Attach it in WhatsApp.');return true
 }catch(e){if(!e||e.name!=='AbortError')toast('Couldn’t share. Long-press the poster to save it.');return false}}
-/* after entering a day's details: a clear "ready to send?" step instead of jumping tabs */
-function openBillReady(ds){
-  const R=report([ds]),c=R.calcs[0];if(!c||!c.n)return toast('Tick who played first.');
-  const day=dlabel(ds,{weekday:'long',day:'numeric',month:'short'}),fname='bill-'+ds+'.png';
-  const bg=sheetOpen(`<div class="sheet-h"><span class="ini">${ic('check')}</span><div><b>Bill for ${esc(day)} is ready</b><small>${plural(c.n,'player')} · ${inr(c.collected)} to collect · saved automatically</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div>
-    <p class="hint" style="margin:0 0 10px">Ready to share it with the group? Everyone sees their share, and it also adds to their dues in the app.</p>
-    <img id="billimg" alt="Bill poster" style="width:100%;border-radius:14px;border:1px solid var(--line);min-height:120px;background:var(--soft)">
-    <div style="display:grid;gap:8px;margin-top:12px">
-      <button class="btn primary block" id="billshare">${ic('share')}Yes, share poster on WhatsApp</button>
-      <a class="btn wa block" href="${waHref(payText(R))}" target="_blank" rel="noopener">${ic('chat')}Send as text instead</a>
-      <div class="grid2"><button class="btn line" id="billpay">Open in Payouts</button><button class="btn line" id="billlater">Not now</button></div>
-    </div>`,'Bill ready');
-  drawPoster(R).then(url=>{const i=$('#billimg');if(i)i.src=url;const b=$('#billshare');if(b)b.onclick=()=>sharePoster(url,fname,posterCaption(R))});
-  $('#billpay').onclick=()=>{closeWho();pay.range='day';pay.day=ds;pay.off.clear();go('pay')};
-  $('#billlater').onclick=()=>{closeWho();toast('Saved. You can share it any time from Payouts.')};
+/* ---------- bill queue: add finished days, then review and send them together ---------- */
+const billQueue=()=>Object.keys(S.days).filter(k=>S.days[k].bill==='queued'&&S.days[k].present&&S.days[k].present.length).sort();
+const shortD=k=>dlabel(k,{weekday:'short',day:'numeric',month:'short'});
+function setBill(keys,state){keys.forEach(k=>{const d=getDay(k);if(state)d.bill=state;else delete d.bill;if(state==='sent'){d.billAt=Date.now();delete d.billChanged}S.days[k]=d;queueWrite('days/'+k,d)});renderTab(false)}
+function billFooter(d){
+  const q=billQueue(),tot=q.reduce((a,k)=>a+calc(getDay(k)).collected,0),me=shortD(curDate);
+  const sendBtn=q.length?`<button class="btn primary block" data-act="billsend">${ic('share')}Review & send bill · ${plural(q.length,'day')} · ${inr(tot)}</button>`:'';
+  if(d.bill==='queued')return`<div class="card-f" style="display:grid;gap:10px"><div class="mix" style="justify-content:space-between"><span class="ok-chip">${ic('check')}${d.billChanged?'Updated · in the bill again':'Added to the bill'}</span><button class="lnk" data-act="billrm">Take out</button></div>
+    ${sendBtn}<p class="hint" style="margin:0">${q.length>1?'Bill has '+q.map(shortD).join(', ')+'.':'Playing again soon? Record that day too and add it, then send both together.'}</p></div>`;
+  if(d.bill==='sent')return`<div class="card-f" style="display:grid;gap:10px"><div class="mix" style="justify-content:space-between"><span class="ok-chip">${ic('check')}Sent to group · ${esc(dlabel(ymd(new Date(d.billAt||Date.now())),{day:'numeric',month:'short'}))}</span><button class="lnk" data-act="billadd">Send again</button></div>${sendBtn}</div>`;
+  return`<div class="card-f" style="display:grid;gap:10px"><button class="btn ${q.length?'line':'primary'} block" data-act="billadd">${ic('plus')}Add ${esc(me)} to the bill</button>
+    ${sendBtn}<p class="hint" style="margin:0">Nothing is sent yet. Add each day when its details are final, then send them together in one message.${q.length?' Waiting: '+q.map(shortD).join(', ')+'.':''}</p></div>`}
+function billTray(){if(!canEdit())return'';const q=billQueue();if(!q.length)return'';const tot=q.reduce((a,k)=>a+calc(getDay(k)).collected,0);
+  return`<section class="card due-card">${cardH('share','Bill waiting to be sent',inr(tot))}<div class="row"><div class="l"><b>${q.map(shortD).join(' · ')}</b><small>Not shared with the group yet</small></div></div>
+    <div class="card-f"><button class="btn sm primary" data-act="billsend">${ic('share')}Review & send</button></div></section>`}
+function openBillSend(){
+  const q=billQueue();if(!q.length)return toast('No days in the bill yet. Open a day and tap “Add to the bill”.');
+  const pick=new Set(q);let url='',step='review';
+  const draw=()=>{const R=report([...pick]),tot=R.total;
+    const bg=sheetOpen(step==='done'?`<div class="sheet-h"><span class="ini">${ic('chat')}</span><div><b>Did the bill reach the group?</b><small>${[...pick].sort().map(shortD).join(' · ')}</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div>
+        <p class="hint">Tap yes once it’s posted in WhatsApp. These days leave the queue and show as “Sent”.</p>
+        <div style="display:grid;gap:8px;margin-top:10px"><button class="btn primary block" id="bsent">${ic('check')}Yes, it’s sent</button><button class="btn line block" id="bback">Not yet, go back</button></div>`
+      :`<div class="sheet-h"><span class="ini">${ic('share')}</span><div><b>Send bill to the group</b><small>${plural(pick.size,'day')} · ${plural(R.rows.length,'player')} · ${inr(tot)}</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div>
+        <span class="sublbl">Days in this bill · untick to keep one for later</span>
+        ${q.map(k=>{const c=calc(getDay(k));return`<label class="row"><input class="chk" type="checkbox" data-bk="${k}" ${pick.has(k)?'checked':''}><div class="l"><b>${esc(dlabel(k,{weekday:'long',day:'numeric',month:'short'}))}${getDay(k).billChanged?' · updated':''}</b><small>${plural(c.n,'player')} · ${fmtH(getDay(k).hours)} h</small></div><span class="v">${inr(c.collected)}</span></label>`}).join('')}
+        ${pick.size?`<img id="bimg" alt="Bill poster" style="width:100%;border-radius:14px;border:1px solid var(--line);min-height:120px;background:var(--soft);margin-top:10px">
+        <div style="display:grid;gap:8px;margin-top:12px"><button class="btn primary block" id="bshare">${ic('share')}Share poster on WhatsApp</button><a class="btn wa block" id="btext" href="${waHref(payText(R))}" target="_blank" rel="noopener">${ic('chat')}Send as text instead</a></div>
+        <p class="hint">Next, you’ll confirm it was sent.</p>`:'<p class="hint">Tick at least one day.</p>'}`,'Send bill');
+    bg.querySelectorAll('[data-bk]').forEach(cb=>cb.onchange=()=>{cb.checked?pick.add(cb.dataset.bk):pick.delete(cb.dataset.bk);draw()});
+    if(step==='done'){$('#bsent').onclick=()=>{const n=pick.size;setBill([...pick],'sent');closeWho();toast(plural(n,'day')+' marked as sent. 🎉')};$('#bback').onclick=()=>{step='review';draw()};return}
+    if(!pick.size)return;
+    const fname='bill-'+[...pick].sort().map(k=>k.slice(5)).join('_')+'.png',after=()=>{step='done';draw()};
+    $('#btext').addEventListener('click',()=>setTimeout(after,400));
+    drawPoster(R).then(u=>{url=u;const i=$('#bimg');if(i)i.src=u;const b=$('#bshare');if(b)b.onclick=async()=>{if(await sharePoster(url,fname,posterCaption(R)))after()}});
+  };draw();
 }
 function personRow(r,R,L){
   const days=r.cells.map((x,i)=>x===null?null:esc(dlabel(R.days[i].date,{weekday:'short'}))+' '+inr(x)).filter(Boolean).join(' · ');
@@ -908,6 +933,7 @@ function duesCards(){
     ${recent.map(x=>`<div class="prow"><span class="ini">${esc(initials(x.name))}</span><span class="nm">${esc(x.name)}<small>${whenD(x.confirmedAt||x.at)} · ${x.by==='player'?'paid by UPI, confirmed':x.method==='self'?'own share':'marked received'}</small></span>${isOrg?(payDel===x.id?`<span class="acts"><button class="lnk" data-pkeep>Keep</button><button class="lnk danger" data-pdel="${esc(x.id)}">Undo</button></span>`:`<button class="am" style="color:var(--ok)" data-pask="${esc(x.id)}">${inr(x.amount)}</button>`):`<span class="am" style="color:var(--ok)">${inr(x.amount)}</span>`}</div>`).join('')}</section>`:''}`;
 }
 function bindPayBook(v){
+  v.querySelectorAll('[data-act="billsend"]').forEach(b=>b.onclick=openBillSend);
   const dp=v.querySelector('#duesposter');if(dp)dp.onclick=async()=>{dp.disabled=true;const list=duesList();const url=await drawDuesPoster(list);dp.disabled=false;openDuesPoster(url,list)};
   v.querySelectorAll('[data-pay]').forEach(b=>b.onclick=()=>openPay(b.dataset.pay));
   v.querySelectorAll('[data-pconf]').forEach(b=>b.onclick=async()=>{b.disabled=true;await setPayStatus(b.dataset.pconf,'confirmed');toast('Payment confirmed.')});
