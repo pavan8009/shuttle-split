@@ -1,6 +1,6 @@
 // Shuttle Split service worker: lets the app open offline and install as a phone app.
 // Bump VERSION whenever you upload a new index.html so phones pick up the update.
-const VERSION = 'shuttle-split-v22';
+const VERSION = 'shuttle-split-v23';
 const SHELL = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './apple-touch-icon.png'];
 
 self.addEventListener('install', e => {

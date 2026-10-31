@@ -230,6 +230,24 @@ label.row{cursor:pointer}
 .msgpre{white-space:pre-wrap;font:13px/1.45 var(--font);background:var(--field);border-radius:10px;padding:10px 12px;margin:8px 0 0}
 textarea.tpl{height:auto;min-height:140px;padding:10px 12px;font-size:14px;line-height:1.45;resize:vertical}
 .tabbar button{position:relative}
+/* sub-navigation inside a page */
+.subnav{display:flex;gap:4px;padding:4px;background:var(--field);border-radius:14px;overflow-x:auto;scrollbar-width:none}
+.subnav::-webkit-scrollbar{display:none}
+.subnav button{flex:1 0 auto;padding:9px 12px;border-radius:10px;font-weight:700;font-size:13.5px;color:var(--muted);white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.subnav button.on{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgba(16,24,40,.1)}
+.nb{min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--danger);color:#fff;font-size:11px;font-weight:800;font-style:normal;display:inline-grid;place-items:center;line-height:1}
+.view>[data-in]{display:contents}.view>[data-in][hidden]{display:none!important}
+/* settings-style menu */
+.menu .mi{display:flex;align-items:center;gap:12px;padding:13px 16px;width:100%;text-align:left;border-top:1px solid var(--line2)}
+.menu .mi:first-of-type{border-top:0}
+.mi .mico{width:38px;height:38px;border-radius:11px;display:grid;place-items:center;background:var(--soft);color:var(--accent);flex:none}
+.mi .mico .ic{width:20px;height:20px}
+.mi .mt{flex:1;min-width:0}.mi .mt b{display:block;font-size:15px}.mi .mt small{display:block;color:var(--muted);font-size:12.5px;margin-top:2px}
+.mi .mm{font-size:12.5px;font-weight:700;color:var(--muted);text-align:right;white-space:nowrap}
+.mi>.ic{width:18px;height:18px;color:var(--muted);flex:none}
+.backbar{display:flex;align-items:center;gap:6px;font-weight:800;color:var(--accent);align-self:flex-start;padding:4px 0}
+.backbar .ic{width:18px;height:18px}
+.todo{position:relative;margin-right:6px}.todo .nb{position:absolute;top:-6px;right:-6px}
 .sync{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;margin-left:4px;color:var(--ok)}
 .sync::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
 .sync.save{color:#B54708}.sync.off{color:var(--muted)}
@@ -358,6 +376,7 @@ details.poster:not([open]) .card-h{border-bottom:0}
   <div class="wrap">
     <div class="avatar" id="avatar"><svg class="ic"><use href="#i-shuttle"/></svg></div>
     <div class="brand"><b id="gname">Badminton Family</b><small><span id="pagename">Today</span> <span class="sync" id="sync" hidden></span></small></div>
+    <button class="iconbtn todo" id="todobtn" hidden aria-label="To do"><svg class="ic"><use href="#i-bell"/></svg><i class="nb" id="todonb"></i></button>
     <button class="status" id="status" hidden></button>
   </div>
 </header>
@@ -399,7 +418,7 @@ const FIREBASE_CONFIG = {
 /* Collections get this prefix so they never clash with the league app's data */
 const COLLECTION_PREFIX = "shuttleSplit_";
 /* App version shown in Team → About */
-const APP_VERSION = "1.8.0", APP_BUILD = "31 Oct 2026";
+const APP_VERSION = "1.9.0", APP_BUILD = "31 Oct 2026";
 /* Owner of the main group (the link without ?g=) */
 const LEGACY_OWNER = "pavankaki.cool@gmail.com";
 /* Starting player list, used only until the first save */
@@ -656,17 +675,38 @@ function copyText(t,msg){const ok=()=>toast(msg||'Copied. Paste it in your Whats
   const fb=()=>{const a=document.createElement('textarea');a.value=t;a.style.position='fixed';a.style.opacity='0';document.body.appendChild(a);a.select();try{document.execCommand('copy');ok()}catch(e){toast('Select the text and copy it.')}a.remove()};
   try{navigator.clipboard.writeText(t).then(ok,fb)}catch(e){fb()}}
 const waHref=t=>'https://wa.me/?text='+encodeURIComponent(t);
+const SUB={pay:'',polls:'list'};
+const subnav=(key,items)=>`<nav class="subnav" role="tablist">${items.filter(Boolean).map(([k,l,n])=>`<button role="tab" data-sub="${key}:${k}"${SUB[key]===k?' class="on" aria-selected="true"':''}>${l}${n?`<i class="nb">${n}</i>`:''}</button>`).join('')}</nav>`;
+function applySub(v,key){const cur=SUB[key];v.querySelectorAll(':scope>[data-in]').forEach(el=>el.hidden=el.dataset.in!==cur);v.querySelectorAll('[data-sub]').forEach(b=>{const on=b.dataset.sub===key+':'+cur;b.classList.toggle('on',on);b.setAttribute('aria-selected',String(on))})}
+function goSub(t,sub){if(t==='team'){teamUI.page=sub;go('team');teamUI.page=sub;renderTeam();return}SUB[t]=sub;go(t)}
+document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-sub]');if(!b)return;const[k,sv]=b.dataset.sub.split(':');SUB[k]=sv;const v=$('#view-'+(k==='pay'?'pay':k));applySub(v,k);const n=v.querySelector('.subnav');if(n&&n.getBoundingClientRect().top<0)n.scrollIntoView({block:'start'})});
+const menuItem=(key,icon,title,desc,meta,act)=>`<button class="mi" ${act?`data-act="${act}"`:`data-hub="${key}"`}><span class="mico">${ic(icon)}</span><span class="mt"><b>${title}</b>${desc?`<small>${desc}</small>`:''}</span>${meta?`<span class="mm">${meta}</span>`:''}${ic('right')}</button>`;
+/* organizer to-do: everything waiting on you, in one place */
+function todoItems(){if(!isOrg||!db)return[];const out=[];
+  const rem=reminderPlan().filter(r=>r.state==='due');const rp=rem.filter(r=>r.kind!=='dues').length,rd=rem.filter(r=>r.kind==='dues').length;
+  if(rp)out.push(['bell',plural(rp,'message')+' to send','Poll and game reminders',()=>goSub('polls','rem')]);
+  if(rd)out.push(['bell',PRE()?'Wallet top-up reminder':'Payment reminder','Due now',()=>goSub('pay','dues')]);
+  const cl=allPays().filter(x=>x.status==='claimed').length;if(cl)out.push(['check',plural(cl,'payment')+' to confirm','Players say they’ve paid',()=>goSub('pay','dues')]);
+  const q=billQueue();if(q.length)out.push(['share','Bill waiting to send',q.map(shortD).join(', '),()=>{closeWho();openBillSend()}]);
+  try{const a=attention();const n=a.fresh.length+a.dups.length;if(n)out.push(['users',plural(n,'name')+' to review','New or duplicate names',()=>goSub('team','players')])}catch(e){}
+  return out}
+function openTodo(){const it=todoItems();
+  const bg=sheetOpen(`<div class="sheet-h"><span class="ini">${ic('bell')}</span><div><b>To do</b><small>${it.length?plural(it.length,'thing')+' waiting on you':'All caught up 🎉'}</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div>
+    <div class="menu">${it.map((x,i)=>`<button class="mi" data-todo="${i}"><span class="mico">${ic(x[0])}</span><span class="mt"><b>${esc(x[1])}</b><small>${esc(x[2])}</small></span>${ic('right')}</button>`).join('')||`<div class="empty">${ic('check')}Nothing needs you right now.</div>`}</div>`,'To do');
+  bg.querySelectorAll('[data-todo]').forEach(b=>b.onclick=()=>{closeWho();it[+b.dataset.todo][3]()})}
 const intro=(h,p)=>`<div class="intro"><h1>${h}</h1><p>${p}</p></div>`;
 const kpis=list=>`<div class="kpis">${list.map(([l,v,hl])=>`<div class="kpi${hl?' hl':''}"><span>${l}</span><b>${v}</b></div>`).join('')}</div>`;
 const cardH=(icon,title,meta,strong)=>`<div class="card-h"><span class="ico">${ic(icon)}</span><h2>${title}</h2>${meta!=null?`<span class="meta${strong?' strong':''}">${meta}</span>`:''}</div>`;
 const viewOnly=what=>db&&!isOrg?`<div class="note">${ic('lock')}<p>You’re viewing. Only the organizer can ${what}.</p><button class="btn sm line" data-signin>Organizer</button></div>`:'';
 const PAGES={day:'Record a play day',polls:'Availability polls',pay:'Payouts',me:'My account',team:'Team & settings'};
-function remDot(){const b=document.querySelector('.tabbar [data-tab="polls"]');if(!b)return;const n=isOrg&&db?reminderPlan().filter(r=>r.state==='due').length:0;b.classList.toggle('has-due',n>0)}
+function remDot(){const b=document.querySelector('.tabbar [data-tab="polls"]');if(!b)return;const n=isOrg&&db?reminderPlan().filter(r=>r.state==='due'&&r.kind!=='dues').length:0;b.classList.toggle('has-due',n>0);
+  const pb=document.querySelector('.tabbar [data-tab="pay"]');if(pb){const m=isOrg&&db?reminderPlan().filter(r=>r.state==='due'&&r.kind==='dues').length+allPays().filter(x=>x.status==='claimed').length:0;pb.classList.toggle('has-due',m>0)}}
 function renderHeader(){try{remDot()}catch(e){}
   $('#gname').textContent=S.groupName||'Badminton Family';
   $('#pagename').textContent=PAGES[tab];
   $('#avatar').innerHTML=photo?`<img src="${photo}" alt="">`:ic('shuttle');
   const st=$('#status');st.hidden=!db;st.classList.toggle('org',isOrg);
+  const tb=$('#todobtn');if(tb){let n=0;try{n=todoItems().length}catch(e){}tb.hidden=!(isOrg&&db);$('#todonb').textContent=n;$('#todonb').hidden=!n;tb.onclick=openTodo}
   st.innerHTML=isOrg?'<i class="dot"></i>Organizer':userEmail()?ic('users')+'Viewer':ic('lock')+'Sign in';
   const gm=$('#groupmiss');if(gm)gm.hidden=!GROUP_MISSING;
 }
@@ -859,11 +899,14 @@ function renderPay(){
   const L=Object.fromEntries(R.rows.map(r=>[r.p,ledger(r.p)]));
   const outstanding=R.rows.reduce((a,r)=>a+L[r.p].due,0), settled=R.rows.filter(r=>L[r.p].due<=0).length;
   v.innerHTML=`
-  ${intro('Payouts','Who owes what for the days you pick, who has paid, and a poster for the group.')}
+  ${intro('Payouts',PRE()?'Your wallet, game bills, low balances and the group’s accounts.':'Your dues, game bills, who owes what, and the group’s accounts.')}
+  ${subnav('pay',[['mine',PRE()?'My wallet':'My dues'],['bill','Bills',billQueue().length&&canEdit()?'1':''],['dues',PRE()?'Wallets':'Dues',(isOrg?allPays().filter(x=>x.status==='claimed').length:0)||''],['acct','Accounts']])}
+  <div data-in="mine">${myCard()}</div>
+  <div data-in="dues">${confirmCard()}${remindersCard('dues')}${duesCards()}</div>
+  <div data-in="acct">${accountsCard()}</div>
+  <div data-in="bill">
   ${kpis([['Period total',inr(R.total)],['Paid up',settled+' / '+R.rows.length],['Due',inr(outstanding),true]])}
   ${billTray()}
-  ${confirmCard()}
-  ${myCard()}
   <section class="card">
     ${cardH('cal','Period',period)}
     <div class="seg">${(pay.range==='day'?[['day','Selected day']]:[]).concat(RANGES).map(([k,l])=>`<button class="${pay.range===k?'on':''}" data-range="${k}">${l}</button>`).join('')}</div>
@@ -886,7 +929,8 @@ function renderPay(){
     </div>
   </section>
   <details class="card poster"><summary>${cardH('image','Poster preview','Tap to show')}</summary><img id="poster" alt="Payout poster"></details>`:''}
-  ${remindersCard('dues')}${duesCards()}${accountsCard()}`;
+  </div>`;
+  if(!SUB.pay)SUB.pay=canEdit()?'bill':'mine';if(pay.range==='day')SUB.pay='bill';applySub(v,'pay');
   v.querySelectorAll('[data-range]').forEach(b=>b.onclick=()=>{pay.range=b.dataset.range;pay.off.clear();renderPay()});
   v.querySelectorAll('[data-k]').forEach(cb=>cb.onchange=()=>{cb.checked?pay.off.delete(cb.dataset.k):pay.off.add(cb.dataset.k);renderPay()});
   const pf=$('#pfrom'),pt=$('#pto');if(pf){pf.onchange=()=>{pay.from=pf.value||pay.from;renderPay()};pt.onchange=()=>{pay.to=pt.value||pay.to;renderPay()}}
@@ -1372,6 +1416,17 @@ function bindMe(v){
 }
 
 /* ================= TEAM ================= */
+function teamMenu(org,AD,att,act){const rev=org?att.fresh.length+att.dups.length:0;
+  const groups=[
+    ['Group',[menuItem('players','users','Players & levels','Roster, levels, rename, merge or pause',act.length+(rev?` · <i class="nb">${rev}</i>`:'')),
+      org&&AD?menuItem('adoption','poll','App adoption','Who’s using the app, nudges, auto-inactive',AD.joined+'%'):'',
+      menuItem('group','palette',org?'Name, photo & theme':'Group photo & theme',org?'How the app and posters look':'',esc(SKINS[S.skin]?SKINS[S.skin].name:''))]],
+    org?['Money',[menuItem('money','rupee','Payments & pricing','UPI ID, pay after games or prepaid wallet, court rate',PRE()?'Wallet':'After games'),
+      menuItem('','cal','Records','Add, edit or delete payments, days, polls and votes',allPays().length+' pay','records')]]:null,
+    org?['Messages',[menuItem('','bell','Messages & reminders','Templates and reminder schedule',MSGS().on?'On':'Off','msgset2')]]:null,
+    ['Account',[menuItem('access','lock',org?'Access, groups & account':'Account & groups',org?'Co-organizers, other groups, sign in/out':'Sign in, other groups',isOrg?'Organizer':userEmail()?'Viewer':'Player'),
+      org?menuItem('reset','trash','Start fresh','Clear test data before going live',''):'']]].filter(Boolean);
+  return groups.map(([t,items])=>`<span class="sublbl" style="margin:6px 4px -4px">${t}</span><section class="card menu">${items.join('')}</section>`).join('')}
 let teamPending='', teamWarn={html:'',val:''}, teamUI={reset:{pays:true,days:true,polls:false},resetBusy:false,newGroup:false};
 /* ---------- organizer data: poll votes + who opened the app ---------- */
 const VOTE_UNSUB={},VOTES_BY={};let SEEN_UNSUB=null,orgTick=null;
@@ -1446,20 +1501,21 @@ function renderTeam(){
   ${intro('Team',org?'Players, access, adoption and settings. Changes apply to everyone in this group.':'Everyone in the group, their level and who’s settled up.')}
   ${kpis(org&&AD?[['Players',act.length],['On the app',AD.joined+'%'],[PRE()?'Low wallet':'Owing',duesList().length,true]]:[['Players',act.length],['Days played',nDays],[PRE()?'Low wallet':'Owing',duesList().length,true]])}
   ${viewOnly('edit the team')}
-  ${org&&(att.fresh.length||att.dups.length)?`<section class="card due-card">${cardH('bell','Needs your review',att.fresh.length+att.dups.length)}
+  ${teamUI.page?`<button class="backbar" data-hub="">${ic('left')}Team</button>`:teamMenu(org,AD,att,act)}
+  ${org&&(att.fresh.length||att.dups.length)?`<section data-g="players" class="card due-card">${cardH('bell','Needs your review',att.fresh.length+att.dups.length)}
     ${att.fresh.map(x=>`<div class="prow2"><span class="ini">${esc(initials(x.n))}</span><span class="pinfo" style="cursor:default"><b style="color:var(--ink)">${esc(x.n)}</b><small>${x.from} · not on the team${x.match?' · looks like '+esc(x.match):''}</small></span><span></span>
       <div class="pnote" style="gap:6px">${x.match?`<button class="btn sm primary" data-merge="${esc(x.n)}" data-into="${esc(x.match)}">Same as ${esc(x.match)}</button>`:''}<button class="btn sm ${x.match?'line':'primary'}" data-addnew="${esc(x.n)}">${ic('plus')}Add to team</button><button class="btn sm line" data-ignore="${esc(nkey(x.n))}">Ignore</button></div></div>`).join('')}
     ${att.dups.map(([a,b])=>`<div class="prow2"><span class="ini">${esc(initials(b))}</span><span class="pinfo" style="cursor:default"><b style="color:var(--ink)">${esc(b)} ↔ ${esc(a)}</b><small>Possible duplicate names</small></span><span></span>
       <div class="pnote" style="gap:6px"><button class="btn sm primary" data-merge="${esc(b)}" data-into="${esc(a)}">Merge into ${esc(a)}</button><button class="btn sm line" data-ignore="${esc(nkey(a)+'|'+nkey(b))}">Not the same</button></div></div>`).join('')}
     <div class="card-f"><p class="hint">Merging moves all game days, payments and poll votes to one name. Nothing is lost.</p></div></section>`:''}
-  <section class="card">
+  <section data-g="group" class="card">
     <div class="profile"><div class="gphoto">${photo?`<img src="${photo}" alt="Group photo">`:ic('users')}</div>
       <div style="display:flex;flex-direction:column;gap:8px;flex:1;min-width:0">
         ${org?`<input class="txt" id="gnamein" value="${esc(S.groupName)}" placeholder="Group name" aria-label="Group name">
         <div style="display:flex;gap:10px;align-items:center"><label class="btn sm line filebtn">${ic('camera')}${photo?'Change photo':'Add group photo'}<input type="file" accept="image/*" id="photoin"></label>${photo?`<button type="button" class="lnk danger" data-act="nophoto">Remove</button>`:''}</div>`:`<b style="font-size:18px">${esc(S.groupName||'Badminton Family')}</b><span class="hint">${plural(act.length,'player')}${S.upiId?' · UPI '+esc(S.upiId):''}</span>`}
       </div></div>
   </section>
-  <section class="card">
+  <section data-g="players" class="card">
     ${cardH('users','Players',act.length)}
     ${org?`<div class="pad" style="padding-bottom:6px"><div class="inline"><input class="txt" id="newp" placeholder="Add a player" autocomplete="off" autocapitalize="words" enterkeyhint="done"><button type="button" class="btn sm primary" style="height:44px" data-act="addp">${ic('plus')}Add</button></div>
       <p class="warn" id="pwarn" hidden></p></div>`:''}
@@ -1469,7 +1525,7 @@ function renderTeam(){
       <button type="button" class="btn sm line" data-lvlinfo style="margin-top:4px">${ic('users')}What do levels mean?</button>
       ${org?'<p class="hint">Tap ⚙ to rename, merge, pause or remove a player. Names are matched ignoring capitals, so PREETAM and Preetam are the same person.</p>':''}</div>
   </section>
-  ${org&&AD?`<section class="card">
+  ${org&&AD?`<section data-g="adoption" class="card">
     ${cardH('poll','App adoption',AD.joined+'% on the app',true)}
     <div class="acct" style="border-top:0;grid-template-columns:repeat(3,minmax(0,1fr))"><div><span>Opened app</span><b>${AD.joined}%</b></div><div><span>Vote in app</span><b>${AD.voting}%</b></div><div><span>Pay in app</span><b>${AD.paying}%</b></div></div>
     <div class="sub"><span class="sublbl">By level</span>${AD.byLvl.map(([l,c,rs])=>{const pc=Math.round(rs.filter(r=>r.on).length*100/rs.length);return`<div class="bar"><span><i class="lvl-dot" style="background:${c}"></i>${l}</span><div><i style="width:${pc}%;background:${c}"></i></div><b>${rs.filter(r=>r.on).length}/${rs.length}</b></div>`}).join('')}</div>
@@ -1478,7 +1534,7 @@ function renderTeam(){
     ${AD.rows.some(r=>r.stage===1)?`<div class="card-f"><a class="btn sm wa" href="${waHref(nudgeMsg(AD.rows.filter(r=>r.stage===1).map(r=>r.n)))}" target="_blank" rel="noopener">${ic('chat')}Nudge ${AD.rows.filter(r=>r.stage===1).length} who haven’t started</a><button class="lnk" data-act="refreshad" style="margin-left:auto">Refresh</button></div>`:`<div class="card-f"><span class="ok-chip">${ic('check')}Everyone has started using the app. 🎉</span><button class="lnk" data-act="refreshad" style="margin-left:auto">Refresh</button></div>`}
     <div class="card-f"><p class="hint"><b>Not yet</b> = hasn’t used the app. <b>Joined</b> = opened it and picked their name. <b>Active</b> = votes or pays inside the app. <b>Inactive</b> = no app use, game or payment for ${S.idleWeeks||4} weeks. They come back automatically the moment they vote, play or open the app. “Via WhatsApp” = votes you recorded by hand.</p></div>
   </section>`:''}
-  ${org?`<section class="card">
+  ${org?`<section data-g="access" class="card">
     ${cardH('lock','Access','')}
     <div class="row"><div class="l"><b>${esc(ownerEmail()||'—')}</b><small>Owner · full control</small></div><span class="badge on">Owner</span></div>
     ${adminList().map(e=>`<div class="row"><div class="l"><b>${esc(e)}</b><small>Co-organizer · can record days, polls and payments</small></div>${isOwner()?`<button class="iconbtn" data-rmadmin="${esc(e)}" aria-label="Remove ${esc(e)}">${ic('x')}</button>`:''}</div>`).join('')}
@@ -1488,11 +1544,11 @@ function renderTeam(){
     <div class="row"><div class="l"><b>New names from poll links</b><small>${S.openNames!==false?'Anyone with the link can vote under a new name. You review them above.':'Only players on the team can vote.'}</small></div><label class="switch"><input type="checkbox" id="opennames" ${S.openNames!==false?'checked':''} aria-label="Allow new names"><i></i></label></div>
     <div class="card-f"><p class="hint">Players never need an account. Organizers sign in with Google.</p></div>
   </section>
-  <section class="card">
+  <section data-g="group" class="card">
     ${cardH('palette','Theme')}
     <div class="swatches">${Object.entries(SKINS).map(([k,s])=>`<button type="button" class="sw" data-skin="${k}" aria-pressed="${S.skin===k}"><i style="background:linear-gradient(135deg,${s.accent} 0 60%,${s.pop===s.accent?'#D0D5DD':s.pop} 60%)"></i>${s.name}</button>`).join('')}</div>
   </section>
-  <section class="card">
+  <section data-g="money" class="card">
     ${cardH('rupee','Payments',S.upiId?'UPI on':'Not set')}
     <div class="row"><div class="l"><b>UPI ID</b><small>Where players send money</small></div></div>
     <div class="sub"><input class="txt" id="upiin" value="${esc(S.upiId)}" placeholder="name@okaxis" autocomplete="off" autocapitalize="off" spellcheck="false" inputmode="email" aria-label="UPI ID"><p class="warn" id="upiwarn" hidden>That doesn’t look like a UPI ID. It should look like name@bank.</p></div>
@@ -1504,19 +1560,19 @@ function renderTeam(){
     <div class="row"><div class="l"><b>Low balance alert</b><small>Ask to load when the wallet drops below this</small></div><div class="amt"><span>₹</span><input id="wlow" type="number" inputmode="decimal" min="0" value="${S.low==null?200:S.low}" aria-label="Low balance alert"></div></div>
     <div class="sub"><p class="hint">Existing payments count as money loaded, so balances carry over. Switching back to “Pay after games” keeps everything.</p></div>`:''}
   </section>
-  <section class="card">
+  <section data-g="money" class="card">
     ${cardH('gear','Defaults')}
     <div class="row"><div class="l"><b>Court rate per hour</b><small>Used for new days. Shares round up to the next rupee.</small></div>
       <div class="amt"><span>₹</span><input id="defrate" type="number" inputmode="decimal" min="0" value="${S.rate}" aria-label="Default court rate"></div></div>
   </section>
-  <section class="card">
+  <section data-g="records" class="card">
     ${cardH('gear','Records')}
     <div class="acct" style="border-top:0;grid-template-columns:repeat(3,minmax(0,1fr))"><div><span>Payments</span><b>${allPays().length}</b></div><div><span>Game days</span><b>${Object.keys(S.days).length}</b></div><div><span>Polls</span><b>${P.list.length}</b></div></div>
     <div class="card-f"><p class="hint">Add, change or delete any payment, game day, poll or vote.</p><button class="btn sm primary" data-act="records" style="margin-left:auto">Manage</button></div>
   </section>
-  ${isOrg?`<section class="card">${cardH('bell','Messages & reminders',MSGS().on?'On':'Off')}
+  ${isOrg?`<section data-g="msgs" class="card">${cardH('bell','Messages & reminders',MSGS().on?'On':'Off')}
     <div class="card-f"><p class="hint">Poll, reminder, game-day and payment messages. Edit the wording and schedule.</p><button class="btn sm line" data-act="msgset2" style="margin-left:auto">Edit</button></div></section>`:''}
-  <section class="card danger-card">
+  <section data-g="reset" class="card danger-card">
     ${cardH('trash','Start fresh','Go live')}
     <div class="pad" style="padding-bottom:6px"><p class="hint">Clears test data so you can start clean. Players, levels, photo, UPI and settings are kept.</p></div>
     <label class="row"><input class="chk" type="checkbox" data-reset="pays" ${teamUI.reset.pays?'checked':''}><div class="l"><b>Payments & confirmations</b><small>${allPays().length} recorded</small></div></label>
@@ -1524,7 +1580,7 @@ function renderTeam(){
     <label class="row"><input class="chk" type="checkbox" data-reset="polls" ${teamUI.reset.polls?'checked':''}><div class="l"><b>Polls & votes</b><small>${P.list.length} polls</small></div></label>
     <div class="sub" style="padding-top:12px;border-top:1px solid var(--line2)"><span class="sublbl">Type RESET to confirm</span><div class="inline"><input class="txt" id="resetin" autocomplete="off" autocapitalize="characters" placeholder="RESET"><button class="btn sm danger" style="height:44px" id="resetbtn" disabled>${teamUI.resetBusy?'Clearing…':'Clear'}</button></div></div>
   </section>`:''}
-  <section class="card">
+  <section data-g="access" class="card">
     ${cardH('users','Groups',GID?'Separate group':'Main group')}
     <div class="row"><div class="l"><b>${esc(S.groupName||'This group')}</b><small>${esc(HERE.replace(/^https?:\/\//,''))}</small></div><button class="btn sm line" data-act="copylink">${ic('copy')}Link</button></div>
     ${myGroups().filter(g=>g.id!==GID).map(g=>`<a class="row" style="text-decoration:none;color:inherit" href="${g.id?'?g='+g.id:location.pathname}"><div class="l"><b>${esc(g.name)}</b><small>Switch to this group</small></div><span class="chev">${ic('right')}</span></a>`).join('')}
@@ -1532,7 +1588,7 @@ function renderTeam(){
       :`<div class="card-f"><button class="lnk" data-act="showgroup">${ic('plus')} Create a group for another team</button></div>`)
       :`<div class="card-f"><p class="hint">Run another team? Sign in with Google (Account below) to create its own group with you as organizer.</p></div>`):''}
   </section>
-  <section class="card">
+  <section data-g="access" class="card">
     ${cardH('lock','Account',db?(isOrg?'Organizer':userEmail()?'Viewer':'Player'):'This phone only')}
     <div class="row"><div class="l"><b>This phone belongs to</b><small>${isOrg?'You’re the organizer and a player. ':''}Used for My dues and poll votes.</small></div></div>
     <div class="sub"><select class="txt" id="mesel2" aria-label="This phone belongs to"><option value="">Choose your name…</option>${activeRoster().map(n=>`<option ${nkey(n)===nkey(getMe())?'selected':''}>${esc(n)}</option>`).join('')}</select></div>
@@ -1540,6 +1596,8 @@ function renderTeam(){
       <p class="hint">Install: in Safari tap Share → Add to Home Screen.</p></div>
   </section>
   <p class="ver">Shuttle Split v${APP_VERSION} · ${APP_BUILD}${GID?' · group '+esc(GID):''}</p>`;
+  v.querySelectorAll('[data-g]').forEach(el=>el.hidden=el.dataset.g!==teamUI.page);
+  v.querySelectorAll('.intro,.kpis').forEach(el=>el.hidden=!!teamUI.page);
   if(teamWarn.html&&$('#newp')){$('#newp').value=teamWarn.val;const w=$('#pwarn');w.hidden=false;w.innerHTML=teamWarn.html}
   attachSuggest($('#newp'),()=>allNames(),n=>{const c=canon(n);if(S.roster.some(r=>nkey(r)===nkey(c))){if((S.inactive||[]).includes(nkey(c))){S.inactive=S.inactive.filter(k=>k!==nkey(c));saveConfig();renderTeam();toast(c+' is active again.')}else toast(c+' is already on the team.')}else{S.roster.push(c);saveConfig();renderTeam();toast(c+' added.')}},'in the group');
   const ri=$('#resetin');if(ri)ri.oninput=()=>{$('#resetbtn').disabled=ri.value.trim().toUpperCase()!=='RESET'||teamUI.resetBusy};
@@ -1706,6 +1764,7 @@ function bindTeam(){
     const me=e.target.closest('[data-merge]');if(me){me.disabled=true;const r=await renamePlayer(me.dataset.merge,me.dataset.into);toast(me.dataset.merge+' merged into '+r.fin+'.');return}
     const an=e.target.closest('[data-addnew]');if(an){const n=tcase(an.dataset.addnew);if(!S.roster.some(r=>nkey(r)===nkey(n))){S.roster.push(n);saveConfig()}if(n!==an.dataset.addnew)await renamePlayer(an.dataset.addnew,n);renderTeam();toast(n+' added to the team.');return}
     const ig=e.target.closest('[data-ignore]');if(ig){S.ignored=[...(S.ignored||[]),ig.dataset.ignore];saveConfig();renderTeam();return}
+    const hb=e.target.closest('[data-hub]');if(hb){teamUI.page=hb.dataset.hub;renderTeam();window.scrollTo(0,0);return}
     const mb=e.target.closest('[data-model]');if(mb){if(!canEdit())return;S.model=mb.dataset.model;saveConfig();renderTeam();toast(S.model==='pre'?'Prepaid wallet is on. Each game is deducted from wallets.':'Back to paying after games.');return}
     const ra=e.target.closest('[data-rmadmin]');if(ra){await saveAdmins(adminList().filter(x=>x!==ra.dataset.rmadmin));renderTeam();toast('Removed.');return}
     const b=e.target.closest('[data-act]');if(!b||b.disabled)return;const a=b.dataset.act,val=b.dataset.v;
@@ -1862,10 +1921,11 @@ function gameVars(p,dt,lead){const d=S.days[dt.date],t=tally(p,pollVotes(p)),r=t
   return{group:S.groupName||'Badminton Family',date:dlabel(dt.date,{weekday:'long',day:'numeric',month:'short'}),time:fmtTime(slotStart(dt.date,dt.note)),lead,players:pl.join(', ')||'–',count:pl.length}}
 /* every reminder for open polls: due now, upcoming, sent or skipped */
 function reminderPlan(){
-  const M=MSGS(),now=Date.now(),out=[];if(!M.on)return out;
+  const M=MSGS(),now=Date.now(),out=[];if(!M.on)return out;const gameSeen=new Set();
   P.list.filter(p=>!isArchived(p)).forEach(p=>{
     const {t,v}=pollVars(p),full=t.res.length&&t.res.every(r=>r.yes.length>=M.threshold),close=p.closesAt||0,open=!isClosed(p);
-    const push=(key,at,kind,label,msg,until,skip)=>{const sent=(S.sent||{})[key];out.push({key,at,kind,label,msg,poll:p,sent,skip:!!skip,until,
+    const many=P.list.filter(x=>!isArchived(x)&&!isClosed(x)).length>1,tag=kind0=>many&&kind0!=='game'?' · '+String(p.title||'').slice(0,22):'';
+    const push=(key,at,kind,label,msg,until,skip)=>{const sent=(S.sent||{})[key];label+=tag(kind);out.push({key,at,kind,label,msg,poll:p,sent,skip:!!skip,until,
       state:sent?'sent':skip?'skipped':at>now?'upcoming':now<until?'due':'missed'})};
     if(open)push(p.id+'|start',p.createdAt||now,'start','Poll started',fillTpl(tplOf('start'),v),close||now+864e5);
     if(open&&close){const times=[];const from=new Date(p.createdAt||now);from.setHours(0,0,0,0);
@@ -1874,19 +1934,21 @@ function reminderPlan(){
         if(at.getTime()>(p.createdAt||0)+3600e3&&at.getTime()<close-90*60e3)times.push(at.getTime())}
       times.forEach((at,i)=>push(p.id+'|r|'+ymd(new Date(at)),at,'remind','Vote reminder',fillTpl(tplOf('remind'),v),times[i+1]||close-60*60e3,full));
       if(M.lastCall)push(p.id+'|last',close-60*60e3,'last','Last call',fillTpl(tplOf('last'),v),close,full)}
-    if(M.gameLead>0)(p.dates||[]).forEach(dt=>{const start=slotStart(dt.date,dt.note),g=gameVars(p,dt,M.gameLead);
-      push(p.id+'|g|'+dt.date,start-M.gameLead*3600e3,'game','Game reminder · '+dlabel(dt.date,{weekday:'short',day:'numeric'}),fillTpl(tplOf('game'),g),start,!g.count)})});
+    /* one reminder per game slot, even if two polls (or two rows) list the same game */
+    if(M.gameLead>0)(p.dates||[]).forEach(dt=>{const start=slotStart(dt.date,dt.note);if(gameSeen.has(start))return;gameSeen.add(start);const g=gameVars(p,dt,M.gameLead);
+      push(p.id+'|g|'+dt.date+((p.dates||[]).filter(x=>x.date===dt.date).length>1?'|'+slug(dt.note||''):''),start-M.gameLead*3600e3,'game','Game reminder · '+dlabel(dt.date,{weekday:'short',day:'numeric'})+(dt.note?', '+dt.note:''),fillTpl(tplOf('game'),g),start,!g.count)})});
   if(M.duesOn&&(M.duesDays||[]).length){const list=duesList(),tot=list.reduce((a,x)=>a+x.due,0),msg=list.length?duesMsg(list):'',[hh,mm]=String(M.duesAt||'19:00').split(':').map(Number),times=[];
     const d0=new Date();d0.setHours(0,0,0,0);d0.setDate(d0.getDate()-7);
     for(let i=0;i<22;i++){const d=new Date(d0);d.setDate(d0.getDate()+i);if(!M.duesDays.includes(d.getDay()))continue;d.setHours(hh||0,mm||0,0,0);times.push(d.getTime())}
     times.forEach((at,i)=>{const key='dues|'+ymd(new Date(at)),sent=(S.sent||{})[key],skip=!list.length,until=times[i+1]||at+864e5;
-      out.push({key,at,kind:'dues',label:(PRE()?'Wallet top-up · ':'Payment reminder · ')+plural(list.length,'player'),msg,poll:{title:inr(tot)+' pending'},sent,skip,until,state:sent?'sent':skip?'skipped':at>now?'upcoming':now<until?'due':'missed'})})}
+      out.push({key,at,kind:'dues',label:(PRE()?'Wallet top-up · ':'Payment reminder · ')+plural(list.length,'player'),msg,poll:{title:PRE()?inr(tot)+' to load':inr(tot)+' pending'},sent,skip,until,state:sent?'sent':skip?'skipped':at>now?'upcoming':now<until?'due':'missed'})})}
   return out.sort((a,b)=>a.at-b.at);
 }
 function markSent(key){S.sent=S.sent||{};S.sent[key]=Date.now();saveConfig();renderTab(false)}
 function remindersCard(only){
-  if(!isOrg||!db)return'';if(only){const r=reminderPlan().filter(x=>x.kind===only&&x.state==='due');if(!r.length)return''}
-  const plan=reminderPlan().filter(x=>!only||x.kind===only),due=plan.filter(r=>r.state==='due'),up=plan.filter(r=>r.state==='upcoming').slice(0,4);
+  if(!isOrg||!db)return'';const pick=x=>!only||(only==='polls'?x.kind!=='dues':x.kind===only);
+  if(only==='dues'){const r=reminderPlan().filter(x=>pick(x)&&x.state==='due');if(!r.length)return''}
+  const plan=reminderPlan().filter(pick),due=plan.filter(r=>r.state==='due'),up=plan.filter(r=>r.state==='upcoming').slice(0,4);
   if(!MSGS().on)return`<section class="card" id="remcard">${cardH('bell','Reminders','Off')}<div class="card-f"><p class="hint">Automatic reminders are off.</p><button class="lnk" data-act="msgset" style="margin-left:auto">Settings</button></div></section>`;
   return`<section class="card${due.length?' due-card':''}" id="remcard">${cardH('bell','Reminders',due.length?due.length+' due now':'All caught up',!due.length)}
     ${due.map(r=>`<div class="rem"><div class="rem-h"><b>${esc(r.label)}</b><small>${esc(r.poll.title)} · due since ${fmtWhen(r.at)}</small></div>
@@ -1964,7 +2026,7 @@ function openPoll(id){if(!db)return;stopPoll();P.mode='detail';P.confirmDel=fals
   P.unsubVotes=ref.collection('votes').onSnapshot(q=>{P.votes=q.docs.map(d=>d.data());pollRender()},()=>{})}
 function stopPoll(){if(P.unsubPoll)P.unsubPoll();if(P.unsubVotes)P.unsubVotes();P.unsubPoll=P.unsubVotes=null}
 function pollRender(){if(tab!=='polls')return;const a=document.activeElement;if(a&&a.tagName==='INPUT'&&a.type==='text'&&$('#view-polls').contains(a))return;renderPolls()}
-function routeHash(){if(location.hash==='#payouts'){go('pay');return}if(location.hash==='#me'){go('me');return}if(location.hash==='#remind'){P.mode='list';P.scrollRem=true;go('polls');return}const m=location.hash.match(/^#poll-([A-Za-z0-9_-]+)$/);if(m){openPoll(m[1]);go('polls')}}
+function routeHash(){if(location.hash==='#payouts'){SUB.pay='mine';go('pay');return}if(location.hash==='#me'){go('me');return}if(location.hash==='#remind'){P.mode='list';P.scrollRem=true;go('polls');return}const m=location.hash.match(/^#poll-([A-Za-z0-9_-]+)$/);if(m){openPoll(m[1]);go('polls')}}
 function leavePoll(){stopPoll();P.mode='list';P.sel=null;P.justCreated=null;try{history.replaceState(null,'',location.pathname)}catch(e){}renderPolls()}
 function renderPolls(){
   const v=$('#view-polls');
@@ -1976,17 +2038,19 @@ function renderPolls(){
   v.innerHTML=`
   ${intro('Polls','Ask who’s free before you book. Players vote from a WhatsApp link and you see how many courts you need.')}
   ${kpis([['Open polls',open.length],['Recent',live.length],['Next game',open.length&&open[0].dates&&open[0].dates[0]?esc(dlabel(open[0].dates[0].date,{weekday:'short',day:'numeric'})):'–',true]])}
+  ${isOrg?subnav('polls',[['list','Polls'],['rem','Reminders',reminderPlan().filter(r=>r.state==='due'&&r.kind!=='dues').length||'']]):''}
+  <div data-in="rem">${remindersCard('polls')}</div>
+  <div data-in="list">
   <section class="card cta"><div class="pad"><h2>Who’s playing this weekend?</h2><p>Pick dates and time slots, send to WhatsApp, track votes live.</p>
     <button class="btn block" data-act="newpoll">${ic(isOrg?'plus':'lock')}${isOrg?'Create a poll':'Sign in to create a poll'}</button></div></section>
-  ${remindersCard()}
   ${latestDone?recapHTML(latestDone,'Latest results'):''}
   <section class="card">${cardH('poll','Recent polls',live.length||null)}
     ${live.length?live.map(p=>`<button class="row" style="width:100%;text-align:left" data-open="${esc(p.id)}"><div class="l"><b>${esc(p.title)}</b><small>${(p.dates||[]).map(dt=>esc(dlabel(dt.date))).join(' · ')}</small></div><span class="badge ${isClosed(p)?'':'on'}">${isClosed(p)?'Closed':'Open'}</span><span class="chev">${ic('right')}</span></button>`).join(''):`<div class="empty">${ic('poll')}No recent polls.</div>`}
     ${arch.length?`<details class="inact"><summary>Archive · ${plural(arch.length,'poll')} older than 2 weeks</summary>${arch.map(p=>`<button class="row" style="width:100%;text-align:left" data-open="${esc(p.id)}"><div class="l"><b>${esc(p.title)}</b><small>${(p.dates||[]).map(dt=>esc(dlabel(dt.date))).join(' · ')}</small></div><span class="badge">Archived</span><span class="chev">${ic('right')}</span></button>`).join('')}</details>`:''}
-  </section>`;
+  </section></div>`;
   v.querySelector('[data-act=newpoll]').onclick=()=>{if(!isOrg){signIn();return}const[sa,su]=nextWeekend(0);P.draft={title:'Who’s up for Badminton this weekend?',dates:[{date:sa,note:'5-7 PM'},{date:su,note:'9-11 AM'}],perCourt:6,closes:defClose(sa)};P.mode='new';renderPolls();window.scrollTo(0,0)};
   v.querySelectorAll('[data-open]').forEach(el=>el.onclick=()=>{location.hash='poll-'+el.dataset.open});
-  bindReminders(v);if(P.scrollRem){P.scrollRem=false;setTimeout(()=>{const c=$('#remcard');if(c)c.scrollIntoView({block:'start'})},60)}
+  if(P.scrollRem){P.scrollRem=false;SUB.polls='rem'}if(!isOrg)SUB.polls='list';applySub(v,'polls');bindReminders(v);
 }
 function renderNewPoll(v){
   const D=P.draft;if(!D){P.mode='list';return renderPolls()}
