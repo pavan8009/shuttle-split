@@ -216,6 +216,15 @@ label.row{cursor:pointer}
 .tabbar button[aria-selected="true"]{color:var(--accent)}
 .tabbar button[aria-selected="true"] .ic{stroke-width:2.3}
 .toast{position:fixed;left:50%;bottom:calc(80px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--surface);padding:11px 16px;border-radius:12px;font-weight:600;font-size:14px;z-index:40;width:max-content;max-width:calc(100% - 32px);text-align:center;box-shadow:0 8px 24px rgba(0,0,0,.18)}
+/* reminders */
+.rem{display:flex;flex-direction:column;gap:10px;padding:12px 16px;border-top:1px solid var(--line2)}
+.rem:first-of-type{border-top:0}
+.rem-h b{display:block;font-size:15px}.rem-h small{color:var(--muted);font-size:12.5px}
+.rem details summary{font-size:13px;font-weight:700;color:var(--accent);cursor:pointer}
+.msgpre{white-space:pre-wrap;font:13px/1.45 var(--font);background:var(--field);border-radius:10px;padding:10px 12px;margin:8px 0 0}
+textarea.tpl{height:auto;min-height:140px;padding:10px 12px;font-size:14px;line-height:1.45;resize:vertical}
+.tabbar button{position:relative}
+.tabbar button.has-due::after{content:"";position:absolute;top:7px;left:calc(50% + 8px);width:9px;height:9px;border-radius:50%;background:var(--danger);box-shadow:0 0 0 2px var(--surface)}
 /* suggestions dropdown */
 .sugg{border:1px solid var(--line);border-radius:12px;background:var(--surface);box-shadow:0 8px 24px rgba(16,24,40,.12);overflow:hidden;margin-top:6px}
 .sugg-h{display:block;font-size:11.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);padding:9px 12px 4px}
@@ -297,6 +306,7 @@ details.poster:not([open]) .card-h{border-bottom:0}
 .btable td:first-child{font-weight:700}
 .btable small{display:block;font-weight:500;color:var(--muted);font-size:11.5px}
 .btable td.zero{color:var(--muted)}
+.btable td small{display:block;font-weight:500;color:var(--muted);font-size:11px;white-space:normal}
 .how{padding:12px 16px;display:flex;flex-direction:column;gap:10px;border-top:1px solid var(--line2)}
 .how div{font-size:13px;color:var(--muted);line-height:1.5}
 .how div b{color:var(--ink)}
@@ -377,7 +387,7 @@ const FIREBASE_CONFIG = {
 /* Collections get this prefix so they never clash with the league app's data */
 const COLLECTION_PREFIX = "shuttleSplit_";
 /* App version shown in Team → About */
-const APP_VERSION = "1.2.1", APP_BUILD = "31 Oct 2026";
+const APP_VERSION = "1.3.0", APP_BUILD = "31 Oct 2026";
 /* Owner of the main group (the link without ?g=) */
 const LEGACY_OWNER = "pavankaki.cool@gmail.com";
 /* Starting player list, used only until the first save */
@@ -424,7 +434,7 @@ const GID=(new URLSearchParams(location.search).get('g')||'').toLowerCase().repl
 const BASE=GID?COLLECTION_PREFIX+'groups/'+GID+'/':COLLECTION_PREFIX, SUF=GID?'-'+GID:'';
 const HERE=location.origin+location.pathname+(GID?'?g='+GID:'');
 const LS='shuttle-split-v1'+SUF, LSP='shuttle-split-photo'+SUF;
-const S={roster:[],rate:300,courts:1,groupName:'',skin:'court',upiId:'',upiName:'',levels:{},admins:[],inactive:[],ignored:[],openNames:true,idleWeeks:4,since:{},autoOff:{},billed:[],days:{}};
+const S={roster:[],rate:300,courts:1,groupName:'',skin:'court',upiId:'',upiName:'',levels:{},admins:[],inactive:[],ignored:[],openNames:true,idleWeeks:4,since:{},autoOff:{},billed:[],msg:null,sent:{},days:{}};
 let CFG_READY=false, DAYS_READY=false, GROUP=null, GROUP_MISSING=false, SEEN=[], PDATA={votes:[],at:0,loading:false};
 let PAYS=[], photo='', db=null, auth=null, isOrg=false, tab='day', curDate=todayStr();
 const canEdit=()=>!db||isOrg;
@@ -445,7 +455,7 @@ async function flush(path){
   catch(e){toast(e&&e.code==='permission-denied'?'Only the organizer can change this. Sign in first.':'Couldn’t save ('+((e&&e.code)||'error')+'). Kept on this phone.')}
   inflight[path]=false;if(path in pending)flush(path);
 }
-function saveConfig(){queueWrite('config/main',{roster:S.roster,rate:S.rate,courts:1,groupName:S.groupName||'',skin:S.skin||'court',upiId:S.upiId||'',upiName:S.upiName||'',levels:S.levels||{},admins:S.admins||[],inactive:S.inactive||[],ignored:S.ignored||[],openNames:S.openNames!==false,idleWeeks:S.idleWeeks==null?4:S.idleWeeks,since:S.since||{},autoOff:S.autoOff||{},billed:(S.billed||[]).slice(-200)})}
+function saveConfig(){queueWrite('config/main',{roster:S.roster,rate:S.rate,courts:1,groupName:S.groupName||'',skin:S.skin||'court',upiId:S.upiId||'',upiName:S.upiName||'',levels:S.levels||{},admins:S.admins||[],inactive:S.inactive||[],ignored:S.ignored||[],openNames:S.openNames!==false,idleWeeks:S.idleWeeks==null?4:S.idleWeeks,since:S.since||{},autoOff:S.autoOff||{},billed:(S.billed||[]).slice(-200),msg:S.msg||null,sent:trimSent(S.sent)})}
 /* ---------- organizers ---------- */
 const userEmail=()=>{const u=auth&&auth.currentUser;return u&&!u.isAnonymous&&u.email?u.email.toLowerCase():''};
 const ownerEmail=()=>String((GID?(GROUP&&GROUP.owner):LEGACY_OWNER)||'').toLowerCase();
@@ -501,11 +511,31 @@ function ledger(name,before){
   hist.sort((a,b)=>(b.at||0)-(a.at||0));
   return{charged,paid,claimed,due,since,hist};
 }
+/* line items: every game day charge and every payment, oldest first, with running balance.
+   Confirmed payments clear the oldest unpaid days first. */
+function statement(name){
+  const k=nkey(name),rows=[];
+  Object.keys(S.days).sort().forEach(ds=>{const d=getDay(ds),o=perOf(calc(d),name);if(!o)return;
+    rows.push({type:'game',date:ds,at:new Date(ds+'T12:00').getTime(),court:o.court,shuttle:o.shuttle,drinks:o.drinks,amt:o.total,hours:d.hours})});
+  allPays().forEach(x=>{if(nkey(x.name)!==k)return;rows.push({type:'pay',date:ymd(new Date(x.at||0)),at:x.at||0,amt:+x.amount||0,status:x.status,method:x.method,id:x.id})});
+  rows.sort((a,b)=>a.at-b.at);let bal=0;rows.forEach(r=>{if(r.type==='game')bal+=r.amt;else if(r.status==='confirmed')bal-=r.amt;r.bal=r2(bal)});
+  let paid=allPays().filter(x=>nkey(x.name)===k&&x.status==='confirmed').reduce((a,x)=>a+(+x.amount||0),0);
+  const unpaid=[];rows.filter(r=>r.type==='game').forEach(r=>{const use=Math.min(paid,r.amt);paid-=use;const left=r2(r.amt-use);if(left>0)unpaid.push({...r,left,part:use>0})});
+  return{rows,unpaid};
+}
+function unpaidLine(x){const u=statement(x.name).unpaid;return'• '+x.name+' – *'+inr(x.due)+'*'+(u.length?' ('+u.map(i=>dlabel(i.date,{day:'numeric',month:'short'})+' '+inr(i.left)+(i.part?' bal':'')).join(', ')+')':'')}
+function statementHTML(name){const st=statement(name);if(!st.rows.length)return'';
+  return`<div class="sub" style="padding-top:12px;border-top:1px solid var(--line2)"><span class="sublbl">Statement · every game and payment</span></div>
+  <div class="tablewrap"><table class="btable"><thead><tr><th>Date</th><th>Item</th><th>Amount</th><th>Balance</th></tr></thead><tbody>
+  ${st.rows.map(r=>r.type==='game'?`<tr><td>${esc(dlabel(r.date,{day:'numeric',month:'short'}))}</td><td>Game · ${fmtH(r.hours)} h<small>Court ${inr(r.court)}${r.shuttle?' · Shuttle '+inr(r.shuttle):''}${r.drinks?' · Drinks '+inr(r.drinks):''}</small></td><td>${inr(r.amt)}</td><td>${inr(r.bal)}</td></tr>`
+    :`<tr><td>${esc(dlabel(r.date,{day:'numeric',month:'short'}))}</td><td style="color:${r.status==='confirmed'?'var(--ok)':'#B54708'}">${r.status==='confirmed'?'Paid':'Paid · awaiting confirmation'}<small>${r.method==='upi'?'UPI':r.method==='self'?'Own share':r.method==='manual'?'Marked received':esc(r.method||'')}</small></td><td style="color:var(--ok)">−${inr(r.amt)}</td><td>${inr(r.bal)}</td></tr>`).join('')}
+  </tbody></table></div>
+  ${st.unpaid.length?`<div class="sub" style="padding-top:10px"><span class="sublbl" style="color:var(--danger)">Still unpaid</span>${st.unpaid.map(u=>`<div class="mix" style="justify-content:space-between"><span>${esc(dlabel(u.date,{weekday:'short',day:'numeric',month:'short'}))}${u.part?' (balance)':''}</span><b style="color:var(--danger)">${inr(u.left)}</b></div>`).join('')}</div>`:''}`}
 function duesList(before){return allNames().map(n=>({name:n,...ledger(n,before)})).filter(x=>x.due>0).sort((a,b)=>b.due-a.due)}
 const payCol=()=>col('payments');
-async function addPayment(name,amount,status,method){
-  const doc={name:canon(name),amount:r2(+amount),at:Date.now(),status,method:method||'upi',by:isOrg||!db?'organizer':'player'};
-  if(!db){S.payments=S.payments||[];S.payments.push({id:'l'+Date.now(),...doc,status:'confirmed'});saveLocal();renderTab(false);return true}
+async function addPayment(name,amount,status,method,at){
+  const doc={name:canon(name),amount:r2(+amount),at:at||Date.now(),status,method:method||'upi',by:isOrg||!db?'organizer':'player'};
+  if(!db){S.payments=S.payments||[];S.payments.push({id:'l'+Date.now(),...doc,status:status||'confirmed'});saveLocal();renderTab(false);return true}
   try{if(!isOrg){if(!auth.currentUser)await auth.signInAnonymously();doc.uid=auth.currentUser.uid}
     await payCol().add(doc);return true}
   catch(e){toast(e.code==='permission-denied'?'Couldn’t record the payment. Ask the organizer to update the app rules.':(e.code==='auth/admin-restricted-operation'||e.code==='auth/operation-not-allowed')?'Ask the organizer to enable Anonymous sign-in in Firebase.':'Couldn’t record the payment ('+(e.code||'error')+').');return false}
@@ -514,8 +544,7 @@ async function setPayStatus(id,status){
   if(!db){const x=(S.payments||[]).find(p=>p.id===id);if(x){if(status==='delete')S.payments=S.payments.filter(p=>p.id!==id);else x.status=status}saveLocal();renderTab(false);return}
   try{const ref=payCol().doc(id);if(status==='delete')await ref.delete();else await ref.update({status,confirmedAt:Date.now()})}catch(e){toast('Couldn’t update the payment ('+e.code+').')}
 }
-function duesMsg(list){const L=['🔔 *'+(S.groupName||'Badminton')+' — gentle reminder*','A few dues are still open. Whenever convenient, please settle up 🙏',''];list.forEach(x=>L.push('• '+x.name+' – *'+inr(x.due)+'*'+(x.since?' (since '+dlabel(x.since,{day:'numeric',month:'short'})+')':'')));
-  L.push('');if(S.upiId)L.push('📲 UPI: '+S.upiId);L.push('📊 Check & pay: '+appLink('payouts'));L.push('✅ After paying, tap “I’ve paid” in My dues. Thank you! 💚');return L.join('\n')}
+function duesMsg(list){return fillTpl(tplOf('dues'),{group:S.groupName||'Badminton Family',dues_lines:list.map(unpaidLine).join('\n'),upi:S.upiId||'ask the organizer',payouts_link:appLink('payouts')})}
 const playedDays=()=>Object.keys(S.days).filter(k=>S.days[k].present&&S.days[k].present.length).sort().reverse();
 function orderNames(arr){const ix=n=>{const i=S.roster.findIndex(r=>nkey(r)===nkey(n));return i<0?999:i};return[...arr].sort((a,b)=>ix(a)-ix(b)||a.localeCompare(b))}
 
@@ -566,7 +595,8 @@ const kpis=list=>`<div class="kpis">${list.map(([l,v,hl])=>`<div class="kpi${hl?
 const cardH=(icon,title,meta,strong)=>`<div class="card-h"><span class="ico">${ic(icon)}</span><h2>${title}</h2>${meta!=null?`<span class="meta${strong?' strong':''}">${meta}</span>`:''}</div>`;
 const viewOnly=what=>db&&!isOrg?`<div class="note">${ic('lock')}<p>You’re viewing. Only the organizer can ${what}.</p><button class="btn sm line" data-signin>Organizer</button></div>`:'';
 const PAGES={day:'Record a play day',polls:'Availability polls',pay:'Payouts',team:'Team & settings'};
-function renderHeader(){
+function remDot(){const b=document.querySelector('.tabbar [data-tab="polls"]');if(!b)return;const n=isOrg&&db?reminderPlan().filter(r=>r.state==='due').length:0;b.classList.toggle('has-due',n>0)}
+function renderHeader(){try{remDot()}catch(e){}
   $('#gname').textContent=S.groupName||'Badminton Family';
   $('#pagename').textContent=PAGES[tab];
   $('#avatar').innerHTML=photo?`<img src="${photo}" alt="">`:ic('shuttle');
@@ -839,7 +869,7 @@ function duesCards(){
   const dues=duesList();
   const recent=allPays().filter(x=>x.status==='confirmed').sort((a,b)=>(b.at||0)-(a.at||0)).slice(0,6);
   return`<section class="card${dues.length?' due-card':''}">${cardH(dues.length?'bell':'check','All outstanding dues',dues.length?inr(dues.reduce((a,x)=>a+x.due,0)):'All clear')}
-    ${dues.length?dues.map(x=>`<button class="prow" style="width:100%;text-align:left" data-pay="${esc(x.name)}"><span class="ini">${esc(initials(x.name))}</span><span class="nm">${esc(x.name)}<small>${x.since?'Unpaid since '+esc(dlabel(x.since,{day:'numeric',month:'short'})):''}${x.claimed?' · '+inr(x.claimed)+' to confirm':''}</small></span><span class="due-amt">${inr(x.due)}</span></button>`).join('')
+    ${dues.length?dues.map(x=>`<button class="prow" style="width:100%;text-align:left" data-pay="${esc(x.name)}"><span class="ini">${esc(initials(x.name))}</span><span class="nm">${esc(x.name)}<small>${statement(x.name).unpaid.map(u=>esc(dlabel(u.date,{day:'numeric',month:'short'}))+' '+inr(u.left)).join(' · ')}${x.claimed?' · '+inr(x.claimed)+' to confirm':''}</small></span><span class="due-amt">${inr(x.due)}</span></button>`).join('')
       :`<div class="empty">${ic('check')}Everyone has paid in full.</div>`}
     ${dues.length?`<div class="card-f"><a class="btn sm wa" href="${waHref(duesMsg(dues))}" target="_blank" rel="noopener">${ic('chat')}Gentle reminder to all</a><span class="hint" style="margin-left:auto">Across all days</span></div>`:''}</section>
   ${recent.length?`<section class="card">${cardH('wallet','Recent payments')}
@@ -898,6 +928,7 @@ function openWho(name,R){
         if(c.drinks)p.push(x.o.drinks?`Drinks ${inr(c.drinks)} ÷ ${c.drN} = ${inr(c.dEach)}`:'Drinks: not included');
         return`<div><b>${esc(dlabel(d.date,{weekday:'long',day:'numeric',month:'short'}))}</b><br>${p.join('<br>')}</div>`}).join('')}
       <p class="hint">Each share is rounded up to the next rupee.</p></div>
+    ${statementHTML(name)}
     <div class="acct"><div><span>All games so far</span><b>${inr(acc.charged)}</b></div><div class="good"><span>Paid</span><b>${inr(acc.paid)}</b></div>
       <div><span>Waiting to confirm</span><b>${inr(acc.claimed)}</b></div><div class="${acc.due?'bad':'good'}"><span>Balance due</span><b>${acc.due?inr(acc.due):'Nil ✓'}</b></div></div>
     <div class="card-f" style="display:grid;grid-template-columns:1fr 1fr">${acc.due?`<button class="btn primary full" style="grid-column:1/-1" id="whopay">${ic('rupee')}Pay ${inr(acc.due)}</button>`:''}<a class="btn wa" href="${waHref(lines.join('\n'))}" target="_blank" rel="noopener">${ic('chat')}WhatsApp</a><button class="btn line" id="whocopy">${ic('copy')}Copy</button></div>
@@ -940,7 +971,7 @@ function openPay(name){
         <p class="hint">After paying in your UPI app, come back and tap “I’ve paid”. The organizer confirms it, then your dues clear.</p>`:''}
       </div>`;
   }
-  bg.innerHTML=`<div class="sheet" role="dialog" aria-modal="true" aria-label="Pay ${esc(name)}">${head}${body}${orgBox?`<div style="border-top:1px solid var(--line2)">${orgBox}</div>`:''}</div>`;
+  bg.innerHTML=`<div class="sheet" role="dialog" aria-modal="true" aria-label="Pay ${esc(name)}">${head}${body}${orgBox?`<div style="border-top:1px solid var(--line2)">${orgBox}</div>`:''}${statementHTML(name)}<div style="height:12px"></div></div>`;
   document.body.appendChild(bg);document.body.style.overflow='hidden';
   bg.addEventListener('click',e=>{if(e.target===bg)closeWho()});
   $('#whoclose').onclick=closeWho;
@@ -1071,6 +1102,7 @@ function nudgeMsg(list){return['🏸 *'+(S.groupName||'Badminton Family')+'*','H
 const timeAgo=t=>{if(!t)return'never';const d=Math.floor((Date.now()-t)/864e5);return d<=0?'today':d===1?'yesterday':d<30?d+' days ago':dlabel(ymd(new Date(t)),{day:'numeric',month:'short'})};
 
 function renderTeam(){
+  if(teamUI.page==='records'&&canEdit())return renderRecords($('#view-team'));
   const v=$('#view-team'),played={};
   Object.values(S.days).forEach(d=>uniq(d.present||[]).forEach(p=>{const k=nkey(p);played[k]=(played[k]||0)+1}));
   const nDays=playedDays().length, org=canEdit(), act=activeRoster(), inact=S.roster.filter(n=>!act.includes(n));
@@ -1139,6 +1171,13 @@ function renderTeam(){
     <div class="row"><div class="l"><b>Court rate per hour</b><small>Used for new days. Shares round up to the next rupee.</small></div>
       <div class="amt"><span>₹</span><input id="defrate" type="number" inputmode="decimal" min="0" value="${S.rate}" aria-label="Default court rate"></div></div>
   </section>
+  <section class="card">
+    ${cardH('gear','Records')}
+    <div class="acct" style="border-top:0;grid-template-columns:repeat(3,minmax(0,1fr))"><div><span>Payments</span><b>${allPays().length}</b></div><div><span>Game days</span><b>${Object.keys(S.days).length}</b></div><div><span>Polls</span><b>${P.list.length}</b></div></div>
+    <div class="card-f"><p class="hint">Add, change or delete any payment, game day, poll or vote.</p><button class="btn sm primary" data-act="records" style="margin-left:auto">Manage</button></div>
+  </section>
+  ${isOrg?`<section class="card">${cardH('bell','Messages & reminders',MSGS().on?'On':'Off')}
+    <div class="card-f"><p class="hint">Poll, reminder, game-day and payment messages. Edit the wording and schedule.</p><button class="btn sm line" data-act="msgset2" style="margin-left:auto">Edit</button></div></section>`:''}
   <section class="card danger-card">
     ${cardH('trash','Start fresh','Go live')}
     <div class="pad" style="padding-bottom:6px"><p class="hint">Clears test data so you can start clean. Players, levels, photo, UPI and settings are kept.</p></div>
@@ -1166,6 +1205,81 @@ function renderTeam(){
   if(teamWarn.html&&$('#newp')){$('#newp').value=teamWarn.val;const w=$('#pwarn');w.hidden=false;w.innerHTML=teamWarn.html}
   attachSuggest($('#newp'),()=>allNames(),n=>{const c=canon(n);if(S.roster.some(r=>nkey(r)===nkey(c))){if((S.inactive||[]).includes(nkey(c))){S.inactive=S.inactive.filter(k=>k!==nkey(c));saveConfig();renderTeam();toast(c+' is active again.')}else toast(c+' is already on the team.')}else{S.roster.push(c);saveConfig();renderTeam();toast(c+' added.')}},'in the group');
   const ri=$('#resetin');if(ri)ri.oninput=()=>{$('#resetbtn').disabled=ri.value.trim().toUpperCase()!=='RESET'||teamUI.resetBusy};
+}
+/* ================= RECORDS (organizer) ================= */
+function renderRecords(v){
+  const r=teamUI.rec||'pays',names=allNames();
+  const pays=[...allPays()].sort((a,b)=>(b.at||0)-(a.at||0)),days=Object.keys(S.days).sort().reverse(),polls=[...P.list].sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+  const sec={
+   pays:`<section class="card">${cardH('plus','Add a payment')}
+      <div class="sub" style="padding-top:12px"><select class="txt" id="rp_name"><option value="">Player…</option>${names.map(n=>`<option>${esc(n)}</option>`).join('')}</select>
+      <div class="grid2"><div class="amt" style="width:auto"><span>₹</span><input id="rp_amt" type="number" inputmode="decimal" min="1" placeholder="Amount"></div><input class="txt" type="date" id="rp_date" value="${todayStr()}"></div>
+      <select class="txt" id="rp_status"><option value="confirmed">Received (confirmed)</option><option value="claimed">Waiting for confirmation</option></select>
+      <button class="btn primary" id="rp_add">${ic('plus')}Add payment</button></div></section>
+    <section class="card">${cardH('wallet','All payments',pays.length)}
+      ${pays.length?pays.map(x=>`<button class="prow" style="width:100%;text-align:left" data-editpay="${esc(x.id)}"><span class="ini">${esc(initials(x.name))}</span><span class="nm">${esc(x.name)}<small>${esc(dlabel(ymd(new Date(x.at||0)),{day:'numeric',month:'short',year:'numeric'}))} · ${x.status==='confirmed'?'Confirmed':'Awaiting confirmation'} · ${x.by==='player'?'by player':'by organizer'}</small></span><span class="am" style="color:${x.status==='confirmed'?'var(--ok)':'#B54708'}">${inr(x.amount)}</span></button>`).join(''):`<div class="empty">${ic('wallet')}No payments recorded.</div>`}
+      <div class="card-f"><p class="hint">Tap a payment to change the name, amount, date or status, or to delete it.</p></div></section>`,
+   days:`<section class="card">${cardH('plus','Add or edit a game day')}
+      <div class="sub" style="padding-top:12px"><div class="inline"><input class="txt" type="date" id="rd_date" value="${todayStr()}"><button class="btn primary" style="height:44px" id="rd_open">Open on Today</button></div>
+      <p class="hint">Players, hours, rate, shuttles and drinks are all edited on the Today page.</p></div></section>
+    <section class="card">${cardH('cal','All game days',days.length)}
+      ${days.length?days.map(k=>{const d=getDay(k),c=calc(d);return`<div class="prow"><span class="ini">${new Date(k+'T00:00').getDate()}</span><span class="nm">${esc(dlabel(k,{weekday:'short',day:'numeric',month:'short',year:'numeric'}))}<small>${plural(c.n,'player')} · ${fmtH(d.hours)} h · ${inr(c.collected)}${d.src==='poll'?' · from poll':''}</small></span>
+        <span class="acts">${teamUI.del==='d|'+k?`<button class="lnk" data-keep>Keep</button><button class="lnk danger" data-deldayok="${k}">Delete</button>`:`<button class="btn sm line" data-openday="${k}">Edit</button><button class="iconbtn" data-delday="${k}" aria-label="Delete ${k}">${ic('trash')}</button>`}</span></div>`}).join(''):`<div class="empty">${ic('cal')}No game days yet.</div>`}
+      <div class="card-f"><p class="hint">Deleting a game day removes its charges from everyone’s balance.</p></div></section>`,
+   polls:`<section class="card">${cardH('poll','All polls',polls.length)}
+      ${polls.length?polls.map(x=>{const n=latestByName(PDATA.votes.filter(v=>v.poll===x.id)).length;return`<button class="prow" style="width:100%;text-align:left" data-editpoll="${esc(x.id)}"><span class="ini">${ic('poll')}</span><span class="nm">${esc(x.title)}<small>${(x.dates||[]).map(dt=>esc(dlabel(dt.date,{day:'numeric',month:'short'}))).join(' · ')} · ${plural(n,'vote')} · ${isArchived(x)?'Archived':isClosed(x)?'Closed':'Open'}</small></span><span class="chev">${ic('right')}</span></button>`}).join(''):`<div class="empty">${ic('poll')}No polls yet.</div>`}
+      <div class="card-f"><p class="hint">Tap a poll to rename it, change the closing time, close or reopen it, remove single votes, or delete it.</p></div></section>`};
+  v.innerHTML=`<button class="lnk" data-recback style="align-self:flex-start">‹ Team</button>
+    ${intro('Records','Add, change or delete any record. Balances, payouts and reminders update straight away.')}
+    <div class="seg" style="padding:0">${[['pays','Payments'],['days','Game days'],['polls','Polls & votes']].map(([k,l])=>`<button class="${r===k?'on':''}" data-rec="${k}">${l}</button>`).join('')}</div>
+    ${sec[r]}`;
+  v.querySelector('[data-recback]').onclick=()=>{teamUI.page='';teamUI.del=null;renderTeam();window.scrollTo(0,0)};
+  v.querySelectorAll('[data-rec]').forEach(b=>b.onclick=()=>{teamUI.rec=b.dataset.rec;teamUI.del=null;renderTeam()});
+  const add=$('#rp_add');if(add)add.onclick=async()=>{const n=$('#rp_name').value,a=+$('#rp_amt').value,d=$('#rp_date').value;if(!n)return toast('Choose the player.');if(!(a>0))return toast('Enter the amount.');
+    add.disabled=true;const at=new Date((d||todayStr())+'T12:00').getTime();if(await addPayment(n,a,$('#rp_status').value,'manual',at)){toast(inr(a)+' recorded for '+first(n)+'.');renderTeam()}else add.disabled=false};
+  v.querySelectorAll('[data-editpay]').forEach(b=>b.onclick=()=>editPay(b.dataset.editpay));
+  const ro=$('#rd_open');if(ro)ro.onclick=()=>{const d=$('#rd_date').value;if(!d)return;teamUI.page='';curDate=d;go('day')};
+  v.querySelectorAll('[data-openday]').forEach(b=>b.onclick=()=>{teamUI.page='';curDate=b.dataset.openday;go('day')});
+  v.querySelectorAll('[data-delday]').forEach(b=>b.onclick=()=>{teamUI.del='d|'+b.dataset.delday;renderTeam()});
+  v.querySelectorAll('[data-keep]').forEach(b=>b.onclick=()=>{teamUI.del=null;renderTeam()});
+  v.querySelectorAll('[data-deldayok]').forEach(b=>b.onclick=()=>{const k=b.dataset.deldayok;delete S.days[k];queueWrite('days/'+k,null);S.billed=(S.billed||[]).concat(P.list.filter(x=>(x.dates||[]).some(dt=>dt.date===k)).map(x=>x.id+'|'+k));saveConfig();teamUI.del=null;renderTeam();toast('Game day deleted.')});
+  v.querySelectorAll('[data-editpoll]').forEach(b=>b.onclick=()=>editPoll(b.dataset.editpoll));
+}
+function sheetOpen(html,label){closeWho();const bg=document.createElement('div');bg.className='sheet-bg';bg.id='whosheet';
+  bg.innerHTML=`<div class="sheet" role="dialog" aria-modal="true" aria-label="${esc(label)}"><div class="grab"></div>${html}</div>`;
+  document.body.appendChild(bg);document.body.style.overflow='hidden';bg.addEventListener('click',e=>{if(e.target===bg)closeWho()});const c=$('#whoclose');if(c)c.onclick=closeWho;return bg}
+function editPay(id){
+  const x=allPays().find(p=>p.id===id);if(!x)return;const names=uniq([...allNames(),x.name]);
+  const bg=sheetOpen(`<div class="sheet-h"><span class="ini">${esc(initials(x.name))}</span><div><b>Edit payment</b><small>${esc(x.name)} · ${inr(x.amount)}</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div>
+    <div class="sub" style="padding-top:12px"><span class="sublbl">Player</span><select class="txt" id="ep_name">${names.map(n=>`<option ${nkey(n)===nkey(x.name)?'selected':''}>${esc(n)}</option>`).join('')}</select>
+    <div class="grid2"><div><span class="sublbl">Amount</span><div class="amt" style="width:auto"><span>₹</span><input id="ep_amt" type="number" inputmode="decimal" value="${+x.amount||0}"></div></div><div><span class="sublbl">Date</span><input class="txt" type="date" id="ep_date" value="${ymd(new Date(x.at||Date.now()))}"></div></div>
+    <span class="sublbl">Status</span><select class="txt" id="ep_status"><option value="confirmed"${x.status==='confirmed'?' selected':''}>Received (confirmed)</option><option value="claimed"${x.status!=='confirmed'?' selected':''}>Waiting for confirmation</option></select></div>
+    <div class="card-f" style="display:grid;grid-template-columns:1fr 1fr"><button class="btn line" id="ep_del" style="color:var(--danger)">${ic('trash')}Delete</button><button class="btn primary" id="ep_save">${ic('check')}Save</button></div>`,'Edit payment');
+  let confirmDel=false;
+  $('#ep_save').onclick=async()=>{const upd={name:canon($('#ep_name').value),amount:r2(+$('#ep_amt').value||0),at:new Date($('#ep_date').value+'T12:00').getTime(),status:$('#ep_status').value};
+    if(!(upd.amount>0))return toast('Enter an amount above zero.');
+    if(db){try{await payCol().doc(id).update(upd)}catch(e){return toast('Couldn’t save ('+e.code+').')}}else{Object.assign(x,upd);saveLocal()}
+    closeWho();renderTab(true);toast('Payment updated.')};
+  $('#ep_del').onclick=async()=>{if(!confirmDel){confirmDel=true;$('#ep_del').textContent='Tap again to delete';return}
+    await setPayStatus(id,'delete');closeWho();renderTab(true);toast('Payment deleted.')};
+}
+function editPoll(id){
+  const p=P.list.find(x=>x.id===id);if(!p)return;const votes=latestByName(PDATA.votes.filter(v=>v.poll===id));
+  const local=ms=>{if(!ms)return'';const d=new Date(ms);return ymd(d)+'T'+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')};
+  const ans=a=>(p.dates||[]).map(dt=>dlabel(dt.date,{weekday:'short'})+' '+({yes:'✅',maybe:'🤔',no:'❌'}[(a||{})[dt.date]]||'–')).join(' · ');
+  sheetOpen(`<div class="sheet-h"><span class="ini">${ic('poll')}</span><div><b>Edit poll</b><small>${(p.dates||[]).map(dt=>esc(dlabel(dt.date,{day:'numeric',month:'short'}))).join(' · ')}</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div>
+    <div class="sub" style="padding-top:12px"><span class="sublbl">Question</span><input class="txt" id="eq_title" value="${esc(p.title)}">
+    <span class="sublbl">Voting closes</span><input class="txt" type="datetime-local" id="eq_close" value="${local(p.closesAt)}"></div>
+    <div class="row"><div class="l"><b>Closed</b><small>No more votes</small></div><label class="switch"><input type="checkbox" id="eq_closed" ${p.closed?'checked':''}><i></i></label></div>
+    <div class="sub" style="padding-top:12px;border-top:1px solid var(--line2)"><span class="sublbl">Votes (${votes.length})</span></div>
+    ${votes.map(v=>`<div class="prow"><span class="ini">${esc(initials(v.name))}</span><span class="nm">${esc(canon(v.name))}<small>${ans(v.answers)}${String(v.id).startsWith('n-')?' · recorded by organizer':' · voted in app'}</small></span><button class="iconbtn" data-delvote="${esc(v.id)}" aria-label="Remove vote">${ic('x')}</button></div>`).join('')||'<div class="empty">No votes yet.</div>'}
+    <div class="card-f" style="display:grid;grid-template-columns:1fr 1fr"><button class="btn line" id="eq_del" style="color:var(--danger)">${ic('trash')}Delete poll</button><button class="btn primary" id="eq_save">${ic('check')}Save</button></div>`,'Edit poll');
+  $('#eq_save').onclick=async()=>{const c=$('#eq_close').value;try{await pollsCol().doc(id).update({title:norm($('#eq_title').value)||p.title,closesAt:c?new Date(c).getTime():null,closed:$('#eq_closed').checked})}catch(e){return toast('Couldn’t save ('+e.code+').')}
+    closeWho();PDATA.at=0;loadOrgData(true);toast('Poll updated.')};
+  document.querySelectorAll('[data-delvote]').forEach(b=>b.onclick=async()=>{try{await pollsCol().doc(id).collection('votes').doc(b.dataset.delvote).delete();b.closest('.prow').remove();PDATA.votes=PDATA.votes.filter(v=>!(v.poll===id&&v.id===b.dataset.delvote));toast('Vote removed.')}catch(e){toast('Couldn’t remove ('+e.code+').')}});
+  let confirmDel=false;
+  $('#eq_del').onclick=async()=>{if(!confirmDel){confirmDel=true;$('#eq_del').textContent='Tap again to delete';return}
+    try{const vs=await pollsCol().doc(id).collection('votes').get();for(const d of vs.docs)await d.ref.delete();await pollsCol().doc(id).delete();closeWho();toast('Poll deleted.');PDATA.at=0;loadOrgData(true)}catch(e){toast('Couldn’t delete ('+e.code+').')}};
 }
 function myGroups(){let l=[];try{l=JSON.parse(localStorage.getItem('ss-groups')||'[]')}catch(e){}if(!l.some(g=>!g.id))l.unshift({id:'',name:GID?'Main group':(S.groupName||'Main group')});return l}
 function rememberGroup(){try{const l=JSON.parse(localStorage.getItem('ss-groups')||'[]').filter(g=>g.id!==GID);l.unshift({id:GID,name:S.groupName||(GROUP&&GROUP.name)||'Group'});localStorage.setItem('ss-groups',JSON.stringify(l.slice(0,10)))}catch(e){}}
@@ -1257,6 +1371,8 @@ function bindTeam(){
     else if(a==='showgroup'){teamUI.newGroup=true;renderTeam();setTimeout(()=>{const i=$('#newgroup');if(i)i.focus()},50)}
     else if(a==='creategroup')createGroup();
     else if(a==='refreshad'){PDATA.at=0;loadOrgData(true);toast('Refreshing…')}
+    else if(a==='records'){teamUI.page='records';teamUI.rec=teamUI.rec||'pays';renderTeam();window.scrollTo(0,0);if(isOrg)loadOrgData(true)}
+    else if(a==='msgset2')openMsgSettings();
   });
   v.addEventListener('input',e=>{const id=e.target.id;
     if(id==='gnamein'){S.groupName=norm(e.target.value);renderHeader();saveConfig()}
@@ -1302,8 +1418,9 @@ function tally(poll,votes){
   const replied=new Set(voters.map(v=>nkey(v.name)));
   return{voters,res,pending:activeRoster().filter(n=>!replied.has(nkey(n))),per};
 }
-function msgPoll(p){return['🏸 *'+p.title+'*','','Please cast your vote 🗳️ so we can book the courts accordingly!','',...p.dates.map(dt=>'• '+waOpt(dt)),'','👉 Vote here: '+pollLink(p.id),...(p.closesAt?['','⏰ Poll closes '+closeText(p.closesAt)+' sharp. No vote = No game! 🙇']:[])].join('\n')}
-function msgReminder(p,t){return['⏰ *'+p.title+'*','Still waiting for: '+t.pending.join(', ')+(p.closesAt&&!isClosed(p)?'\nPoll closes '+closeText(p.closesAt)+'. No vote = No game!':''),'','Vote here 👉 '+pollLink(p.id)].join('\n')}
+function msgPoll(p,k){return fillTpl(tplOf(k||'start'),pollVars(p).v)}
+function msgReminder(p,t){return fillTpl(tplOf('remind'),pollVars(p).v)}
+function msgReminderOld(p,t){return['⏰ *'+p.title+'*','Still waiting for: '+t.pending.join(', ')+(p.closesAt&&!isClosed(p)?'\nPoll closes '+closeText(p.closesAt)+'. No vote = No game!':''),'','Vote here 👉 '+pollLink(p.id)].join('\n')}
 function msgResults(p,t){const L=['📋 *'+p.title+' — results*',''];t.res.forEach(r=>{L.push('*'+waOpt(r)+'*');L.push('✅ '+r.yes.length+(r.yes.length?': '+r.yes.join(', '):''));if(r.maybe.length)L.push('🤔 '+r.maybe.length+': '+r.maybe.join(', '));L.push('🏸 Courts: '+(r.courts||'none')+(r.courtsMax>r.courts?' (up to '+r.courtsMax+' if maybes come)':''));L.push('')});if(t.pending.length)L.push('No vote: '+t.pending.join(', '));return L.join('\n').trim()}
 function msgOptions(p){const o=p.dates.map((dt,i)=>(i+1)+'. '+waOpt(dt));if(p.dates.length===2)o.push('3. Both 1&2');o.push((o.length+1)+'. Not available');return['🏸 '+p.title,'',...o].join('\n')}
 
@@ -1360,6 +1477,110 @@ async function autoBillFromPolls(){
   if(made.length)toast('“Who played” auto-selected from Yes votes for '+made.map(x=>dlabel(x,{weekday:'short',day:'numeric'})).join(', ')+'. Review on Today.');
   if(made.length||synced.length)renderTab(false);
 }
+/* ================= MESSAGES & REMINDERS ================= */
+const TPL_DEFAULT={
+  start:"🏸 *{title}*\n\nThe poll for {dates} is open! Please vote in the app 🗳️\n👉 {link}\n\n⏰ Voting closes {closes}.\nTap Yes, Maybe or No for each slot. Thank you! 💚",
+  startRule:"🏸 *{title}*\n\nPlease cast your vote 🗳️ so we can book the courts accordingly!\n\n{slots}\n\n👉 Vote here: {link}\n⏰ Poll closes {closes} sharp.\n\n🙏 Only players who vote in the app are counted for the game and billing. We appreciate your understanding and kind cooperation 💚",
+  remind:"🗳️ *{title}*\n\n{status}\n\n{pending_count} haven’t voted yet. Takes 5 seconds 👉 {link}\n⏰ Closes {closes}",
+  last:"⏰ *Last call! Voting closes in 1 hour* ({closes})\n\n{status}\n\n👉 {link}\nOnly app votes count for the game 🙏",
+  game:"🏸 *Game in {lead} hours!* {date} · {time}\n\nPlaying ({count}): {players}\n\nSee you on court! 💚",
+  dues:"🔔 *{group}: gentle reminder*\n\n{dues_lines}\n\n📲 UPI: {upi}\n👉 Details & pay: {payouts_link}\nAfter paying, tap “I’ve paid” in My dues. Thank you! 💚"};
+const TPL_INFO=[['start','Poll started','{title} {dates} {slots} {link} {closes} {group}'],['startRule','Poll started + app-votes-only rule','{title} {dates} {slots} {link} {closes} {group}'],
+  ['remind','Vote reminder','{title} {status} {pending} {pending_count} {link} {closes} {threshold}'],['last','Last call (before close)','{title} {status} {link} {closes}'],
+  ['game','Game-day reminder','{date} {time} {lead} {players} {count} {group}'],['dues','Payment reminder','{group} {dues_lines} {upi} {payouts_link}']];
+const MSG_DEFAULT={on:true,days:[1,3,5],at:'20:00',threshold:8,lastCall:true,gameLead:2,tpl:{}};
+const MSGS=()=>Object.assign({},MSG_DEFAULT,S.msg||{},{tpl:Object.assign({},(S.msg||{}).tpl||{})});
+const tplOf=k=>MSGS().tpl[k]||TPL_DEFAULT[k];
+function trimSent(o){const e=Object.entries(o||{}).sort((a,b)=>b[1]-a[1]).slice(0,300);return Object.fromEntries(e)}
+const fillTpl=(t,v)=>String(t).replace(/\{(\w+)\}/g,(m,k)=>v[k]!=null?v[k]:m);
+/* "5-7 PM" on a Saturday → 17:00; no time → Sat 5 PM, Sun 9 AM, else 6 PM */
+function slotStart(date,note){const m=String(note||'').match(/(\d{1,2})(?:[:.](\d{2}))?\s*(am|pm)?\s*(?:-|–|to)\s*(\d{1,2})(?:[:.](\d{2}))?\s*(am|pm)?/i);
+  const dow=new Date(date+'T00:00').getDay();let h=dow===6?17:dow===0?9:18,mi=0;
+  if(m){h=+m[1];mi=+m[2]||0;const s1=(m[3]||'').toLowerCase(),s2=(m[6]||'').toLowerCase(),h2=+m[4];
+    if(s1==='pm'&&h<12)h+=12;else if(!s1&&s2==='pm'&&h<12&&h<=h2)h+=12;else if(!s1&&!s2&&h<8)h+=12}
+  const d=new Date(date+'T00:00');d.setHours(h,mi,0,0);return d.getTime()}
+const fmtTime=ms=>new Date(ms).toLocaleTimeString('en-IN',{hour:'numeric',minute:'2-digit'}).replace(':00','').toUpperCase();
+const fmtWhen=ms=>{const d=ymd(new Date(ms)),t=todayStr();return(d===t?'Today':d===shift(t,1)?'Tomorrow':dlabel(d,{weekday:'short',day:'numeric',month:'short'}))+', '+fmtTime(ms)};
+function pollVotes(p){return PDATA.votes.some(v=>v.poll===p.id)?PDATA.votes.filter(v=>v.poll===p.id):(RECAP[p.id]||{}).votes||[]}
+function pollVars(p){const t=tally(p,pollVotes(p)),th=MSGS().threshold;
+  const status=t.res.map(r=>'• '+waOpt(r)+': ✅ '+r.yes.length+' in'+(r.yes.length>=th?' · full 🎉':' · need '+(th-r.yes.length)+' more')).join('\n');
+  return{t,v:{group:S.groupName||'Badminton Family',title:p.title,dates:(p.dates||[]).map(dt=>dlabel(dt.date,{weekday:'short',day:'numeric',month:'short'})).join(' & '),
+    slots:(p.dates||[]).map(dt=>'• '+waOpt(dt)).join('\n'),link:pollLink(p.id),closes:p.closesAt?closeText(p.closesAt):'when the organizer closes it',
+    status,pending:t.pending.join(', ')||'nobody 🎉',pending_count:t.pending.length,threshold:th}}}
+function gameVars(p,dt,lead){const d=S.days[dt.date],t=tally(p,pollVotes(p)),r=t.res.find(x=>x.date===dt.date)||{yes:[]};
+  const pl=d&&d.present&&d.present.length?orderNames(d.present):r.yes;
+  return{group:S.groupName||'Badminton Family',date:dlabel(dt.date,{weekday:'long',day:'numeric',month:'short'}),time:fmtTime(slotStart(dt.date,dt.note)),lead,players:pl.join(', ')||'–',count:pl.length}}
+/* every reminder for open polls: due now, upcoming, sent or skipped */
+function reminderPlan(){
+  const M=MSGS(),now=Date.now(),out=[];if(!M.on)return out;
+  P.list.filter(p=>!isArchived(p)).forEach(p=>{
+    const {t,v}=pollVars(p),full=t.res.length&&t.res.every(r=>r.yes.length>=M.threshold),close=p.closesAt||0,open=!isClosed(p);
+    const push=(key,at,kind,label,msg,until,skip)=>{const sent=(S.sent||{})[key];out.push({key,at,kind,label,msg,poll:p,sent,skip:!!skip,until,
+      state:sent?'sent':skip?'skipped':at>now?'upcoming':now<until?'due':'missed'})};
+    if(open)push(p.id+'|start',p.createdAt||now,'start','Poll started',fillTpl(tplOf('start'),v),close||now+864e5);
+    if(open&&close){const times=[];const from=new Date(p.createdAt||now);from.setHours(0,0,0,0);
+      for(let d=new Date(from);d.getTime()<close;d.setDate(d.getDate()+1)){if(!M.days.includes(d.getDay()))continue;
+        const [hh,mm]=String(M.at||'20:00').split(':').map(Number);const at=new Date(d);at.setHours(hh||0,mm||0,0,0);
+        if(at.getTime()>(p.createdAt||0)+3600e3&&at.getTime()<close-90*60e3)times.push(at.getTime())}
+      times.forEach((at,i)=>push(p.id+'|r|'+ymd(new Date(at)),at,'remind','Vote reminder',fillTpl(tplOf('remind'),v),times[i+1]||close-60*60e3,full));
+      if(M.lastCall)push(p.id+'|last',close-60*60e3,'last','Last call',fillTpl(tplOf('last'),v),close,full)}
+    if(M.gameLead>0)(p.dates||[]).forEach(dt=>{const start=slotStart(dt.date,dt.note),g=gameVars(p,dt,M.gameLead);
+      push(p.id+'|g|'+dt.date,start-M.gameLead*3600e3,'game','Game reminder · '+dlabel(dt.date,{weekday:'short',day:'numeric'}),fillTpl(tplOf('game'),g),start,!g.count)})});
+  return out.sort((a,b)=>a.at-b.at);
+}
+function markSent(key){S.sent=S.sent||{};S.sent[key]=Date.now();saveConfig();renderTab(false)}
+function remindersCard(){
+  if(!isOrg||!db)return'';const plan=reminderPlan(),due=plan.filter(r=>r.state==='due'),up=plan.filter(r=>r.state==='upcoming').slice(0,4);
+  if(!MSGS().on)return`<section class="card" id="remcard">${cardH('bell','Reminders','Off')}<div class="card-f"><p class="hint">Automatic reminders are off.</p><button class="lnk" data-act="msgset" style="margin-left:auto">Settings</button></div></section>`;
+  return`<section class="card${due.length?' due-card':''}" id="remcard">${cardH('bell','Reminders',due.length?due.length+' due now':'All caught up',!due.length)}
+    ${due.map(r=>`<div class="rem"><div class="rem-h"><b>${esc(r.label)}</b><small>${esc(r.poll.title)} · due since ${fmtWhen(r.at)}</small></div>
+      <details><summary>Preview message</summary><pre class="msgpre">${esc(r.msg)}</pre></details>
+      <div class="grid2"><a class="btn wa" href="${waHref(r.msg)}" target="_blank" rel="noopener" data-sent="${esc(r.key)}">${ic('chat')}Send on WhatsApp</a><button class="btn line" data-skip="${esc(r.key)}">Skip</button></div></div>`).join('')}
+    ${up.length?`<div class="sub" style="padding-top:12px"><span class="sublbl">Coming up</span>${up.map(r=>`<div class="mix" style="justify-content:space-between"><span>${esc(r.label)}</span><span>${fmtWhen(r.at)}</span></div>`).join('')}</div>`:''}
+    <div class="card-f"><button class="btn sm line" data-act="ics">${ic('cal')}Add to my calendar</button><button class="lnk" data-act="msgset" style="margin-left:auto">Settings & templates</button></div></section>`;
+}
+function bindReminders(v){
+  v.querySelectorAll('[data-sent]').forEach(a=>a.addEventListener('click',()=>setTimeout(()=>markSent(a.dataset.sent),300)));
+  v.querySelectorAll('[data-skip]').forEach(b=>b.onclick=()=>{S.sent=S.sent||{};S.sent[b.dataset.skip]=-Date.now();saveConfig();renderTab(false)});
+  v.querySelectorAll('[data-act="ics"]').forEach(b=>b.onclick=exportICS);
+  v.querySelectorAll('[data-act="msgset"]').forEach(b=>b.onclick=openMsgSettings);
+}
+/* calendar file: your phone alerts you at each reminder time; the link opens the app's reminder card */
+function exportICS(){
+  const plan=reminderPlan().filter(r=>r.state==='upcoming'||r.state==='due');if(!plan.length)return toast('No upcoming reminders to add.');
+  const z=ms=>new Date(ms).toISOString().replace(/[-:]/g,'').replace(/\.\d{3}/,'');const esc2=t=>String(t).replace(/\\/g,'\\\\').replace(/\n/g,'\\n').replace(/,/g,'\\,').replace(/;/g,'\;');
+  const L=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Shuttle Split//EN','CALSCALE:GREGORIAN'];
+  plan.forEach(r=>{const at=Math.max(r.at,Date.now()+60e3);L.push('BEGIN:VEVENT','UID:'+r.key.replace(/\W/g,'-')+'@shuttle-split','DTSTAMP:'+z(Date.now()),'DTSTART:'+z(at),'DTEND:'+z(at+15*60e3),
+    'SUMMARY:'+esc2('🏸 Send: '+r.label),'DESCRIPTION:'+esc2('Open the app and tap Send on WhatsApp:\n'+HERE+'#remind'),'URL:'+HERE+'#remind',
+    'BEGIN:VALARM','ACTION:DISPLAY','DESCRIPTION:'+esc2(r.label),'TRIGGER:PT0M','END:VALARM','END:VEVENT')});
+  L.push('END:VCALENDAR');
+  const blob=new Blob([L.join('\r\n')],{type:'text/calendar'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='shuttle-split-reminders.ics';document.body.appendChild(a);a.click();a.remove();
+  toast(plan.length+' reminders added to the calendar file. Open it to add them to your calendar.');
+}
+function openMsgSettings(){
+  closeWho();const M=MSGS(),W=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const bg=document.createElement('div');bg.className='sheet-bg';bg.id='whosheet';
+  bg.innerHTML=`<div class="sheet" role="dialog" aria-modal="true" aria-label="Messages and reminders"><div class="grab"></div>
+    <div class="sheet-h"><span class="ini">${ic('bell')}</span><div><b>Messages & reminders</b><small>Only organizers can change these</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div>
+    <div class="row" style="border-top:0"><div class="l"><b>Automatic reminders</b><small>The app lines up each message at the right time. You tap Send.</small></div><label class="switch"><input type="checkbox" id="m_on" ${M.on?'checked':''}><i></i></label></div>
+    <div class="sub"><span class="sublbl">Vote reminder days</span><div class="tiles sm" style="grid-template-columns:repeat(7,minmax(0,1fr));gap:5px">${[1,2,3,4,5,6,0].map(d=>`<button type="button" class="tile ${M.days.includes(d)?'on':''}" data-wd="${d}" style="padding:0;font-size:12.5px"><span>${W[d]}</span></button>`).join('')}</div></div>
+    <div class="row"><div class="l"><b>Reminder time</b><small>On each reminder day</small></div><input class="txt" type="time" id="m_at" value="${esc(M.at)}" style="width:130px"></div>
+    <div class="row"><div class="l"><b>Stop when each slot has</b><small>Players voting Yes per day</small></div><div class="stp"><button type="button" data-th="-1" aria-label="Fewer">${ic('minus')}</button><output id="m_th">${M.threshold}</output><button type="button" data-th="1" aria-label="More">${ic('plus')}</button></div></div>
+    <div class="row"><div class="l"><b>Last call 1 hour before voting closes</b></div><label class="switch"><input type="checkbox" id="m_last" ${M.lastCall?'checked':''}><i></i></label></div>
+    <div class="row"><div class="l"><b>Game reminder</b><small>Hours before the game starts</small></div><select class="txt" id="m_lead" style="width:118px">${[[0,'Off'],[1,'1 hour'],[2,'2 hours'],[3,'3 hours']].map(([v,l])=>`<option value="${v}"${M.gameLead===v?' selected':''}>${l}</option>`).join('')}</select></div>
+    ${TPL_INFO.map(([k,l,ph])=>`<div class="sub" style="padding-top:12px;border-top:1px solid var(--line2)"><div style="display:flex;justify-content:space-between;align-items:center"><span class="sublbl">${l}</span>${M.tpl[k]?`<button class="lnk" data-reset="${k}">Reset</button>`:''}</div>
+      <textarea class="txt tpl" data-tpl="${k}" rows="7">${esc(tplOf(k))}</textarea><small class="hint">Fill-ins: ${ph}</small></div>`).join('')}
+    <div class="card-f"><button class="btn primary block" id="m_save">${ic('check')}Save</button></div></div>`;
+  document.body.appendChild(bg);document.body.style.overflow='hidden';
+  bg.addEventListener('click',e=>{if(e.target===bg)closeWho()});$('#whoclose').onclick=closeWho;
+  let days=[...M.days],th=M.threshold;
+  bg.querySelectorAll('[data-wd]').forEach(b=>b.onclick=()=>{const d=+b.dataset.wd;days=days.includes(d)?days.filter(x=>x!==d):[...days,d];b.classList.toggle('on')});
+  bg.querySelectorAll('[data-th]').forEach(b=>b.onclick=()=>{th=Math.max(2,Math.min(30,th+ +b.dataset.th));$('#m_th').textContent=th});
+  bg.querySelectorAll('[data-reset]').forEach(b=>b.onclick=()=>{bg.querySelector(`[data-tpl="${b.dataset.reset}"]`).value=TPL_DEFAULT[b.dataset.reset]});
+  $('#m_save').onclick=()=>{const tpl={};bg.querySelectorAll('[data-tpl]').forEach(t=>{const k=t.dataset.tpl,val=t.value.trim();if(val&&val!==TPL_DEFAULT[k].trim())tpl[k]=val});
+    S.msg={on:$('#m_on').checked,days:days.sort(),at:$('#m_at').value||'20:00',threshold:th,lastCall:$('#m_last').checked,gameLead:+$('#m_lead').value,tpl};
+    saveConfig();closeWho();renderTab(true);toast('Messages & reminders saved.')};
+}
 function startPollsListener(){if(P.listening||!db)return;P.listening=true;
   pollsCol().orderBy('createdAt','desc').limit(30).onSnapshot(q=>{P.list=q.docs.map(d=>({id:d.id,...d.data()}));if(isOrg)loadOrgData(true);if(tab==='polls'&&P.mode==='list')renderPolls();if(tab==='day')refreshDay()},()=>{})}
 function openPoll(id){if(!db)return;stopPoll();P.mode='detail';P.confirmDel=false;P.sel={id,loading:true};P.votes=[];P.myAns={};
@@ -1368,7 +1589,7 @@ function openPoll(id){if(!db)return;stopPoll();P.mode='detail';P.confirmDel=fals
   P.unsubVotes=ref.collection('votes').onSnapshot(q=>{P.votes=q.docs.map(d=>d.data());pollRender()},()=>{})}
 function stopPoll(){if(P.unsubPoll)P.unsubPoll();if(P.unsubVotes)P.unsubVotes();P.unsubPoll=P.unsubVotes=null}
 function pollRender(){if(tab!=='polls')return;const a=document.activeElement;if(a&&a.tagName==='INPUT'&&a.type==='text'&&$('#view-polls').contains(a))return;renderPolls()}
-function routeHash(){if(location.hash==='#payouts'){go('pay');return}const m=location.hash.match(/^#poll-([A-Za-z0-9_-]+)$/);if(m){openPoll(m[1]);go('polls')}}
+function routeHash(){if(location.hash==='#payouts'){go('pay');return}if(location.hash==='#remind'){P.mode='list';P.scrollRem=true;go('polls');return}const m=location.hash.match(/^#poll-([A-Za-z0-9_-]+)$/);if(m){openPoll(m[1]);go('polls')}}
 function leavePoll(){stopPoll();P.mode='list';P.sel=null;P.justCreated=null;try{history.replaceState(null,'',location.pathname)}catch(e){}renderPolls()}
 function renderPolls(){
   const v=$('#view-polls');
@@ -1382,6 +1603,7 @@ function renderPolls(){
   ${kpis([['Open polls',open.length],['Recent',live.length],['Next game',open.length&&open[0].dates&&open[0].dates[0]?esc(dlabel(open[0].dates[0].date,{weekday:'short',day:'numeric'})):'–',true]])}
   <section class="card cta"><div class="pad"><h2>Who’s playing this weekend?</h2><p>Pick dates and time slots, send to WhatsApp, track votes live.</p>
     <button class="btn block" data-act="newpoll">${ic(isOrg?'plus':'lock')}${isOrg?'Create a poll':'Sign in to create a poll'}</button></div></section>
+  ${remindersCard()}
   ${latestDone?recapHTML(latestDone,'Latest results'):''}
   <section class="card">${cardH('poll','Recent polls',live.length||null)}
     ${live.length?live.map(p=>`<button class="row" style="width:100%;text-align:left" data-open="${esc(p.id)}"><div class="l"><b>${esc(p.title)}</b><small>${(p.dates||[]).map(dt=>esc(dlabel(dt.date))).join(' · ')}</small></div><span class="badge ${isClosed(p)?'':'on'}">${isClosed(p)?'Closed':'Open'}</span><span class="chev">${ic('right')}</span></button>`).join(''):`<div class="empty">${ic('poll')}No recent polls.</div>`}
@@ -1389,6 +1611,7 @@ function renderPolls(){
   </section>`;
   v.querySelector('[data-act=newpoll]').onclick=()=>{if(!isOrg){signIn();return}const[sa,su]=nextWeekend(0);P.draft={title:'Who’s up for Badminton this weekend?',dates:[{date:sa,note:'5-7 PM'},{date:su,note:'9-11 AM'}],perCourt:6,closes:defClose(sa)};P.mode='new';renderPolls();window.scrollTo(0,0)};
   v.querySelectorAll('[data-open]').forEach(el=>el.onclick=()=>{location.hash='poll-'+el.dataset.open});
+  bindReminders(v);if(P.scrollRem){P.scrollRem=false;setTimeout(()=>{const c=$('#remcard');if(c)c.scrollIntoView({block:'start'})},60)}
 }
 function renderNewPoll(v){
   const D=P.draft;if(!D){P.mode='list';return renderPolls()}
@@ -1435,7 +1658,7 @@ function renderPollDetail(v){
   const best=t.res.reduce((a,r)=>Math.max(a,r.courts),0);
   const prev=P.list.filter(x=>x.id!==p.id&&pollLast(x)<(p.dates&&p.dates[0]?p.dates[0].date:'9')).sort((a,b)=>pollLast(b).localeCompare(pollLast(a)))[0];
   const sendCardHTML=`<section class="card">${cardH('chat',P.justCreated===p.id?'Poll ready. Send it now':'Send to WhatsApp')}
-    <div class="pad"><a class="btn wa block" href="${waHref(msgPoll(p))}" target="_blank" rel="noopener">${ic('chat')}Send poll on WhatsApp</a>
+    <div class="pad">${isOrg?`<a class="btn wa block" href="${waHref(msgPoll(p,'startRule'))}" target="_blank" rel="noopener" data-sent="${esc(p.id)}|start">${ic('chat')}Send poll + “app votes only” note</a>`:''}<a class="btn ${isOrg?'line':'wa'} block" href="${waHref(msgPoll(p))}" target="_blank" rel="noopener"${isOrg?` data-sent="${esc(p.id)}|start"`:''}>${ic('chat')}Send poll on WhatsApp</a>
       <div class="grid2"><button class="btn line" id="cplink">${ic('copy')}Copy message</button>${isOrg?`<button class="btn line" id="cpopts">${ic('poll')}As WA poll</button>`:`<button class="btn line" id="cplink2">${ic('copy')}Copy link</button>`}</div></div></section>`;
   v.innerHTML=`
   <button class="lnk" id="back" style="align-self:flex-start">‹ All polls</button>
@@ -1464,6 +1687,7 @@ function renderPollDetail(v){
     <p class="hint">When voting closes, the yes voters are pre-filled as “Who played” for each date. You can still change it on Today.</p></div></section>`:''}
   ${prev?recapHTML(prev,'Previous poll'):''}`;
   $('#back').onclick=leavePoll;
+  bindReminders(v);
   v.querySelectorAll('[data-gotoday]').forEach(b=>b.onclick=()=>{if(b.dataset.gotoday)curDate=b.dataset.gotoday;go('day')});
   $('#cplink').onclick=()=>copyText(msgPoll(p));
   const c2=$('#cplink2');if(c2)c2.onclick=()=>copyText(pollLink(p.id),'Link copied.');
@@ -1530,7 +1754,7 @@ async function fillFromPoll(date){const p=pollForDate(date);if(!p)return;
   catch(e){toast('Couldn’t read the poll ('+e.code+').')}}
 
 /* ================= navigation & boot ================= */
-function go(t){closeWho();tab=t;if((t==='team'||t==='day')&&isOrg)loadOrgData(false);document.querySelectorAll('.tabbar [data-tab]').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.tab===t)));
+function go(t){closeWho();if(t!=='team'&&teamUI)teamUI.page='';tab=t;if((t==='team'||t==='day')&&isOrg)loadOrgData(false);document.querySelectorAll('.tabbar [data-tab]').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.tab===t)));
   ['day','polls','pay','team'].forEach(k=>$('#view-'+k).hidden=k!==t);renderTab(true);window.scrollTo(0,0)}
 document.querySelectorAll('.tabbar [data-tab]').forEach(b=>b.onclick=()=>{if(b.dataset.tab==='pay'&&tab!=='pay'&&pay.range==='day'){pay.range='last';pay.off.clear()}go(b.dataset.tab)});
 function typingIn(id){const a=document.activeElement;return!!a&&(a.tagName==='INPUT'||a.tagName==='SELECT')&&$(id).contains(a)&&a.type!=='checkbox'&&a.type!=='file'}
@@ -1571,7 +1795,7 @@ if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.ser
   fsDoc('config/main').onSnapshot(s=>{if(busy('config/main'))return;
     if(!s.metadata.fromCache)CFG_READY=true;
     if(!s.exists&&!s.metadata.fromCache){cfgMissing=true;if(isOrg){cfgMissing=false;saveConfig()}}
-    if(s.exists){const d=s.data();if(Array.isArray(d.roster))S.roster=[...d.roster];S.rate=+d.rate||300;S.groupName=d.groupName||'';S.upiId=d.upiId||'';S.upiName=d.upiName||'';S.levels=d.levels&&typeof d.levels==='object'?d.levels:{};S.admins=Array.isArray(d.admins)?d.admins:[];S.inactive=Array.isArray(d.inactive)?d.inactive:[];S.ignored=Array.isArray(d.ignored)?d.ignored:[];S.openNames=d.openNames!==false;S.idleWeeks=d.idleWeeks==null?4:+d.idleWeeks;S.since=d.since||{};S.autoOff=d.autoOff||{};S.billed=Array.isArray(d.billed)?d.billed:[];setTimeout(autoInactive,0);S.skin=SKINS[d.skin]?d.skin:'court';applySkin();saveLocal();if(GID)rememberGroup();if(computeOrg())renderTab(true)}
+    if(s.exists){const d=s.data();if(Array.isArray(d.roster))S.roster=[...d.roster];S.rate=+d.rate||300;S.groupName=d.groupName||'';S.upiId=d.upiId||'';S.upiName=d.upiName||'';S.levels=d.levels&&typeof d.levels==='object'?d.levels:{};S.admins=Array.isArray(d.admins)?d.admins:[];S.inactive=Array.isArray(d.inactive)?d.inactive:[];S.ignored=Array.isArray(d.ignored)?d.ignored:[];S.openNames=d.openNames!==false;S.idleWeeks=d.idleWeeks==null?4:+d.idleWeeks;S.since=d.since||{};S.autoOff=d.autoOff||{};S.billed=Array.isArray(d.billed)?d.billed:[];S.msg=d.msg||null;S.sent=d.sent||{};setTimeout(autoInactive,0);S.skin=SKINS[d.skin]?d.skin:'court';applySkin();saveLocal();if(GID)rememberGroup();if(computeOrg())renderTab(true)}
     renderTab(false)},e=>toast('Couldn’t load shared data ('+e.code+').'));
   fsDoc('config/photo').onSnapshot(s=>{if(busy('config/photo'))return;photo=s.exists?(s.data().data||''):'';try{photo?localStorage.setItem(LSP,photo):localStorage.removeItem(LSP)}catch(e){}renderHeader();if(tab==='team'&&!typingIn('#view-team'))renderTeam()},()=>{});
   col('days').onSnapshot(q=>{
