@@ -7,7 +7,13 @@
 <meta name="theme-color" content="#FFFFFF">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png">
-<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="description" content="Vote, play, split and settle up: badminton costs shared fairly.">
+<meta property="og:title" content="Shuttle Split · Badminton Family">
+<meta property="og:description" content="Vote for games, see your share and pay by UPI.">
+<meta property="og:image" content="https://pavan8009.github.io/shuttle-split/og.png">
+<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta property="og:type" content="website">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -387,7 +393,7 @@ const FIREBASE_CONFIG = {
 /* Collections get this prefix so they never clash with the league app's data */
 const COLLECTION_PREFIX = "shuttleSplit_";
 /* App version shown in Team → About */
-const APP_VERSION = "1.5.0", APP_BUILD = "31 Oct 2026";
+const APP_VERSION = "1.6.1", APP_BUILD = "31 Oct 2026";
 /* Owner of the main group (the link without ?g=) */
 const LEGACY_OWNER = "pavankaki.cool@gmail.com";
 /* Starting player list, used only until the first save */
@@ -488,6 +494,17 @@ function calc(d){
 /* ---------- player levels + who is using this phone ---------- */
 const LEVELS=[['beginner','Beginner','#12B76A'],['intermediate','Intermediate','#2E90FA'],['advanced','Advanced','#F79009'],['pro','Pro','#7A5AF8']];
 const levelOf=n=>LEVELS.find(l=>l[0]===(S.levels||{})[nkey(n)]);
+/* commonly used club / academy skill bands */
+const LEVEL_INFO={
+  beginner:['Learning the basics','Up to about 1 year of regular play',['Learning grip, ready stance and basic footwork','Serves and clears are not yet consistent','Rallies of a few shots, mostly from mid-court','Still learning scoring and doubles positions']],
+  intermediate:['Plays regular club games','About 1–3 years of regular play',['Consistent short and long serve','Clears reach the back of the court; can drop and smash','Knows doubles rotation: attack side-by-side becomes front-and-back','Rallies of 10+ shots; some backhand weakness under pressure']],
+  advanced:['Strong club / local tournament player','3+ years, plays matches and tournaments',['Full-court footwork; reaches all four corners in time','Backhand clears, net kills, tight net play and deception','Defends smashes well and turns defence into attack','Changes pace and tactics to win points']],
+  pro:['Competitive / ranked level','State, national or coaching level',['All strokes reliable under pressure, including jump smash','Advanced deception and shot selection','Excellent fitness and recovery speed','Has played ranked tournaments or coaches others']]};
+function openLevels(){sheetOpen(`<div class="sheet-h"><span class="ini">${ic('users')}</span><div><b>Player levels</b><small>Standard club bands · used for fair pairing and league seeding</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div>
+  ${LEVELS.map(l=>{const [t,exp,pts]=LEVEL_INFO[l[0]];return`<div class="row" style="align-items:flex-start;flex-direction:column;gap:6px"><div class="mix"><i class="lvl-dot" style="background:${l[2]}"></i><b>${l[1]}</b><span class="hint" style="margin:0">· ${t}</span></div>
+    <small class="hint" style="margin:0">${exp}</small><ul style="margin:0;padding-left:18px;font-size:13.5px;line-height:1.5">${pts.map(x=>`<li>${x}</li>`).join('')}</ul></div>`}).join('')}
+  <p class="hint">Why levels? Mixing levels well keeps games close and fun for everyone, and helps seed pairs fairly in leagues. Levels are a guide, not a ranking. The organizer sets them and can change them any time.</p>`,'Player levels')}
+document.addEventListener('click',e=>{if(e.target.closest&&e.target.closest('[data-lvlinfo]'))openLevels()});
 const getMe=()=>{try{return localStorage.getItem('ss-voter'+SUF)||''}catch(e){return''}};
 function setMe(n){try{n?localStorage.setItem('ss-voter'+SUF,n):localStorage.removeItem('ss-voter'+SUF)}catch(e){}if(typeof P!=='undefined')P.myName=n||'';if(n)pingSeen(true)}
 const appLink=h=>HERE+(h?'#'+h:'');
@@ -518,7 +535,7 @@ function statement(name){
   Object.keys(S.days).sort().forEach(ds=>{const d=getDay(ds),o=perOf(calc(d),name);if(!o)return;
     rows.push({type:'game',date:ds,at:new Date(ds+'T12:00').getTime(),court:o.court,shuttle:o.shuttle,drinks:o.drinks,amt:o.total,hours:d.hours})});
   allPays().forEach(x=>{if(nkey(x.name)!==k)return;const base={date:ymd(new Date(x.at||0)),at:x.at||0,amt:+x.amount||0,note:x.note||'',id:x.id};
-    rows.push(x.kind==='adjust'?{...base,type:'adj'}:{...base,type:'pay',status:x.status,method:x.method})});
+    rows.push(x.kind==='adjust'?{...base,type:'adj'}:{...base,type:'pay',status:x.status,method:x.method,payer:x.payer||''})});
   rows.sort((a,b)=>a.at-b.at);let bal=0;
   rows.forEach(r=>{if(r.type==='game'||r.type==='adj')bal+=r.amt;else if(r.status==='confirmed')bal-=r.amt;r.bal=r2(bal)});
   /* oldest charges are cleared first by payments and credits */
@@ -542,14 +559,16 @@ function statementHTML(name){const st=statement(name);if(!st.rows.length)return'
   <div class="tablewrap"><table class="btable"><thead><tr><th>Date</th><th>Item</th><th>Amount</th><th>Balance</th></tr></thead><tbody>
   ${st.rows.map(r=>r.type==='game'?`<tr><td>${esc(dlabel(r.date,{day:'numeric',month:'short'}))}</td><td>Game · ${fmtH(r.hours)} h<small>Court ${inr(r.court)}${r.shuttle?' · Shuttle '+inr(r.shuttle):''}${r.drinks?' · Drinks '+inr(r.drinks):''}</small></td><td>${inr(r.amt)}</td><td>${inr(r.bal)}</td></tr>`
     :r.type==='adj'?`<tr><td>${esc(dlabel(r.date,{day:'numeric',month:'short'}))}</td><td style="color:${r.amt>=0?'var(--danger)':'var(--ok)'}">${r.amt>=0?'Extra charge':'Credit'}<small>${esc(r.note||'Adjustment')}</small></td><td style="color:${r.amt>=0?'var(--danger)':'var(--ok)'}">${r.amt>=0?'+':'−'}${inr(Math.abs(r.amt))}</td><td>${inr(r.bal)}</td></tr>`
-    :`<tr><td>${esc(dlabel(r.date,{day:'numeric',month:'short'}))}</td><td style="color:${r.status==='confirmed'?'var(--ok)':'#B54708'}">${r.status==='confirmed'?'Paid':'Paid · awaiting confirmation'}<small>${r.method==='upi'?'UPI':r.method==='self'?'Own share':r.method==='manual'?'Marked received':esc(r.method||'')}${r.note?' · '+esc(r.note):''}</small></td><td style="color:var(--ok)">−${inr(r.amt)}</td><td>${inr(r.bal)}</td></tr>`).join('')}
+    :`<tr><td>${esc(dlabel(r.date,{day:'numeric',month:'short'}))}</td><td style="color:${r.status==='confirmed'?'var(--ok)':'#B54708'}">${r.status==='confirmed'?'Paid':'Paid · awaiting confirmation'}<small>${r.method==='upi'?'UPI':r.method==='self'?'Own share':r.method==='manual'?'Marked received':esc(r.method||'')}${r.payer?' · paid by '+esc(r.payer):''}${r.note?' · '+esc(r.note):''}</small></td><td style="color:var(--ok)">−${inr(r.amt)}</td><td>${inr(r.bal)}</td></tr>`).join('')}
   </tbody></table></div>
   ${st.unpaid.length?`<div class="sub" style="padding-top:10px"><span class="sublbl" style="color:var(--danger)">Still unpaid</span>${st.unpaid.map(u=>`<div class="mix" style="justify-content:space-between"><span>${u.type==='adj'?'Extra charge'+(u.note?' · '+esc(u.note):''):esc(dlabel(u.date,{weekday:'short',day:'numeric',month:'short'}))}${u.part?' (balance)':''}</span><b style="color:var(--danger)">${inr(u.left)}</b></div>`).join('')}</div>`:''}`}
 function duesList(before){return allNames().map(n=>({name:n,...ledger(n,before)})).filter(x=>x.due>0).sort((a,b)=>b.due-a.due)}
 const payCol=()=>col('payments');
+const proofCol=()=>col('proofs');
 async function addPayment(name,amount,status,method,at,extra){
   const doc={name:canon(name),amount:r2(+amount),at:at||Date.now(),status,method:method||'upi',by:isOrg||!db?'organizer':'player'};
   if(extra&&(isOrg||!db))Object.assign(doc,extra);
+  else if(extra){if(extra.payer)doc.payer=String(extra.payer).slice(0,60);if(extra.proof)doc.proof=String(extra.proof)}
   if(!db){S.payments=S.payments||[];S.payments.push({id:'l'+Date.now(),...doc,status:status||'confirmed'});saveLocal();renderTab(false);return true}
   try{if(!isOrg){if(!auth.currentUser)await auth.signInAnonymously();doc.uid=auth.currentUser.uid}
     await payCol().add(doc);return true}
@@ -826,11 +845,11 @@ function renderPay(){
     </div>
   </section>
   <details class="card poster"><summary>${cardH('image','Poster preview','Tap to show')}</summary><img id="poster" alt="Payout poster"></details>`:''}
-  ${duesCards()}`;
+  ${remindersCard('dues')}${duesCards()}${accountsCard()}`;
   v.querySelectorAll('[data-range]').forEach(b=>b.onclick=()=>{pay.range=b.dataset.range;pay.off.clear();renderPay()});
   v.querySelectorAll('[data-k]').forEach(cb=>cb.onchange=()=>{cb.checked?pay.off.delete(cb.dataset.k):pay.off.add(cb.dataset.k);renderPay()});
   const pf=$('#pfrom'),pt=$('#pto');if(pf){pf.onchange=()=>{pay.from=pf.value||pay.from;renderPay()};pt.onchange=()=>{pay.to=pt.value||pay.to;renderPay()}}
-  bindMyCard(v);bindPayBook(v);
+  bindMyCard(v);bindPayBook(v);bindReminders(v);
   if(!R.rows.length)return;
   v.querySelectorAll('[data-who]').forEach(b=>b.onclick=()=>openWho(b.dataset.who,R));
   const msg=payText(R);
@@ -901,26 +920,63 @@ function myCard(){
     <div class="acct" style="border-top:0"><div><span>All games</span><b>${inr(L.charged)}</b></div><div class="good"><span>Paid</span><b>${inr(L.paid)}</b></div>
       <div><span>Waiting to confirm</span><b>${inr(L.claimed)}</b></div><div class="${L.due?'bad':'good'}"><span>Balance</span><b>${L.due?inr(L.due):'Nil ✓'}</b></div></div>
     ${L.due?`<div class="sub"><button class="btn primary block" data-pay="${esc(me)}">${ic('rupee')}Pay ${inr(L.due)} by UPI</button>
-      <span class="sublbl">${self?'Paid your own share? Record it':'Already paid? Let the organizer know'}</span>
+      ${self?`<span class="sublbl">Paid your own share? Record it</span>
       <div class="inline"><div class="amt" style="flex:1;width:auto"><span>₹</span><input id="meamt" type="number" inputmode="decimal" min="1" value="${Math.max(0,r2(L.due-L.claimed))||L.due}" aria-label="Amount paid"></div><button class="btn" style="background:var(--ok);color:#fff" id="meclaim">${ic('check')}I’ve paid</button></div>
-      <p class="hint">${self?'As organizer, your own payment is marked settled straight away.':'The organizer confirms it after checking, then your balance updates. Change the amount for a part payment.'}</p></div>`
+      <p class="hint">As organizer, your own payment is marked settled straight away.</p>`:`<button class="btn block" style="background:var(--ok);color:#fff" id="mepaid">${ic('check')}I’ve paid</button>
+      <p class="hint">Part payment, paid for friends too, or want to add a screenshot? It’s all on the next screen.</p>`}</div>`
       :`<div class="sub"><span class="ok-chip">${ic('check')}You’re all settled. Thank you!</span></div>`}
     <div class="card-f"><button class="lnk" id="mechange">Not ${esc(first(me))}? Change name</button></div></section>`;
 }
 function bindMyCard(v){
   const ms=v.querySelector('#mesel');if(ms)ms.onchange=()=>{if(ms.value){setMe(ms.value);renderPay()}};
   const mc=v.querySelector('#mechange');if(mc)mc.onclick=()=>{setMe('');renderPay()};
+  const mp=v.querySelector('#mepaid');if(mp)mp.onclick=()=>openPaid(getMe());
   const cl=v.querySelector('#meclaim');if(cl)cl.onclick=async()=>{const me=getMe(),amt=r2(+$('#meamt').value||0);if(amt<=0)return toast('Enter the amount you paid.');
     cl.disabled=true;const self=isOrg||!db;
     if(await addPayment(me,amt,self?'confirmed':'claimed',self?'self':'upi'))toast(self?'Your payment of '+inr(amt)+' is recorded.':'Thanks! '+inr(amt)+' sent to the organizer for confirmation.');else cl.disabled=false};
 }
 let payDel=null;
 const whenD=t=>t?new Date(t).toLocaleDateString('en-IN',{day:'numeric',month:'short'}):'';
+/* shrink a screenshot so it fits in one small database record */
+function shrinkImage(file){return new Promise((res,rej)=>{const fr=new FileReader();fr.onerror=rej;fr.onload=()=>{const i=new Image();i.onerror=rej;i.onload=()=>{
+  let w=i.width,h=i.height,m=1000;if(Math.max(w,h)>m){const k=m/Math.max(w,h);w=Math.round(w*k);h=Math.round(h*k)}
+  const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(i,0,0,w,h);
+  let q=.7,u=c.toDataURL('image/jpeg',q);while(u.length>600000&&q>.3){q-=.1;u=c.toDataURL('image/jpeg',q)}res(u)};i.src=fr.result};fr.readAsDataURL(file)})}
+function openPaid(me,preset){
+  const rows=[{name:me,amt:Math.max(0,r2(ledger(me).due-ledger(me).claimed))||ledger(me).due}];(preset||[]).forEach(n=>{if(!rows.some(r=>nkey(r.name)===nkey(n)))rows.push({name:n,amt:Math.max(0,r2(ledger(n).due-ledger(n).claimed))})});
+  let img='';
+  const draw=()=>{const others=duesList().filter(x=>!rows.some(r=>nkey(r.name)===nkey(x.name)));const tot=rows.reduce((a,r)=>a+(+r.amt||0),0);
+    const bg=sheetOpen(`<div class="sheet-h"><span class="ini">${ic('check')}</span><div><b>Tell the organizer you’ve paid</b><small>They check it in their UPI app and confirm</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div>
+      <span class="sublbl">Who this payment covers</span>
+      ${rows.map((r,i)=>`<div class="row"><div class="l"><b>${esc(r.name)}${i===0?' (you)':''}</b><small>Balance ${inr(ledger(r.name).due)}</small></div><div class="inline" style="gap:6px"><div class="amt"><span>₹</span><input type="number" inputmode="decimal" min="0" data-pa="${i}" value="${r.amt||''}" placeholder="0"></div>${i?`<button class="iconbtn" data-prm="${i}" aria-label="Remove ${esc(r.name)}">${ic('x')}</button>`:''}</div></div>`).join('')}
+      <div class="sub"><select class="txt" id="paadd"><option value="">＋ Also paid for someone else?</option>${others.map(x=>`<option value="${esc(x.name)}">${esc(x.name)} · owes ${inr(x.due)}</option>`).join('')}${allNames().filter(n=>!rows.some(r=>nkey(r.name)===nkey(n))&&!others.some(o=>nkey(o.name)===nkey(n))).map(n=>`<option value="${esc(n)}">${esc(n)}</option>`).join('')}</select>
+        <p class="hint">Paid one amount for friends or family? Add them so each person’s dues clear.</p></div>
+      <div class="sub"><span class="sublbl">Payment screenshot (optional)</span>
+        ${img?`<div class="mix" style="gap:10px"><img src="${img}" alt="Screenshot" style="width:72px;height:96px;object-fit:cover;border-radius:10px;border:1px solid var(--line)"><button class="lnk danger" id="paimgx">Remove</button></div>`
+          :`<label class="btn line block" style="cursor:pointer">${ic('plus')}Add UPI screenshot<input type="file" accept="image/*" id="paimg" hidden></label><p class="hint">Helps the organizer match your payment faster. Only organizers can see it.</p>`}</div>
+      <div class="tot"><span>Total paid</span><b>${inr(tot)}</b></div>
+      <div class="pad"><button class="btn block" style="background:var(--ok);color:#fff" id="pasend" ${tot>0?'':'disabled'}>${ic('check')}I’ve paid ${inr(tot)}</button></div>`,'I have paid');
+    bg.querySelectorAll('[data-pa]').forEach(i=>i.oninput=()=>{rows[+i.dataset.pa].amt=r2(+i.value||0);const t=rows.reduce((a,r)=>a+(+r.amt||0),0);bg.querySelector('.tot b').textContent=inr(t);const b=$('#pasend');b.disabled=!(t>0);b.lastChild.textContent='I’ve paid '+inr(t)});
+    bg.querySelectorAll('[data-prm]').forEach(b=>b.onclick=()=>{rows.splice(+b.dataset.prm,1);draw()});
+    $('#paadd').onchange=e=>{const n=e.target.value;if(!n)return;const L=ledger(n);rows.push({name:n,amt:Math.max(0,r2(L.due-L.claimed))});draw()};
+    const fi=$('#paimg');if(fi)fi.onchange=async()=>{const f=fi.files[0];if(!f)return;try{img=await shrinkImage(f);draw()}catch(e){toast('Couldn’t read that image. Try another screenshot.')}};
+    const ix=$('#paimgx');if(ix)ix.onclick=()=>{img='';draw()};
+    $('#pasend').onclick=async()=>{const go2=rows.filter(r=>+r.amt>0);if(!go2.length)return;const b=$('#pasend');b.disabled=true;
+      try{if(db&&!isOrg&&!auth.currentUser)await auth.signInAnonymously()}catch(e){}
+      let proof=null;if(img&&db){try{const ref=await proofCol().add({img,at:Date.now(),uid:auth.currentUser?auth.currentUser.uid:'',name:canon(me)});proof=ref.id}catch(e){toast('Screenshot couldn’t be saved, sending without it.')}}
+      let ok=true;for(const r of go2){const ex={};if(nkey(r.name)!==nkey(me))ex.payer=canon(me);if(proof)ex.proof=proof;
+        if(!await addPayment(r.name,r.amt,isOrg||!db?'confirmed':'claimed',isOrg||!db?(nkey(r.name)===nkey(me)?'self':'manual'):'upi',null,Object.keys(ex).length?ex:null)){ok=false;break}}
+      if(ok){closeWho();toast(go2.length>1?'Thanks! Payment for '+go2.map(r=>first(r.name)).join(', ')+' sent for confirmation.':'Thanks! Sent to the organizer for confirmation.')}else b.disabled=false};
+  };draw();
+}
+async function viewProof(id){if(!db)return;try{const d=await proofCol().doc(id).get();if(!d.exists)return toast('Screenshot not found.');const x=d.data();
+  sheetOpen(`<div class="sheet-h"><span class="ini">${ic('check')}</span><div><b>Payment screenshot</b><small>${esc(x.name||'')} · ${whenD(x.at)}</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div><img src="${x.img}" alt="Payment screenshot" style="width:100%;border-radius:12px">`,'Payment screenshot')}
+  catch(e){toast(e.code==='permission-denied'?'Update the Firestore rules to view screenshots.':'Couldn’t open the screenshot.')}}
 function confirmCard(){
   const claims=allPays().filter(x=>x.status==='claimed').sort((a,b)=>(b.at||0)-(a.at||0));
   if(!isOrg||!claims.length)return'';
   return`<section class="card due-card">${cardH('bell','Confirm payments',claims.length)}
-    ${claims.map(x=>`<div class="prow"><span class="ini">${esc(initials(x.name))}</span><span class="nm">${esc(x.name)} · ${inr(x.amount)}<small>Says paid on ${whenD(x.at)}. Check your UPI app.</small></span><span class="acts"><button class="btn sm primary" data-pconf="${esc(x.id)}" aria-label="Confirm">${ic('check')}</button><button class="btn sm line" data-prej="${esc(x.id)}" aria-label="Not received">${ic('x')}</button></span></div>`).join('')}</section>`;
+    ${claims.map(x=>`<div class="prow"><span class="ini">${esc(initials(x.name))}</span><span class="nm">${esc(x.name)} · ${inr(x.amount)}<small>${x.payer?'Paid by '+esc(x.payer)+' · ':''}says paid ${whenD(x.at)}. Check your UPI app.${x.proof?` <button class="lnk" data-proof="${esc(x.proof)}">📎 Screenshot</button>`:''}</small></span><span class="acts"><button class="btn sm primary" data-pconf="${esc(x.id)}" aria-label="Confirm">${ic('check')}</button><button class="btn sm line" data-prej="${esc(x.id)}" aria-label="Not received">${ic('x')}</button></span></div>`).join('')}</section>`;
 }
 function duesCards(){
   const dues=duesList();
@@ -932,8 +988,67 @@ function duesCards(){
   ${recent.length?`<section class="card">${cardH('wallet','Recent payments')}
     ${recent.map(x=>`<div class="prow"><span class="ini">${esc(initials(x.name))}</span><span class="nm">${esc(x.name)}<small>${whenD(x.confirmedAt||x.at)} · ${x.by==='player'?'paid by UPI, confirmed':x.method==='self'?'own share':'marked received'}</small></span>${isOrg?(payDel===x.id?`<span class="acts"><button class="lnk" data-pkeep>Keep</button><button class="lnk danger" data-pdel="${esc(x.id)}">Undo</button></span>`:`<button class="am" style="color:var(--ok)" data-pask="${esc(x.id)}">${inr(x.amount)}</button>`):`<span class="am" style="color:var(--ok)">${inr(x.amount)}</span>`}</div>`).join('')}</section>`:''}`;
 }
+function accountsCard(){if(!(isOrg||!db))return'';const names=allNames();
+  let games=0,adj=0,rec=0,wait=0;names.forEach(n=>statement(n).rows.forEach(r=>{if(r.type==='game')games+=r.amt;else if(r.type==='adj')adj+=r.amt;else if(r.status==='confirmed')rec+=r.amt;else wait+=r.amt}));
+  const pend=duesList().reduce((a,x)=>a+x.due,0);
+  return`<section class="card">${cardH('wallet','Accounts','All time')}
+    <div class="acct" style="border-top:0"><div><span>Billed</span><b>${inr(r2(games+adj))}</b></div><div class="good"><span>Received</span><b>${inr(r2(rec))}</b></div><div><span>Waiting to confirm</span><b>${inr(r2(wait))}</b></div><div class="${pend?'bad':'good'}"><span>Pending</span><b>${inr(r2(pend))}</b></div></div>
+    <div class="sub"><select class="txt" data-sview><option value="">View a player’s statement…</option>${names.map(n=>{const d=ledger(n).due;return`<option value="${esc(n)}">${esc(n)}${d?' · owes '+inr(d):''}</option>`}).join('')}</select></div>
+    <div class="card-f"><button class="btn sm primary" id="xlsxbtn">${ic('copy')}Download Excel</button><span class="hint" style="margin-left:auto">Dues, statements, payments, game days</span></div></section>`}
+/* ---------- tiny built-in .xlsx writer (no download needed, works offline) ---------- */
+const CRCT=(()=>{const t=new Uint32Array(256);for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[n]=c>>>0}return t})();
+function crc32(b){let c=0xFFFFFFFF;for(let i=0;i<b.length;i++)c=CRCT[(c^b[i])&255]^(c>>>8);return(c^0xFFFFFFFF)>>>0}
+function zipStore(files,type){const enc=new TextEncoder(),parts=[],cen=[];let off=0;
+  files.forEach(([name,txt])=>{const nb=enc.encode(name),data=enc.encode(txt),crc=crc32(data);
+    const h=new DataView(new ArrayBuffer(30));h.setUint32(0,0x04034b50,true);h.setUint16(4,20,true);h.setUint16(6,0x0800,true);h.setUint16(12,0x21,true);h.setUint32(14,crc,true);h.setUint32(18,data.length,true);h.setUint32(22,data.length,true);h.setUint16(26,nb.length,true);
+    parts.push(new Uint8Array(h.buffer),nb,data);
+    const c=new DataView(new ArrayBuffer(46));c.setUint32(0,0x02014b50,true);c.setUint16(4,20,true);c.setUint16(6,20,true);c.setUint16(8,0x0800,true);c.setUint16(14,0x21,true);c.setUint32(16,crc,true);c.setUint32(20,data.length,true);c.setUint32(24,data.length,true);c.setUint16(28,nb.length,true);c.setUint32(42,off,true);
+    cen.push(new Uint8Array(c.buffer),nb);off+=30+nb.length+data.length});
+  const cs=cen.reduce((a,b)=>a+b.length,0),e=new DataView(new ArrayBuffer(22));e.setUint32(0,0x06054b50,true);e.setUint16(8,files.length,true);e.setUint16(10,files.length,true);e.setUint32(12,cs,true);e.setUint32(16,off,true);
+  return new Blob([...parts,...cen,new Uint8Array(e.buffer)],{type})}
+function xlsxBlob(sheets){
+  const xe=t=>String(t).replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g,'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const colL=i=>{let s='';i++;while(i){const m=(i-1)%26;s=String.fromCharCode(65+m)+s;i=Math.floor((i-1)/26)}return s};
+  const NS='xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"',RNS='xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"',X='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>';
+  const sheetXml=sh=>X+`<worksheet ${NS}><sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews><cols>${sh.cols.map((w,i)=>`<col min="${i+1}" max="${i+1}" width="${w}" customWidth="1"/>`).join('')}</cols><sheetData>`+
+    sh.rows.map((r,ri)=>`<row r="${ri+1}">`+r.map((v,ci)=>{if(v===null||v===undefined||v==='')return'';const ref=colL(ci)+(ri+1),b=ri===0||(sh.bold||[]).includes(ri);
+      if(typeof v==='object'&&v.d)return`<c r="${ref}" s="${b?3:2}"><v>${Date.parse(v.d+'T00:00:00Z')/864e5+25569}</v></c>`;
+      if(typeof v==='number')return`<c r="${ref}" s="${b?4:0}"><v>${v}</v></c>`;
+      return`<c r="${ref}" t="inlineStr" s="${b?1:0}"><is><t xml:space="preserve">${xe(v)}</t></is></c>`}).join('')+'</row>').join('')+`</sheetData>${sh.filter?`<autoFilter ref="A1:${colL(sh.cols.length-1)}${sh.rows.length}"/>`:''}</worksheet>`;
+  const files=[['[Content_Types].xml',X+`<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>${sheets.map((_,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>`).join('')}</Types>`],
+    ['_rels/.rels',X+`<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>`],
+    ['xl/workbook.xml',X+`<workbook ${NS} ${RNS}><sheets>${sheets.map((sh,i)=>`<sheet name="${xe(sh.name).slice(0,31)}" sheetId="${i+1}" r:id="rId${i+1}"/>`).join('')}</sheets></workbook>`],
+    ['xl/_rels/workbook.xml.rels',X+`<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">${sheets.map((_,i)=>`<Relationship Id="rId${i+1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet${i+1}.xml"/>`).join('')}<Relationship Id="rId${sheets.length+1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>`],
+    ['xl/styles.xml',X+`<styleSheet ${NS}><numFmts count="1"><numFmt numFmtId="164" formatCode="dd mmm yyyy"/></numFmts><fonts count="2"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><name val="Calibri"/></font></fonts><fills count="2"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill></fills><borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="5"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1"/><xf numFmtId="164" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/><xf numFmtId="164" fontId="1" fillId="0" borderId="0" xfId="0" applyNumberFormat="1" applyFont="1"/><xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1"/></cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>`]];
+  sheets.forEach((sh,i)=>files.push(['xl/worksheets/sheet'+(i+1)+'.xml',sheetXml(sh)]));
+  return zipStore(files,'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')}
+function excelSheets(){
+  const names=allNames().filter(n=>statement(n).rows.length),dd=ms=>({d:ymd(new Date(ms||0))});
+  const sum=[['Name','Games played','Game charges','Extra charges / credits','Paid (confirmed)','Waiting to confirm','Balance due','Unpaid since']];
+  names.map(n=>{const st=statement(n),L=ledger(n);const g=st.rows.filter(r=>r.type==='game'),a=st.rows.filter(r=>r.type==='adj').reduce((x,r)=>x+r.amt,0);
+    return[n,g.length,r2(g.reduce((x,r)=>x+r.amt,0)),r2(a),r2(L.paid),r2(L.claimed),r2(L.due),L.since?{d:L.since}:'']}).sort((a,b)=>b[6]-a[6]||String(a[0]).localeCompare(b[0])).forEach(r=>sum.push(r));
+  const tr=['TOTAL',...[1,2,3,4,5,6].map(i=>r2(sum.slice(1).reduce((x,r)=>x+(+r[i]||0),0))),''];sum.push(tr);
+  const stm=[['Name','Date','Type','Details','Charge','Payment','Running balance','Status / note']];
+  names.forEach(n=>statement(n).rows.forEach(r=>{
+    if(r.type==='game')stm.push([n,{d:r.date},'Game',fmtH(r.hours)+' h · court '+r.court+(r.shuttle?' · shuttle '+r.shuttle:'')+(r.drinks?' · drinks '+r.drinks:''),r.amt,'',r.bal,'']);
+    else if(r.type==='adj')stm.push([n,{d:r.date},r.amt>=0?'Extra charge':'Credit',r.note||'',r.amt>=0?r.amt:'',r.amt<0?-r.amt:'',r.bal,'']);
+    else stm.push([n,{d:r.date},'Payment',(r.method==='upi'?'UPI':r.method==='self'?'Own share':r.method==='manual'?'Marked received':r.method||'')+(r.payer?' · paid by '+r.payer:''),'',r.amt,r.bal,(r.status==='confirmed'?'Confirmed':'Waiting to confirm')+(r.note?' · '+r.note:'')])}));
+  const pays=[['Date','Name','Amount','Type','Status','Method','Paid by','Note','Screenshot']];
+  allPays().slice().sort((a,b)=>(a.at||0)-(b.at||0)).forEach(x=>pays.push([dd(x.at),x.name,+x.amount||0,x.kind==='adjust'?(x.amount>=0?'Extra charge':'Credit'):'Payment',x.kind==='adjust'?'':x.status==='confirmed'?'Confirmed':'Waiting to confirm',x.method||'',x.payer||'',x.note||'',x.proof?'Yes':'']));
+  const days=[['Date','Players','Hours','Rate / hour','Court','Shuttles','Drinks','Total cost','Collected (rounded)','Bill sent','Who played']];
+  Object.keys(S.days).sort().forEach(k=>{const d=getDay(k),c=calc(d);if(!c.n)return;days.push([{d:k},c.n,d.hours,d.rate,r2(c.court),r2(c.shuttle||0),r2(c.drinks||0),r2(c.actual),r2(c.collected),d.bill==='sent'?'Yes':d.bill==='queued'?'In queue':'',orderNames(d.present).join(', ')])});
+  return[{name:'Dues summary',cols:[22,13,14,20,16,18,13,14],rows:sum,bold:[sum.length-1],filter:false},{name:'Statements',cols:[18,13,14,40,10,10,16,30],rows:stm,filter:true},
+    {name:'Payments',cols:[13,18,10,14,18,12,16,30,12],rows:pays,filter:true},{name:'Game days',cols:[13,9,8,11,9,10,9,11,18,10,60],rows:days,filter:true}]}
+async function exportExcel(){try{const blob=xlsxBlob(excelSheets()),fname=(S.groupName||'Badminton').replace(/[^\w]+/g,'-')+'-accounts-'+todayStr()+'.xlsx';
+  const file=new File([blob],fname,{type:blob.type});
+  if(/Android|iPhone|iPad/i.test(navigator.userAgent)&&navigator.canShare&&navigator.canShare({files:[file]})){try{await navigator.share({files:[file],title:fname});return}catch(e){if(e&&e.name==='AbortError')return}}
+  const u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download=fname;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000);toast('Excel downloaded.')}
+  catch(e){toast('Couldn’t create the Excel file.')}}
 function bindPayBook(v){
   v.querySelectorAll('[data-act="billsend"]').forEach(b=>b.onclick=openBillSend);
+  v.querySelectorAll('[data-proof]').forEach(b=>b.onclick=()=>viewProof(b.dataset.proof));
+  v.querySelectorAll('[data-sview]').forEach(b=>b.onchange=()=>{if(b.value)openPay(b.value);b.value=''});
+  const xb=v.querySelector('#xlsxbtn');if(xb)xb.onclick=exportExcel;
   const dp=v.querySelector('#duesposter');if(dp)dp.onclick=async()=>{dp.disabled=true;const list=duesList();const url=await drawDuesPoster(list);dp.disabled=false;openDuesPoster(url,list)};
   v.querySelectorAll('[data-pay]').forEach(b=>b.onclick=()=>openPay(b.dataset.pay));
   v.querySelectorAll('[data-pconf]').forEach(b=>b.onclick=async()=>{b.disabled=true;await setPayStatus(b.dataset.pconf,'confirmed');toast('Payment confirmed.')});
@@ -1032,7 +1147,7 @@ function openPay(name){
         <div class="grid2">${apps.map(([n,u])=>`<a class="btn line" href="${u}${q}">${esc(n)}</a>`).join('')}</div>
         <button class="btn line block" id="copyupi">${ic('copy')}Copy UPI ID</button>
         ${!isOrg&&db?`<button class="btn block" style="background:var(--ok);color:#fff" id="claimbtn">${ic('check')}I’ve paid ${inr(amount)}</button>
-        <p class="hint">After paying in your UPI app, come back and tap “I’ve paid”. The organizer confirms it, then your dues clear.</p>`:''}
+        <p class="hint">After paying in your UPI app, come back and tap “I’ve paid”. You can add a screenshot and include others you paid for.</p>`:''}
       </div>`;
   }
   bg.innerHTML=`<div class="sheet" role="dialog" aria-modal="true" aria-label="Pay ${esc(name)}">${head}${body}${orgBox?`<div style="border-top:1px solid var(--line2)">${orgBox}</div>`:''}${statementHTML(name)}<div style="height:12px"></div></div>`;
@@ -1041,7 +1156,7 @@ function openPay(name){
   $('#whoclose').onclick=closeWho;
   const cu=$('#copyupi');if(cu)cu.onclick=()=>copyText(S.upiId,'UPI ID copied.');
   const gu=$('#gotoupi');if(gu)gu.onclick=()=>{closeWho();go('team');setTimeout(()=>{const i=$('#upiin');if(i){i.scrollIntoView({block:'center'});i.focus()}},120)};
-  const cb=$('#claimbtn');if(cb)cb.onclick=async()=>{cb.disabled=true;if(await addPayment(name,amount,'claimed','upi')){closeWho();toast('Thanks! Marked as paid. The organizer will confirm it.')}else cb.disabled=false};
+  const cb=$('#claimbtn');if(cb)cb.onclick=()=>openPaid(getMe()&&nkey(getMe())!==nkey(name)?getMe():name,getMe()&&nkey(getMe())!==nkey(name)?[name]:[]);
   const ab=$('#adjbtn');if(ab)ab.onclick=async()=>{const amt=r2(+$('#adjamt').value||0),note=norm($('#adjnote').value),sign=+$('#adjtype').value;
     if(!(amt>0))return toast('Enter the amount.');if(!note)return toast('Add a short reason so '+first(name)+' understands it.');
     ab.disabled=true;if(await addPayment(name,sign*amt,'confirmed','adjust',null,{kind:'adjust',note})){toast((sign>0?'Charge of ':'Credit of ')+inr(amt)+' added for '+first(name)+'.');setTimeout(()=>openPay(name),450)}else ab.disabled=false};
@@ -1080,7 +1195,7 @@ async function drawPoster(R){
   g.save();rr(g,P,y,W-P*2,thH+(R.rows.length+1)*rowH,22);g.clip();
   g.fillStyle=acc;g.fillRect(P,y,W-P*2,thH);
   g.fillStyle=sk.ink;g.font='800 22px '+F;g.textAlign='left';g.fillText('NAME',P+28,y+52);
-  R.days.forEach((d,i)=>{const cx=P+nameW+dayW*i+dayW/2;g.textAlign='center';g.font='800 22px '+F;g.fillText(dlabel(d.date,{weekday:'short',day:'numeric'}).toUpperCase(),cx,y+42);g.font='600 17px '+F;g.globalAlpha=.8;g.fillText(R.calcs[i].n+' players',cx,y+66);g.globalAlpha=1});
+  R.days.forEach((d,i)=>{const cx=P+nameW+dayW*i+dayW/2;g.textAlign='center';g.font='800 22px '+F;g.fillText(dlabel(d.date,{day:'numeric',month:'short'}).toUpperCase(),cx,y+42);g.font='600 17px '+F;g.globalAlpha=.8;g.fillText(dlabel(d.date,{weekday:'short'})+' · '+R.calcs[i].n+' players',cx,y+66);g.globalAlpha=1});
   if(multi){g.textAlign='center';g.font='800 22px '+F;g.fillText('TOTAL',W-P-totW/2,y+52)}
   y+=thH;
   R.rows.forEach((r,ri)=>{g.fillStyle=ri%2?soft:'#FFFFFF';g.fillRect(P,y,W-P*2,rowH);
@@ -1094,7 +1209,7 @@ async function drawPoster(R){
   const cw=(W-P*2-18*(cols-1))/cols;
   R.days.forEach((d,i)=>{const c=R.calcs[i],x=P+(i%cols)*(cw+18),yy=y+Math.floor(i/cols)*(cardH+18);
     g.fillStyle='#FFFFFF';rr(g,x,yy,cw,cardH,22);g.fill();g.strokeStyle='#E4E7EC';g.stroke();
-    g.fillStyle=acc;g.textAlign='left';g.font='800 30px '+F;g.fillText(dlabel(d.date,{weekday:'long'}),x+26,yy+50);
+    g.fillStyle=acc;g.textAlign='left';g.font='800 30px '+F;fit(g,dlabel(d.date,{weekday:cols>1?'short':'long',day:'numeric',month:'short'}),x+26,yy+50,cw-200);
     g.fillStyle='#667085';g.font='700 18px '+F;g.textAlign='right';g.fillText(c.n+' PLAYERS',x+cw-26,yy+48);
     g.textAlign='left';g.fillStyle='#101828';g.font='600 23px '+F;let ly=yy+98;
     fit(g,'Court  '+fmtH(d.hours)+' h × ₹'+d.rate+' ÷ '+c.n+' = ₹'+c.cEach,x+26,ly,cw-52);ly+=40;
@@ -1235,7 +1350,7 @@ function renderTeam(){
       <p class="warn" id="pwarn" hidden></p></div>`:''}
     <div class="split">${act.map(pRow).join('')||`<div class="empty">Add your regular players.</div>`}</div>
     ${inact.length?`<details class="inact"><summary>${plural(inact.length,'inactive player')} · hidden from Today and polls</summary><div class="split">${inact.map(pRow).join('')}</div></details>`:''}
-    <div class="card-f" style="flex-direction:column;align-items:flex-start"><div class="mix">${LEVELS.map(l=>`<span><i class="lvl-dot" style="background:${l[2]}"></i>${l[1]} ${act.filter(n=>(S.levels||{})[nkey(n)]===l[0]).length}</span>`).join('')}<span>Not set ${act.filter(n=>!levelOf(n)).length}</span></div>
+    <div class="card-f" style="flex-direction:column;align-items:flex-start"><div class="mix">${LEVELS.map(l=>`<span><i class="lvl-dot" style="background:${l[2]}"></i>${l[1]} ${act.filter(n=>(S.levels||{})[nkey(n)]===l[0]).length}</span>`).join('')}<span>Not set ${act.filter(n=>!levelOf(n)).length}</span><button type="button" class="lnk" data-lvlinfo>What do levels mean?</button></div>
       ${org?'<p class="hint">Tap ⚙ to rename, merge, pause or remove a player. Names are matched ignoring capitals, so PREETAM and Preetam are the same person.</p>':''}</div>
   </section>
   ${org&&AD?`<section class="card">
@@ -1596,7 +1711,7 @@ const TPL_DEFAULT={
 const TPL_INFO=[['start','Poll started','{title} {dates} {slots} {link} {closes} {group}'],['startRule','Poll started + app-votes-only rule','{title} {dates} {slots} {link} {closes} {group}'],
   ['remind','Vote reminder','{title} {status} {pending} {pending_count} {link} {closes} {threshold}'],['last','Last call (before close)','{title} {status} {link} {closes}'],
   ['game','Game-day reminder','{date} {time} {lead} {players} {count} {group}'],['dues','Payment reminder','{group} {dues_lines} {upi} {payouts_link}']];
-const MSG_DEFAULT={on:true,days:[1,3,5],at:'20:00',threshold:8,lastCall:true,gameLead:2,tpl:{}};
+const MSG_DEFAULT={on:true,days:[1,3,5],at:'20:00',threshold:8,lastCall:true,gameLead:2,duesOn:true,duesDays:[2,4,5],duesAt:'19:00',tpl:{}};
 const MSGS=()=>Object.assign({},MSG_DEFAULT,S.msg||{},{tpl:Object.assign({},(S.msg||{}).tpl||{})});
 const tplOf=k=>MSGS().tpl[k]||TPL_DEFAULT[k];
 function trimSent(o){const e=Object.entries(o||{}).sort((a,b)=>b[1]-a[1]).slice(0,300);return Object.fromEntries(e)}
@@ -1634,11 +1749,17 @@ function reminderPlan(){
       if(M.lastCall)push(p.id+'|last',close-60*60e3,'last','Last call',fillTpl(tplOf('last'),v),close,full)}
     if(M.gameLead>0)(p.dates||[]).forEach(dt=>{const start=slotStart(dt.date,dt.note),g=gameVars(p,dt,M.gameLead);
       push(p.id+'|g|'+dt.date,start-M.gameLead*3600e3,'game','Game reminder · '+dlabel(dt.date,{weekday:'short',day:'numeric'}),fillTpl(tplOf('game'),g),start,!g.count)})});
+  if(M.duesOn&&(M.duesDays||[]).length){const list=duesList(),tot=list.reduce((a,x)=>a+x.due,0),msg=list.length?duesMsg(list):'',[hh,mm]=String(M.duesAt||'19:00').split(':').map(Number),times=[];
+    const d0=new Date();d0.setHours(0,0,0,0);d0.setDate(d0.getDate()-7);
+    for(let i=0;i<22;i++){const d=new Date(d0);d.setDate(d0.getDate()+i);if(!M.duesDays.includes(d.getDay()))continue;d.setHours(hh||0,mm||0,0,0);times.push(d.getTime())}
+    times.forEach((at,i)=>{const key='dues|'+ymd(new Date(at)),sent=(S.sent||{})[key],skip=!list.length,until=times[i+1]||at+864e5;
+      out.push({key,at,kind:'dues',label:'Payment reminder · '+plural(list.length,'player'),msg,poll:{title:inr(tot)+' pending'},sent,skip,until,state:sent?'sent':skip?'skipped':at>now?'upcoming':now<until?'due':'missed'})})}
   return out.sort((a,b)=>a.at-b.at);
 }
 function markSent(key){S.sent=S.sent||{};S.sent[key]=Date.now();saveConfig();renderTab(false)}
-function remindersCard(){
-  if(!isOrg||!db)return'';const plan=reminderPlan(),due=plan.filter(r=>r.state==='due'),up=plan.filter(r=>r.state==='upcoming').slice(0,4);
+function remindersCard(only){
+  if(!isOrg||!db)return'';if(only){const r=reminderPlan().filter(x=>x.kind===only&&x.state==='due');if(!r.length)return''}
+  const plan=reminderPlan().filter(x=>!only||x.kind===only),due=plan.filter(r=>r.state==='due'),up=plan.filter(r=>r.state==='upcoming').slice(0,4);
   if(!MSGS().on)return`<section class="card" id="remcard">${cardH('bell','Reminders','Off')}<div class="card-f"><p class="hint">Automatic reminders are off.</p><button class="lnk" data-act="msgset" style="margin-left:auto">Settings</button></div></section>`;
   return`<section class="card${due.length?' due-card':''}" id="remcard">${cardH('bell','Reminders',due.length?due.length+' due now':'All caught up',!due.length)}
     ${due.map(r=>`<div class="rem"><div class="rem-h"><b>${esc(r.label)}</b><small>${esc(r.poll.title)} · due since ${fmtWhen(r.at)}</small></div>
@@ -1676,17 +1797,21 @@ function openMsgSettings(){
     <div class="row"><div class="l"><b>Stop when each slot has</b><small>Players voting Yes per day</small></div><div class="stp"><button type="button" data-th="-1" aria-label="Fewer">${ic('minus')}</button><output id="m_th">${M.threshold}</output><button type="button" data-th="1" aria-label="More">${ic('plus')}</button></div></div>
     <div class="row"><div class="l"><b>Last call 1 hour before voting closes</b></div><label class="switch"><input type="checkbox" id="m_last" ${M.lastCall?'checked':''}><i></i></label></div>
     <div class="row"><div class="l"><b>Game reminder</b><small>Hours before the game starts</small></div><select class="txt" id="m_lead" style="width:118px">${[[0,'Off'],[1,'1 hour'],[2,'2 hours'],[3,'3 hours']].map(([v,l])=>`<option value="${v}"${M.gameLead===v?' selected':''}>${l}</option>`).join('')}</select></div>
+    <div class="row"><div class="l"><b>Payment reminders</b><small>Lists only players with dues, with the “mark it paid” note. Skipped when nobody owes.</small></div><label class="switch"><input type="checkbox" id="m_dues" ${M.duesOn?'checked':''}><i></i></label></div>
+    <div class="sub"><span class="sublbl">Payment reminder days</span><div class="tiles sm" style="grid-template-columns:repeat(7,minmax(0,1fr));gap:5px">${[1,2,3,4,5,6,0].map(d=>`<button type="button" class="tile ${(M.duesDays||[]).includes(d)?'on':''}" data-dwd="${d}" style="padding:0;font-size:12.5px"><span>${W[d]}</span></button>`).join('')}</div></div>
+    <div class="row"><div class="l"><b>Payment reminder time</b></div><input class="txt" type="time" id="m_dat" value="${esc(M.duesAt||'19:00')}" style="width:130px"></div>
     ${TPL_INFO.map(([k,l,ph])=>`<div class="sub" style="padding-top:12px;border-top:1px solid var(--line2)"><div style="display:flex;justify-content:space-between;align-items:center"><span class="sublbl">${l}</span>${M.tpl[k]?`<button class="lnk" data-reset="${k}">Reset</button>`:''}</div>
       <textarea class="txt tpl" data-tpl="${k}" rows="7">${esc(tplOf(k))}</textarea><small class="hint">Fill-ins: ${ph}</small></div>`).join('')}
     <div class="card-f"><button class="btn primary block" id="m_save">${ic('check')}Save</button></div></div>`;
   document.body.appendChild(bg);document.body.style.overflow='hidden';
   bg.addEventListener('click',e=>{if(e.target===bg)closeWho()});$('#whoclose').onclick=closeWho;
-  let days=[...M.days],th=M.threshold;
+  let days=[...M.days],th=M.threshold,ddays=[...(M.duesDays||[])];
+  bg.querySelectorAll('[data-dwd]').forEach(b=>b.onclick=()=>{const d=+b.dataset.dwd;ddays=ddays.includes(d)?ddays.filter(x=>x!==d):[...ddays,d];b.classList.toggle('on')});
   bg.querySelectorAll('[data-wd]').forEach(b=>b.onclick=()=>{const d=+b.dataset.wd;days=days.includes(d)?days.filter(x=>x!==d):[...days,d];b.classList.toggle('on')});
   bg.querySelectorAll('[data-th]').forEach(b=>b.onclick=()=>{th=Math.max(2,Math.min(30,th+ +b.dataset.th));$('#m_th').textContent=th});
   bg.querySelectorAll('[data-reset]').forEach(b=>b.onclick=()=>{bg.querySelector(`[data-tpl="${b.dataset.reset}"]`).value=TPL_DEFAULT[b.dataset.reset]});
   $('#m_save').onclick=()=>{const tpl={};bg.querySelectorAll('[data-tpl]').forEach(t=>{const k=t.dataset.tpl,val=t.value.trim();if(val&&val!==TPL_DEFAULT[k].trim())tpl[k]=val});
-    S.msg={on:$('#m_on').checked,days:days.sort(),at:$('#m_at').value||'20:00',threshold:th,lastCall:$('#m_last').checked,gameLead:+$('#m_lead').value,tpl};
+    S.msg={on:$('#m_on').checked,days:days.sort(),at:$('#m_at').value||'20:00',threshold:th,lastCall:$('#m_last').checked,gameLead:+$('#m_lead').value,duesOn:$('#m_dues').checked,duesDays:ddays.sort(),duesAt:$('#m_dat').value||'19:00',tpl};
     saveConfig();closeWho();renderTab(true);toast('Messages & reminders saved.')};
 }
 function startPollsListener(){if(P.listening||!db)return;P.listening=true;

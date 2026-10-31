@@ -1,53 +1,119 @@
-// Shuttle Split — Firestore rules.
-// Add the `match` blocks below INSIDE your existing
-//   match /databases/{database}/documents { ... }
-// block (next to your league app's rules). Don't replace your existing rules.
-// Put the Google account email(s) of whoever runs the app in organizers().
-
 rules_version = '2';
+// Shuttle Split rules v1.1.0 (adds payment screenshots and paying for others)
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    function organizers() {
-      return ['YOUR_GOOGLE_EMAIL@gmail.com'];
-    }
-    function isOrganizer() {
-      return request.auth != null && request.auth.token.email in organizers();
+    // ===== League app (anything that isn't Shuttle Split) =====
+    match /{collection}/{rest=**} {
+      allow read, write: if !collection.matches('shuttleSplit_.*');
     }
 
-    // Cost sharing: anyone with the link can see it; only organizers change it.
-    match /shuttleSplit_config/{doc} {
-      allow read: if true;
-      allow write: if isOrganizer();
+    // ===== Shuttle Split: main group =====
+    function ssOrganizer() {
+      return request.auth != null && request.auth.token.email != null
+        && (request.auth.token.email == 'pavankaki.cool@gmail.com'
+            || request.auth.token.email in get(/databases/$(database)/documents/shuttleSplit_config/main).data.get('admins', []));
     }
-    match /shuttleSplit_days/{day} {
-      allow read: if true;
-      allow write: if isOrganizer();
+    function claimOk() {
+      return request.auth != null
+        && request.resource.data.status == 'claimed'
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.keys().hasOnly(['name','amount','at','status','method','by','uid','payer','proof'])
+        && request.resource.data.amount is number
+        && request.resource.data.amount > 0 && request.resource.data.amount <= 100000
+        && request.resource.data.name is string && request.resource.data.name.size() <= 60;
+    }
+    function seenOk(uid) {
+      return request.auth != null && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['name','at'])
+        && request.resource.data.name is string && request.resource.data.name.size() <= 60;
+    }
+    function voteOk(voter) {
+      return request.auth != null && request.auth.uid == voter
+        && request.resource.data.keys().hasOnly(['name','answers','updatedAt'])
+        && request.resource.data.name is string && request.resource.data.name.size() <= 60;
+    }
+    function proofOk() {
+      return request.auth != null
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.keys().hasOnly(['img','at','uid','name'])
+        && request.resource.data.img is string && request.resource.data.img.size() < 900000;
+    }
+    function isOpen(p) {
+      return p.closed != true && (p.closesAt == null || request.time.toMillis() < p.closesAt);
     }
 
-    // Availability polls: organizers create and close them.
+    match /shuttleSplit_config/{doc} { allow read: if true; allow write: if ssOrganizer(); }
+    match /shuttleSplit_days/{day}   { allow read: if true; allow write: if ssOrganizer(); }
+    match /shuttleSplit_payments/{pid} {
+      allow read: if true;
+      allow create: if ssOrganizer() || claimOk();
+      allow update, delete: if ssOrganizer();
+    }
+    match /shuttleSplit_proofs/{pid} {
+      allow read: if ssOrganizer() || (request.auth != null && resource.data.uid == request.auth.uid);
+      allow create: if proofOk();
+      allow delete: if ssOrganizer();
+    }
+    match /shuttleSplit_seen/{uid} {
+      allow read: if ssOrganizer();
+      allow write: if seenOk(uid);
+      allow delete: if ssOrganizer();
+    }
     match /shuttleSplit_polls/{poll} {
       allow read: if true;
-      allow write: if isOrganizer();
-
-      function pollOpen() {
-        let p = get(/databases/$(database)/documents/shuttleSplit_polls/$(poll)).data;
-        return p.closed != true && (p.closesAt == null || request.time.toMillis() < p.closesAt);
-      }
-
-      // Each phone can only write its own vote, and only while the poll is open.
-      // Organizers can record or fix anyone's vote.
+      allow write: if ssOrganizer();
       match /votes/{voter} {
         allow read: if true;
-        allow write: if isOrganizer()
-          || (request.auth != null && request.auth.uid == voter && pollOpen()
-              && request.resource.data.keys().hasOnly(['name', 'answers', 'updatedAt'])
-              && request.resource.data.name is string
-              && request.resource.data.name.size() <= 60);
-        allow delete: if isOrganizer();
+        allow write: if ssOrganizer()
+          || (voteOk(voter) && isOpen(get(/databases/$(database)/documents/shuttleSplit_polls/$(poll)).data));
+        allow delete: if ssOrganizer();
       }
     }
 
-    // ...your league app's existing rules stay here...
+    // ===== Shuttle Split: other groups (?g=...) — each with its own organizers =====
+    match /shuttleSplit_groups/{gid} {
+      function g() { return get(/databases/$(database)/documents/shuttleSplit_groups/$(gid)).data; }
+      function gAdmin() {
+        return request.auth != null && request.auth.token.email != null
+          && (request.auth.token.email == g().owner || request.auth.token.email in g().get('admins', []));
+      }
+      allow read: if true;
+      allow create: if request.auth != null && request.auth.token.email != null
+        && request.auth.token.firebase.sign_in_provider == 'google.com'
+        && gid.matches('^[a-z0-9-]{3,40}$')
+        && request.resource.data.owner == request.auth.token.email
+        && request.resource.data.admins is list;
+      allow update: if gAdmin() && request.resource.data.owner == resource.data.owner;
+      allow delete: if false;
+
+      match /config/{doc} { allow read: if true; allow write: if gAdmin(); }
+      match /days/{day}   { allow read: if true; allow write: if gAdmin(); }
+      match /payments/{pid} {
+        allow read: if true;
+        allow create: if gAdmin() || claimOk();
+        allow update, delete: if gAdmin();
+      }
+      match /proofs/{pid} {
+        allow read: if gAdmin() || (request.auth != null && resource.data.uid == request.auth.uid);
+        allow create: if proofOk();
+        allow delete: if gAdmin();
+      }
+      match /seen/{uid} {
+        allow read: if gAdmin();
+        allow write: if seenOk(uid);
+        allow delete: if gAdmin();
+      }
+      match /polls/{poll} {
+        allow read: if true;
+        allow write: if gAdmin();
+        match /votes/{voter} {
+          allow read: if true;
+          allow write: if gAdmin()
+            || (voteOk(voter) && isOpen(get(/databases/$(database)/documents/shuttleSplit_groups/$(gid)/polls/$(poll)).data));
+          allow delete: if gAdmin();
+        }
+      }
+    }
   }
 }
