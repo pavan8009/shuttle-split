@@ -216,7 +216,7 @@ label.row{cursor:pointer}
 
 /* tab bar + toast */
 .tabbar{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
-.tabbar .wrap{display:grid;grid-template-columns:repeat(4,1fr)}
+.tabbar .wrap{display:grid;grid-template-columns:repeat(5,1fr)}
 .tabbar button{display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 4px 8px;font-size:11.5px;font-weight:700;color:var(--muted)}
 .tabbar button .ic{width:23px;height:23px}
 .tabbar button[aria-selected="true"]{color:var(--accent)}
@@ -230,6 +230,9 @@ label.row{cursor:pointer}
 .msgpre{white-space:pre-wrap;font:13px/1.45 var(--font);background:var(--field);border-radius:10px;padding:10px 12px;margin:8px 0 0}
 textarea.tpl{height:auto;min-height:140px;padding:10px 12px;font-size:14px;line-height:1.45;resize:vertical}
 .tabbar button{position:relative}
+.sync{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;margin-left:4px;color:var(--ok)}
+.sync::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.sync.save{color:#B54708}.sync.off{color:var(--muted)}
 .tabbar button.has-due::after{content:"";position:absolute;top:7px;left:calc(50% + 8px);width:9px;height:9px;border-radius:50%;background:var(--danger);box-shadow:0 0 0 2px var(--surface)}
 /* suggestions dropdown */
 .sugg{border:1px solid var(--line);border-radius:12px;background:var(--surface);box-shadow:0 8px 24px rgba(16,24,40,.12);overflow:hidden;margin-top:6px}
@@ -325,6 +328,7 @@ details.poster:not([open]) .card-h{border-bottom:0}
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <symbol id="i-shuttle" viewBox="0 0 24 24"><circle cx="6.5" cy="17.5" r="3"/><path d="M8.6 15.4 18.5 5.5M7.8 14.6 13 4.2M9.4 16.2 19.8 11M13 4.2l3.2-1 4.6 4.6-1 3.2"/></symbol>
+  <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c.8-4.2 4-6.6 8-6.6s7.2 2.4 8 6.6"/></symbol>
   <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.6-3.6 3.2-5.6 6.5-5.6s5.9 2 6.5 5.6"/><circle cx="17" cy="9" r="2.6"/><path d="M16.5 14.5c2.7.1 4.4 1.8 5 4.7"/></symbol>
   <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></symbol>
   <symbol id="i-cup" viewBox="0 0 24 24"><path d="M6 4h12l-1.6 15.2a2 2 0 0 1-2 1.8H9.6a2 2 0 0 1-2-1.8L6 4z"/><path d="M6.6 9.5h10.8M13 4l2-2.5"/></symbol>
@@ -353,7 +357,7 @@ details.poster:not([open]) .card-h{border-bottom:0}
 <header class="appbar">
   <div class="wrap">
     <div class="avatar" id="avatar"><svg class="ic"><use href="#i-shuttle"/></svg></div>
-    <div class="brand"><b id="gname">Badminton Family</b><small id="pagename">Today</small></div>
+    <div class="brand"><b id="gname">Badminton Family</b><small><span id="pagename">Today</span> <span class="sync" id="sync" hidden></span></small></div>
     <button class="status" id="status" hidden></button>
   </div>
 </header>
@@ -363,6 +367,7 @@ details.poster:not([open]) .card-h{border-bottom:0}
   <div class="wrap view" id="view-day"></div>
   <div class="wrap view" id="view-polls" hidden></div>
   <div class="wrap view" id="view-pay" hidden></div>
+  <div class="wrap view" id="view-me" hidden></div>
   <div class="wrap view" id="view-team" hidden></div>
 </main>
 
@@ -371,6 +376,7 @@ details.poster:not([open]) .card-h{border-bottom:0}
     <button role="tab" data-tab="day" aria-selected="true"><svg class="ic"><use href="#i-shuttle"/></svg>Today</button>
     <button role="tab" data-tab="polls" aria-selected="false"><svg class="ic"><use href="#i-poll"/></svg>Polls</button>
     <button role="tab" data-tab="pay" aria-selected="false"><svg class="ic"><use href="#i-wallet"/></svg>Payouts</button>
+    <button role="tab" data-tab="me" aria-selected="false"><svg class="ic"><use href="#i-user"/></svg>Me</button>
     <button role="tab" data-tab="team" aria-selected="false"><svg class="ic"><use href="#i-users"/></svg>Team</button>
   </div>
 </nav>
@@ -393,7 +399,7 @@ const FIREBASE_CONFIG = {
 /* Collections get this prefix so they never clash with the league app's data */
 const COLLECTION_PREFIX = "shuttleSplit_";
 /* App version shown in Team → About */
-const APP_VERSION = "1.7.2", APP_BUILD = "31 Oct 2026";
+const APP_VERSION = "1.8.0", APP_BUILD = "31 Oct 2026";
 /* Owner of the main group (the link without ?g=) */
 const LEGACY_OWNER = "pavankaki.cool@gmail.com";
 /* Starting player list, used only until the first save */
@@ -453,15 +459,28 @@ const pending={},inflight={},timers={};
 const fsDoc=path=>db.doc(BASE+path);
 const col=n=>db.collection(BASE+n);
 const busy=p=>(p in pending)||!!inflight[p];
-function queueWrite(path,val){saveLocal();if(!db)return;pending[path]=val;clearTimeout(timers[path]);timers[path]=setTimeout(()=>flush(path),450)}
+function queueWrite(path,val){saveLocal();if(!db)return;pending[path]=val;syncUI();clearTimeout(timers[path]);timers[path]=setTimeout(()=>flush(path),450)}
+let CFG_CLOUD=null;
+/* only the fields that changed since the last cloud copy, so two organizers editing different things never undo each other */
+function cfgPatch(v){const pairs=[];const F=firebase.firestore,eq=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
+  Object.keys(v).forEach(k=>{const a=v[k],b=CFG_CLOUD[k];if(eq(a,b))return;
+    const isMap=x=>x&&typeof x==='object'&&!Array.isArray(x);
+    if(isMap(a)&&isMap(b)&&F.FieldPath){Object.keys(a).forEach(sk=>{if(!eq(a[sk],b[sk]))pairs.push(new F.FieldPath(k,sk),a[sk])});Object.keys(b).forEach(sk=>{if(!(sk in a))pairs.push(new F.FieldPath(k,sk),F.FieldValue.delete())})}
+    else pairs.push(F.FieldPath?new F.FieldPath(k):k,a)});return pairs}
 async function flush(path){
   if(inflight[path]||!(path in pending))return;
-  const v=pending[path];delete pending[path];inflight[path]=true;
-  try{const ref=fsDoc(path);if(v===null)await ref.delete();else await ref.set(v)}
+  const v=pending[path];delete pending[path];inflight[path]=true;syncUI();
+  try{const ref=fsDoc(path);if(v===null)await ref.delete();
+    else if(path==='config/main'&&CFG_CLOUD){const pr=cfgPatch(v);if(pr.length){await ref.update(...pr);CFG_CLOUD=Object.assign({},CFG_CLOUD,JSON.parse(JSON.stringify(v)))}}
+    else await ref.set(v)}
   catch(e){toast(e&&e.code==='permission-denied'?'Only the organizer can change this. Sign in first.':'Couldn’t save ('+((e&&e.code)||'error')+'). Kept on this phone.')}
-  inflight[path]=false;if(path in pending)flush(path);
+  inflight[path]=false;if(path in pending)flush(path);syncUI();
 }
-function saveConfig(){queueWrite('config/main',{roster:S.roster,rate:S.rate,courts:1,groupName:S.groupName||'',skin:S.skin||'court',upiId:S.upiId||'',upiName:S.upiName||'',levels:S.levels||{},admins:S.admins||[],inactive:S.inactive||[],ignored:S.ignored||[],openNames:S.openNames!==false,idleWeeks:S.idleWeeks==null?4:S.idleWeeks,since:S.since||{},autoOff:S.autoOff||{},billed:(S.billed||[]).slice(-200),msg:S.msg||null,sent:trimSent(S.sent)})}
+/* live / saving / offline indicator */
+function syncUI(){const el=$('#sync');if(!el||!db)return;const n=Object.keys(pending).length+Object.values(inflight).filter(Boolean).length;
+  const st=!navigator.onLine?'off':n?'save':'live';el.className='sync '+st;el.textContent=st==='off'?'Offline · will sync':st==='save'?'Saving…':'Live';el.hidden=false}
+window.addEventListener('online',()=>syncUI());window.addEventListener('offline',()=>syncUI());
+function saveConfig(){queueWrite('config/main',{roster:S.roster,rate:S.rate,courts:1,groupName:S.groupName||'',skin:S.skin||'court',upiId:S.upiId||'',upiName:S.upiName||'',levels:S.levels||{},admins:S.admins||[],inactive:S.inactive||[],ignored:S.ignored||[],openNames:S.openNames!==false,idleWeeks:S.idleWeeks==null?4:S.idleWeeks,since:S.since||{},autoOff:S.autoOff||{},billed:(S.billed||[]).slice(-200),msg:S.msg||null,sent:trimSent(S.sent),model:S.model||'post',load:+S.load||1000,low:S.low==null?200:+S.low})}
 /* ---------- organizers ---------- */
 const userEmail=()=>{const u=auth&&auth.currentUser;return u&&!u.isAnonymous&&u.email?u.email.toLowerCase():''};
 const ownerEmail=()=>String((GID?(GROUP&&GROUP.owner):LEGACY_OWNER)||'').toLowerCase();
@@ -471,7 +490,7 @@ function computeOrg(){const e=userEmail(),was=isOrg;isOrg=!!e&&(e===ownerEmail()
 async function ensureAnon(){if(auth&&!auth.currentUser)await auth.signInAnonymously();return auth&&auth.currentUser}
 
 /* ---------- days & money ---------- */
-function blankDay(date){return{date,present:[],hours:2,rate:S.rate,courts:1,shuttle:0,shuttleSkip:[],shuttleAll:true,drinksOn:false,drinks:0,drinksSkip:[]}}
+function blankDay(date){return{date,present:[],hours:3,rate:S.rate,courts:1,shuttle:0,shuttleSkip:[],shuttleAll:true,drinksOn:false,drinks:0,drinksSkip:[]}}
 function normDay(d,date){
   const x=Object.assign(blankDay(date),d||{});
   if(d&&d.shuttleAll===undefined)x.shuttleAll=!(+d.shuttle>0); /* older days with shuttles keep the old players-only split */
@@ -549,7 +568,7 @@ function statement(name){
   return{rows,unpaid};
 }
 const itemLbl=u=>u.type==='adj'?'Extra'+(u.note?': '+u.note:''):dlabel(u.date,{day:'numeric',month:'short'});
-function unpaidLine(x){const u=statement(x.name).unpaid;return'• '+x.name+' – *'+inr(x.due)+'*'+(u.length?' ('+u.map(i=>itemLbl(i)+' '+inr(i.left)+(i.part?' bal':'')).join(', ')+')':'')}
+function unpaidLine(x){if(PRE())return'• '+x.name+' – wallet *'+(x.bal<0?'−':'')+inr(Math.abs(x.bal))+'* → please load *'+inr(x.need)+'*';const u=statement(x.name).unpaid;return'• '+x.name+' – *'+inr(x.due)+'*'+(u.length?' ('+u.map(i=>itemLbl(i)+' '+inr(i.left)+(i.part?' bal':'')).join(', ')+')':'')}
 /* plain-text statement for one player, to send in a private chat */
 function statementText(name){const st=statement(name),L=ledger(name),out=['🏸 *'+(S.groupName||'Badminton Family')+'* · statement for *'+name+'*',''];
   st.rows.forEach(r=>{const d=dlabel(r.date,{day:'numeric',month:'short'});
@@ -568,11 +587,18 @@ function statementHTML(name){const st=statement(name);if(!st.rows.length)return'
     :`<tr><td>${esc(dlabel(r.date,{day:'numeric',month:'short'}))}</td><td style="color:${r.status==='confirmed'?'var(--ok)':'#B54708'}">${r.status==='confirmed'?'Paid':'Paid · awaiting confirmation'}<small>${r.method==='upi'?'UPI':r.method==='self'?'Own share':r.method==='manual'?'Marked received':esc(r.method||'')}${r.payer?' · paid by '+esc(r.payer):''}${r.note?' · '+esc(r.note):''}</small></td><td style="color:var(--ok)">−${inr(r.amt)}</td><td>${inr(r.bal)}</td></tr>`).join('')}
   </tbody></table></div>
   ${st.unpaid.length?`<div class="sub" style="padding-top:10px"><span class="sublbl" style="color:var(--danger)">Still unpaid</span>${st.unpaid.map(u=>`<div class="mix" style="justify-content:space-between"><span>${u.type==='adj'?'Extra charge'+(u.note?' · '+esc(u.note):''):esc(dlabel(u.date,{weekday:'short',day:'numeric',month:'short'}))}${u.part?' (balance)':''}</span><b style="color:var(--danger)">${inr(u.left)}</b></div>`).join('')}</div>`:''}`}
-function duesList(before){return allNames().map(n=>({name:n,...ledger(n,before)})).filter(x=>x.due>0).sort((a,b)=>b.due-a.due)}
+const PRE=()=>S.model==='pre';
+const sinr=n=>(n<0?'−':'')+inr(Math.abs(n));
+/* prepaid wallet: money loaded minus games used; ask to load when it drops below the alert level */
+function wallet(name){const L=ledger(name),bal=r2(L.paid-L.charged),low=S.low==null?200:+S.low,load=+S.load||1000;return{...L,bal,low:bal<low,need:bal<low?r2(load+Math.max(0,-bal)):0}}
+function duesList(before){
+  if(PRE()){const act=new Set(activeRoster().map(nkey));return allNames().map(n=>({name:n,...wallet(n)})).filter(x=>x.low&&(act.has(nkey(x.name))||x.bal<0)).map(x=>({...x,due:x.need})).sort((a,b)=>a.bal-b.bal)}
+  return allNames().map(n=>({name:n,...ledger(n,before)})).filter(x=>x.due>0).sort((a,b)=>b.due-a.due)}
 const payCol=()=>col('payments');
 const proofCol=()=>col('proofs');
 async function addPayment(name,amount,status,method,at,extra){
   const doc={name:canon(name),amount:r2(+amount),at:at||Date.now(),status,method:method||'upi',by:isOrg||!db?'organizer':'player'};
+  if(isOrg&&auth&&auth.currentUser)doc.byName=auth.currentUser.displayName||auth.currentUser.email||'';
   if(extra&&(isOrg||!db))Object.assign(doc,extra);
   else if(extra){if(extra.payer)doc.payer=String(extra.payer).slice(0,60);if(extra.proof)doc.proof=String(extra.proof)}
   if(!db){S.payments=S.payments||[];S.payments.push({id:'l'+Date.now(),...doc,status:status||'confirmed'});saveLocal();renderTab(false);return true}
@@ -582,9 +608,9 @@ async function addPayment(name,amount,status,method,at,extra){
 }
 async function setPayStatus(id,status){
   if(!db){const x=(S.payments||[]).find(p=>p.id===id);if(x){if(status==='delete')S.payments=S.payments.filter(p=>p.id!==id);else x.status=status}saveLocal();renderTab(false);return}
-  try{const ref=payCol().doc(id);if(status==='delete')await ref.delete();else await ref.update({status,confirmedAt:Date.now()})}catch(e){toast('Couldn’t update the payment ('+e.code+').')}
+  try{const ref=payCol().doc(id);if(status==='delete')await ref.delete();else await ref.update({status,confirmedAt:Date.now(),confirmedBy:(auth.currentUser&&(auth.currentUser.displayName||auth.currentUser.email))||'organizer'})}catch(e){toast('Couldn’t update the payment ('+e.code+').')}
 }
-function duesMsg(list){return fillTpl(tplOf('dues'),{group:S.groupName||'Badminton Family',dues_lines:list.map(unpaidLine).join('\n'),upi:S.upiId||'ask the organizer',payouts_link:appLink('payouts')})}
+function duesMsg(list){return fillTpl(tplOf(PRE()?'wallet':'dues'),{low:inr(S.low==null?200:S.low),load:inr(S.load||1000),group:S.groupName||'Badminton Family',dues_lines:list.map(unpaidLine).join('\n'),upi:S.upiId||'ask the organizer',payouts_link:appLink('payouts')})}
 const playedDays=()=>Object.keys(S.days).filter(k=>S.days[k].present&&S.days[k].present.length).sort().reverse();
 function orderNames(arr){const ix=n=>{const i=S.roster.findIndex(r=>nkey(r)===nkey(n));return i<0?999:i};return[...arr].sort((a,b)=>ix(a)-ix(b)||a.localeCompare(b))}
 
@@ -634,7 +660,7 @@ const intro=(h,p)=>`<div class="intro"><h1>${h}</h1><p>${p}</p></div>`;
 const kpis=list=>`<div class="kpis">${list.map(([l,v,hl])=>`<div class="kpi${hl?' hl':''}"><span>${l}</span><b>${v}</b></div>`).join('')}</div>`;
 const cardH=(icon,title,meta,strong)=>`<div class="card-h"><span class="ico">${ic(icon)}</span><h2>${title}</h2>${meta!=null?`<span class="meta${strong?' strong':''}">${meta}</span>`:''}</div>`;
 const viewOnly=what=>db&&!isOrg?`<div class="note">${ic('lock')}<p>You’re viewing. Only the organizer can ${what}.</p><button class="btn sm line" data-signin>Organizer</button></div>`:'';
-const PAGES={day:'Record a play day',polls:'Availability polls',pay:'Payouts',team:'Team & settings'};
+const PAGES={day:'Record a play day',polls:'Availability polls',pay:'Payouts',me:'My account',team:'Team & settings'};
 function remDot(){const b=document.querySelector('.tabbar [data-tab="polls"]');if(!b)return;const n=isOrg&&db?reminderPlan().filter(r=>r.state==='due').length:0;b.classList.toggle('has-due',n>0)}
 function renderHeader(){try{remDot()}catch(e){}
   $('#gname').textContent=S.groupName||'Badminton Family';
@@ -706,7 +732,7 @@ function refreshDay(){
   const act=activeRoster(),extra=d.present.filter(p=>!act.some(r=>nkey(r)===nkey(p)));
   const names=[...act,...extra];
   const dueB=duesList(curDate),dueSet=new Set(dueB.map(x=>nkey(x.name)));
-  $('#duealert').innerHTML=dueB.length?`<section class="card due-card">${cardH('bell','Unpaid from earlier days',inr(dueB.reduce((a,x)=>a+x.due,0)))}
+  $('#duealert').innerHTML=dueB.length?`<section class="card due-card">${cardH('bell',PRE()?'Low wallet balances':'Unpaid from earlier days',PRE()?plural(dueB.length,'player'):inr(dueB.reduce((a,x)=>a+x.due,0)))}
     ${dueB.slice(0,6).map(x=>`<div class="prow"><span class="ini">${esc(initials(x.name))}</span><span class="nm">${esc(x.name)}<small>${x.since?'Due since '+esc(dlabel(x.since,{day:'numeric',month:'short'})):''}${x.claimed?' · '+inr(x.claimed)+' waiting confirmation':''}</small></span><span class="due-amt">${inr(x.due)}</span></div>`).join('')}
     ${dueB.length>6?`<div class="row"><small class="hint">and ${dueB.length-6} more</small></div>`:''}
     <div class="card-f"><a class="btn sm wa" href="${waHref(duesMsg(dueB))}" target="_blank" rel="noopener">${ic('chat')}Remind on WhatsApp</a><span class="hint" style="margin-left:auto">Red dot = owes money</span></div></section>`:'';
@@ -931,6 +957,13 @@ function myCard(){
   const names=allNames(),me=names.find(n=>nkey(n)===nkey(getMe()));
   if(!me)return`<section class="card">${cardH('users','My dues')}<div class="pad"><select class="txt" id="mesel" aria-label="Your name"><option value="">Who are you? Choose your name…</option>${names.map(n=>`<option>${esc(n)}</option>`).join('')}</select><p class="hint">Saved on this phone, so you only pick it once. You’ll see your balance and can tell the organizer when you’ve paid.</p></div></section>`;
   const L=ledger(me),self=isOrg||!db;
+  if(PRE()){const w=wallet(me);return`<section class="card${w.low?' due-card':''}">${cardH(w.low?'bell':'wallet','My wallet · '+esc(first(me)),(w.bal<0?'−':'')+inr(Math.abs(w.bal)),!w.low)}
+    <div class="acct" style="border-top:0"><div class="good"><span>Loaded</span><b>${inr(w.paid)}</b></div><div><span>Used</span><b>${inr(w.charged)}</b></div>
+      <div><span>Waiting to confirm</span><b>${inr(w.claimed)}</b></div><div class="${w.low?'bad':'good'}"><span>Balance</span><b>${(w.bal<0?'−':'')+inr(Math.abs(w.bal))}</b></div></div>
+    <div class="sub">${w.low?`<p class="warn" style="margin:0 0 8px">🔋 Balance is below ${inr(S.low==null?200:S.low)}. Please load ${inr(w.need)}.</p>`:''}
+      <button class="btn ${w.low?'primary':'line'} block" data-pay="${esc(me)}">${ic('rupee')}Load ${inr(w.need||(+S.load||1000))} by UPI</button>
+      <div class="grid2"><button class="btn" style="background:var(--ok);color:#fff" id="mepaid">${ic('check')}I’ve paid</button><button class="btn line" data-gome>${ic('wallet')}My account</button></div></div>
+    <div class="card-f"><button class="lnk" id="mechange">Not ${esc(first(me))}? Change name</button></div></section>`}
   return`<section class="card${L.due?' due-card':''}">${cardH(L.due?'bell':'check','My dues · '+esc(first(me)),L.due?inr(L.due):'All paid',!L.due)}
     <div class="acct" style="border-top:0"><div><span>All games</span><b>${inr(L.charged)}</b></div><div class="good"><span>Paid</span><b>${inr(L.paid)}</b></div>
       <div><span>Waiting to confirm</span><b>${inr(L.claimed)}</b></div><div class="${L.due?'bad':'good'}"><span>Balance</span><b>${L.due?inr(L.due):'Nil ✓'}</b></div></div>
@@ -938,13 +971,14 @@ function myCard(){
       ${`<div class="grid2"><button class="btn" style="background:var(--ok);color:#fff" id="mepaid">${ic('check')}I’ve paid</button><button class="btn line" id="mecal">${ic('cal')}Remind me</button></div>
       <p class="hint">Paid for others too, part payment or a screenshot? It’s all on the next screen.${self?' As organizer, it’s recorded as settled straight away.':''}</p>`}</div>`
       :`<div class="sub"><span class="ok-chip">${ic('check')}You’re all settled. Thank you!</span></div>`}
-    <div class="card-f"><button class="lnk" id="mechange">Not ${esc(first(me))}? Change name</button></div></section>`;
+    <div class="card-f"><button class="lnk" id="mechange">Not ${esc(first(me))}? Change name</button><button class="lnk" data-gome style="margin-left:auto">My account →</button></div></section>`;
 }
 function bindMyCard(v){
   const ms=v.querySelector('#mesel');if(ms)ms.onchange=()=>{if(ms.value){setMe(ms.value);renderPay()}};
   const mc=v.querySelector('#mechange');if(mc)mc.onclick=()=>{setMe('');renderPay()};
   const mp=v.querySelector('#mepaid');if(mp)mp.onclick=()=>openPaid(getMe());
   const mk=v.querySelector('#mecal');if(mk)mk.onclick=()=>payReminderCal(getMe());
+  v.querySelectorAll('[data-gome]').forEach(b=>b.onclick=()=>{ME.who='';go('me')});
   const cl=v.querySelector('#meclaim');if(cl)cl.onclick=async()=>{const me=getMe(),amt=r2(+$('#meamt').value||0);if(amt<=0)return toast('Enter the amount you paid.');
     cl.disabled=true;const self=isOrg||!db;
     if(await addPayment(me,amt,self?'confirmed':'claimed',self?'self':'upi'))toast(self?'Your payment of '+inr(amt)+' is recorded.':'Thanks! '+inr(amt)+' sent to the organizer for confirmation.');else cl.disabled=false};
@@ -957,12 +991,13 @@ function shrinkImage(file){return new Promise((res,rej)=>{const fr=new FileReade
   const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(i,0,0,w,h);
   let q=.7,u=c.toDataURL('image/jpeg',q);while(u.length>600000&&q>.3){q-=.1;u=c.toDataURL('image/jpeg',q)}res(u)};i.src=fr.result};fr.readAsDataURL(file)})}
 function openPaid(me,preset){
-  const rows=[{name:me,amt:Math.max(0,r2(ledger(me).due-ledger(me).claimed))||ledger(me).due}];(preset||[]).forEach(n=>{if(!rows.some(r=>nkey(r.name)===nkey(n)))rows.push({name:n,amt:Math.max(0,r2(ledger(n).due-ledger(n).claimed))})});
+  const defAmt=n=>{if(PRE()){const w=wallet(n);return w.need||(+S.load||1000)}const L=ledger(n);return Math.max(0,r2(L.due-L.claimed))||L.due};
+  const rows=[{name:me,amt:defAmt(me)}];(preset||[]).forEach(n=>{if(!rows.some(r=>nkey(r.name)===nkey(n)))rows.push({name:n,amt:defAmt(n)})});
   let img='';
   const draw=()=>{const others=duesList().filter(x=>!rows.some(r=>nkey(r.name)===nkey(x.name)));const tot=rows.reduce((a,r)=>a+(+r.amt||0),0);
     const bg=sheetOpen(`<div class="sheet-h"><span class="ini">${ic('check')}</span><div><b>${isOrg||!db?'Record a payment':'Tell the organizer you’ve paid'}</b><small>${isOrg||!db?'Saved as received straight away':'They check it in their UPI app and confirm'}</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div>
       <span class="sublbl">Who this payment covers</span>
-      ${rows.map((r,i)=>`<div class="row"><div class="l"><b>${esc(r.name)}${i===0?' (you)':''}</b><small>Balance ${inr(ledger(r.name).due)}</small></div><div class="inline" style="gap:6px"><div class="amt"><span>₹</span><input type="number" inputmode="decimal" min="0" data-pa="${i}" value="${r.amt||''}" placeholder="0"></div>${i?`<button class="iconbtn" data-prm="${i}" aria-label="Remove ${esc(r.name)}">${ic('x')}</button>`:''}</div></div>`).join('')}
+      ${rows.map((r,i)=>`<div class="row"><div class="l"><b>${esc(r.name)}${i===0?' (you)':''}</b><small>${PRE()?'Wallet '+sinr(wallet(r.name).bal):'Balance '+inr(ledger(r.name).due)}</small></div><div class="inline" style="gap:6px"><div class="amt"><span>₹</span><input type="number" inputmode="decimal" min="0" data-pa="${i}" value="${r.amt||''}" placeholder="0"></div>${i?`<button class="iconbtn" data-prm="${i}" aria-label="Remove ${esc(r.name)}">${ic('x')}</button>`:''}</div></div>`).join('')}
       <div class="sub"><select class="txt" id="paadd"><option value="">＋ Also paid for someone else?</option>${others.map(x=>`<option value="${esc(x.name)}">${esc(x.name)} · owes ${inr(x.due)}</option>`).join('')}${allNames().filter(n=>!rows.some(r=>nkey(r.name)===nkey(n))&&!others.some(o=>nkey(o.name)===nkey(n))).map(n=>`<option value="${esc(n)}">${esc(n)}</option>`).join('')}</select>
         <p class="hint">Paid one amount for friends or family? Add them so each person’s dues clear.</p></div>
       <div class="sub"><span class="sublbl">Payment screenshot (optional)</span>
@@ -972,7 +1007,7 @@ function openPaid(me,preset){
       <div class="pad"><button class="btn block" style="background:var(--ok);color:#fff" id="pasend" ${tot>0?'':'disabled'}>${ic('check')}I’ve paid ${inr(tot)}</button></div>`,'I have paid');
     bg.querySelectorAll('[data-pa]').forEach(i=>i.oninput=()=>{rows[+i.dataset.pa].amt=r2(+i.value||0);const t=rows.reduce((a,r)=>a+(+r.amt||0),0);bg.querySelector('.tot b').textContent=inr(t);const b=$('#pasend');b.disabled=!(t>0);b.lastChild.textContent='I’ve paid '+inr(t)});
     bg.querySelectorAll('[data-prm]').forEach(b=>b.onclick=()=>{rows.splice(+b.dataset.prm,1);draw()});
-    $('#paadd').onchange=e=>{const n=e.target.value;if(!n)return;const L=ledger(n);rows.push({name:n,amt:Math.max(0,r2(L.due-L.claimed))});draw()};
+    $('#paadd').onchange=e=>{const n=e.target.value;if(!n)return;rows.push({name:n,amt:defAmt(n)});draw()};
     const fi=$('#paimg');if(fi)fi.onchange=async()=>{const f=fi.files[0];if(!f)return;try{img=await shrinkImage(f);draw()}catch(e){toast('Couldn’t read that image. Try another screenshot.')}};
     const ix=$('#paimgx');if(ix)ix.onclick=()=>{img='';draw()};
     $('#pasend').onclick=async()=>{const go2=rows.filter(r=>+r.amt>0);if(!go2.length)return;const b=$('#pasend');b.disabled=true;
@@ -996,9 +1031,9 @@ const payWho=x=>x.payer?'paid by '+esc(x.payer)+(x.by==='player'?', confirmed':'
 function duesCards(){
   const dues=duesList();
   const recent=allPays().filter(x=>x.status==='confirmed'&&x.kind!=='adjust').sort((a,b)=>(b.at||0)-(a.at||0)).slice(0,6);
-  return`<section class="card${dues.length?' due-card':''}">${cardH(dues.length?'bell':'check','All outstanding dues',dues.length?inr(dues.reduce((a,x)=>a+x.due,0)):'All clear')}
-    ${dues.length?dues.map(x=>`<button class="prow" style="width:100%;text-align:left" data-pay="${esc(x.name)}"><span class="ini">${esc(initials(x.name))}</span><span class="nm">${esc(x.name)}<small>${statement(x.name).unpaid.map(u=>esc(itemLbl(u))+' '+inr(u.left)).join(' · ')}${x.claimed?' · '+inr(x.claimed)+' to confirm':''}</small></span><span class="due-amt">${inr(x.due)}</span></button>`).join('')
-      :`<div class="empty">${ic('check')}Everyone has paid in full.</div>`}
+  return`<section class="card${dues.length?' due-card':''}">${cardH(dues.length?'bell':'check',PRE()?'Low wallet balances':'All outstanding dues',dues.length?(PRE()?plural(dues.length,'player'):inr(dues.reduce((a,x)=>a+x.due,0))):'All clear')}
+    ${dues.length?dues.map(x=>`<button class="prow" style="width:100%;text-align:left" data-pay="${esc(x.name)}"><span class="ini">${esc(initials(x.name))}</span><span class="nm">${esc(x.name)}<small>${PRE()?'Wallet '+(x.bal<0?'−':'')+inr(Math.abs(x.bal))+' · load '+inr(x.need):statement(x.name).unpaid.map(u=>esc(itemLbl(u))+' '+inr(u.left)).join(' · ')}${x.claimed?' · '+inr(x.claimed)+' to confirm':''}</small></span><span class="due-amt">${inr(x.due)}</span></button>`).join('')
+      :`<div class="empty">${ic('check')}${PRE()?'Every wallet is above '+inr(S.low==null?200:S.low)+'.':'Everyone has paid in full.'}</div>`}
     ${dues.length?`<div class="card-f" style="flex-wrap:wrap;gap:8px">${isOrg||!db?`<button class="btn sm primary" id="duesposter">${ic('share')}Dues poster</button>`:''}<a class="btn sm wa" href="${waHref(duesMsg(dues))}" target="_blank" rel="noopener">${ic('chat')}Reminder as text</a><span class="hint" style="margin-left:auto">Only players with dues · ${plural(dues.length,'player')}</span></div>`:''}</section>
   ${recent.length?`<section class="card">${cardH('wallet','Recent payments')}
     ${recent.map(x=>`<div class="prow"><span class="ini">${esc(initials(x.name))}</span><span class="nm">${esc(x.name)}<small>${whenD(x.confirmedAt||x.at)} · ${payWho(x)}${x.proof&&isOrg?` · <button class="lnk" data-proof="${esc(x.proof)}">📎</button>`:''}</small></span>${isOrg?(payDel===x.id?`<span class="acts"><button class="lnk" data-pkeep>Keep</button><button class="lnk danger" data-pdel="${esc(x.id)}">Undo</button></span>`:`<button class="am" style="color:var(--ok)" data-pask="${esc(x.id)}">${inr(x.amount)}</button>`):`<span class="am" style="color:var(--ok)">${inr(x.amount)}</span>`}</div>`).join('')}</section>`:''}`;
@@ -1006,6 +1041,10 @@ function duesCards(){
 function accountsCard(){const names=allNames(),orgV=isOrg||!db;
   let games=0,adj=0,rec=0,wait=0;names.forEach(n=>statement(n).rows.forEach(r=>{if(r.type==='game')games+=r.amt;else if(r.type==='adj')adj+=r.amt;else if(r.status==='confirmed')rec+=r.amt;else wait+=r.amt}));
   const pend=duesList().reduce((a,x)=>a+x.due,0);
+  if(PRE()){const tw=names.reduce((a,n)=>a+wallet(n).bal,0);return`<section class="card">${cardH('wallet','Accounts','Prepaid wallets')}
+    <div class="acct" style="border-top:0"><div class="good"><span>Loaded</span><b>${inr(r2(rec))}</b></div><div><span>Used in games</span><b>${inr(r2(games+adj))}</b></div><div><span>Waiting to confirm</span><b>${inr(r2(wait))}</b></div><div class="${tw<0?'bad':'good'}"><span>Left in wallets</span><b>${sinr(r2(tw))}</b></div></div>
+    <div class="sub"><select class="txt" data-sview><option value="">View a player’s account…</option>${names.map(n=>{const w=wallet(n);return`<option value="${esc(n)}">${esc(n)} · wallet ${sinr(w.bal)}</option>`}).join('')}</select></div>
+    ${orgV?`<div class="card-f"><button class="btn sm primary" id="xlsxbtn">${ic('copy')}Download Excel</button><span class="hint" style="margin-left:auto">Wallets, statements, payments, game days</span></div>`:''}</section>`}
   return`<section class="card">${cardH('wallet','Accounts','All time')}
     <div class="acct" style="border-top:0"><div><span>Billed</span><b>${inr(r2(games+adj))}</b></div><div class="good"><span>Received</span><b>${inr(r2(rec))}</b></div><div><span>Waiting to confirm</span><b>${inr(r2(wait))}</b></div><div class="${pend?'bad':'good'}"><span>Pending</span><b>${inr(r2(pend))}</b></div></div>
     <div class="sub"><select class="txt" data-sview><option value="">View a player’s statement…</option>${names.map(n=>{const d=ledger(n).due;return`<option value="${esc(n)}">${esc(n)}${d?' · owes '+inr(d):''}</option>`}).join('')}</select></div>
@@ -1039,10 +1078,10 @@ function xlsxBlob(sheets){
   return zipStore(files,'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')}
 function excelSheets(){
   const names=allNames().filter(n=>statement(n).rows.length),dd=ms=>({d:ymd(new Date(ms||0))});
-  const sum=[['Name','Games played','Game charges','Extra charges / credits','Paid (confirmed)','Waiting to confirm','Balance due','Unpaid since']];
+  const sum=[['Name','Games played','Game charges','Extra charges / credits',PRE()?'Loaded (confirmed)':'Paid (confirmed)','Waiting to confirm',PRE()?'Owes (if overdrawn)':'Balance due',PRE()?'Wallet balance':'Unpaid since']];
   names.map(n=>{const st=statement(n),L=ledger(n);const g=st.rows.filter(r=>r.type==='game'),a=st.rows.filter(r=>r.type==='adj').reduce((x,r)=>x+r.amt,0);
-    return[n,g.length,r2(g.reduce((x,r)=>x+r.amt,0)),r2(a),r2(L.paid),r2(L.claimed),r2(L.due),L.since?{d:L.since}:'']}).sort((a,b)=>b[6]-a[6]||String(a[0]).localeCompare(b[0])).forEach(r=>sum.push(r));
-  const tr=['TOTAL',...[1,2,3,4,5,6].map(i=>r2(sum.slice(1).reduce((x,r)=>x+(+r[i]||0),0))),''];sum.push(tr);
+    return[n,g.length,r2(g.reduce((x,r)=>x+r.amt,0)),r2(a),r2(L.paid),r2(L.claimed),r2(L.due),PRE()?r2(L.paid-L.charged):L.since?{d:L.since}:'']}).sort((a,b)=>b[6]-a[6]||String(a[0]).localeCompare(b[0])).forEach(r=>sum.push(r));
+  const tr=['TOTAL',...[1,2,3,4,5,6,...(PRE()?[7]:[])].map(i=>r2(sum.slice(1).reduce((x,r)=>x+(+r[i]||0),0))),''];sum.push(tr);
   const stm=[['Name','Date','Type','Details','Charge','Payment','Running balance','Status / note']];
   names.forEach(n=>statement(n).rows.forEach(r=>{
     if(r.type==='game'&&!r.played)stm.push([n,{d:r.date},'Shuttle share (didn’t play)','Group shuttles',r.amt,'',r.bal,'']);
@@ -1063,7 +1102,7 @@ async function exportExcel(){try{const blob=xlsxBlob(excelSheets()),fname=(S.gro
 function bindPayBook(v){
   v.querySelectorAll('[data-act="billsend"]').forEach(b=>b.onclick=openBillSend);
   v.querySelectorAll('[data-proof]').forEach(b=>b.onclick=()=>viewProof(b.dataset.proof));
-  v.querySelectorAll('[data-sview]').forEach(b=>b.onchange=()=>{if(b.value)openPay(b.value);b.value=''});
+  v.querySelectorAll('[data-sview]').forEach(b=>b.onchange=()=>{if(b.value){ME.who=b.value;go('me')}b.value=''});
   const xb=v.querySelector('#xlsxbtn');if(xb)xb.onclick=exportExcel;
   const dp=v.querySelector('#duesposter');if(dp)dp.onclick=async()=>{dp.disabled=true;const list=duesList();const url=await drawDuesPoster(list);dp.disabled=false;openDuesPoster(url,list)};
   v.querySelectorAll('[data-pay]').forEach(b=>b.onclick=()=>openPay(b.dataset.pay));
@@ -1073,7 +1112,9 @@ function bindPayBook(v){
   v.querySelectorAll('[data-pkeep]').forEach(b=>b.onclick=()=>{payDel=null;renderPay()});
   v.querySelectorAll('[data-pdel]').forEach(b=>b.onclick=async()=>{payDel=null;await setPayStatus(b.dataset.pdel,'delete');toast('Payment removed. The amount is due again.')});
 }
-function posterCaption(R){
+function posterCaption(R){if(PRE())return['🏸 *'+(S.groupName||'Badminton Family')+'*',R.days.map(d=>dlabel(d.date)).join(' | '),'',
+  'Thanks for a great game! 🙌 The amounts in the poster have been deducted from your wallets.','',
+  '👛 Check your balance & history: '+appLink('me'),'🔋 Wallet below '+inr(S.low==null?200:S.low)+'? Please load '+inr(S.load||1000)+(S.upiId?' via UPI: '+S.upiId:'')+' and tap “I’ve paid” in the app. 💚'].join('\n');
   const L=['🏸 *'+(S.groupName||'Badminton Family')+' — Payouts*',R.days.map(d=>dlabel(d.date)).join(' | '),'',
     'Thank you all for turning up and making it a great game! 🙌',
     'Your share is in the poster above. Whenever it suits you, please settle up. It keeps the courts booked and the shuttles flying for all of us. 💚',''];
@@ -1084,7 +1125,8 @@ function posterCaption(R){
 }
 function payText(R){
   const L=['🏸 *'+(S.groupName||'Badminton')+' — Payouts*',R.days.map(d=>dlabel(d.date)).join(' | '),''];
-  R.rows.forEach(r=>{const g=ledger(r.p),e=Math.max(0,r2(g.due-r.total));L.push('• '+r.p+' – *'+inr(r.total)+'*'+(g.due<=0?' ✅ paid':e?' ⚠️ +'+inr(e)+' earlier = '+inr(g.due):''))});L.push('');
+  R.rows.forEach(r=>{if(PRE()){const w=wallet(r.p);L.push('• '+r.p+' – *'+inr(r.total)+'* deducted · wallet '+(w.bal<0?'−':'')+inr(Math.abs(w.bal))+(w.low?' 🔋 please load '+inr(w.need):''));return}
+    const g=ledger(r.p),e=Math.max(0,r2(g.due-r.total));L.push('• '+r.p+' – *'+inr(r.total)+'*'+(g.due<=0?' ✅ paid':e?' ⚠️ +'+inr(e)+' earlier = '+inr(g.due):''))});L.push('');
   R.days.forEach((d,i)=>{const c=R.calcs[i];L.push('📅 *'+dlabel(d.date)+'* · '+c.n+' players');
     L.push('   Court: '+fmtH(d.hours)+' h × '+inr(d.rate)+' = '+inr(c.court)+' → '+inr(c.cEach)+' each');
     if(c.shuttle)L.push('   Shuttles: '+inr(c.shuttle)+' ÷ '+c.shN+' → '+inr(c.sEach)+' each');
@@ -1138,9 +1180,9 @@ const isIOS=/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform===
 function upiQuery(amount,note){const e=encodeURIComponent;return'pa='+S.upiId.trim()+'&pn='+e(S.upiName||S.groupName||'Badminton')+'&am='+Number(amount).toFixed(2)+'&cu=INR&tn='+e(note)}
 function openPay(name){
   closeWho();
-  const L=ledger(name),amount=L.due;
+  const L=ledger(name),W=wallet(name),amount=PRE()?(W.need||(+S.load||1000)):L.due;
   const bg=document.createElement('div');bg.className='sheet-bg';bg.id='whosheet';
-  const head=`<div class="grab"></div><div class="sheet-h"><span class="ini">${esc(initials(name))}</span><div><b>${esc(name)}</b><small>${L.since?'Unpaid since '+esc(dlabel(L.since,{day:'numeric',month:'short'})):'Balance'}</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div>`;
+  const head=`<div class="grab"></div><div class="sheet-h"><span class="ini">${esc(initials(name))}</span><div><b>${esc(name)}</b><small>${PRE()?'Wallet '+(W.bal<0?'−':'')+inr(Math.abs(W.bal))+(W.low?' · low':''):L.since?'Unpaid since '+esc(dlabel(L.since,{day:'numeric',month:'short'})):'Balance'}</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div>`;
   const orgBox=isOrg||!db?`<div class="row"><div class="l"><b>Mark as received</b><small>Cash, or a UPI payment you can see. Change the amount for part payments.</small></div></div>
     <div class="sub"><div class="inline"><div class="amt" style="flex:1;width:auto"><span>₹</span><input id="rcvamt" type="number" inputmode="decimal" min="1" value="${amount}" aria-label="Amount received"></div><button class="btn primary" id="rcvbtn">${ic('check')}Received</button></div>
       <input class="txt" id="rcvnote" placeholder="Note (optional), e.g. paid in cash on 31 Oct"></div>
@@ -1259,17 +1301,17 @@ async function drawDuesPoster(list){
   g.fillStyle='#F6F7F6';g.fillRect(0,0,W,H);
   g.fillStyle=acc;g.fillRect(0,0,W,heroH);g.save();g.globalAlpha=.12;g.strokeStyle=sk.ink;g.lineWidth=3;for(let i=-2;i<9;i++){g.beginPath();g.moveTo(i*160,heroH);g.lineTo(i*160+260,0);g.stroke()}g.restore();
   g.fillStyle=sk.ink;g.textAlign='left';g.font='800 24px '+F;g.globalAlpha=.85;fit(g,(S.groupName||'Badminton Family').toUpperCase(),P,92,W-P*2);g.globalAlpha=1;
-  g.font='800 80px '+F;g.fillText('Payment reminder',P,180);g.font='600 26px '+F;g.globalAlpha=.85;g.fillText('As of '+dlabel(todayStr(),{weekday:'short',day:'numeric',month:'short',year:'numeric'}),P,226);g.globalAlpha=1;
+  g.font='800 80px '+F;g.fillText(PRE()?'Wallet top-up':'Payment reminder',P,180);g.font='600 26px '+F;g.globalAlpha=.85;g.fillText('As of '+dlabel(todayStr(),{weekday:'short',day:'numeric',month:'short',year:'numeric'}),P,226);g.globalAlpha=1;
   let y=top;const tw=W-P*2,tblH=84+list.length*rowH+rowH;
-  g.save();rr(g,P,y,tw,tblH,22);g.clip();g.fillStyle=acc;g.fillRect(P,y,tw,84);g.fillStyle=sk.ink;g.font='800 22px '+F;g.fillText('NAME · PENDING FOR',P+28,y+52);g.textAlign='right';g.fillText('DUE',W-P-28,y+52);y+=84;
+  g.save();rr(g,P,y,tw,tblH,22);g.clip();g.fillStyle=acc;g.fillRect(P,y,tw,84);g.fillStyle=sk.ink;g.font='800 22px '+F;g.fillText(PRE()?'NAME · WALLET NOW':'NAME · PENDING FOR',P+28,y+52);g.textAlign='right';g.fillText(PRE()?'PLEASE LOAD':'DUE',W-P-28,y+52);y+=84;
   list.forEach((x,i)=>{g.fillStyle=i%2?soft:'#FFFFFF';g.fillRect(P,y,tw,rowH);g.textAlign='left';g.fillStyle='#101828';g.font='700 29px '+F;fit(g,x.name,P+28,y+40,tw-280);
-    const u=statement(x.name).unpaid;g.fillStyle='#667085';g.font='600 20px '+F;fit(g,u.map(i=>itemLbl(i)+' ₹'+i.left).join('  ·  ')||'Earlier balance',P+28,y+72,tw-280);
+    const u=statement(x.name).unpaid;g.fillStyle='#667085';g.font='600 20px '+F;fit(g,PRE()?'Wallet '+(x.bal<0?'−':'')+'₹'+Math.abs(x.bal)+(x.bal<0?' (overdrawn)':''):u.map(i=>itemLbl(i)+' ₹'+i.left).join('  ·  ')||'Earlier balance',P+28,y+72,tw-280);
     g.textAlign='right';g.fillStyle='#B42318';g.font='800 32px '+F;g.fillText('₹'+x.due.toLocaleString('en-IN'),W-P-28,y+56);y+=rowH});
-  const tot=list.reduce((a,x)=>a+x.due,0);g.fillStyle=mix(acc,'#FFFFFF',.14);g.fillRect(P,y,tw,rowH);g.textAlign='left';g.fillStyle='#101828';g.font='800 26px '+F;g.fillText('TOTAL PENDING · '+list.length+' PLAYERS',P+28,y+56);g.textAlign='right';g.fillText('₹'+tot.toLocaleString('en-IN'),W-P-28,y+56);
+  const tot=list.reduce((a,x)=>a+x.due,0);g.fillStyle=mix(acc,'#FFFFFF',.14);g.fillRect(P,y,tw,rowH);g.textAlign='left';g.fillStyle='#101828';g.font='800 26px '+F;g.fillText((PRE()?'TO LOAD · ':'TOTAL PENDING · ')+list.length+' PLAYERS',P+28,y+56);g.textAlign='right';g.fillText('₹'+tot.toLocaleString('en-IN'),W-P-28,y+56);
   g.restore();g.strokeStyle='#E4E7EC';g.lineWidth=2;rr(g,P,top,tw,tblH,22);g.stroke();y+=rowH+40;
   g.fillStyle='#FFFFFF';rr(g,P,y,tw,190,24);g.fill();g.strokeStyle=acc;g.lineWidth=3;g.stroke();g.textAlign='left';
   g.fillStyle=acc;g.font='800 28px '+F;g.fillText(S.upiId?'Pay by UPI: '+S.upiId:'Pay the organizer',P+32,y+58);
-  g.fillStyle='#101828';g.font='700 24px '+F;fit(g,'Already paid? App → Payouts → My dues → tap “I’ve paid”',P+32,y+108,tw-64);
+  g.fillStyle='#101828';g.font='700 24px '+F;fit(g,PRE()?'Loaded? App → My account → tap “I’ve paid”':'Already paid? App → Payouts → My dues → tap “I’ve paid”',P+32,y+108,tw-64);
   g.fillStyle='#667085';g.font='600 22px '+F;fit(g,'Something looks off? Message the organizer and we’ll sort it out.',P+32,y+152,tw-64);
   g.textAlign='center';g.fillStyle='#667085';g.font='600 24px '+F;g.fillText('Same court · Same people · Stronger together',W/2,H-42);
   return cv.toDataURL('image/png');
@@ -1277,15 +1319,72 @@ async function drawDuesPoster(list){
 function fit(g,t,x,y,max){let s=String(t);while(g.measureText(s).width>max&&s.length>3)s=s.slice(0,-2)+'…';g.fillText(s,x,y)}
 function rr(g,x,y,w,h,r){g.beginPath();g.moveTo(x+r,y);g.arcTo(x+w,y,x+w,y+h,r);g.arcTo(x+w,y+h,x,y+h,r);g.arcTo(x,y+h,x,y,r);g.arcTo(x,y,x+w,y,r);g.closePath()}
 
+/* ================= MY ACCOUNT ================= */
+const ME={who:'',sec:'games'};
+function renderMe(){
+  const v=$('#view-me'),names=allNames(),mine=names.find(n=>nkey(n)===nkey(getMe()))||'';
+  const who=names.find(n=>nkey(n)===nkey(ME.who))||mine;
+  const pick=`<select class="txt" id="mewho" aria-label="Whose account">${who?'':'<option value="">Choose your name…</option>'}${names.map(n=>`<option ${n===who?'selected':''}>${esc(n)}</option>`).join('')}</select>`;
+  if(!who){v.innerHTML=intro('My account','Every game, payment and change on your account, with dates.')+`<section class="card"><div class="pad">${pick}<p class="hint">Saved on this phone, so you only pick it once.</p></div></section>`;bindMe(v);return}
+  const L=ledger(who),W=wallet(who),st=statement(who),k=nkey(who),pays=allPays();
+  const games=[];Object.keys(S.days).sort().reverse().forEach(ds=>{const d=getDay(ds),o=perOf(calc(d),who);if(o)games.push({ds,d,o,c:calc(d)})});
+  const own=pays.filter(x=>nkey(x.name)===k&&x.kind!=='adjust'&&!x.payer),forMe=pays.filter(x=>nkey(x.name)===k&&x.payer),byMe=pays.filter(x=>x.payer&&nkey(x.payer)===k),adj=pays.filter(x=>nkey(x.name)===k&&x.kind==='adjust');
+  const sum=(a,f)=>r2(a.reduce((t,x)=>t+f(x),0)),gt={court:sum(games,g=>g.o.court),sh:sum(games,g=>g.o.shuttle),dr:sum(games,g=>g.o.drinks),tot:sum(games,g=>g.o.total)};
+  const dt=ms=>esc(dlabel(ymd(new Date(ms||0)),{day:'numeric',month:'short'})),tm=ms=>new Date(ms||0).toLocaleTimeString('en-IN',{hour:'numeric',minute:'2-digit'});
+  const status=x=>x.status==='confirmed'?`<span style="color:var(--ok)">Confirmed</span>`:`<span style="color:#B54708">Waiting</span>`;
+  const meth=x=>x.method==='upi'?'UPI':x.method==='self'?'Own share':x.method==='manual'?'Recorded by organizer':esc(x.method||'');
+  /* audit trail: every event in time order */
+  const ev=[];games.forEach(g=>ev.push({at:new Date(g.ds+'T12:00').getTime(),t:g.o.played?`Played ${fmtH(g.d.hours)} h · charged ${inr(g.o.total)}`:`Group shuttle share · charged ${inr(g.o.total)}`,s:`Court ${inr(g.o.court)} · Shuttle ${inr(g.o.shuttle)} · Drinks ${inr(g.o.drinks)}`,c:'bad',day:true}));
+  pays.forEach(x=>{const mineP=nkey(x.name)===k,payer=x.payer&&nkey(x.payer)===k;if(!mineP&&!payer)return;
+    if(x.kind==='adjust'){if(mineP)ev.push({at:x.at,t:(x.amount>=0?'Extra charge ':'Credit ')+inr(Math.abs(x.amount)),s:(x.note||'')+(x.byName?' · by '+x.byName:''),c:x.amount>=0?'bad':'good'});return}
+    const who2=mineP?(x.payer?'Paid by '+x.payer+' for you':(PRE()?'Wallet load':'Payment')):'You paid for '+x.name;
+    ev.push({at:x.at,t:who2+' '+inr(x.amount),s:(x.byName?'Recorded by '+x.byName:x.by==='player'?meth(x)+' · sent from the app':meth(x))+(x.proof?' · 📎 screenshot':'')+(x.note?' · '+x.note:''),c:mineP?'good':''});
+    if(x.status==='confirmed'&&x.confirmedAt)ev.push({at:x.confirmedAt,t:'Confirmed '+inr(x.amount)+(mineP?'':' for '+x.name),s:x.confirmedBy?'by '+x.confirmedBy:'by organizer',c:'good'})});
+  ev.sort((a,b)=>b.at-a.at);
+  const tabs=[['games','Games'],['money','Payments'],['audit','History']];
+  v.innerHTML=`${intro(nkey(who)===nkey(mine)?'My account':esc(who)+'’s account','Every game, payment and change, with dates. Open to everyone; only organizers can edit.')}
+  <section class="card"><div class="pad" style="padding-bottom:8px">${pick}</div>
+    ${PRE()?`<div class="acct"><div class="good"><span>Loaded</span><b>${inr(W.paid)}</b></div><div><span>Used</span><b>${inr(W.charged)}</b></div><div><span>Waiting to confirm</span><b>${inr(W.claimed)}</b></div><div class="${W.low?'bad':'good'}"><span>Wallet balance</span><b>${(W.bal<0?'−':'')+inr(Math.abs(W.bal))}</b></div></div>
+      ${W.low?`<div class="sub"><p class="warn" style="margin:0">🔋 Below ${inr(S.low==null?200:S.low)}. Please load ${inr(W.need)}.</p></div>`:''}`
+    :`<div class="acct"><div><span>Games & charges</span><b>${inr(L.charged)}</b></div><div class="good"><span>Paid</span><b>${inr(L.paid)}</b></div><div><span>Waiting to confirm</span><b>${inr(L.claimed)}</b></div><div class="${L.due?'bad':'good'}"><span>${L.due?'Balance due':'Balance'}</span><b>${L.due?inr(L.due):r2(L.paid-L.charged)>0?'Credit '+inr(r2(L.paid-L.charged)):'Nil ✓'}</b></div></div>`}
+    <div class="acct" style="grid-template-columns:repeat(3,minmax(0,1fr))"><div><span>Games</span><b>${games.filter(g=>g.o.played).length}</b></div><div><span>Paid for others</span><b>${inr(sum(byMe,x=>+x.amount||0))}</b></div><div><span>Paid by others</span><b>${inr(sum(forMe,x=>+x.amount||0))}</b></div></div>
+    <div class="card-f" style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><button class="btn sm primary" data-pay="${esc(who)}">${ic('rupee')}${PRE()?'Load':'Pay'} by UPI</button><button class="btn sm line" id="mepaid2">${ic('check')}I’ve paid</button></div></section>
+  <div class="seg" style="margin:4px 0 12px">${tabs.map(([k2,l])=>`<button class="${ME.sec===k2?'on':''}" data-mesec="${k2}">${l}</button>`).join('')}</div>
+  ${ME.sec==='games'?`<section class="card">${cardH('shuttle','Games & costs',plural(games.length,'day'))}
+    ${games.length?`<div class="acct" style="border-top:0;grid-template-columns:repeat(4,minmax(0,1fr))"><div><span>Court</span><b>${inr(gt.court)}</b></div><div><span>Shuttle</span><b>${inr(gt.sh)}</b></div><div><span>Drinks</span><b>${inr(gt.dr)}</b></div><div class="bad"><span>Total</span><b>${inr(gt.tot)}</b></div></div>
+    ${games.map(g=>`<div class="prow"><span class="ini" style="font-size:11px;line-height:1.1;text-align:center">${esc(dlabel(g.ds,{day:'numeric'}))}<br>${esc(dlabel(g.ds,{month:'short'}))}</span><span class="nm">${esc(dlabel(g.ds,{weekday:'long'}))} · ${g.o.played?fmtH(g.d.hours)+' h, '+g.c.n+' played':'didn’t play'}
+      <small>${g.o.played?'Court '+inr(g.o.court)+' ('+fmtH(g.d.hours)+'h × '+inr(g.d.rate)+' ÷ '+g.c.n+')':''}${g.o.shuttle?(g.o.played?' · ':'')+'Shuttle '+inr(g.o.shuttle)+' ('+inr(g.c.shuttle)+' ÷ '+g.c.shN+')':''}${g.o.drinks?' · Drinks '+inr(g.o.drinks)+' ('+inr(g.c.drinks)+' ÷ '+g.c.drN+')':''}</small></span><span class="am">${inr(g.o.total)}</span></div>`).join('')}`:`<div class="empty">${ic('shuttle')}No games recorded yet.</div>`}</section>`:''}
+  ${ME.sec==='money'?`<section class="card">${cardH('wallet',PRE()?'Money loaded':'My payments',inr(sum(own.filter(x=>x.status==='confirmed'),x=>+x.amount||0)))}
+    ${own.length?own.sort((a,b)=>(b.at||0)-(a.at||0)).map(x=>`<div class="prow"><span class="ini">${ic('rupee')}</span><span class="nm">${inr(x.amount)} · ${status(x)}<small>${dt(x.at)} · ${meth(x)}${x.note?' · '+esc(x.note):''}${x.proof?' · 📎':''}</small></span></div>`).join(''):`<div class="empty">${ic('wallet')}No payments yet.</div>`}</section>
+    ${byMe.length?`<section class="card">${cardH('users','Paid on behalf of others',inr(sum(byMe,x=>+x.amount||0)))}${byMe.sort((a,b)=>(b.at||0)-(a.at||0)).map(x=>`<div class="prow"><span class="ini">${esc(initials(x.name))}</span><span class="nm">For ${esc(x.name)} · ${inr(x.amount)}<small>${dt(x.at)} · ${status(x)}</small></span></div>`).join('')}</section>`:''}
+    ${forMe.length?`<section class="card">${cardH('users','Paid for you by others',inr(sum(forMe,x=>+x.amount||0)))}${forMe.sort((a,b)=>(b.at||0)-(a.at||0)).map(x=>`<div class="prow"><span class="ini">${esc(initials(x.payer))}</span><span class="nm">${esc(x.payer)} paid ${inr(x.amount)}<small>${dt(x.at)} · ${status(x)}</small></span></div>`).join('')}</section>`:''}
+    ${adj.length?`<section class="card">${cardH('gear','Adjustments by organizer')}${adj.map(x=>`<div class="prow"><span class="ini">${x.amount>=0?'+':'−'}</span><span class="nm">${x.amount>=0?'Extra charge':'Credit'} ${inr(Math.abs(x.amount))}<small>${dt(x.at)}${x.note?' · '+esc(x.note):''}</small></span></div>`).join('')}</section>`:''}`:''}
+  ${ME.sec==='audit'?`<section class="card">${cardH('clock','Complete history',ev.length+(ev.length===1?' entry':' entries'))}
+    ${ev.length?ev.map(e=>`<div class="prow"><span class="ini" style="font-size:11px">${esc(dlabel(ymd(new Date(e.at)),{day:'numeric',month:'short'}))}</span><span class="nm">${esc(e.t)}<small>${e.day?'':tm(e.at)+' · '}${esc(e.s)}</small></span></div>`).join(''):`<div class="empty">${ic('clock')}Nothing yet.</div>`}
+    <div class="card-f"><p class="hint">Payments show when they were sent and when the organizer confirmed them. Game days are listed on the day played.</p></div></section>`:''}`;
+  bindMe(v);
+}
+function bindMe(v){
+  const s2=v.querySelector('#mewho');if(s2)s2.onchange=()=>{ME.who=s2.value;if(!getMe()&&s2.value)setMe(s2.value);renderMe()};
+  v.querySelectorAll('[data-mesec]').forEach(b=>b.onclick=()=>{ME.sec=b.dataset.mesec;renderMe()});
+  v.querySelectorAll('[data-pay]').forEach(b=>b.onclick=()=>openPay(b.dataset.pay));
+  const p2=v.querySelector('#mepaid2');if(p2)p2.onclick=()=>{const w=ME.who||getMe();openPaid(getMe()||w,getMe()&&nkey(getMe())!==nkey(w)?[w]:[])};
+}
+
 /* ================= TEAM ================= */
 let teamPending='', teamWarn={html:'',val:''}, teamUI={reset:{pays:true,days:true,polls:false},resetBusy:false,newGroup:false};
 /* ---------- organizer data: poll votes + who opened the app ---------- */
+const VOTE_UNSUB={},VOTES_BY={};let SEEN_UNSUB=null,orgTick=null;
+function orgChanged(){clearTimeout(orgTick);orgTick=setTimeout(()=>{PDATA.votes=Object.values(VOTES_BY).flat();PDATA.at=Date.now();autoInactive();autoBillFromPolls();
+  if(tab==='team'&&!typingIn('#view-team'))renderTeam();else if(tab==='day')refreshDay();try{remDot()}catch(e){}},150)}
+/* organizers get votes and app opens live, so every organizer sees the same numbers */
 async function loadOrgData(force){
-  if(!db||!isOrg)return;if(PDATA.loading){if(force)PDATA.again=true;return}if(!force&&Date.now()-PDATA.at<30000)return;
-  PDATA.loading=true;
-  try{const out=[];for(const pl of P.list){try{const vs=await pollsCol().doc(pl.id).collection('votes').get();vs.docs.forEach(d=>out.push({poll:pl.id,id:d.id,...d.data()}))}catch(e){}}PDATA.votes=out}catch(e){}
-  try{const q=await col('seen').get();SEEN=q.docs.map(d=>({uid:d.id,...d.data()}))}catch(e){SEEN=[]}
-  PDATA.at=Date.now();PDATA.loading=false;autoInactive();autoBillFromPolls();if(PDATA.again){PDATA.again=false;return loadOrgData(true)}if(tab==='team'&&!typingIn('#view-team'))renderTeam();
+  if(!db||!isOrg)return;
+  if(!SEEN_UNSUB)SEEN_UNSUB=col('seen').onSnapshot(q=>{SEEN=q.docs.map(d=>({uid:d.id,...d.data()}));orgChanged()},()=>{SEEN_UNSUB=null});
+  const ids=new Set(P.list.map(p=>p.id));
+  P.list.forEach(pl=>{if(VOTE_UNSUB[pl.id])return;VOTE_UNSUB[pl.id]=pollsCol().doc(pl.id).collection('votes').onSnapshot(q=>{VOTES_BY[pl.id]=q.docs.map(d=>({poll:pl.id,id:d.id,...d.data()}));orgChanged()},()=>{delete VOTE_UNSUB[pl.id]})});
+  Object.keys(VOTE_UNSUB).forEach(id=>{if(!ids.has(id)){VOTE_UNSUB[id]();delete VOTE_UNSUB[id];delete VOTES_BY[id]}});
+  if(force)orgChanged();
 }
 /* newcomers (names seen in polls, days or payments that aren't on the team) + likely duplicates */
 function attention(){
@@ -1345,7 +1444,7 @@ function renderTeam(){
     <span class="acts" style="align-items:center">${org?`<select class="lvl" data-lvl="${esc(p)}"${lv?` style="--lc:${lv[2]}"`:''} aria-label="Level for ${esc(p)}"><option value="">Level</option>${LEVELS.map(l=>`<option value="${l[0]}"${lv&&lv[0]===l[0]?' selected':''}>${l[1]}</option>`).join('')}</select><button type="button" class="iconbtn" data-manage="${esc(p)}" aria-label="Manage ${esc(p)}">${ic('gear')}</button>`:lv?`<span class="lvl" style="--lc:${lv[2]};display:inline-flex;align-items:center">${lv[1]}</span>`:''}</span></div>`};
   v.innerHTML=`
   ${intro('Team',org?'Players, access, adoption and settings. Changes apply to everyone in this group.':'Everyone in the group, their level and who’s settled up.')}
-  ${kpis(org&&AD?[['Players',act.length],['On the app',AD.joined+'%'],['Owing',duesList().length,true]]:[['Players',act.length],['Days played',nDays],['Owing',duesList().length,true]])}
+  ${kpis(org&&AD?[['Players',act.length],['On the app',AD.joined+'%'],[PRE()?'Low wallet':'Owing',duesList().length,true]]:[['Players',act.length],['Days played',nDays],[PRE()?'Low wallet':'Owing',duesList().length,true]])}
   ${viewOnly('edit the team')}
   ${org&&(att.fresh.length||att.dups.length)?`<section class="card due-card">${cardH('bell','Needs your review',att.fresh.length+att.dups.length)}
     ${att.fresh.map(x=>`<div class="prow2"><span class="ini">${esc(initials(x.n))}</span><span class="pinfo" style="cursor:default"><b style="color:var(--ink)">${esc(x.n)}</b><small>${x.from} · not on the team${x.match?' · looks like '+esc(x.match):''}</small></span><span></span>
@@ -1399,6 +1498,11 @@ function renderTeam(){
     <div class="sub"><input class="txt" id="upiin" value="${esc(S.upiId)}" placeholder="name@okaxis" autocomplete="off" autocapitalize="off" spellcheck="false" inputmode="email" aria-label="UPI ID"><p class="warn" id="upiwarn" hidden>That doesn’t look like a UPI ID. It should look like name@bank.</p></div>
     <div class="row"><div class="l"><b>Name shown in UPI app</b><small>Usually the account holder’s name</small></div></div>
     <div class="sub"><input class="txt" id="upiname" value="${esc(S.upiName)}" placeholder="e.g. Pavan K" aria-label="Payee name"></div>
+    <div class="row" style="border-top:1px solid var(--line2)"><div class="l"><b>How players pay</b><small>${PRE()?'Players load money up front; each game is deducted from their wallet.':'Players pay after games for what they owe.'}</small></div></div>
+    <div class="sub"><div class="seg" style="padding:0"><button type="button" class="${PRE()?'':'on'}" data-model="post">Pay after games</button><button type="button" class="${PRE()?'on':''}" data-model="pre">Prepaid wallet</button></div></div>
+    ${PRE()?`<div class="row"><div class="l"><b>Load amount</b><small>Suggested top-up each time</small></div><div class="amt"><span>₹</span><input id="wload" type="number" inputmode="decimal" min="100" value="${+S.load||1000}" aria-label="Load amount"></div></div>
+    <div class="row"><div class="l"><b>Low balance alert</b><small>Ask to load when the wallet drops below this</small></div><div class="amt"><span>₹</span><input id="wlow" type="number" inputmode="decimal" min="0" value="${S.low==null?200:S.low}" aria-label="Low balance alert"></div></div>
+    <div class="sub"><p class="hint">Existing payments count as money loaded, so balances carry over. Switching back to “Pay after games” keeps everything.</p></div>`:''}
   </section>
   <section class="card">
     ${cardH('gear','Defaults')}
@@ -1602,6 +1706,7 @@ function bindTeam(){
     const me=e.target.closest('[data-merge]');if(me){me.disabled=true;const r=await renamePlayer(me.dataset.merge,me.dataset.into);toast(me.dataset.merge+' merged into '+r.fin+'.');return}
     const an=e.target.closest('[data-addnew]');if(an){const n=tcase(an.dataset.addnew);if(!S.roster.some(r=>nkey(r)===nkey(n))){S.roster.push(n);saveConfig()}if(n!==an.dataset.addnew)await renamePlayer(an.dataset.addnew,n);renderTeam();toast(n+' added to the team.');return}
     const ig=e.target.closest('[data-ignore]');if(ig){S.ignored=[...(S.ignored||[]),ig.dataset.ignore];saveConfig();renderTeam();return}
+    const mb=e.target.closest('[data-model]');if(mb){if(!canEdit())return;S.model=mb.dataset.model;saveConfig();renderTeam();toast(S.model==='pre'?'Prepaid wallet is on. Each game is deducted from wallets.':'Back to paying after games.');return}
     const ra=e.target.closest('[data-rmadmin]');if(ra){await saveAdmins(adminList().filter(x=>x!==ra.dataset.rmadmin));renderTeam();toast('Removed.');return}
     const b=e.target.closest('[data-act]');if(!b||b.disabled)return;const a=b.dataset.act,val=b.dataset.v;
     if(a==='addp')addPlayer(false);
@@ -1621,6 +1726,8 @@ function bindTeam(){
     else if(id==='defrate'){S.rate=Math.max(0,+e.target.value||0);saveConfig()}
     else if(id==='upiin'){const val=e.target.value.trim();const ok=!val||UPI_RE.test(val);$('#upiwarn').hidden=ok;if(ok){S.upiId=val;saveConfig()}}
     else if(id==='upiname'){S.upiName=norm(e.target.value);saveConfig()}
+    else if(id==='wload'){const v=+e.target.value||0;if(v>=1){S.load=v;saveConfig()}}
+    else if(id==='wlow'){const v=+e.target.value;if(v>=0){S.low=v;saveConfig()}}
     else if(id==='newp'){$('#pwarn').hidden=true;teamWarn={html:'',val:''}}});
   v.addEventListener('keydown',e=>{if(e.target.id==='newp'&&e.key==='Enter'){e.preventDefault();addPlayer(false)}if(e.target.id==='newgroup'&&e.key==='Enter'){e.preventDefault();createGroup()}});
   v.addEventListener('change',async e=>{
@@ -1726,10 +1833,11 @@ const TPL_DEFAULT={
   remind:"🗳️ *{title}*\n\n{status}\n\n{pending_count} haven’t voted yet. Takes 5 seconds 👉 {link}\n⏰ Closes {closes}",
   last:"⏰ *Last call! Voting closes in 1 hour* ({closes})\n\n{status}\n\n👉 {link}\nOnly app votes count for the game 🙏",
   game:"🏸 *Game in {lead} hours!* {date} · {time}\n\nPlaying ({count}): {players}\n\nSee you on court! 💚",
+  wallet:"🔋 *{group}: wallet top-up*\n\nThese wallets are below {low}:\n{dues_lines}\n\n📲 UPI: {upi}\n👛 Check your wallet: {payouts_link}\n\n✅ After loading, open the app → tap “I’ve paid” so it’s added to your wallet 🙏\n\nThank you! 💚",
   dues:"🔔 *{group}: gentle reminder*\n\n{dues_lines}\n\n📲 UPI: {upi}\n👉 Details & pay: {payouts_link}\n\n✅ *Already paid?* Open the app → Payouts → My dues → tap “I’ve paid”. It takes 5 seconds and keeps the books straight for everyone 🙏\n\nThank you! 💚"};
 const TPL_INFO=[['start','Poll started','{title} {dates} {slots} {link} {closes} {group}'],['startRule','Poll started + app-votes-only rule','{title} {dates} {slots} {link} {closes} {group}'],
   ['remind','Vote reminder','{title} {status} {pending} {pending_count} {link} {closes} {threshold}'],['last','Last call (before close)','{title} {status} {link} {closes}'],
-  ['game','Game-day reminder','{date} {time} {lead} {players} {count} {group}'],['dues','Payment reminder','{group} {dues_lines} {upi} {payouts_link}']];
+  ['game','Game-day reminder','{date} {time} {lead} {players} {count} {group}'],['dues','Payment reminder','{group} {dues_lines} {upi} {payouts_link}'],['wallet','Wallet top-up reminder (prepaid)','{group} {dues_lines} {low} {load} {upi} {payouts_link}']];
 const MSG_DEFAULT={on:true,days:[1,3,5],at:'20:00',threshold:8,lastCall:true,gameLead:2,duesOn:true,duesDays:[2,4,5],duesAt:'19:00',tpl:{}};
 const MSGS=()=>Object.assign({},MSG_DEFAULT,S.msg||{},{tpl:Object.assign({},(S.msg||{}).tpl||{})});
 const tplOf=k=>MSGS().tpl[k]||TPL_DEFAULT[k];
@@ -1772,7 +1880,7 @@ function reminderPlan(){
     const d0=new Date();d0.setHours(0,0,0,0);d0.setDate(d0.getDate()-7);
     for(let i=0;i<22;i++){const d=new Date(d0);d.setDate(d0.getDate()+i);if(!M.duesDays.includes(d.getDay()))continue;d.setHours(hh||0,mm||0,0,0);times.push(d.getTime())}
     times.forEach((at,i)=>{const key='dues|'+ymd(new Date(at)),sent=(S.sent||{})[key],skip=!list.length,until=times[i+1]||at+864e5;
-      out.push({key,at,kind:'dues',label:'Payment reminder · '+plural(list.length,'player'),msg,poll:{title:inr(tot)+' pending'},sent,skip,until,state:sent?'sent':skip?'skipped':at>now?'upcoming':now<until?'due':'missed'})})}
+      out.push({key,at,kind:'dues',label:(PRE()?'Wallet top-up · ':'Payment reminder · ')+plural(list.length,'player'),msg,poll:{title:inr(tot)+' pending'},sent,skip,until,state:sent?'sent':skip?'skipped':at>now?'upcoming':now<until?'due':'missed'})})}
   return out.sort((a,b)=>a.at-b.at);
 }
 function markSent(key){S.sent=S.sent||{};S.sent[key]=Date.now();saveConfig();renderTab(false)}
@@ -1856,7 +1964,7 @@ function openPoll(id){if(!db)return;stopPoll();P.mode='detail';P.confirmDel=fals
   P.unsubVotes=ref.collection('votes').onSnapshot(q=>{P.votes=q.docs.map(d=>d.data());pollRender()},()=>{})}
 function stopPoll(){if(P.unsubPoll)P.unsubPoll();if(P.unsubVotes)P.unsubVotes();P.unsubPoll=P.unsubVotes=null}
 function pollRender(){if(tab!=='polls')return;const a=document.activeElement;if(a&&a.tagName==='INPUT'&&a.type==='text'&&$('#view-polls').contains(a))return;renderPolls()}
-function routeHash(){if(location.hash==='#payouts'){go('pay');return}if(location.hash==='#remind'){P.mode='list';P.scrollRem=true;go('polls');return}const m=location.hash.match(/^#poll-([A-Za-z0-9_-]+)$/);if(m){openPoll(m[1]);go('polls')}}
+function routeHash(){if(location.hash==='#payouts'){go('pay');return}if(location.hash==='#me'){go('me');return}if(location.hash==='#remind'){P.mode='list';P.scrollRem=true;go('polls');return}const m=location.hash.match(/^#poll-([A-Za-z0-9_-]+)$/);if(m){openPoll(m[1]);go('polls')}}
 function leavePoll(){stopPoll();P.mode='list';P.sel=null;P.justCreated=null;try{history.replaceState(null,'',location.pathname)}catch(e){}renderPolls()}
 function renderPolls(){
   const v=$('#view-polls');
@@ -2023,14 +2131,17 @@ async function fillFromPoll(date){const p=pollForDate(date);if(!p)return;
 
 /* ================= navigation & boot ================= */
 function go(t){closeWho();if(t!=='team'&&teamUI)teamUI.page='';tab=t;if((t==='team'||t==='day')&&isOrg)loadOrgData(false);document.querySelectorAll('.tabbar [data-tab]').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.tab===t)));
-  ['day','polls','pay','team'].forEach(k=>$('#view-'+k).hidden=k!==t);renderTab(true);window.scrollTo(0,0)}
+  ['day','polls','pay','me','team'].forEach(k=>$('#view-'+k).hidden=k!==t);renderTab(true);window.scrollTo(0,0)}
 document.querySelectorAll('.tabbar [data-tab]').forEach(b=>b.onclick=()=>{if(b.dataset.tab==='pay'&&tab!=='pay'&&pay.range==='day'){pay.range='last';pay.off.clear()}go(b.dataset.tab)});
 function typingIn(id){const a=document.activeElement;return!!a&&(a.tagName==='INPUT'||a.tagName==='SELECT')&&$(id).contains(a)&&a.type!=='checkbox'&&a.type!=='file'}
+let STALE=false;
 function renderTab(force){
   renderHeader();
-  if(tab==='day'){if(force||!typingIn('#view-day'))renderDay();else refreshDay()}
+  if(!force&&tab!=='day'&&tab!=='polls'&&typingIn('#view-'+tab)){STALE=true;return}
+  if(tab==='day'){if(force||!typingIn('#view-day'))renderDay();else{refreshDay();STALE=true}}
   else if(tab==='polls')pollRender();
   else if(tab==='pay')renderPay();
+  else if(tab==='me')renderMe();
   else if(tab==='team'){if(force||!typingIn('#view-team'))renderTeam()}
 }
 async function signIn(){if(!auth)return;const prov=new firebase.auth.GoogleAuthProvider();
@@ -2044,7 +2155,9 @@ loadLocal();if(!S.roster.length&&!GID)S.roster=[...DEFAULT_PLAYERS];
 if(GID){try{const abs=u=>new URL(u,location.href).href;const m={name:'Shuttle Split',short_name:'Shuttle Split',start_url:HERE,scope:abs('./'),display:'standalone',background_color:'#F3F5F4',theme_color:'#0B7A4E',icons:[{src:abs('icon-192.png'),sizes:'192x192',type:'image/png'},{src:abs('icon-512.png'),sizes:'512x512',type:'image/png'}]};
   const l=document.querySelector('link[rel=manifest]');if(l)l.href=URL.createObjectURL(new Blob([JSON.stringify(m)],{type:'application/manifest+json'}))}catch(e){}}
 applySkin();bindDay();bindTeam();renderTab(true);
-if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+if('serviceWorker' in navigator)window.addEventListener('load',()=>{const had=!!navigator.serviceWorker.controller;let done=false;
+  navigator.serviceWorker.register('sw.js').then(reg=>{document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')reg.update().catch(()=>{})});setInterval(()=>reg.update().catch(()=>{}),30*60e3)}).catch(()=>{});
+  navigator.serviceWorker.addEventListener('controllerchange',()=>{if(!had||done)return;done=true;if(!document.querySelector('#whosheet')&&!document.activeElement.matches('input,textarea,select'))location.reload();else toast('A new version is ready. Close and reopen the app to update.')})});
 
 (function boot(){
   const ok=typeof firebase!=='undefined'&&FIREBASE_CONFIG.apiKey&&!/^PASTE/.test(FIREBASE_CONFIG.apiKey);
@@ -2063,7 +2176,8 @@ if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.ser
   fsDoc('config/main').onSnapshot(s=>{if(busy('config/main'))return;
     if(!s.metadata.fromCache)CFG_READY=true;
     if(!s.exists&&!s.metadata.fromCache){cfgMissing=true;if(isOrg){cfgMissing=false;saveConfig()}}
-    if(s.exists){const d=s.data();if(Array.isArray(d.roster))S.roster=[...d.roster];S.rate=+d.rate||300;S.groupName=d.groupName||'';S.upiId=d.upiId||'';S.upiName=d.upiName||'';S.levels=d.levels&&typeof d.levels==='object'?d.levels:{};S.admins=Array.isArray(d.admins)?d.admins:[];S.inactive=Array.isArray(d.inactive)?d.inactive:[];S.ignored=Array.isArray(d.ignored)?d.ignored:[];S.openNames=d.openNames!==false;S.idleWeeks=d.idleWeeks==null?4:+d.idleWeeks;S.since=d.since||{};S.autoOff=d.autoOff||{};S.billed=Array.isArray(d.billed)?d.billed:[];S.msg=d.msg||null;S.sent=d.sent||{};setTimeout(autoInactive,0);S.skin=SKINS[d.skin]?d.skin:'court';applySkin();saveLocal();if(GID)rememberGroup();if(computeOrg())renderTab(true)}
+    if(s.exists&&!s.metadata.hasPendingWrites)CFG_CLOUD=JSON.parse(JSON.stringify(s.data()));
+    if(s.exists){const d=s.data();if(Array.isArray(d.roster))S.roster=[...d.roster];S.rate=+d.rate||300;S.groupName=d.groupName||'';S.upiId=d.upiId||'';S.upiName=d.upiName||'';S.levels=d.levels&&typeof d.levels==='object'?d.levels:{};S.admins=Array.isArray(d.admins)?d.admins:[];S.inactive=Array.isArray(d.inactive)?d.inactive:[];S.ignored=Array.isArray(d.ignored)?d.ignored:[];S.openNames=d.openNames!==false;S.idleWeeks=d.idleWeeks==null?4:+d.idleWeeks;S.since=d.since||{};S.autoOff=d.autoOff||{};S.billed=Array.isArray(d.billed)?d.billed:[];S.msg=d.msg||null;S.sent=d.sent||{};S.model=d.model==='pre'?'pre':'post';S.load=+d.load||1000;S.low=d.low==null?200:+d.low;setTimeout(autoInactive,0);S.skin=SKINS[d.skin]?d.skin:'court';applySkin();saveLocal();if(GID)rememberGroup();if(computeOrg())renderTab(true)}
     renderTab(false)},e=>toast('Couldn’t load shared data ('+e.code+').'));
   fsDoc('config/photo').onSnapshot(s=>{if(busy('config/photo'))return;photo=s.exists?(s.data().data||''):'';try{photo?localStorage.setItem(LSP,photo):localStorage.removeItem(LSP)}catch(e){}renderHeader();if(tab==='team'&&!typingIn('#view-team'))renderTeam()},()=>{});
   col('days').onSnapshot(q=>{
@@ -2071,7 +2185,9 @@ if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.ser
     Object.keys(S.days).forEach(k=>{if(busy('days/'+k))next[k]=S.days[k]});
     Object.keys(pending).forEach(p=>{if(p.startsWith('days/')&&pending[p]===null)delete next[p.slice(5)]});
     S.days=next;if(!q.metadata||!q.metadata.fromCache)DAYS_READY=true;saveLocal();renderTab(false);autoInactive()},()=>{});
-  payCol().onSnapshot(q=>{PAYS=q.docs.map(d=>({id:d.id,...d.data()}));if(!typingIn('#view-day')&&!typingIn('#view-team'))renderTab(false)},()=>{});
+  payCol().onSnapshot(q=>{PAYS=q.docs.map(d=>({id:d.id,...d.data()}));if(!typingIn('#view-day')&&!typingIn('#view-team')&&!typingIn('#view-me'))renderTab(false);else STALE=true},()=>{});
+  document.addEventListener('focusout',()=>setTimeout(()=>{if(STALE&&!typingIn('#view-'+tab)){STALE=false;renderTab(false)}},120));
+  document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){renderTab(false);syncUI()}});
   startPollsListener();routeHash();window.addEventListener('hashchange',routeHash);
   setTimeout(()=>pingSeen(false),1500);
 })();
