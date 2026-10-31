@@ -377,7 +377,7 @@ const FIREBASE_CONFIG = {
 /* Collections get this prefix so they never clash with the league app's data */
 const COLLECTION_PREFIX = "shuttleSplit_";
 /* App version shown in Team → About */
-const APP_VERSION = "1.1.0", APP_BUILD = "30 Oct 2026";
+const APP_VERSION = "1.2.0", APP_BUILD = "31 Oct 2026";
 /* Owner of the main group (the link without ?g=) */
 const LEGACY_OWNER = "pavankaki.cool@gmail.com";
 /* Starting player list, used only until the first save */
@@ -424,7 +424,7 @@ const GID=(new URLSearchParams(location.search).get('g')||'').toLowerCase().repl
 const BASE=GID?COLLECTION_PREFIX+'groups/'+GID+'/':COLLECTION_PREFIX, SUF=GID?'-'+GID:'';
 const HERE=location.origin+location.pathname+(GID?'?g='+GID:'');
 const LS='shuttle-split-v1'+SUF, LSP='shuttle-split-photo'+SUF;
-const S={roster:[],rate:300,courts:1,groupName:'',skin:'court',upiId:'',upiName:'',levels:{},admins:[],inactive:[],ignored:[],openNames:true,idleWeeks:4,since:{},autoOff:{},days:{}};
+const S={roster:[],rate:300,courts:1,groupName:'',skin:'court',upiId:'',upiName:'',levels:{},admins:[],inactive:[],ignored:[],openNames:true,idleWeeks:4,since:{},autoOff:{},billed:[],days:{}};
 let CFG_READY=false, DAYS_READY=false, GROUP=null, GROUP_MISSING=false, SEEN=[], PDATA={votes:[],at:0,loading:false};
 let PAYS=[], photo='', db=null, auth=null, isOrg=false, tab='day', curDate=todayStr();
 const canEdit=()=>!db||isOrg;
@@ -445,7 +445,7 @@ async function flush(path){
   catch(e){toast(e&&e.code==='permission-denied'?'Only the organizer can change this. Sign in first.':'Couldn’t save ('+((e&&e.code)||'error')+'). Kept on this phone.')}
   inflight[path]=false;if(path in pending)flush(path);
 }
-function saveConfig(){queueWrite('config/main',{roster:S.roster,rate:S.rate,courts:1,groupName:S.groupName||'',skin:S.skin||'court',upiId:S.upiId||'',upiName:S.upiName||'',levels:S.levels||{},admins:S.admins||[],inactive:S.inactive||[],ignored:S.ignored||[],openNames:S.openNames!==false,idleWeeks:S.idleWeeks==null?4:S.idleWeeks,since:S.since||{},autoOff:S.autoOff||{}})}
+function saveConfig(){queueWrite('config/main',{roster:S.roster,rate:S.rate,courts:1,groupName:S.groupName||'',skin:S.skin||'court',upiId:S.upiId||'',upiName:S.upiName||'',levels:S.levels||{},admins:S.admins||[],inactive:S.inactive||[],ignored:S.ignored||[],openNames:S.openNames!==false,idleWeeks:S.idleWeeks==null?4:S.idleWeeks,since:S.since||{},autoOff:S.autoOff||{},billed:(S.billed||[]).slice(-200)})}
 /* ---------- organizers ---------- */
 const userEmail=()=>{const u=auth&&auth.currentUser;return u&&!u.isAnonymous&&u.email?u.email.toLowerCase():''};
 const ownerEmail=()=>String((GID?(GROUP&&GROUP.owner):LEGACY_OWNER)||'').toLowerCase();
@@ -597,7 +597,7 @@ function renderDay(){
   <fieldset id="dayfs" ${canEdit()?'':'disabled hidden'}>
   <section class="card">
     ${cardH('users','Who played','<span id="pmeta"></span>')}
-    <div class="pad"><div class="tiles" id="att"></div>
+    <div class="pad"><div id="pollnote"></div><div class="tiles" id="att"></div>
       <div class="inline"><input class="txt" id="guest" placeholder="Add guest or new player" autocomplete="off" enterkeyhint="done"><button type="button" class="btn sm primary" style="height:44px" data-act="addguest">${ic('plus')}Add</button></div>
       <p class="warn" id="guestwarn" hidden></p></div>
     <div class="card-f"><button type="button" class="lnk" data-act="all">Select all</button><button type="button" class="lnk" data-act="none">Clear</button><button type="button" class="lnk" data-act="frompoll" id="frompoll" style="margin-left:auto" hidden>Fill from poll</button></div>
@@ -624,7 +624,7 @@ function renderDay(){
   ${canEdit()?'':'<div id="duealert"></div>'}
   ${S.days[curDate]&&canEdit()?`<div style="text-align:center">${dayConfirmClear?`<span class="hint">Remove everything recorded for this day?</span> <button class="lnk" data-act="clear-no">Keep</button> · <button class="lnk danger" data-act="clear-yes">Clear day</button>`:`<button class="lnk danger" data-act="clear">Clear this day</button>`}</div>`:''}`;
   refreshDay();
-  attachSuggest($('#guest'),()=>allNames(),n=>{$('#guestwarn').hidden=true;const c=canon(n);editDay(d=>{if(!d.present.some(x=>nkey(x)===nkey(c)))d.present.push(c)});toast(c+' marked as played.')},'in the group');
+  attachSuggest($('#guest'),()=>allNames(),n=>{$('#guestwarn').hidden=true;const c=canon(n);const k0=nkey(c);if(!S.roster.some(r=>nkey(r)===k0)){S.roster.push(c);S.since=S.since||{};S.since[k0]=Date.now();saveConfig()}if((S.inactive||[]).includes(k0)){S.inactive=S.inactive.filter(x=>x!==k0);if(S.autoOff)delete S.autoOff[k0];saveConfig()}editDay(d=>{if(!d.present.some(x=>nkey(x)===nkey(c)))d.present.push(c)});toast(c+' marked as played.')},'in the group');
 }
 function refreshDay(){
   if(!$('#att'))return;
@@ -650,6 +650,7 @@ function refreshDay(){
   $('#drwrap').hidden=!d.drinksOn;
   $('#drchips').innerHTML=d.present.length?orderNames(d.present).map(p=>`<button type="button" class="tile ${d.drinksSkip.includes(p)?'out':'on'}" data-act="dr" data-v="${esc(p)}">${ic('check')}<span>${esc(p)}</span></button>`).join(''):'<p class="hint">Tick who played first.</p>';
   const fp=$('#frompoll');if(fp)fp.hidden=!(db&&canEdit()&&pollForDate(curDate));
+  const pn=$('#pollnote');if(pn)pn.innerHTML=d.src==='poll'?`<div class="note" style="margin-bottom:10px">${ic('poll')}<p>Pre-filled from the poll: ${plural(d.present.length,'player')} voted yes${d.slot?' for '+esc(d.slot):''}${d.courtsBooked?' · '+plural(d.courtsBooked,'court'):''}. Untick anyone who didn’t come and add guests below.</p></div>`:'';
   const vs=$('#viewsum');if(vs&&!canEdit()){vs.innerHTML=cardH('rupee','Costs for the day',inr(c.actual))+(c.n?`
     <div class="row"><div class="l"><b>Court</b><small>${fmtH(d.hours)} h × ${inr(d.rate)}</small></div><span class="v">${inr(c.court)}</span></div>
     ${c.shuttle?`<div class="row"><div class="l"><b>Shuttles</b><small>Shared by ${c.shN}</small></div><span class="v">${inr(c.shuttle)}</span></div>`:''}
@@ -673,9 +674,9 @@ function setDate(k){curDate=k;dayConfirmClear=false;renderDay()}
 function addGuest(force){
   const inp=$('#guest'),n=norm(inp.value),w=$('#guestwarn');if(!n)return;
   const chk=nameCheck(n,S.roster);
-  if(chk&&chk.type==='dup'){inp.value='';w.hidden=true;editDay(d=>{if(!d.present.includes(chk.name))d.present.push(chk.name)});toast(chk.name+' is already on the team. Marked as played.');return}
+  if(chk&&chk.type==='dup'){inp.value='';w.hidden=true;const k=nkey(chk.name);if((S.inactive||[]).includes(k)){S.inactive=S.inactive.filter(x=>x!==k);if(S.autoOff)delete S.autoOff[k];saveConfig()}editDay(d=>{if(!d.present.some(x=>nkey(x)===k))d.present.push(chk.name)});toast(chk.name+' is already on the team. Marked as played.');return}
   if(chk&&chk.type==='near'&&!force){guestPending=n;w.hidden=false;w.innerHTML=`<span style="flex:1">Looks like <b>${esc(chk.name)}</b>. Same person?</span><button type="button" class="btn sm line" data-act="guest-same" data-v="${esc(chk.name)}">Yes</button><button type="button" class="btn sm primary" data-act="guest-new">No, add new</button>`;return}
-  const nn=tcase(n);inp.value='';w.hidden=true;S.roster.push(nn);saveConfig();editDay(d=>{d.present.push(nn)});toast(nn+' added to the team.');
+  const nn=tcase(n);inp.value='';w.hidden=true;S.roster.push(nn);S.since=S.since||{};S.since[nkey(nn)]=Date.now();saveConfig();editDay(d=>{d.present.push(nn)});toast(nn+' added to the team and marked as played.');
 }
 function bindDay(){
   const v=$('#view-day');
@@ -1014,11 +1015,11 @@ function rr(g,x,y,w,h,r){g.beginPath();g.moveTo(x+r,y);g.arcTo(x+w,y,x+w,y+h,r);
 let teamPending='', teamWarn={html:'',val:''}, teamUI={reset:{pays:true,days:true,polls:false},resetBusy:false,newGroup:false};
 /* ---------- organizer data: poll votes + who opened the app ---------- */
 async function loadOrgData(force){
-  if(!db||!isOrg||PDATA.loading)return;if(!force&&Date.now()-PDATA.at<30000)return;
+  if(!db||!isOrg)return;if(PDATA.loading){if(force)PDATA.again=true;return}if(!force&&Date.now()-PDATA.at<30000)return;
   PDATA.loading=true;
   try{const out=[];for(const pl of P.list){try{const vs=await pollsCol().doc(pl.id).collection('votes').get();vs.docs.forEach(d=>out.push({poll:pl.id,id:d.id,...d.data()}))}catch(e){}}PDATA.votes=out}catch(e){}
   try{const q=await col('seen').get();SEEN=q.docs.map(d=>({uid:d.id,...d.data()}))}catch(e){SEEN=[]}
-  PDATA.at=Date.now();PDATA.loading=false;autoInactive();if(tab==='team'&&!typingIn('#view-team'))renderTeam();
+  PDATA.at=Date.now();PDATA.loading=false;autoInactive();autoBillFromPolls();if(PDATA.again){PDATA.again=false;return loadOrgData(true)}if(tab==='team'&&!typingIn('#view-team'))renderTeam();
 }
 /* newcomers (names seen in polls, days or payments that aren't on the team) + likely duplicates */
 function attention(){
@@ -1284,6 +1285,8 @@ const pollsCol=()=>col('polls');
 const pollLink=id=>HERE+'#poll-'+id;
 const slug=s=>s.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,60)||'x';
 const first=s=>norm(s).split(' ')[0];
+/* default deadline: the night before the first game, or 2 hours from now if that has passed */
+function defClose(first){let c=shift(first,-1)+'T22:00';if(new Date(c).getTime()>Date.now()+3600e3)return c;const d=new Date(Date.now()+2*3600e3);d.setMinutes(0,0,0);const v=ymd(d)+'T'+String(d.getHours()).padStart(2,'0')+':00';return v<=first+'T23:59'?v:''}
 function nextWeekend(w){const d=new Date(),sat=shift(todayStr(),((6-d.getDay()+7)%7)+7*w);return[sat,shift(sat,1)]}
 function latestByName(arr){const m={};arr.forEach(v=>{if(!v||!v.name)return;const k=nkey(v.name);if(!m[k]||(v.updatedAt||0)>(m[k].updatedAt||0))m[k]=v});return Object.values(m)}
 function waOpt(dt){const d=new Date(dt.date+'T00:00');return d.getDate()+'-'+d.toLocaleDateString('en-IN',{month:'short'})+' ('+d.toLocaleDateString('en-IN',{weekday:'long'})+')'+(dt.note?' | '+dt.note:'')}
@@ -1302,8 +1305,46 @@ function msgReminder(p,t){return['⏰ *'+p.title+'*','Still waiting for: '+t.pen
 function msgResults(p,t){const L=['📋 *'+p.title+' — results*',''];t.res.forEach(r=>{L.push('*'+waOpt(r)+'*');L.push('✅ '+r.yes.length+(r.yes.length?': '+r.yes.join(', '):''));if(r.maybe.length)L.push('🤔 '+r.maybe.length+': '+r.maybe.join(', '));L.push('🏸 Courts: '+(r.courts||'none')+(r.courtsMax>r.courts?' (up to '+r.courtsMax+' if maybes come)':''));L.push('')});if(t.pending.length)L.push('No vote: '+t.pending.join(', '));return L.join('\n').trim()}
 function msgOptions(p){const o=p.dates.map((dt,i)=>(i+1)+'. '+waOpt(dt));if(p.dates.length===2)o.push('3. Both 1&2');o.push((o.length+1)+'. Not available');return['🏸 '+p.title,'',...o].join('\n')}
 
+/* "5-7 PM" → 2, "6:30-8:30" → 2, "11-1" → 2 */
+function slotHours(note){const m=String(note||'').match(/(\d{1,2})(?:[:.](\d{2}))?\s*(?:am|pm)?\s*(?:-|–|to)\s*(\d{1,2})(?:[:.](\d{2}))?/i);if(!m)return 0;
+  const a=+m[1]+(+m[2]||0)/60,b=+m[3]+(+m[4]||0)/60;let d=(b-a+12)%12;if(d<=0||d>8)return 0;return Math.round(d*2)/2}
+const pollLast=p=>(p.dates||[]).reduce((a,dt)=>dt.date>a?dt.date:a,'');
+/* polls drop into the archive 2 weeks after their last game date */
+const isArchived=p=>!!pollLast(p)&&pollLast(p)<shift(todayStr(),-14);
+const RECAP={};
+async function recapVotes(p){if(RECAP[p.id]||!db)return;RECAP[p.id]={loading:true,votes:[]};
+  try{const vs=await pollsCol().doc(p.id).collection('votes').get();RECAP[p.id]={votes:vs.docs.map(d=>d.data())}}catch(e){RECAP[p.id]={votes:[]}}
+  if(tab==='polls')pollRender()}
+/* what happened for a poll: who said yes, who actually played, what it cost */
+function recapHTML(p,title){
+  const votes=(PDATA.votes.some(v=>v.poll===p.id)?PDATA.votes.filter(v=>v.poll===p.id):(RECAP[p.id]||{}).votes)||[];
+  if(!RECAP[p.id]&&!PDATA.votes.some(v=>v.poll===p.id))recapVotes(p);
+  const t=tally(p,votes);
+  return`<section class="card">${cardH('cal',title,esc((p.dates||[]).map(dt=>dlabel(dt.date,{day:'numeric',month:'short'})).join(' · ')))}
+    ${t.res.map(r=>{const d=S.days[r.date],c=d&&d.present&&d.present.length?calc(getDay(r.date)):null;
+      return`<div class="row"><div class="l"><b>${esc(waOpt(r))}</b><small>${r.yes.length} voted yes${r.maybe.length?' · '+r.maybe.length+' maybe':''}${c?' · '+c.n+' played · '+fmtH(getDay(r.date).hours)+' h':' · not billed yet'}</small></div><span class="v">${c?inr(c.collected):'–'}</span></div>`}).join('')}
+    <div class="card-f"><p class="hint">${isClosed(p)?'Voting closed.':'Voting still open.'} ${t.voters.length} of ${activeRoster().length} players voted.</p></div></section>`;
+}
+/* when voting closes, pre-fill "Who played" with everyone who voted yes, so billing starts from the poll */
+async function autoBillFromPolls(){
+  if(!isOrg||!CFG_READY||!DAYS_READY||!PDATA.at)return;S.billed=S.billed||[];let made=[],rosterChanged=false;
+  for(const p of P.list){if(!isClosed(p)||isArchived(p))continue;
+    const voters=latestByName(PDATA.votes.filter(v=>v.poll===p.id));
+    for(const dt of p.dates||[]){const key=p.id+'|'+dt.date;if(S.billed.includes(key))continue;
+      if(S.days[dt.date]&&(S.days[dt.date].present||[]).length){S.billed.push(key);continue}
+      const yes=voters.filter(v=>(v.answers||{})[dt.date]==='yes').map(v=>{const c=canon(tcase(v.name));
+        if(!S.roster.some(r=>nkey(r)===nkey(c))){S.roster.push(c);S.since=S.since||{};S.since[nkey(c)]=Date.now();rosterChanged=true}
+        if((S.inactive||[]).includes(nkey(c))){S.inactive=S.inactive.filter(x=>x!==nkey(c));if(S.autoOff)delete S.autoOff[nkey(c)];rosterChanged=true}
+        return S.roster.find(r=>nkey(r)===nkey(c))||c});
+      S.billed.push(key);if(!yes.length)continue;
+      const per=Math.max(1,+p.perCourt||6),courts=Math.max(1,Math.ceil(yes.length/per)),h=slotHours(dt.note);
+      const d=Object.assign(blankDay(dt.date),{present:uniq(yes),hours:h?h*courts:2,src:'poll',poll:p.id,slot:dt.note||'',courtsBooked:courts});
+      S.days[dt.date]=d;queueWrite('days/'+dt.date,d);made.push(dt.date)}}
+  if(made.length||rosterChanged)saveConfig();else if(S.billed.length)saveConfig();
+  if(made.length){toast('“Who played” pre-filled from the poll for '+made.map(x=>dlabel(x,{weekday:'short',day:'numeric'})).join(', ')+'. Review on Today.');renderTab(false)}
+}
 function startPollsListener(){if(P.listening||!db)return;P.listening=true;
-  pollsCol().orderBy('createdAt','desc').limit(30).onSnapshot(q=>{P.list=q.docs.map(d=>({id:d.id,...d.data()}));if(isOrg){PDATA.at=0;if(tab==='team')loadOrgData(true)}if(tab==='polls'&&P.mode==='list')renderPolls();if(tab==='day')refreshDay()},()=>{})}
+  pollsCol().orderBy('createdAt','desc').limit(30).onSnapshot(q=>{P.list=q.docs.map(d=>({id:d.id,...d.data()}));if(isOrg)loadOrgData(true);if(tab==='polls'&&P.mode==='list')renderPolls();if(tab==='day')refreshDay()},()=>{})}
 function openPoll(id){if(!db)return;stopPoll();P.mode='detail';P.confirmDel=false;P.sel={id,loading:true};P.votes=[];P.myAns={};
   const ref=pollsCol().doc(id);
   P.unsubPoll=ref.onSnapshot(s=>{P.sel=s.exists?{id,...s.data()}:{id,missing:true};pollRender()},()=>{P.sel={id,missing:true};pollRender()});
@@ -1317,16 +1358,19 @@ function renderPolls(){
   if(!db){v.innerHTML=intro('Polls','Ask who’s free before you book courts.')+`<section class="card"><div class="empty">${ic('poll')}Polls need the shared database, which isn’t connected on this device.</div></section>`;return}
   if(P.mode==='new')return renderNewPoll(v);
   if(P.mode==='detail')return renderPollDetail(v);
-  const open=P.list.filter(p=>!isClosed(p));
+  const live=P.list.filter(p=>!isArchived(p)),arch=P.list.filter(isArchived),open=live.filter(p=>!isClosed(p));
+  const latestDone=live.filter(isClosed).sort((a,b)=>pollLast(b).localeCompare(pollLast(a)))[0];
   v.innerHTML=`
   ${intro('Polls','Ask who’s free before you book. Players vote from a WhatsApp link and you see how many courts you need.')}
-  ${kpis([['Open polls',open.length],['All polls',P.list.length],['Next game',open.length&&open[0].dates&&open[0].dates[0]?esc(dlabel(open[0].dates[0].date,{weekday:'short',day:'numeric'})):'–',true]])}
+  ${kpis([['Open polls',open.length],['Recent',live.length],['Next game',open.length&&open[0].dates&&open[0].dates[0]?esc(dlabel(open[0].dates[0].date,{weekday:'short',day:'numeric'})):'–',true]])}
   <section class="card cta"><div class="pad"><h2>Who’s playing this weekend?</h2><p>Pick dates and time slots, send to WhatsApp, track votes live.</p>
     <button class="btn block" data-act="newpoll">${ic(isOrg?'plus':'lock')}${isOrg?'Create a poll':'Sign in to create a poll'}</button></div></section>
-  <section class="card">${cardH('poll','Recent polls',P.list.length||null)}
-    ${P.list.length?P.list.map(p=>`<button class="row" style="width:100%;text-align:left" data-open="${esc(p.id)}"><div class="l"><b>${esc(p.title)}</b><small>${(p.dates||[]).map(dt=>esc(dlabel(dt.date))).join(' · ')}</small></div><span class="badge ${isClosed(p)?'':'on'}">${isClosed(p)?'Closed':'Open'}</span><span class="chev">${ic('right')}</span></button>`).join(''):`<div class="empty">${ic('poll')}No polls yet.</div>`}
+  ${latestDone?recapHTML(latestDone,'Latest results'):''}
+  <section class="card">${cardH('poll','Recent polls',live.length||null)}
+    ${live.length?live.map(p=>`<button class="row" style="width:100%;text-align:left" data-open="${esc(p.id)}"><div class="l"><b>${esc(p.title)}</b><small>${(p.dates||[]).map(dt=>esc(dlabel(dt.date))).join(' · ')}</small></div><span class="badge ${isClosed(p)?'':'on'}">${isClosed(p)?'Closed':'Open'}</span><span class="chev">${ic('right')}</span></button>`).join(''):`<div class="empty">${ic('poll')}No recent polls.</div>`}
+    ${arch.length?`<details class="inact"><summary>Archive · ${plural(arch.length,'poll')} older than 2 weeks</summary>${arch.map(p=>`<button class="row" style="width:100%;text-align:left" data-open="${esc(p.id)}"><div class="l"><b>${esc(p.title)}</b><small>${(p.dates||[]).map(dt=>esc(dlabel(dt.date))).join(' · ')}</small></div><span class="badge">Archived</span><span class="chev">${ic('right')}</span></button>`).join('')}</details>`:''}
   </section>`;
-  v.querySelector('[data-act=newpoll]').onclick=()=>{if(!isOrg){signIn();return}const[sa,su]=nextWeekend(0);P.draft={title:'Who’s up for Badminton this weekend?',dates:[{date:sa,note:'5-7 PM'},{date:su,note:'9-11 AM'}],perCourt:6,closes:shift(sa,-1)+'T22:00'};P.mode='new';renderPolls();window.scrollTo(0,0)};
+  v.querySelector('[data-act=newpoll]').onclick=()=>{if(!isOrg){signIn();return}const[sa,su]=nextWeekend(0);P.draft={title:'Who’s up for Badminton this weekend?',dates:[{date:sa,note:'5-7 PM'},{date:su,note:'9-11 AM'}],perCourt:6,closes:defClose(sa)};P.mode='new';renderPolls();window.scrollTo(0,0)};
   v.querySelectorAll('[data-open]').forEach(el=>el.onclick=()=>{location.hash='poll-'+el.dataset.open});
 }
 function renderNewPoll(v){
@@ -1350,7 +1394,7 @@ function renderNewPoll(v){
   <button class="btn primary block" id="createpoll">${ic('check')}Create poll</button>`;
   const keep=()=>{D.title=$('#ptitle').value;D.closes=$('#pclose').value};
   $('#cancelnew').onclick=()=>{P.mode='list';renderPolls()};
-  const setWk=w=>{keep();const[a,b]=nextWeekend(w);D.dates=[{date:a,note:'5-7 PM'},{date:b,note:'9-11 AM'}];D.closes=shift(a,-1)+'T22:00';renderPolls()};
+  const setWk=w=>{keep();const[a,b]=nextWeekend(w);D.dates=[{date:a,note:'5-7 PM'},{date:b,note:'9-11 AM'}];D.closes=defClose(a);renderPolls()};
   $('#wk0').onclick=()=>setWk(0);$('#wk1').onclick=()=>setWk(1);
   v.querySelectorAll('[data-rmdate]').forEach(b=>b.onclick=()=>{keep();D.dates.splice(+b.dataset.rmdate,1);renderPolls()});
   $('#adddate').onclick=()=>{keep();const d=$('#ndate').value;if(!d)return;const note=norm($('#nnote').value);D.dates=D.dates.filter(x=>!(x.date===d&&x.note===note));D.dates.push({date:d,note});D.dates.sort((a,b)=>a.date.localeCompare(b.date));renderPolls()};
@@ -1372,6 +1416,7 @@ function renderPollDetail(v){
   const names=orderNames(uniq([...activeRoster(),...Object.keys(S.autoOff||{}).map(k=>S.roster.find(r=>nkey(r)===k)).filter(Boolean),...t.voters.map(x=>canon(x.name))]));
   const known=names.some(n=>nkey(n)===nkey(P.myName));
   const best=t.res.reduce((a,r)=>Math.max(a,r.courts),0);
+  const prev=P.list.filter(x=>x.id!==p.id&&pollLast(x)<(p.dates&&p.dates[0]?p.dates[0].date:'9')).sort((a,b)=>pollLast(b).localeCompare(pollLast(a)))[0];
   const sendCardHTML=`<section class="card">${cardH('chat',P.justCreated===p.id?'Poll ready. Send it now':'Send to WhatsApp')}
     <div class="pad"><a class="btn wa block" href="${waHref(msgPoll(p))}" target="_blank" rel="noopener">${ic('chat')}Send poll on WhatsApp</a>
       <div class="grid2"><button class="btn line" id="cplink">${ic('copy')}Copy message</button>${isOrg?`<button class="btn line" id="cpopts">${ic('poll')}As WA poll</button>`:`<button class="btn line" id="cplink2">${ic('copy')}Copy link</button>`}</div></div></section>`;
@@ -1380,6 +1425,7 @@ function renderPollDetail(v){
   ${intro(esc(p.title),closed?'This poll is closed.':p.closesAt?'Voting closes '+esc(closeText(p.closesAt))+'.':'Voting is open.')}
   ${kpis([['Voted',t.voters.length],['Waiting',t.pending.length],['Courts',best||'–',true]])}
   ${isOrg?sendCardHTML:''}
+  ${isClosed(p)&&isOrg?`<div class="note">${ic('wallet')}<p>Voting closed. “Who played” is pre-filled from the yes votes. Review it on Today before billing.</p><button class="btn sm line" data-gotoday="${esc((p.dates&&p.dates[0]||{}).date||'')}">Today</button></div>`:''}
   ${closed?'':`<section class="card">${cardH('check','Your vote','<span id="vstat"></span>')}
     <div class="pad"><select class="txt" id="vname" aria-label="Your name"><option value="">Choose your name…</option>${names.map(n=>`<option ${nkey(n)===nkey(P.myName)?'selected':''}>${esc(n)}</option>`).join('')}${S.openNames!==false?`<option value="__other" ${P.myName&&!known?'selected':''}>I’m not on the list…</option>`:''}</select>
       ${S.openNames===false?'<p class="hint">Not on the list? Ask the organizer to add you.</p>':''}
@@ -1398,8 +1444,10 @@ function renderPollDetail(v){
   </section>
   ${isOrg?orgGrid(p,t)+`<section class="card">${cardH('gear','Manage poll')}
     <div class="pad"><div class="grid2"><button class="btn line" id="toggleclose">${p.closed?'Reopen poll':'Close poll'}</button>${P.confirmDel?`<button class="btn danger" id="delok">Delete for good</button>`:`<button class="btn line" id="delpoll">${ic('trash')}Delete</button>`}</div>
-    <p class="hint">On game day, Today → Fill from poll ticks everyone who said yes.</p></div></section>`:''}`;
+    <p class="hint">When voting closes, the yes voters are pre-filled as “Who played” for each date. You can still change it on Today.</p></div></section>`:''}
+  ${prev?recapHTML(prev,'Previous poll'):''}`;
   $('#back').onclick=leavePoll;
+  v.querySelectorAll('[data-gotoday]').forEach(b=>b.onclick=()=>{if(b.dataset.gotoday)curDate=b.dataset.gotoday;go('day')});
   $('#cplink').onclick=()=>copyText(msgPoll(p));
   const c2=$('#cplink2');if(c2)c2.onclick=()=>copyText(pollLink(p.id),'Link copied.');
   const co=$('#cpopts');if(co)co.onclick=()=>copyText(msgOptions(p),'Poll options copied. Paste them into a WhatsApp poll.');
@@ -1421,7 +1469,7 @@ function renderPollDetail(v){
       $('#vstat').textContent='Saving…';clearTimeout(P.saveT);P.saveT=setTimeout(saveVote,350)});
     $('#cantmake').onclick=()=>{if(!norm(P.myName)){toast('Choose your name first.');return}p.dates.forEach(dt=>P.myAns[dt.date]='no');renderPolls();saveVote()};
   }
-  const tc=$('#toggleclose');if(tc)tc.onclick=async()=>{try{await pollsCol().doc(p.id).update({closed:!p.closed})}catch(e){toast('Couldn’t update the poll ('+e.code+').')}};
+  const tc=$('#toggleclose');if(tc)tc.onclick=async()=>{try{await pollsCol().doc(p.id).update({closed:!p.closed});if(!p.closed){PDATA.at=0;await loadOrgData(true)}}catch(e){toast('Couldn’t update the poll ('+e.code+').')}};
   const dp=$('#delpoll');if(dp)dp.onclick=()=>{P.confirmDel=true;renderPolls()};
   const dk=$('#delok');if(dk)dk.onclick=async()=>{try{const ref=pollsCol().doc(p.id);const vs=await ref.collection('votes').get();await Promise.all(vs.docs.map(d=>d.ref.delete()));await ref.delete();leavePoll();toast('Poll deleted.')}catch(e){toast('Couldn’t delete ('+e.code+').')}};
 }
@@ -1506,7 +1554,7 @@ if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.ser
   fsDoc('config/main').onSnapshot(s=>{if(busy('config/main'))return;
     if(!s.metadata.fromCache)CFG_READY=true;
     if(!s.exists&&!s.metadata.fromCache){cfgMissing=true;if(isOrg){cfgMissing=false;saveConfig()}}
-    if(s.exists){const d=s.data();if(Array.isArray(d.roster))S.roster=[...d.roster];S.rate=+d.rate||300;S.groupName=d.groupName||'';S.upiId=d.upiId||'';S.upiName=d.upiName||'';S.levels=d.levels&&typeof d.levels==='object'?d.levels:{};S.admins=Array.isArray(d.admins)?d.admins:[];S.inactive=Array.isArray(d.inactive)?d.inactive:[];S.ignored=Array.isArray(d.ignored)?d.ignored:[];S.openNames=d.openNames!==false;S.idleWeeks=d.idleWeeks==null?4:+d.idleWeeks;S.since=d.since||{};S.autoOff=d.autoOff||{};setTimeout(autoInactive,0);S.skin=SKINS[d.skin]?d.skin:'court';applySkin();saveLocal();if(GID)rememberGroup();if(computeOrg())renderTab(true)}
+    if(s.exists){const d=s.data();if(Array.isArray(d.roster))S.roster=[...d.roster];S.rate=+d.rate||300;S.groupName=d.groupName||'';S.upiId=d.upiId||'';S.upiName=d.upiName||'';S.levels=d.levels&&typeof d.levels==='object'?d.levels:{};S.admins=Array.isArray(d.admins)?d.admins:[];S.inactive=Array.isArray(d.inactive)?d.inactive:[];S.ignored=Array.isArray(d.ignored)?d.ignored:[];S.openNames=d.openNames!==false;S.idleWeeks=d.idleWeeks==null?4:+d.idleWeeks;S.since=d.since||{};S.autoOff=d.autoOff||{};S.billed=Array.isArray(d.billed)?d.billed:[];setTimeout(autoInactive,0);S.skin=SKINS[d.skin]?d.skin:'court';applySkin();saveLocal();if(GID)rememberGroup();if(computeOrg())renderTab(true)}
     renderTab(false)},e=>toast('Couldn’t load shared data ('+e.code+').'));
   fsDoc('config/photo').onSnapshot(s=>{if(busy('config/photo'))return;photo=s.exists?(s.data().data||''):'';try{photo?localStorage.setItem(LSP,photo):localStorage.removeItem(LSP)}catch(e){}renderHeader();if(tab==='team'&&!typingIn('#view-team'))renderTeam()},()=>{});
   col('days').onSnapshot(q=>{
