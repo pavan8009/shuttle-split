@@ -216,8 +216,8 @@ label.row{cursor:pointer}
 
 /* tab bar + toast */
 .tabbar{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
-.tabbar .wrap{display:grid;grid-template-columns:repeat(5,1fr)}
-.tabbar button{display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 4px 8px;font-size:11.5px;font-weight:700;color:var(--muted)}
+.tabbar .wrap{display:grid;grid-template-columns:repeat(6,1fr)}
+.tabbar button{display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 2px 8px;font-size:11px;font-weight:700;color:var(--muted)}
 .tabbar button .ic{width:23px;height:23px}
 .tabbar button[aria-selected="true"]{color:var(--accent)}
 .tabbar button[aria-selected="true"] .ic{stroke-width:2.3}
@@ -247,7 +247,12 @@ textarea.tpl{height:auto;min-height:140px;padding:10px 12px;font-size:14px;line-
 .mi>.ic{width:18px;height:18px;color:var(--muted);flex:none}
 .backbar{display:flex;align-items:center;gap:6px;font-weight:800;color:var(--accent);align-self:flex-start;padding:4px 0}
 .backbar .ic{width:18px;height:18px}
-.todo{position:relative;margin-right:6px}.todo .nb{position:absolute;top:-6px;right:-6px}
+.todo{position:relative;margin-right:6px}
+.post{padding:0;overflow:hidden}.post .ph{display:flex;align-items:center;gap:10px;padding:12px 14px}.post .ph b{display:block}.post .ph small{color:var(--muted);font-size:12px}
+.post img.pimg{width:100%;display:block;background:var(--field)}.post .ptxt{padding:10px 14px 4px;white-space:pre-wrap;line-height:1.45}
+.post .pf{display:flex;align-items:center;gap:10px;padding:8px 14px 12px}.likebtn{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;border:1px solid var(--line);font-weight:800;font-size:13.5px}
+.likebtn.on{background:var(--soft);border-color:var(--accent);color:var(--accent)}.tagchip{font-size:11.5px;font-weight:800;padding:3px 9px;border-radius:999px;background:var(--soft);color:var(--accent)}
+.tipday{background:linear-gradient(135deg,var(--accent),color-mix(in srgb,var(--accent) 70%,#000));color:#fff}.tipday .pad b{font-size:17px;line-height:1.4}.tipday small{opacity:.85;font-weight:700;letter-spacing:.5px}.todo .nb{position:absolute;top:-6px;right:-6px}
 .sync{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;margin-left:4px;color:var(--ok)}
 .sync::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
 .sync.save{color:#B54708}.sync.off{color:var(--muted)}
@@ -386,6 +391,7 @@ details.poster:not([open]) .card-h{border-bottom:0}
   <div class="wrap view" id="view-day"></div>
   <div class="wrap view" id="view-polls" hidden></div>
   <div class="wrap view" id="view-pay" hidden></div>
+  <div class="wrap view" id="view-club" hidden></div>
   <div class="wrap view" id="view-me" hidden></div>
   <div class="wrap view" id="view-team" hidden></div>
 </main>
@@ -395,6 +401,7 @@ details.poster:not([open]) .card-h{border-bottom:0}
     <button role="tab" data-tab="day" aria-selected="true"><svg class="ic"><use href="#i-shuttle"/></svg>Today</button>
     <button role="tab" data-tab="polls" aria-selected="false"><svg class="ic"><use href="#i-poll"/></svg>Polls</button>
     <button role="tab" data-tab="pay" aria-selected="false"><svg class="ic"><use href="#i-wallet"/></svg>Payouts</button>
+    <button role="tab" data-tab="club" aria-selected="false"><svg class="ic"><use href="#i-chat"/></svg>Club</button>
     <button role="tab" data-tab="me" aria-selected="false"><svg class="ic"><use href="#i-user"/></svg>Me</button>
     <button role="tab" data-tab="team" aria-selected="false"><svg class="ic"><use href="#i-users"/></svg>Team</button>
   </div>
@@ -418,7 +425,7 @@ const FIREBASE_CONFIG = {
 /* Collections get this prefix so they never clash with the league app's data */
 const COLLECTION_PREFIX = "shuttleSplit_";
 /* App version shown in Team → About */
-const APP_VERSION = "1.9.0", APP_BUILD = "31 Oct 2026";
+const APP_VERSION = "2.0.0", APP_BUILD = "31 Oct 2026";
 /* Owner of the main group (the link without ?g=) */
 const LEGACY_OWNER = "pavankaki.cool@gmail.com";
 /* Starting player list, used only until the first save */
@@ -675,14 +682,33 @@ function copyText(t,msg){const ok=()=>toast(msg||'Copied. Paste it in your Whats
   const fb=()=>{const a=document.createElement('textarea');a.value=t;a.style.position='fixed';a.style.opacity='0';document.body.appendChild(a);a.select();try{document.execCommand('copy');ok()}catch(e){toast('Select the text and copy it.')}a.remove()};
   try{navigator.clipboard.writeText(t).then(ok,fb)}catch(e){fb()}}
 const waHref=t=>'https://wa.me/?text='+encodeURIComponent(t);
-const SUB={pay:'',polls:'list'};
+const SUB={pay:'',polls:'list',club:'feed'};
 const subnav=(key,items)=>`<nav class="subnav" role="tablist">${items.filter(Boolean).map(([k,l,n])=>`<button role="tab" data-sub="${key}:${k}"${SUB[key]===k?' class="on" aria-selected="true"':''}>${l}${n?`<i class="nb">${n}</i>`:''}</button>`).join('')}</nav>`;
 function applySub(v,key){const cur=SUB[key];v.querySelectorAll(':scope>[data-in]').forEach(el=>el.hidden=el.dataset.in!==cur);v.querySelectorAll('[data-sub]').forEach(b=>{const on=b.dataset.sub===key+':'+cur;b.classList.toggle('on',on);b.setAttribute('aria-selected',String(on))})}
 function goSub(t,sub){if(t==='team'){teamUI.page=sub;go('team');teamUI.page=sub;renderTeam();return}SUB[t]=sub;go(t)}
 document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-sub]');if(!b)return;const[k,sv]=b.dataset.sub.split(':');SUB[k]=sv;const v=$('#view-'+(k==='pay'?'pay':k));applySub(v,k);const n=v.querySelector('.subnav');if(n&&n.getBoundingClientRect().top<0)n.scrollIntoView({block:'start'})});
 const menuItem=(key,icon,title,desc,meta,act)=>`<button class="mi" ${act?`data-act="${act}"`:`data-hub="${key}"`}><span class="mico">${ic(icon)}</span><span class="mt"><b>${title}</b>${desc?`<small>${desc}</small>`:''}</span>${meta?`<span class="mm">${meta}</span>`:''}${ic('right')}</button>`;
+/* player tasks: what this person should do next (vote, pay, share) */
+function myTasks(){if(!db)return[];const me=allNames().find(n=>nkey(n)===nkey(getMe())),out=[];
+  if(!me)return[{ic:'user',t:'Pick your name',s:'So the app can show your votes, dues and tasks',go:()=>{SUB.pay='mine';go('pay')}}];
+  P.list.filter(p=>!isArchived(p)&&!isClosed(p)).forEach(p=>{const v=(VOTES_BY[p.id]||[]).find(x=>nkey(x.name)===nkey(me));
+    out.push({ic:'poll',done:!!v,t:v?'Voted · '+p.title:'Cast your vote',s:v?'Thanks! You can still change it':p.title+(p.closesAt?' · closes '+fmtWhen(p.closesAt):''),go:()=>{location.hash='poll-'+p.id}})});
+  if(PRE()){const w=wallet(me);if(w.low)out.push({ic:'rupee',t:'Load '+inr(w.need)+' to your wallet',s:'Balance '+sinr(w.bal)+(w.claimed?' · '+inr(w.claimed)+' waiting to confirm':''),go:()=>openPay(me)})}
+  else{const L=ledger(me);if(L.due>0)out.push(L.claimed>=L.due?{ic:'rupee',done:true,t:'Payment sent',s:inr(L.claimed)+' waiting for the organizer to confirm',go:()=>{ME.who='';ME.sec='money';go('me')}}
+    :{ic:'rupee',t:'Pay '+inr(r2(L.due-L.claimed)),s:'Your share from the bill'+(L.since?' · since '+dlabel(L.since,{day:'numeric',month:'short'}):''),go:()=>openPay(me)})}
+  const last=playedDays()[0];if(last&&last>=shift(todayStr(),-2)&&getDay(last).present.some(x=>nkey(x)===nkey(me))&&!(CLUB.list||[]).some(x=>nkey(x.name)===nkey(me)&&x.at>new Date(last+'T00:00').getTime()))
+    out.push({ic:'camera',opt:true,t:'Share a photo from '+dlabel(last,{weekday:'short',day:'numeric'}),s:'Optional · we’ll turn it into a memory card',go:()=>{go('club');setTimeout(()=>openCompose('photo'),150)}});
+  return out}
+const pendingTasks=()=>myTasks().filter(x=>!x.done&&!x.opt);
+function tasksCard(){const t=myTasks();if(!t.length)return'';const done=t.filter(x=>x.done).length,req=t.filter(x=>!x.opt).length,doneReq=t.filter(x=>!x.opt&&x.done).length;
+  return`<section class="card${req>doneReq?' due-card':''}" id="taskcard">${cardH('check','Your to-do',req?doneReq+' of '+req+' done':'',req&&req===doneReq)}
+    <div class="menu">${t.map((x,i)=>`<button class="mi" data-task="${i}"><span class="mico" style="${x.done?'background:var(--ok);color:#fff':''}">${ic(x.done?'check':x.ic)}</span><span class="mt"><b${x.done?' style="color:var(--muted)"':''}>${esc(x.t)}</b><small>${esc(x.s)}</small></span>${x.opt?'<span class="mm">Optional</span>':''}${ic('right')}</button>`).join('')}</div>
+    ${req&&req===doneReq?`<div class="card-f"><span class="ok-chip">${ic('check')}All done. Thank you! 🏸</span></div>`:''}</section>`}
+function refreshTasks(){const c=$('#taskslot');if(!c)return;c.innerHTML=tasksCard();const t=myTasks();c.querySelectorAll('[data-task]').forEach(b=>b.onclick=()=>t[+b.dataset.task].go())}
 /* organizer to-do: everything waiting on you, in one place */
 function todoItems(){if(!isOrg||!db)return[];const out=[];
+  {const[sa,su]=nextWeekend(0),wd=new Date().getDay();if(wd>=1&&wd<=5&&!P.list.some(p=>(p.dates||[]).some(d=>d.date===sa||d.date===su)))out.push(['poll','Release this weekend’s poll','Nobody has been asked about '+dlabel(sa,{weekday:'short',day:'numeric'})+' / '+dlabel(su,{weekday:'short',day:'numeric'})+' yet',startNewPoll])}
+  {const un=playedDays().filter(k=>k>=shift(todayStr(),-21)&&!S.days[k].bill);if(un.length)out.push(['share','Release payment request',un.slice().sort().map(shortD).join(', ')+' recorded but not billed',()=>{setBill(un,'queued');openBillSend()}])}
   const rem=reminderPlan().filter(r=>r.state==='due');const rp=rem.filter(r=>r.kind!=='dues').length,rd=rem.filter(r=>r.kind==='dues').length;
   if(rp)out.push(['bell',plural(rp,'message')+' to send','Poll and game reminders',()=>goSub('polls','rem')]);
   if(rd)out.push(['bell',PRE()?'Wallet top-up reminder':'Payment reminder','Due now',()=>goSub('pay','dues')]);
@@ -690,15 +716,18 @@ function todoItems(){if(!isOrg||!db)return[];const out=[];
   const q=billQueue();if(q.length)out.push(['share','Bill waiting to send',q.map(shortD).join(', '),()=>{closeWho();openBillSend()}]);
   try{const a=attention();const n=a.fresh.length+a.dups.length;if(n)out.push(['users',plural(n,'name')+' to review','New or duplicate names',()=>goSub('team','players')])}catch(e){}
   return out}
-function openTodo(){const it=todoItems();
-  const bg=sheetOpen(`<div class="sheet-h"><span class="ini">${ic('bell')}</span><div><b>To do</b><small>${it.length?plural(it.length,'thing')+' waiting on you':'All caught up 🎉'}</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div>
-    <div class="menu">${it.map((x,i)=>`<button class="mi" data-todo="${i}"><span class="mico">${ic(x[0])}</span><span class="mt"><b>${esc(x[1])}</b><small>${esc(x[2])}</small></span>${ic('right')}</button>`).join('')||`<div class="empty">${ic('check')}Nothing needs you right now.</div>`}</div>`,'To do');
-  bg.querySelectorAll('[data-todo]').forEach(b=>b.onclick=()=>{closeWho();it[+b.dataset.todo][3]()})}
+function openTodo(){const it=todoItems(),mt=myTasks().filter(x=>!x.done),n=it.length+mt.filter(x=>!x.opt).length;
+  const bg=sheetOpen(`<div class="sheet-h"><span class="ini">${ic('bell')}</span><div><b>To do</b><small>${n?plural(n,'thing')+' waiting on you':'All caught up 🎉'}</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div>
+    ${it.length?`<span class="sublbl" style="margin:8px 16px 0">For the group (organizer)</span><div class="menu">${it.map((x,i)=>`<button class="mi" data-todo="${i}"><span class="mico">${ic(x[0])}</span><span class="mt"><b>${esc(x[1])}</b><small>${esc(x[2])}</small></span>${ic('right')}</button>`).join('')}</div>`:''}
+    ${mt.length?`<span class="sublbl" style="margin:8px 16px 0">For you</span><div class="menu">${mt.map((x,i)=>`<button class="mi" data-mtask="${i}"><span class="mico">${ic(x.ic)}</span><span class="mt"><b>${esc(x.t)}</b><small>${esc(x.s)}</small></span>${x.opt?'<span class="mm">Optional</span>':''}${ic('right')}</button>`).join('')}</div>`:''}
+    ${!it.length&&!mt.length?`<div class="empty">${ic('check')}Nothing needs you right now.</div>`:''}`,'To do');
+  bg.querySelectorAll('[data-todo]').forEach(b=>b.onclick=()=>{closeWho();it[+b.dataset.todo][3]()});
+  bg.querySelectorAll('[data-mtask]').forEach(b=>b.onclick=()=>{closeWho();mt[+b.dataset.mtask].go()})}
 const intro=(h,p)=>`<div class="intro"><h1>${h}</h1><p>${p}</p></div>`;
 const kpis=list=>`<div class="kpis">${list.map(([l,v,hl])=>`<div class="kpi${hl?' hl':''}"><span>${l}</span><b>${v}</b></div>`).join('')}</div>`;
 const cardH=(icon,title,meta,strong)=>`<div class="card-h"><span class="ico">${ic(icon)}</span><h2>${title}</h2>${meta!=null?`<span class="meta${strong?' strong':''}">${meta}</span>`:''}</div>`;
 const viewOnly=what=>db&&!isOrg?`<div class="note">${ic('lock')}<p>You’re viewing. Only the organizer can ${what}.</p><button class="btn sm line" data-signin>Organizer</button></div>`:'';
-const PAGES={day:'Record a play day',polls:'Availability polls',pay:'Payouts',me:'My account',team:'Team & settings'};
+const PAGES={day:'Record a play day',polls:'Availability polls',pay:'Payouts',club:'Club & community',me:'My account',team:'Team & settings'};
 function remDot(){const b=document.querySelector('.tabbar [data-tab="polls"]');if(!b)return;const n=isOrg&&db?reminderPlan().filter(r=>r.state==='due'&&r.kind!=='dues').length:0;b.classList.toggle('has-due',n>0);
   const pb=document.querySelector('.tabbar [data-tab="pay"]');if(pb){const m=isOrg&&db?reminderPlan().filter(r=>r.state==='due'&&r.kind==='dues').length+allPays().filter(x=>x.status==='claimed').length:0;pb.classList.toggle('has-due',m>0)}}
 function renderHeader(){try{remDot()}catch(e){}
@@ -706,7 +735,7 @@ function renderHeader(){try{remDot()}catch(e){}
   $('#pagename').textContent=PAGES[tab];
   $('#avatar').innerHTML=photo?`<img src="${photo}" alt="">`:ic('shuttle');
   const st=$('#status');st.hidden=!db;st.classList.toggle('org',isOrg);
-  const tb=$('#todobtn');if(tb){let n=0;try{n=todoItems().length}catch(e){}tb.hidden=!(isOrg&&db);$('#todonb').textContent=n;$('#todonb').hidden=!n;tb.onclick=openTodo}
+  const tb=$('#todobtn');if(tb){let n=0;try{n=todoItems().length+pendingTasks().length}catch(e){}tb.hidden=!db;$('#todonb').textContent=n;$('#todonb').hidden=!n;tb.onclick=openTodo}
   st.innerHTML=isOrg?'<i class="dot"></i>Organizer':userEmail()?ic('users')+'Viewer':ic('lock')+'Sign in';
   const gm=$('#groupmiss');if(gm)gm.hidden=!GROUP_MISSING;
 }
@@ -718,7 +747,8 @@ function renderDay(){
   const v=$('#view-day'), d=getDay(curDate), ws=weekStart(curDate), t=todayStr();
   const days=[...Array(7)].map((_,i)=>shift(ws,i));
   v.innerHTML=`
-  ${intro('Today’s game','Tick who played and enter the costs. Everyone’s share is worked out as you go.')}
+  ${canEdit()?intro('Today’s game','Tick who played and enter the costs. Everyone’s share is worked out as you go.'):intro('Today','Your to-do, and each game day’s costs and shares.')}
+  <div id="taskslot"></div>
   <div id="daykpi"></div>
   ${viewOnly('record game days')}
   ${billTray()}
@@ -761,7 +791,7 @@ function renderDay(){
   <section class="card" id="splitcard"></section>
   ${canEdit()?'':'<div id="duealert"></div>'}
   ${S.days[curDate]&&canEdit()?`<div style="text-align:center">${dayConfirmClear?`<span class="hint">Remove everything recorded for this day?</span> <button class="lnk" data-act="clear-no">Keep</button> · <button class="lnk danger" data-act="clear-yes">Clear day</button>`:`<button class="lnk danger" data-act="clear">Clear this day</button>`}</div>`:''}`;
-  refreshDay();
+  refreshDay();refreshTasks();
   attachSuggest($('#guest'),()=>allNames(),n=>{$('#guestwarn').hidden=true;const c=canon(n);const k0=nkey(c);if(!S.roster.some(r=>nkey(r)===k0)){S.roster.push(c);S.since=S.since||{};S.since[k0]=Date.now();saveConfig()}if((S.inactive||[]).includes(k0)){S.inactive=S.inactive.filter(x=>x!==k0);if(S.autoOff)delete S.autoOff[k0];saveConfig()}editDay(d=>{if(!d.present.some(x=>nkey(x)===nkey(c)))d.present.push(c)});toast(c+' marked as played.')},'in the group');
 }
 function refreshDay(){
@@ -1363,6 +1393,114 @@ async function drawDuesPoster(list){
 function fit(g,t,x,y,max){let s=String(t);while(g.measureText(s).width>max&&s.length>3)s=s.slice(0,-2)+'…';g.fillText(s,x,y)}
 function rr(g,x,y,w,h,r){g.beginPath();g.moveTo(x+r,y);g.arcTo(x+w,y,x+w,y+h,r);g.arcTo(x+w,y+h,x,y+h,r);g.arcTo(x,y+h,x,y,r);g.arcTo(x,y,x+w,y,r);g.closePath()}
 
+/* ================= CLUB: photos, tips, shout-outs ================= */
+const CLUB={list:[],unsub:null,limit:20};
+const TIPS=[['Footwork','Split step: a small hop just as your opponent hits gets you moving to the shuttle faster.'],
+ ['Basics','Ready position: knees bent, weight on the balls of your feet, racket up in front of you.'],
+ ['Grip','Hold the racket loosely and squeeze only at impact. More power, less tired forearm.'],
+ ['Strokes','Take the shuttle at its highest point. The earlier you hit it, the more options you have.'],
+ ['Doubles','When your side attacks, go front-and-back. When defending, go side-by-side.'],
+ ['Doubles','Call it! A quick “mine” or “yours” avoids clashes and missed shuttles.'],
+ ['Serve','In doubles, keep the low serve short and tight over the tape to stop easy attacks.'],
+ ['Strokes','A high, deep clear to the back line buys you time to get back to base.'],
+ ['Tactics','Mix drops and clears to move your opponent forward and back.'],
+ ['Strokes','Use your non-racket arm for balance on overhead shots and smashes.'],
+ ['Fitness','Warm up 5–10 minutes: light jog, shoulder circles and lunges. Stretch after you play.'],
+ ['Fitness','Sip water between games. Even mild dehydration slows your reactions.'],
+ ['Gear','Non-marking court shoes with good grip protect your ankles and knees.'],
+ ['Singles','Return to the centre of the court after every shot.']];
+const TIP_TAGS=['Footwork','Strokes','Doubles','Serve','Tactics','Fitness','Gear','Fun'];
+function startClub(){if(!db||CLUB.unsub)return;CLUB.unsub=col('posts').orderBy('at','desc').limit(CLUB.limit).onSnapshot(q=>{CLUB.list=q.docs.map(d=>({id:d.id,...d.data()}));
+  if(tab==='club'&&!typingIn('#view-club'))renderClub();clubDot();if(tab==='day')refreshTasks()},()=>{})}
+function clubSeen(){try{localStorage.setItem('ss-clubseen'+SUF,String(Date.now()))}catch(e){}clubDot()}
+function clubDot(){const b=document.querySelector('.tabbar [data-tab="club"]');if(!b)return;let seen=0;try{seen=+localStorage.getItem('ss-clubseen'+SUF)||0}catch(e){}
+  b.classList.toggle('has-due',tab!=='club'&&CLUB.list.some(x=>x.at>seen&&x.uid!==(auth&&auth.currentUser&&auth.currentUser.uid)))}
+function tipOfDay(){const n=Math.floor(Date.now()/864e5);return TIPS[n%TIPS.length]}
+function renderClub(){
+  const v=$('#view-club');if(!db){v.innerHTML=intro('Club','Photos, tips and shout-outs.')+`<section class="card"><div class="empty">${ic('chat')}The club needs the shared database.</div></section>`;return}
+  startClub();
+  const me=allNames().find(n=>nkey(n)===nkey(getMe())),uid=auth&&auth.currentUser&&auth.currentUser.uid,month=todayStr().slice(0,7);
+  const cnt=(f)=>{const m={};Object.keys(S.days).filter(f).forEach(k=>uniq(S.days[k].present||[]).forEach(p=>{m[p]=(m[p]||0)+1}));return Object.entries(m).sort((a,b)=>b[1]-a[1])};
+  const mon=cnt(k=>k>=shift(todayStr(),-30)),all=cnt(()=>true),[tt,tx]=tipOfDay();
+  const posts=CLUB.list,tips=posts.filter(x=>x.kind==='tip');
+  const postHTML=x=>{const likes=Object.keys(x.likes||{}).length,mine=uid&&(x.likes||{})[uid],own=uid&&x.uid===uid;
+    return`<article class="card post"><div class="ph"><span class="ini">${esc(initials(x.name||'?'))}</span><div style="flex:1;min-width:0"><b>${esc(x.name||'Someone')}</b><small>${timeAgo(x.at)}${x.day?' · game on '+esc(dlabel(x.day,{weekday:'short',day:'numeric',month:'short'})):''}</small></div>${x.tag?`<span class="tagchip">${esc(x.tag)}</span>`:x.kind==='photo'?'<span class="tagchip">📸 Memory</span>':''}</div>
+      ${x.img?`<img class="pimg" src="${x.img}" alt="Photo by ${esc(x.name||'')}" loading="lazy">`:''}${x.text?`<div class="ptxt">${esc(x.text)}</div>`:''}
+      <div class="pf"><button class="likebtn${mine?' on':''}" data-like="${esc(x.id)}">🏸 ${likes||''}</button><small class="hint" style="margin:0">${likes?esc(Object.values(x.likes).slice(0,3).join(', '))+(likes>3?' +'+(likes-3):''):'Be the first to cheer'}</small>
+        <span style="margin-left:auto;display:flex;gap:6px">${x.img?`<button class="iconbtn" data-pshare="${esc(x.id)}" aria-label="Share">${ic('share')}</button>`:''}${own||isOrg?`<button class="iconbtn" data-pdelpost="${esc(x.id)}" aria-label="Delete">${ic('trash')}</button>`:''}</span></div></article>`};
+  v.innerHTML=`${intro('Club','Photos from our games, tips to play better and shout-outs. Everyone can post.')}
+  ${subnav('club',[['feed','Feed'],['tips','Tips'],['stars','Stars']])}
+  <div data-in="feed">
+    <section class="card"><div class="pad" style="display:grid;gap:8px">${me?'':`<p class="hint" style="margin:0">Pick your name in Payouts → My dues to post.</p>`}
+      <div class="grid2"><button class="btn primary" data-compose="photo">${ic('camera')}Photo memory</button><button class="btn line" data-compose="tip">💡 Share a tip</button></div>
+      <button class="btn line block" data-compose="shout">👏 Shout-out to a player</button></div></section>
+    ${posts.filter(x=>x.kind!=='tip').map(postHTML).join('')||`<section class="card"><div class="empty">${ic('camera')}No posts yet. Share a photo from the last game and make it a memory card!</div></section>`}
+    ${posts.length>=CLUB.limit?`<button class="btn line block" data-more>Show older posts</button>`:''}
+  </div>
+  <div data-in="tips">
+    <section class="card tipday"><div class="pad"><small>💡 TIP OF THE DAY · ${esc(tt.toUpperCase())}</small><br><b>${esc(tx)}</b></div></section>
+    <section class="card">${cardH('chat','From our players',tips.length||null)}${tips.length?'':`<div class="empty">Know a trick that helped your game? Share it.</div>`}<div class="pad"><button class="btn line block" data-compose="tip">💡 Share a tip</button></div></section>
+    ${tips.map(postHTML).join('')}
+    <section class="card">${cardH('check','Quick tips')}${TIPS.map(([t,x])=>`<div class="row"><div class="l"><b style="font-size:13px;color:var(--accent)">${esc(t)}</b><small style="color:var(--ink);font-size:14px">${esc(x)}</small></div></div>`).join('')}</section>
+  </div>
+  <div data-in="stars">
+    <section class="card">${cardH('shuttle','Most games · last 30 days',mon.length?plural(mon.length,'player'):'')}
+      ${mon.slice(0,8).map(([n,c],i)=>`<div class="prow"><span class="ini">${['🥇','🥈','🥉'][i]||esc(initials(n))}</span><span class="nm">${esc(n)}</span><span class="am">${plural(c,'game')}</span></div>`).join('')||`<div class="empty">No games in the last 30 days.</div>`}</section>
+    <section class="card">${cardH('shuttle','All-time regulars')}
+      ${all.slice(0,8).map(([n,c],i)=>`<div class="prow"><span class="ini">${['🥇','🥈','🥉'][i]||esc(initials(n))}</span><span class="nm">${esc(n)}</span><span class="am">${plural(c,'game')}</span></div>`).join('')||`<div class="empty">No games yet.</div>`}</section>
+    <section class="card">${cardH('chat','Shout-outs',posts.filter(x=>x.kind==='shout').length||null)}${posts.filter(x=>x.kind==='shout').slice(0,5).map(x=>`<div class="row"><div class="l"><b>${esc(x.text||'')}</b><small>from ${esc(x.name||'')} · ${timeAgo(x.at)}</small></div></div>`).join('')||`<div class="empty">Cheer someone for a great rally!</div>`}</section>
+  </div>`;
+  applySub(v,'club');
+  v.querySelectorAll('[data-compose]').forEach(b=>b.onclick=()=>openCompose(b.dataset.compose));
+  v.querySelectorAll('[data-like]').forEach(b=>b.onclick=()=>toggleLike(b.dataset.like));
+  v.querySelectorAll('[data-pdelpost]').forEach(b=>b.onclick=async()=>{if(b.dataset.c!=='1'){b.dataset.c='1';b.style.color='var(--danger)';toast('Tap again to delete this post.');return}try{await col('posts').doc(b.dataset.pdelpost).delete();toast('Post deleted.')}catch(e){toast('Couldn’t delete ('+e.code+').')}});
+  v.querySelectorAll('[data-pshare]').forEach(b=>b.onclick=()=>{const x=CLUB.list.find(y=>y.id===b.dataset.pshare);if(x&&x.img)sharePoster(x.img,'badminton-memory.jpg',(x.text?x.text+'\n\n':'')+'🏸 '+(S.groupName||'Badminton Family')+' · '+appLink('club'))});
+  const mo=v.querySelector('[data-more]');if(mo)mo.onclick=()=>{CLUB.limit+=20;if(CLUB.unsub){CLUB.unsub();CLUB.unsub=null}startClub()};
+}
+async function toggleLike(id){const x=CLUB.list.find(y=>y.id===id);if(!x)return;const me=allNames().find(n=>nkey(n)===nkey(getMe()));if(!me)return toast('Pick your name first (Payouts → My dues).');
+  try{await ensureAnon();const uid=auth.currentUser.uid,F=firebase.firestore,on=(x.likes||{})[uid];
+    await col('posts').doc(id).update(new F.FieldPath('likes',uid),on?F.FieldValue.delete():canon(me))}catch(e){toast(e.code==='permission-denied'?'Ask the organizer to update the app rules for the Club.':'Couldn’t save ('+(e.code||'error')+').')}}
+/* turn a game photo into a memory card: photo + date, who played and a caption */
+async function memoryCard(src,ds,caption){const img=await loadImg(src);if(!img)return null;try{await document.fonts.load('800 40px Manrope')}catch(e){}
+  const d=ds?getDay(ds):null,c=d?calc(d):null,W=1080,ph=Math.round(Math.min(1350,W*img.height/img.width)),band=caption?330:250,H=ph+band;
+  const cv=document.createElement('canvas');cv.width=W;cv.height=H;const g=cv.getContext('2d'),F='Manrope,system-ui,sans-serif',sk=SKINS[S.skin]||SKINS.court;
+  const s2=Math.max(W/img.width,ph/img.height);g.drawImage(img,(W-img.width*s2)/2,(ph-img.height*s2)/2,img.width*s2,img.height*s2);
+  const gr=g.createLinearGradient(0,ph-220,0,ph);gr.addColorStop(0,'rgba(0,0,0,0)');gr.addColorStop(1,'rgba(0,0,0,.55)');g.fillStyle=gr;g.fillRect(0,ph-220,W,220);
+  g.fillStyle='#fff';g.font='800 30px '+F;g.textAlign='left';fit(g,(S.groupName||'Badminton Family').toUpperCase(),56,ph-40,W-112);
+  g.fillStyle=sk.accent;g.fillRect(0,ph,W,band);g.fillStyle=sk.pop===sk.accent?sk.ink:sk.pop;g.fillRect(0,ph,W,10);
+  g.fillStyle=sk.ink;g.font='800 52px '+F;fit(g,d?dlabel(ds,{weekday:'long',day:'numeric',month:'long'}):'On court',56,ph+90,W-112);
+  g.globalAlpha=.9;g.font='600 30px '+F;fit(g,d&&c&&c.n?c.n+' played · '+fmtH(d.hours)+' hours · '+orderNames(d.present).map(first).join(', '):'Same court · Same people · Stronger together',56,ph+142,W-112);g.globalAlpha=1;
+  if(caption){g.font='italic 700 34px '+F;fit(g,'“'+caption+'”',56,ph+215,W-112)}
+  g.font='700 24px '+F;g.globalAlpha=.75;g.fillText('🏸 Shuttle Split',56,H-40);g.globalAlpha=1;
+  let q=.8,u=cv.toDataURL('image/jpeg',q);while(u.length>700000&&q>.35){q-=.1;u=cv.toDataURL('image/jpeg',q)}return u}
+function openCompose(kind){
+  const me=allNames().find(n=>nkey(n)===nkey(getMe()));if(!me){toast('Pick your name first (Payouts → My dues).');SUB.pay='mine';go('pay');return}
+  const days=playedDays().slice(0,10);let raw='',card='',ds=days.find(k=>getDay(k).present.some(x=>nkey(x)===nkey(me)))||days[0]||'',tag='',shoutTo='',mk=true;
+  const draw=()=>{const bg=sheetOpen(`<div class="sheet-h"><span class="ini">${kind==='photo'?ic('camera'):kind==='tip'?'💡':'👏'}</span><div><b>${kind==='photo'?'Photo memory':kind==='tip'?'Share a tip':'Shout-out'}</b><small>Posting as ${esc(me)} · everyone in the group can see it</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div>
+    ${kind==='photo'?`<div class="sub" style="padding-top:12px">${raw?`<img src="${mk&&card?card:raw}" alt="Preview" style="width:100%;border-radius:12px;border:1px solid var(--line)">`:`<label class="btn primary block" style="cursor:pointer">${ic('camera')}Choose a photo<input type="file" accept="image/*" id="cphoto" hidden></label>`}
+      ${raw?`<div class="mix" style="justify-content:space-between;margin-top:8px"><label class="mix" style="gap:8px"><input type="checkbox" id="cmk" ${mk?'checked':''}>Make it a memory card</label><label class="lnk" style="cursor:pointer">Change photo<input type="file" accept="image/*" id="cphoto" hidden></label></div>`:''}
+      ${days.length?`<span class="sublbl">Game day</span><select class="txt" id="cday"><option value="">No specific game</option>${days.map(k=>`<option value="${k}" ${k===ds?'selected':''}>${esc(dlabel(k,{weekday:'short',day:'numeric',month:'short'}))} · ${getDay(k).present.length} played</option>`).join('')}</select>`:''}</div>`:''}
+    ${kind==='tip'?`<div class="sub" style="padding-top:12px"><span class="sublbl">Topic</span><div class="tiles sm">${TIP_TAGS.map(t=>`<button type="button" class="tile ${tag===t?'on':''}" data-tag="${t}"><span>${t}</span></button>`).join('')}</div></div>`:''}
+    ${kind==='shout'?`<div class="sub" style="padding-top:12px"><span class="sublbl">Who?</span><select class="txt" id="cto"><option value="">Choose a player…</option>${allNames().filter(n=>nkey(n)!==nkey(me)).map(n=>`<option ${n===shoutTo?'selected':''}>${esc(n)}</option>`).join('')}</select></div>`:''}
+    <div class="sub"><span class="sublbl">${kind==='photo'?'Caption (optional)':kind==='tip'?'Your tip':'Message'}</span><textarea class="txt" id="ctext" rows="3" maxlength="300" placeholder="${kind==='photo'?'e.g. What a rally! 🔥':kind==='tip'?'e.g. Keep your racket up between shots, it saves you half a second.':'e.g. That smash in the last game! 💥'}">${esc(($('#ctext')||{}).value||'')}</textarea></div>
+    <div class="pad" style="display:grid;gap:8px"><button class="btn primary block" id="cpost">${ic('check')}Post to Club</button>${kind==='photo'&&raw?`<button class="btn line block" id="cwa">${ic('share')}Also share on WhatsApp</button>`:''}</div>`,'New post');
+    const fi=bg.querySelectorAll('#cphoto');fi.forEach(f=>f.onchange=async()=>{const file=f.files[0];if(!file)return;try{raw=await shrinkImage(file);card=mk?await memoryCard(raw,ds,norm($('#ctext').value)):'';draw()}catch(e){toast('Couldn’t read that photo.')}});
+    const mkc=$('#cmk');if(mkc)mkc.onchange=async()=>{mk=mkc.checked;if(mk&&!card)card=await memoryCard(raw,ds,norm($('#ctext').value));draw()};
+    const dsel=$('#cday');if(dsel)dsel.onchange=async()=>{ds=dsel.value;if(raw&&mk)card=await memoryCard(raw,ds,norm($('#ctext').value));draw()};
+    const ct=$('#ctext');if(ct&&kind==='photo')ct.onchange=async()=>{if(raw&&mk){card=await memoryCard(raw,ds,norm(ct.value));const i=bg.querySelector('.sub img');if(i)i.src=card}};
+    bg.querySelectorAll('[data-tag]').forEach(b=>b.onclick=()=>{tag=b.dataset.tag;bg.querySelectorAll('[data-tag]').forEach(x=>x.classList.toggle('on',x===b))});
+    const to=$('#cto');if(to)to.onchange=()=>{shoutTo=to.value};
+    const wa=$('#cwa');if(wa)wa.onclick=()=>sharePoster(mk&&card?card:raw,'badminton-memory.jpg',(norm($('#ctext').value)?norm($('#ctext').value)+'\n\n':'')+'🏸 '+(S.groupName||'Badminton Family'));
+    $('#cpost').onclick=async()=>{const text=norm($('#ctext').value);
+      if(kind==='photo'&&!raw)return toast('Choose a photo first.');if(kind==='tip'&&!text)return toast('Write your tip.');if(kind==='shout'&&(!shoutTo||!text))return toast('Choose a player and write a message.');
+      const b=$('#cpost');b.disabled=true;
+      try{await ensureAnon();const doc={name:canon(me),uid:auth.currentUser.uid,text:kind==='shout'?'👏 '+shoutTo+': '+text:text,at:Date.now(),kind,likes:{}};
+        if(kind==='photo'){doc.img=mk&&card?card:raw;if(ds)doc.day=ds}if(kind==='tip'&&tag)doc.tag=tag;
+        await col('posts').add(doc);closeWho();SUB.club=kind==='tip'?'tips':'feed';go('club');toast(kind==='photo'?'Posted! 📸':'Posted! Thanks for sharing.')}
+      catch(e){b.disabled=false;toast(e.code==='permission-denied'?'Ask the organizer to update the app rules for the Club.':'Couldn’t post ('+(e.code||'error')+').')}};
+  };draw();
+}
+
 /* ================= MY ACCOUNT ================= */
 const ME={who:'',sec:'games'};
 function renderMe(){
@@ -1431,13 +1569,13 @@ let teamPending='', teamWarn={html:'',val:''}, teamUI={reset:{pays:true,days:tru
 /* ---------- organizer data: poll votes + who opened the app ---------- */
 const VOTE_UNSUB={},VOTES_BY={};let SEEN_UNSUB=null,orgTick=null;
 function orgChanged(){clearTimeout(orgTick);orgTick=setTimeout(()=>{PDATA.votes=Object.values(VOTES_BY).flat();PDATA.at=Date.now();autoInactive();autoBillFromPolls();
-  if(tab==='team'&&!typingIn('#view-team'))renderTeam();else if(tab==='day')refreshDay();try{remDot()}catch(e){}},150)}
+  if(tab==='team'&&!typingIn('#view-team'))renderTeam();else if(tab==='day'){refreshDay();refreshTasks()}renderHeader()},150)}
 /* organizers get votes and app opens live, so every organizer sees the same numbers */
 async function loadOrgData(force){
-  if(!db||!isOrg)return;
-  if(!SEEN_UNSUB)SEEN_UNSUB=col('seen').onSnapshot(q=>{SEEN=q.docs.map(d=>({uid:d.id,...d.data()}));orgChanged()},()=>{SEEN_UNSUB=null});
-  const ids=new Set(P.list.map(p=>p.id));
-  P.list.forEach(pl=>{if(VOTE_UNSUB[pl.id])return;VOTE_UNSUB[pl.id]=pollsCol().doc(pl.id).collection('votes').onSnapshot(q=>{VOTES_BY[pl.id]=q.docs.map(d=>({poll:pl.id,id:d.id,...d.data()}));orgChanged()},()=>{delete VOTE_UNSUB[pl.id]})});
+  if(!db)return;
+  if(isOrg&&!SEEN_UNSUB)SEEN_UNSUB=col('seen').onSnapshot(q=>{SEEN=q.docs.map(d=>({uid:d.id,...d.data()}));orgChanged()},()=>{SEEN_UNSUB=null});
+  const want=P.list.filter(p=>isOrg||!isClosed(p)),ids=new Set(want.map(p=>p.id));
+  want.forEach(pl=>{if(VOTE_UNSUB[pl.id])return;VOTE_UNSUB[pl.id]=pollsCol().doc(pl.id).collection('votes').onSnapshot(q=>{VOTES_BY[pl.id]=q.docs.map(d=>({poll:pl.id,id:d.id,...d.data()}));orgChanged()},()=>{delete VOTE_UNSUB[pl.id]})});
   Object.keys(VOTE_UNSUB).forEach(id=>{if(!ids.has(id)){VOTE_UNSUB[id]();delete VOTE_UNSUB[id];delete VOTES_BY[id]}});
   if(force)orgChanged();
 }
@@ -1813,6 +1951,7 @@ const slug=s=>s.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').sl
 const first=s=>norm(s).split(' ')[0];
 /* default deadline: the night before the first game, or 2 hours from now if that has passed */
 function defClose(first){let c=shift(first,-1)+'T22:00';if(new Date(c).getTime()>Date.now()+3600e3)return c;const d=new Date(Date.now()+2*3600e3);d.setMinutes(0,0,0);const v=ymd(d)+'T'+String(d.getHours()).padStart(2,'0')+':00';return v<=first+'T23:59'?v:''}
+function startNewPoll(){if(!isOrg){signIn();return}const[sa,su]=nextWeekend(0);P.draft={title:'Who’s up for Badminton this weekend?',dates:[{date:sa,note:'5-7 PM'},{date:su,note:'9-11 AM'}],perCourt:6,closes:defClose(sa)};P.mode='new';SUB.polls='list';if(tab!=='polls')go('polls');renderPolls();window.scrollTo(0,0)}
 function nextWeekend(w){const d=new Date(),sat=shift(todayStr(),((6-d.getDay()+7)%7)+7*w);return[sat,shift(sat,1)]}
 function latestByName(arr){const m={};arr.forEach(v=>{if(!v||!v.name)return;const k=nkey(v.name);if(!m[k]||(v.updatedAt||0)>(m[k].updatedAt||0))m[k]=v});return Object.values(m)}
 function waOpt(dt){const d=new Date(dt.date+'T00:00');return d.getDate()+'-'+d.toLocaleDateString('en-IN',{month:'short'})+' ('+d.toLocaleDateString('en-IN',{weekday:'long'})+')'+(dt.note?' | '+dt.note:'')}
@@ -2019,14 +2158,14 @@ function openMsgSettings(){
     saveConfig();closeWho();renderTab(true);toast('Messages & reminders saved.')};
 }
 function startPollsListener(){if(P.listening||!db)return;P.listening=true;
-  pollsCol().orderBy('createdAt','desc').limit(30).onSnapshot(q=>{P.list=q.docs.map(d=>({id:d.id,...d.data()}));if(isOrg)loadOrgData(true);if(tab==='polls'&&P.mode==='list')renderPolls();if(tab==='day')refreshDay()},()=>{})}
+  pollsCol().orderBy('createdAt','desc').limit(30).onSnapshot(q=>{P.list=q.docs.map(d=>({id:d.id,...d.data()}));loadOrgData(true);if(tab==='polls'&&P.mode==='list')renderPolls();if(tab==='day')refreshDay()},()=>{})}
 function openPoll(id){if(!db)return;stopPoll();P.mode='detail';P.confirmDel=false;P.sel={id,loading:true};P.votes=[];P.myAns={};
   const ref=pollsCol().doc(id);
   P.unsubPoll=ref.onSnapshot(s=>{P.sel=s.exists?{id,...s.data()}:{id,missing:true};pollRender()},()=>{P.sel={id,missing:true};pollRender()});
   P.unsubVotes=ref.collection('votes').onSnapshot(q=>{P.votes=q.docs.map(d=>d.data());pollRender()},()=>{})}
 function stopPoll(){if(P.unsubPoll)P.unsubPoll();if(P.unsubVotes)P.unsubVotes();P.unsubPoll=P.unsubVotes=null}
 function pollRender(){if(tab!=='polls')return;const a=document.activeElement;if(a&&a.tagName==='INPUT'&&a.type==='text'&&$('#view-polls').contains(a))return;renderPolls()}
-function routeHash(){if(location.hash==='#payouts'){SUB.pay='mine';go('pay');return}if(location.hash==='#me'){go('me');return}if(location.hash==='#remind'){P.mode='list';P.scrollRem=true;go('polls');return}const m=location.hash.match(/^#poll-([A-Za-z0-9_-]+)$/);if(m){openPoll(m[1]);go('polls')}}
+function routeHash(){if(location.hash==='#payouts'){SUB.pay='mine';go('pay');return}if(location.hash==='#club'){go('club');return}if(location.hash==='#me'){go('me');return}if(location.hash==='#remind'){P.mode='list';P.scrollRem=true;go('polls');return}const m=location.hash.match(/^#poll-([A-Za-z0-9_-]+)$/);if(m){openPoll(m[1]);go('polls')}}
 function leavePoll(){stopPoll();P.mode='list';P.sel=null;P.justCreated=null;try{history.replaceState(null,'',location.pathname)}catch(e){}renderPolls()}
 function renderPolls(){
   const v=$('#view-polls');
@@ -2048,7 +2187,7 @@ function renderPolls(){
     ${live.length?live.map(p=>`<button class="row" style="width:100%;text-align:left" data-open="${esc(p.id)}"><div class="l"><b>${esc(p.title)}</b><small>${(p.dates||[]).map(dt=>esc(dlabel(dt.date))).join(' · ')}</small></div><span class="badge ${isClosed(p)?'':'on'}">${isClosed(p)?'Closed':'Open'}</span><span class="chev">${ic('right')}</span></button>`).join(''):`<div class="empty">${ic('poll')}No recent polls.</div>`}
     ${arch.length?`<details class="inact"><summary>Archive · ${plural(arch.length,'poll')} older than 2 weeks</summary>${arch.map(p=>`<button class="row" style="width:100%;text-align:left" data-open="${esc(p.id)}"><div class="l"><b>${esc(p.title)}</b><small>${(p.dates||[]).map(dt=>esc(dlabel(dt.date))).join(' · ')}</small></div><span class="badge">Archived</span><span class="chev">${ic('right')}</span></button>`).join('')}</details>`:''}
   </section></div>`;
-  v.querySelector('[data-act=newpoll]').onclick=()=>{if(!isOrg){signIn();return}const[sa,su]=nextWeekend(0);P.draft={title:'Who’s up for Badminton this weekend?',dates:[{date:sa,note:'5-7 PM'},{date:su,note:'9-11 AM'}],perCourt:6,closes:defClose(sa)};P.mode='new';renderPolls();window.scrollTo(0,0)};
+  v.querySelector('[data-act=newpoll]').onclick=startNewPoll;
   v.querySelectorAll('[data-open]').forEach(el=>el.onclick=()=>{location.hash='poll-'+el.dataset.open});
   if(P.scrollRem){P.scrollRem=false;SUB.polls='rem'}if(!isOrg)SUB.polls='list';applySub(v,'polls');bindReminders(v);
 }
@@ -2195,7 +2334,7 @@ async function fillFromPoll(date){const p=pollForDate(date);if(!p)return;
 
 /* ================= navigation & boot ================= */
 function go(t){closeWho();if(t!=='team'&&teamUI)teamUI.page='';tab=t;if((t==='team'||t==='day')&&isOrg)loadOrgData(false);document.querySelectorAll('.tabbar [data-tab]').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.tab===t)));
-  ['day','polls','pay','me','team'].forEach(k=>$('#view-'+k).hidden=k!==t);renderTab(true);window.scrollTo(0,0)}
+  ['day','polls','pay','club','me','team'].forEach(k=>$('#view-'+k).hidden=k!==t);if(t==='club')clubSeen();renderTab(true);window.scrollTo(0,0)}
 document.querySelectorAll('.tabbar [data-tab]').forEach(b=>b.onclick=()=>{if(b.dataset.tab==='pay'&&tab!=='pay'&&pay.range==='day'){pay.range='last';pay.off.clear()}go(b.dataset.tab)});
 function typingIn(id){const a=document.activeElement;return!!a&&(a.tagName==='INPUT'||a.tagName==='SELECT')&&$(id).contains(a)&&a.type!=='checkbox'&&a.type!=='file'}
 let STALE=false;
@@ -2206,6 +2345,7 @@ function renderTab(force){
   else if(tab==='polls')pollRender();
   else if(tab==='pay')renderPay();
   else if(tab==='me')renderMe();
+  else if(tab==='club')renderClub();
   else if(tab==='team'){if(force||!typingIn('#view-team'))renderTeam()}
 }
 async function signIn(){if(!auth)return;const prov=new firebase.auth.GoogleAuthProvider();
@@ -2252,7 +2392,7 @@ if('serviceWorker' in navigator)window.addEventListener('load',()=>{const had=!!
   payCol().onSnapshot(q=>{PAYS=q.docs.map(d=>({id:d.id,...d.data()}));if(!typingIn('#view-day')&&!typingIn('#view-team')&&!typingIn('#view-me'))renderTab(false);else STALE=true},()=>{});
   document.addEventListener('focusout',()=>setTimeout(()=>{if(STALE&&!typingIn('#view-'+tab)){STALE=false;renderTab(false)}},120));
   document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){renderTab(false);syncUI()}});
-  startPollsListener();routeHash();window.addEventListener('hashchange',routeHash);
+  startPollsListener();startClub();routeHash();window.addEventListener('hashchange',routeHash);
   setTimeout(()=>pingSeen(false),1500);
 })();
 })();
