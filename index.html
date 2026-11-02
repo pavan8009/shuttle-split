@@ -11,8 +11,8 @@
 <meta name="description" content="Vote, play, split and settle up: badminton costs shared fairly.">
 <meta property="og:title" content="Shuttle Split · Badminton Family">
 <meta property="og:description" content="Vote for games, see your share and pay by UPI.">
-<meta property="og:image" content="https://pavan8009.github.io/shuttle-split/og.png">
-<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta property="og:image" content="https://pavan8009.github.io/shuttle-split/og-thumb.png">
+<meta property="og:image:width" content="256"><meta property="og:image:height" content="256">
 <meta property="og:type" content="website">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -451,7 +451,7 @@ const FIREBASE_CONFIG = {
 /* Collections get this prefix so they never clash with the league app's data */
 const COLLECTION_PREFIX = "shuttleSplit_";
 /* App version shown in Team → About */
-const APP_VERSION = "2.4.0", APP_BUILD = "2 Nov 2026";
+const APP_VERSION = "2.5.0", APP_BUILD = "2 Nov 2026";
 /* Owner of the main group (the link without ?g=) */
 const LEGACY_OWNER = "pavankaki.cool@gmail.com";
 /* Starting player list, used only until the first save */
@@ -777,6 +777,7 @@ function todoItems(){if(!isOrg||!db)return[];const out=[];
   if(rd)out.push(['bell',PRE()?'Wallet top-up reminder':'Payment reminder','Due now',()=>goSub('pay','dues')]);
   const cl=allPays().filter(x=>x.status==='claimed').length;if(cl)out.push(['check',plural(cl,'payment')+' to confirm','Players say they’ve paid',()=>goSub('pay','dues')]);
   const q=billQueue();if(q.length)out.push(['share','Bill waiting to send',q.map(shortD).join(', '),()=>{closeWho();openBillSend()}]);
+  {const nr=REQ.list.filter(r=>r.status==='new').length;if(nr)out.push(['chat',nr===1?'1 new idea or problem':nr+' new ideas or problems','From players · tap to read',()=>goSub('team','requests')])}
   {const dp=dupPairs();if(dp.length)out.push(['copy',plural(dp.length,'repeated payment')+' to check',[...new Set(dp.map(x=>first(x[0].name)))].join(', ')+' · same amount recorded twice',openDupes])}
   try{const a=attention();const n=a.fresh.length+a.dups.length;if(n)out.push(['users',plural(n,'name')+' to review','New or duplicate names',()=>goSub('team','players')])}catch(e){}
   return out}
@@ -792,6 +793,7 @@ function openTodo(){const it=todoItems(),mt=myTasks().filter(x=>!x.done),n=it.le
     ${mt.length?`<span class="sublbl" style="margin:8px 16px 0">For you</span><div class="menu">${mt.map((x,i)=>`<button class="mi" data-mtask="${i}"><span class="mico">${ic(x.ic)}</span><span class="mt"><b>${esc(x.t)}</b><small>${esc(x.s)}</small></span>${x.opt?'<span class="mm">Optional</span>':''}${ic('right')}</button>`).join('')}</div>`:''}
     ${(()=>{const A=activityItems(),seen=actSeen();return A.length?`<span class="sublbl" style="margin:8px 16px 0">Activity</span><div class="menu">${A.slice(0,15).map((x,i)=>`<button class="mi" data-act2="${i}"${(x.at||0)>seen?' style="background:var(--soft)"':''}><span class="mico" style="font-size:18px">${x.ic}</span><span class="mt"><b>${esc(x.t)}</b><small>${esc(String(x.s).slice(0,80))}${String(x.s).length>80?'…':''} · ${timeAgo(x.at)}</small></span>${(x.at||0)>seen?'<i class="nb" style="min-width:10px;height:10px;padding:0"></i>':''}</button>`).join('')}</div>`:''})()}
     ${!it.length&&!mt.length&&!activityItems().length?`<div class="empty">${ic('check')}Nothing needs you right now.</div>`:''}`,'To do & activity');
+  {const f=document.createElement('div');f.className='card-f';f.innerHTML=`<button class="btn sm line block" id="tdsug">${ic('chat')}Suggest an idea or report a problem</button>`;bg.querySelector('.sheet').appendChild(f);$('#tdsug').onclick=openSuggest}
   const A2=activityItems();bg.querySelectorAll('[data-act2]').forEach(b=>b.onclick=()=>{closeWho();A2[+b.dataset.act2].go()});
   try{localStorage.setItem('ss-actseen'+SUF,String(Date.now()))}catch(e){}setTimeout(renderHeader,50);
   bg.querySelectorAll('[data-todo]').forEach(b=>b.onclick=()=>{closeWho();it[+b.dataset.todo][3]()});
@@ -806,7 +808,7 @@ function remDot(){const b=document.querySelector('.tabbar [data-tab="polls"]');i
 function renderHeader(){try{remDot()}catch(e){}
   $('#gname').textContent=S.groupName||'Badminton Family';
   $('#pagename').textContent=PAGES[tab];
-  $('#avatar').innerHTML=photo?`<img src="${photo}" alt="">`:ic('shuttle');
+  $('#avatar').innerHTML=photo?`<img src="${photo}" alt="">`:ic('shuttle');const av=$('#avatar');av.style.cursor='pointer';av.title=canEdit()?'Change group photo':'Group photo';av.onclick=avatarTap;
   const st=$('#status');st.hidden=!db;st.classList.toggle('org',isOrg);
   const mb=$('#mebtn');if(mb){const me=getMe();mb.innerHTML=me?esc(initials(me)):ic('user');mb.classList.toggle('on',tab==='me');mb.onclick=()=>{ME.who='';go('me')}}
   const tb=$('#todobtn');if(tb){let n=0;try{n=todoItems().length+pendingTasks().length+unreadActivity()}catch(e){}tb.hidden=!db;$('#todonb').textContent=n;$('#todonb').hidden=!n;tb.onclick=openTodo}
@@ -1883,6 +1885,45 @@ async function takeShared(){if(!/[?&]shared=1/.test(location.search))return;try{
   let img='',text='';try{const c=await caches.open('share-inbox'),r=await c.match('shared-image');if(r){const b=await r.blob();img=await shrinkImage(new File([b],'shared.jpg',{type:b.type||'image/jpeg'}))}
     const t=await c.match('shared-text');if(t)text=(await t.text()).slice(0,300);await c.delete('shared-image');await c.delete('shared-text')}catch(e){}
   go('club');if(img||text)openCompose(img?'photo':'tip',{img,text});else toast('Nothing to share came through. Try again from the photo.')}
+/* ---------- ideas & problems: from anyone, with page and phone details, ready to copy for Claude ---------- */
+const REQ={list:[],unsub:null,filter:'new'};
+function startRequests(){if(!db||!isOrg||REQ.unsub)return;REQ.unsub=col('requests').orderBy('at','desc').limit(200).onSnapshot(q=>{REQ.list=q.docs.map(d=>({id:d.id,...d.data()}));renderHeader();if(tab==='team'&&!typingIn('#view-team'))renderTeam()},()=>{REQ.unsub=null})}
+function appContext(){const ua=navigator.userAgent,dev=/iPhone|iPad/.test(ua)?'iPhone/iPad':/Android/.test(ua)?'Android':'Computer',inst=(window.matchMedia&&matchMedia('(display-mode: standalone)').matches)||navigator.standalone?'installed app':'browser';
+  const page=(PAGES[tab]||tab)+(tab==='team'&&teamUI.page?' › '+teamUI.page:SUB[tab]?' › '+SUB[tab]:'');return{page,ver:APP_VERSION,dev:dev+' · '+inst,role:isOrg?'organizer':'player',group:GID||'main'}}
+const REQK={idea:['💡','Idea'],bug:['🐞','Problem'],q:['❓','Question']};
+function openSuggest(){const me=allNames().find(n=>nkey(n)===nkey(getMe()));const ctx=appContext();let kind='idea',img='';closeWho();
+  const draw=()=>{const bg=sheetOpen(`<div class="sheet-h"><span class="ini">${ic('chat')}</span><div><b>Suggest or report</b><small>Goes to the organizers${me?' · from '+esc(me):''}</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div>
+    <div class="sub" style="padding-top:12px"><div class="seg" style="padding:0">${Object.entries(REQK).map(([k,[e,l]])=>`<button type="button" class="${kind===k?'on':''}" data-rk="${k}">${e} ${l}</button>`).join('')}</div></div>
+    <div class="sub"><textarea class="txt" id="rqtext" rows="5" maxlength="1000" placeholder="${kind==='bug'?'What happened, and what did you expect? e.g. I tapped Save score and nothing happened.':kind==='q'?'What would you like to know?':'What would make the app better for you?'}">${esc(($('#rqtext')||{}).value||'')}</textarea></div>
+    <div class="sub">${img?`<div class="mix" style="gap:10px"><img src="${img}" alt="" style="width:64px;height:84px;object-fit:cover;border-radius:10px;border:1px solid var(--line)"><button class="lnk danger" id="rqimgx">Remove screenshot</button></div>`:`<label class="btn sm line" style="cursor:pointer">${ic('camera')}Add a screenshot (optional)<input type="file" accept="image/*" id="rqimg" hidden></label>`}</div>
+    <div class="sub"><small class="hint" style="margin:0">Attached automatically: page “${esc(ctx.page)}” · v${esc(ctx.ver)} · ${esc(ctx.dev)}</small></div>
+    <div class="card-f"><button class="btn primary block" id="rqsend">${ic('check')}Send</button></div>`,'Suggest or report');
+    bg.querySelectorAll('[data-rk]').forEach(b=>b.onclick=()=>{kind=b.dataset.rk;draw()});
+    const fi=$('#rqimg');if(fi)fi.onchange=async()=>{const f=fi.files[0];if(!f)return;try{img=await shrinkImage(f);draw()}catch(e){toast('Couldn’t read that image.')}};
+    const ix=$('#rqimgx');if(ix)ix.onclick=()=>{img='';draw()};
+    $('#rqsend').onclick=async()=>{const text=norm($('#rqtext').value);if(text.length<4)return toast('Write a few words first.');const b=$('#rqsend');
+      const key='ss-lastreq'+SUF;let last='';try{last=localStorage.getItem(key)||''}catch(e){}if(last===text)return toast('✋ You already sent this one.');
+      b.disabled=true;try{await ensureAnon();const d={kind,text,name:me?canon(me):'Someone',uid:auth.currentUser.uid,at:Date.now(),ctx,status:'new'};if(img)d.img=img;
+        await col('requests').add(d);try{localStorage.setItem(key,text)}catch(e){}closeWho();toast('Thanks! Sent to the organizers 💚')}
+      catch(e){b.disabled=false;toast(e.code==='permission-denied'?'Ask the organizer to publish the latest app rules.':'Couldn’t send ('+(e.code||'error')+').')}};
+  };draw()}
+function requestsHTML(){startRequests();const F=REQ.filter,L=REQ.list.filter(r=>F==='all'||(F==='done'?r.status==='done':r.status!=='done'));const open=REQ.list.filter(r=>r.status!=='done');
+  return`${cardH('chat','Ideas & problems',open.length?open.length+' open':'All handled')}
+    <div class="sub" style="padding-top:10px"><div class="seg" style="padding:0">${[['new','Open'],['done','Done'],['all','All']].map(([k,l])=>`<button type="button" class="${F===k?'on':''}" data-rqf="${k}">${l}</button>`).join('')}</div></div>
+    ${open.length?`<div class="sub"><div class="grid2"><button class="btn sm primary" data-rq="copy:">${ic('copy')}Copy for Claude</button><button class="btn sm line" data-rq="share:">${ic('share')}Share</button></div><p class="hint" style="margin:6px 0 0">Copies every open item as one message, with page, version and phone. Paste it in your chat with Claude.</p></div>`:''}
+    ${L.map(r=>{const [e,l]=REQK[r.kind]||REQK.idea,c=r.ctx||{};return`<div class="row" style="flex-direction:column;align-items:stretch;gap:6px${r.status==='done'?';opacity:.6':''}"><div style="display:flex;justify-content:space-between;gap:8px"><b>${e} ${l} · ${esc(r.name||'')}</b><small class="hint" style="margin:0;white-space:nowrap">${timeAgo(r.at)} ${hm(r.at)}</small></div>
+      <div style="white-space:pre-wrap;line-height:1.4">${esc(r.text)}</div><small class="hint" style="margin:0">${esc(c.page||'')} · v${esc(c.ver||'')} · ${esc(c.dev||'')}${c.role?' · '+esc(c.role):''}</small>
+      ${r.img?`<img src="${r.img}" alt="Screenshot" style="max-width:120px;border-radius:10px;border:1px solid var(--line);cursor:zoom-in" data-rq="img:${esc(r.id)}">`:''}
+      <div class="mix" style="gap:14px">${r.status==='done'?`<button class="lnk" data-rq="reopen:${esc(r.id)}">Reopen</button>`:`<button class="lnk" data-rq="done:${esc(r.id)}">${ic('check')} Mark done</button>`}<button class="lnk" data-rq="copy:${esc(r.id)}">Copy</button><button class="lnk danger" data-rq="del:${esc(r.id)}">Delete</button></div></div>`}).join('')||`<div class="empty">${ic('check')}${F==='done'?'Nothing marked done yet.':'No open ideas or problems.'}</div>`}`}
+function reqText(list){const L=['Shuttle Split feedback · '+(S.groupName||'Badminton Family')+' · '+list.length+' item'+(list.length===1?'':'s')+' (app v'+APP_VERSION+')',''];
+  list.forEach((r,i)=>{const [e,l]=REQK[r.kind]||REQK.idea,c=r.ctx||{};L.push((i+1)+'. '+e+' '+l+' from '+(r.name||'someone')+' · '+dlabel(ymd(new Date(r.at)),{day:'numeric',month:'short'})+' '+hm(r.at));
+    L.push('   "'+r.text.replace(/\n/g,' ')+'"');L.push('   Page: '+(c.page||'?')+' · v'+(c.ver||'?')+' · '+(c.dev||'?')+(c.role?' · '+c.role:'')+(r.img?' · screenshot in the app':''));L.push('')});return L.join('\n')}
+async function reqAction(act,id,el){const r=REQ.list.find(x=>x.id===id),open=REQ.list.filter(x=>x.status!=='done').slice().reverse();
+  if(act==='copy')return copyText(reqText(r?[r]:open),'Copied. Paste it in your chat with Claude.');
+  if(act==='share'){const t=reqText(open);if(navigator.share){try{await navigator.share({text:t})}catch(e){}}else copyText(t,'Copied.');return}
+  if(act==='img'&&r)return sheetOpen(`<div class="sheet-h"><span class="ini">${ic('image')}</span><div><b>Screenshot</b><small>${esc(r.name||'')} · ${timeAgo(r.at)}</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div><img src="${r.img}" alt="Screenshot" style="width:100%;display:block">`,'Screenshot');
+  if(act==='del'&&el.dataset.c!=='1'){el.dataset.c='1';el.textContent='Tap to delete';return}
+  try{const ref=col('requests').doc(id);if(act==='del')await ref.delete();else await ref.update({status:act==='done'?'done':'new',doneAt:Date.now()})}catch(e){toast('Couldn’t update ('+(e.code||'error')+').')}}
 /* ---------- 2. any post or result as a picture card, so Instagram & co. accept it ---------- */
 async function textCard(o){try{await document.fonts.load('800 40px Manrope')}catch(e){}const sk=SKINS[S.skin]||SKINS.court,W=1080,H=1350,cv=document.createElement('canvas');cv.width=W;cv.height=H;const g=cv.getContext('2d'),F='Manrope,system-ui,sans-serif';
   const gr=g.createLinearGradient(0,0,W,H);gr.addColorStop(0,sk.accent);gr.addColorStop(1,mix(sk.accent,'#000000',.35));g.fillStyle=gr;g.fillRect(0,0,W,H);
@@ -1944,7 +1985,10 @@ function renderMe(){
     :`<div class="acct"><div><span>Games & charges</span><b>${inr(L.charged)}</b></div><div class="good"><span>Paid${L.spent?' & spent for group':''}</span><b>${inr(r2(L.paid+L.spent))}</b></div><div><span>Waiting to confirm</span><b>${inr(L.claimed)}</b></div><div class="${L.bal<0?'bad':'good'}"><span>Wallet balance</span><b>${sinrP(L.bal)}</b></div></div>
       <div class="sub" style="padding-bottom:0"><p class="hint" style="margin:0">${L.bal<0?'<b style="color:var(--danger)">Minus</b>: owed for games played.':L.bal>0?'<b style="color:var(--ok)">Plus</b>: credit, used against the next games.':'All square.'}</p></div>`}
     <div class="acct" style="grid-template-columns:repeat(3,minmax(0,1fr))"><div><span>Games</span><b>${games.filter(g=>g.o.played).length}</b></div><div><span>Spent for group</span><b>${inr(L.spent)}</b></div><div><span>Paid for others</span><b>${inr(sum(byMe,x=>+x.amount||0))}</b></div></div>
-    <div class="card-f" style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><button class="btn sm primary" data-pay="${esc(who)}">${ic('rupee')}${PRE()?'Load':'Pay'} by UPI</button><button class="btn sm line" id="mepaid2">${ic('check')}I’ve paid</button></div></section>
+    ${(()=>{const owe=PRE()?W.low:L.due>0,waiting=L.claimed>0&&(PRE()?L.claimed>=(W.need||0):L.claimed>=L.due);
+      if(!owe)return`<div class="card-f"><span class="ok-chip">${ic('check')}${L.bal>0?'All paid up · '+inr(L.bal)+' credit':'All paid up'}</span>${PRE()?`<button class="btn sm line" data-pay="${esc(who)}" style="margin-left:auto">${ic('rupee')}Load more</button>`:''}</div>`;
+      if(waiting)return`<div class="card-f"><span class="ok-chip" style="color:#B54708">${ic('clock')}${inr(L.claimed)} marked as paid · waiting for the organizer to confirm</span></div>`;
+      return`<div class="card-f" style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><button class="btn sm primary" data-pay="${esc(who)}">${ic('rupee')}${PRE()?'Load '+inr(W.need):'Pay '+inr(r2(L.due-L.claimed))}</button><button class="btn sm line" id="mepaid2">${ic('check')}I’ve paid</button></div>`})()}</section>
   <div class="seg" style="margin:4px 0 12px">${tabs.map(([k2,l])=>`<button class="${ME.sec===k2?'on':''}" data-mesec="${k2}">${l}</button>`).join('')}</div>
   ${ME.sec==='games'?`<section class="card">${cardH('shuttle','Games & costs',plural(games.length,'day'))}
     ${games.length?`<div class="acct" style="border-top:0;grid-template-columns:repeat(4,minmax(0,1fr))"><div><span>Court</span><b>${inr(gt.court)}</b></div><div><span>Shuttle</span><b>${inr(gt.sh)}</b></div><div><span>Others</span><b>${inr(gt.dr)}</b></div><div class="bad"><span>Total</span><b>${inr(gt.tot)}</b></div></div>
@@ -1991,6 +2035,8 @@ function teamMenu(org,AD,att,act){const rev=org?att.fresh.length+att.dups.length
     org?['Money',[menuItem('money','rupee','Payments & pricing','UPI ID, pay after games or prepaid wallet, court rate',PRE()?'Wallet':'After games'),
       menuItem('','cal','Records','Add, edit or delete payments, days, polls and votes',allPays().length+' pay','records')]]:null,
     org?['Messages',[menuItem('','bell','Messages & reminders','Templates and reminder schedule',MSGS().on?'On':'Off','msgset2')]]:null,
+    ['Help & ideas',[menuItem('','chat','Suggest an idea or report a problem','Goes to the organizers with the page and phone details attached','','suggest'),
+      org?menuItem('requests','bell','Ideas & problems inbox','From players · copy them for Claude in one tap',(()=>{const n=REQ.list.filter(r=>r.status!=='done').length;return n?`<i class="nb">${n}</i>`:''})()):'']],
     ['Account',[menuItem('access','lock',org?'Access, groups & account':'Account & groups',org?'Co-organizers, other groups, sign in/out':'Sign in, other groups',isOrg?'Organizer':userEmail()?'Viewer':'Player'),
       org?menuItem('reset','trash','Start fresh','Clear test data before going live',''):'']]].filter(Boolean);
   return groups.map(([t,items])=>`<span class="sublbl" style="margin:6px 4px -4px">${t}</span><section class="card menu">${items.join('')}</section>`).join('')}
@@ -2140,6 +2186,7 @@ function renderTeam(){
   </section>
   ${isOrg?`<section data-g="msgs" class="card">${cardH('bell','Messages & reminders',MSGS().on?'On':'Off')}
     <div class="card-f"><p class="hint">Poll, reminder, game-day and payment messages. Edit the wording and schedule.</p><button class="btn sm line" data-act="msgset2" style="margin-left:auto">Edit</button></div></section>`:''}
+  ${org?`<section data-g="requests" class="card">${requestsHTML()}</section>`:''}
   <section data-g="reset" class="card danger-card">
     ${cardH('trash','Start fresh','Go live')}
     <div class="pad" style="padding-bottom:6px"><p class="hint">Clears test data so you can start clean. Players, levels, photo, UPI and settings are kept.</p></div>
@@ -2332,6 +2379,8 @@ function bindTeam(){
     const me=e.target.closest('[data-merge]');if(me){me.disabled=true;const r=await renamePlayer(me.dataset.merge,me.dataset.into);toast(me.dataset.merge+' merged into '+r.fin+'.');return}
     const an=e.target.closest('[data-addnew]');if(an){const n=tcase(an.dataset.addnew);if(!S.roster.some(r=>nkey(r)===nkey(n))){S.roster.push(n);saveConfig()}if(n!==an.dataset.addnew)await renamePlayer(an.dataset.addnew,n);renderTeam();toast(n+' added to the team.');return}
     const ig=e.target.closest('[data-ignore]');if(ig){S.ignored=[...(S.ignored||[]),ig.dataset.ignore];saveConfig();renderTeam();return}
+    const rq=e.target.closest('[data-rq]');if(rq){const [act,id]=rq.dataset.rq.split(':');reqAction(act,id,rq);return}
+    const rf=e.target.closest('[data-rqf]');if(rf){REQ.filter=rf.dataset.rqf;renderTeam();return}
     const tp=e.target.closest('[data-timep]');if(tp){TIMEP=+tp.dataset.timep;renderTeam();return}
     const hb=e.target.closest('[data-hub]');if(hb){teamUI.page=hb.dataset.hub;renderTeam();window.scrollTo(0,0);return}
     const mb=e.target.closest('[data-model]');if(mb){if(!canEdit())return;S.model=mb.dataset.model;saveConfig();renderTeam();toast(S.model==='pre'?'Prepaid wallet is on. Each game is deducted from wallets.':'Back to paying after games.');return}
@@ -2348,6 +2397,7 @@ function bindTeam(){
     else if(a==='refreshad'){PDATA.at=0;loadOrgData(true);toast('Refreshing…')}
     else if(a==='records'){teamUI.page='records';teamUI.rec=teamUI.rec||'pays';renderTeam();window.scrollTo(0,0);if(isOrg)loadOrgData(true)}
     else if(a==='msgset2')openMsgSettings();
+    else if(a==='suggest')openSuggest();
   });
   v.addEventListener('input',e=>{const id=e.target.id;
     if(id==='gnamein'){S.groupName=norm(e.target.value);renderHeader();saveConfig()}
@@ -2369,6 +2419,11 @@ function bindTeam(){
     catch(x){toast('Couldn’t read that photo. Try another one.')}});
   v.addEventListener('click',e=>{if(e.target.id==='resetbtn'&&!e.target.disabled)resetData()});
 }
+function avatarTap(){
+  if(canEdit()){const i=document.createElement('input');i.type='file';i.accept='image/*';i.onchange=async()=>{const f=i.files[0];if(!f)return;
+      try{photo=await shrinkPhoto(f);try{localStorage.setItem(LSP,photo)}catch(x){}queueWrite('config/photo',{data:photo,updatedAt:Date.now()});renderHeader();if(tab==='team')renderTeam();toast('Group photo updated for everyone.')}catch(x){toast('Couldn’t read that photo. Try another one.')}};i.click();return}
+  if(!photo)return toast('No group photo yet. Organizers can add one by tapping here.');
+  sheetOpen(`<div class="sheet-h"><span class="ini">${ic('image')}</span><div><b>${esc(S.groupName||'Badminton Family')}</b><small>Group photo · organizers can change it</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div><img src="${photo}" alt="Group photo" style="width:100%;display:block">`,'Group photo')}
 function shrinkPhoto(file){return new Promise((res,rej)=>{const u=URL.createObjectURL(file),im=new Image();
   im.onload=()=>{const s=Math.min(1,1000/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*s);c.height=Math.round(im.height*s);
     c.getContext('2d').drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(u);res(c.toDataURL('image/jpeg',.8))};im.onerror=rej;im.src=u})}
@@ -2816,7 +2871,7 @@ if('serviceWorker' in navigator)window.addEventListener('load',()=>{const had=!!
   auth.getRedirectResult().catch(e=>toast('Sign-in failed: '+(e.message||e.code)));
   auth.onAuthStateChanged(u=>{const changed=computeOrg();
     if(!authInit||changed){authInit=true;renderTab(true);if(isOrg&&cfgMissing){cfgMissing=false;saveConfig()}}else renderHeader();
-    if(isOrg)loadOrgData(true)});
+    if(isOrg){loadOrgData(true);startRequests()}});
   if(GID)db.doc(COLLECTION_PREFIX+'groups/'+GID).onSnapshot(s=>{
     if(!s.exists&&!s.metadata.fromCache){GROUP_MISSING=true;renderHeader();return}
     if(s.exists){GROUP=s.data();GROUP_MISSING=false;if(!S.groupName)S.groupName=GROUP.name||'';rememberGroup();if(computeOrg()){renderTab(true);if(isOrg)loadOrgData(true)}else renderHeader()}},()=>{});
@@ -2835,7 +2890,7 @@ if('serviceWorker' in navigator)window.addEventListener('load',()=>{const had=!!
   payCol().onSnapshot(q=>{PAYS=q.docs.map(d=>({id:d.id,...d.data()}));if(!typingIn('#view-day')&&!typingIn('#view-team')&&!typingIn('#view-me'))renderTab(false);else STALE=true},()=>{});
   document.addEventListener('focusout',()=>setTimeout(()=>{if(STALE&&!typingIn('#view-'+tab)){STALE=false;renderTab(false)}},120));
   document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){renderTab(false);syncUI()}});
-  startPollsListener();startClub();startCup();startComments();routeHash();setTimeout(takeShared,1600);window.addEventListener('hashchange',routeHash);
+  startPollsListener();startClub();startCup();startComments();routeHash();setTimeout(startRequests,1200);setTimeout(takeShared,1600);window.addEventListener('hashchange',routeHash);
   setTimeout(()=>pingSeen(false),1500);startUse();
 })();
 })();
