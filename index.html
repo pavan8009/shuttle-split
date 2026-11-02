@@ -436,7 +436,7 @@ const FIREBASE_CONFIG = {
 /* Collections get this prefix so they never clash with the league app's data */
 const COLLECTION_PREFIX = "shuttleSplit_";
 /* App version shown in Team → About */
-const APP_VERSION = "2.1.0", APP_BUILD = "2 Nov 2026";
+const APP_VERSION = "2.1.1", APP_BUILD = "2 Nov 2026";
 /* Owner of the main group (the link without ?g=) */
 const LEGACY_OWNER = "pavankaki.cool@gmail.com";
 /* Starting player list, used only until the first save */
@@ -517,7 +517,7 @@ async function flush(path){
 function syncUI(){const el=$('#sync');if(!el||!db)return;const n=Object.keys(pending).length+Object.values(inflight).filter(Boolean).length;
   const st=!navigator.onLine?'off':n?'save':'live';el.className='sync '+st;el.textContent=st==='off'?'Offline · will sync':st==='save'?'Saving…':'Live';el.hidden=false}
 window.addEventListener('online',()=>syncUI());window.addEventListener('offline',()=>syncUI());
-function saveConfig(){queueWrite('config/main',{roster:S.roster,rate:S.rate,courts:1,groupName:S.groupName||'',skin:S.skin||'court',upiId:S.upiId||'',upiName:S.upiName||'',levels:S.levels||{},admins:S.admins||[],inactive:S.inactive||[],ignored:S.ignored||[],openNames:S.openNames!==false,idleWeeks:S.idleWeeks==null?4:S.idleWeeks,since:S.since||{},autoOff:S.autoOff||{},billed:(S.billed||[]).slice(-200),msg:S.msg||null,sent:trimSent(S.sent),board:S.board||null,model:S.model||'post',load:+S.load||1000,low:S.low==null?200:+S.low})}
+function saveConfig(){queueWrite('config/main',{roster:S.roster,rate:S.rate,courts:1,groupName:S.groupName||'',skin:S.skin||'court',upiId:S.upiId||'',upiName:S.upiName||'',levels:S.levels||{},admins:S.admins||[],inactive:S.inactive||[],ignored:S.ignored||[],openNames:S.openNames!==false,idleWeeks:S.idleWeeks==null?4:S.idleWeeks,since:S.since||{},autoOff:S.autoOff||{},billed:(S.billed||[]).slice(-200),msg:S.msg||null,sent:trimSent(S.sent),board:S.board||null,dupOk:(S.dupOk||[]).slice(-100),model:S.model||'post',load:+S.load||1000,low:S.low==null?200:+S.low})}
 /* ---------- organizers ---------- */
 const userEmail=()=>{const u=auth&&auth.currentUser;return u&&!u.isAnonymous&&u.email?u.email.toLowerCase():''};
 const ownerEmail=()=>String((GID?(GROUP&&GROUP.owner):LEGACY_OWNER)||'').toLowerCase();
@@ -584,6 +584,11 @@ async function pingSeen(force){
 }
 /* ---------- payments ledger: charges from every recorded day minus confirmed payments ---------- */
 const allPays=()=>db?PAYS:(S.payments||[]);
+/* duplicate protection: the same money must not be recorded twice */
+const pendingClaims=name=>allPays().filter(x=>x.status==='claimed'&&x.kind!=='adjust'&&nkey(x.name)===nkey(name));
+const recentSame=(name,amt)=>allPays().find(x=>x.kind!=='adjust'&&nkey(x.name)===nkey(name)&&Math.abs((+x.amount||0)-amt)<0.01&&Date.now()-(x.at||0)<72*3600e3);
+function dupPairs(){const ok=new Set(S.dupOk||[]),by={},out=[];allPays().filter(x=>x.kind!=='adjust').forEach(x=>{(by[nkey(x.name)]=by[nkey(x.name)]||[]).push(x)});
+  Object.values(by).forEach(l=>{l.sort((a,b)=>(a.at||0)-(b.at||0));for(let i=1;i<l.length;i++){const a=l[i-1],b=l[i];if(Math.abs((+a.amount||0)-(+b.amount||0))<0.01&&Math.abs((b.at||0)-(a.at||0))<72*3600e3&&!ok.has(a.id+'|'+b.id))out.push([a,b])}});return out}
 function allNames(){return orderNames(uniq([...S.roster,...Object.values(S.days).flatMap(d=>d.present||[]),...allPays().map(p=>p.name)].map(canon)))}
 function ledger(name,before){
   const k=nkey(name);let charged=0,spent=0;const days=[];
@@ -735,8 +740,17 @@ function todoItems(){if(!isOrg||!db)return[];const out=[];
   if(rd)out.push(['bell',PRE()?'Wallet top-up reminder':'Payment reminder','Due now',()=>goSub('pay','dues')]);
   const cl=allPays().filter(x=>x.status==='claimed').length;if(cl)out.push(['check',plural(cl,'payment')+' to confirm','Players say they’ve paid',()=>goSub('pay','dues')]);
   const q=billQueue();if(q.length)out.push(['share','Bill waiting to send',q.map(shortD).join(', '),()=>{closeWho();openBillSend()}]);
+  {const dp=dupPairs();if(dp.length)out.push(['copy',plural(dp.length,'possible duplicate payment'),[...new Set(dp.map(x=>first(x[0].name)))].join(', ')+' · same amount recorded twice',openDupes])}
   try{const a=attention();const n=a.fresh.length+a.dups.length;if(n)out.push(['users',plural(n,'name')+' to review','New or duplicate names',()=>goSub('team','players')])}catch(e){}
   return out}
+function openDupes(){const dp=dupPairs();const line=x=>`${inr(x.amount)} · ${x.status==='confirmed'?'confirmed':'waiting'}<small>${whenD(x.at)} ${new Date(x.at||0).toLocaleTimeString('en-IN',{hour:'numeric',minute:'2-digit'})} · ${x.by==='player'?'sent by player':'recorded by '+esc(x.byName||'organizer')}${x.payer?' · paid by '+esc(x.payer):''}${x.method?' · '+esc(x.method):''}${x.note?' · '+esc(x.note):''}</small>`;
+  const bg=sheetOpen(`<div class="sheet-h"><span class="ini">${ic('copy')}</span><div><b>Possible duplicates</b><small>The same amount was recorded twice for one person within 3 days</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div>
+    ${dp.map(([a,b],i)=>`<div class="sub" style="border-top:1px solid var(--line2);padding-top:12px"><b>${esc(a.name)}</b>
+      ${[a,b].map(x=>`<div class="prow"><span class="nm">${line(x)}</span><button class="btn sm line" style="color:var(--danger)" data-dupdel="${esc(x.id)}">${ic('trash')}Remove</button></div>`).join('')}
+      <button class="lnk" data-dupok="${esc(a.id+'|'+b.id)}">Both are real payments</button></div>`).join('')||`<div class="empty">${ic('check')}No duplicates found.</div>`}
+    <p class="hint" style="padding:0 16px">Removing one fixes the balance straight away. Everyone sees the change.</p>`,'Possible duplicates');
+  bg.querySelectorAll('[data-dupdel]').forEach(b=>b.onclick=async()=>{if(b.dataset.c!=='1'){b.dataset.c='1';b.lastChild.textContent='Tap to confirm';return}b.disabled=true;await setPayStatus(b.dataset.dupdel,'delete');toast('Duplicate removed.');setTimeout(openDupes,400)});
+  bg.querySelectorAll('[data-dupok]').forEach(b=>b.onclick=()=>{S.dupOk=[...(S.dupOk||[]),b.dataset.dupok];saveConfig();toast('Kept both.');setTimeout(openDupes,200)})}
 function openTodo(){const it=todoItems(),mt=myTasks().filter(x=>!x.done),n=it.length+mt.filter(x=>!x.opt).length;
   const bg=sheetOpen(`<div class="sheet-h"><span class="ini">${ic('bell')}</span><div><b>To do</b><small>${n?plural(n,'thing')+' waiting on you':'All caught up 🎉'}</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div>
     ${it.length?`<span class="sublbl" style="margin:8px 16px 0">For the group (organizer)</span><div class="menu">${it.map((x,i)=>`<button class="mi" data-todo="${i}"><span class="mico">${ic(x[0])}</span><span class="mt"><b>${esc(x[1])}</b><small>${esc(x[2])}</small></span>${ic('right')}</button>`).join('')}</div>`:''}
@@ -1104,13 +1118,13 @@ function shrinkImage(file){return new Promise((res,rej)=>{const fr=new FileReade
   const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(i,0,0,w,h);
   let q=.7,u=c.toDataURL('image/jpeg',q);while(u.length>600000&&q>.3){q-=.1;u=c.toDataURL('image/jpeg',q)}res(u)};i.src=fr.result};fr.readAsDataURL(file)})}
 function openPaid(me,preset){
-  const defAmt=n=>{if(PRE()){const w=wallet(n);return w.need||(+S.load||1000)}const L=ledger(n);return Math.max(0,r2(L.due-L.claimed))||L.due};
+  const defAmt=n=>{if(PRE()){const w=wallet(n);return Math.max(0,r2((w.need||(+S.load||1000))-w.claimed))}const L=ledger(n);return Math.max(0,r2(L.due-L.claimed))};
   const rows=[{name:me,amt:defAmt(me)}];(preset||[]).forEach(n=>{if(!rows.some(r=>nkey(r.name)===nkey(n)))rows.push({name:n,amt:defAmt(n)})});
   let img='';
   const draw=()=>{const others=duesList().filter(x=>!rows.some(r=>nkey(r.name)===nkey(x.name)));const tot=rows.reduce((a,r)=>a+(+r.amt||0),0);
     const bg=sheetOpen(`<div class="sheet-h"><span class="ini">${ic('check')}</span><div><b>${isOrg||!db?'Record a payment':'Tell the organizer you’ve paid'}</b><small>${isOrg||!db?'Saved as received straight away':'They check it in their UPI app and confirm'}</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div>
       <span class="sublbl">Who this payment covers</span>
-      ${rows.map((r,i)=>`<div class="row"><div class="l"><b>${esc(r.name)}${i===0?' (you)':''}</b><small>${PRE()?'Wallet '+sinr(wallet(r.name).bal):'Balance '+inr(ledger(r.name).due)}</small></div><div class="inline" style="gap:6px"><div class="amt"><span>₹</span><input type="number" inputmode="decimal" min="0" data-pa="${i}" value="${r.amt||''}" placeholder="0"></div>${i?`<button class="iconbtn" data-prm="${i}" aria-label="Remove ${esc(r.name)}">${ic('x')}</button>`:''}</div></div>`).join('')}
+      ${rows.map((r,i)=>`<div class="row"><div class="l"><b>${esc(r.name)}${i===0?' (you)':''}</b><small>${PRE()?'Wallet '+sinr(wallet(r.name).bal):'Balance '+inr(ledger(r.name).due)}${ledger(r.name).claimed?` · <b style="color:#B54708">${inr(ledger(r.name).claimed)} already sent, waiting</b>`:''}</small></div><div class="inline" style="gap:6px"><div class="amt"><span>₹</span><input type="number" inputmode="decimal" min="0" data-pa="${i}" value="${r.amt||''}" placeholder="0"></div>${i?`<button class="iconbtn" data-prm="${i}" aria-label="Remove ${esc(r.name)}">${ic('x')}</button>`:''}</div></div>`).join('')}
       <div class="sub"><select class="txt" id="paadd"><option value="">＋ Also paid for someone else?</option>${others.map(x=>`<option value="${esc(x.name)}">${esc(x.name)} · owes ${inr(x.due)}</option>`).join('')}${allNames().filter(n=>!rows.some(r=>nkey(r.name)===nkey(n))&&!others.some(o=>nkey(o.name)===nkey(n))).map(n=>`<option value="${esc(n)}">${esc(n)}</option>`).join('')}</select>
         <p class="hint">Paid one amount for friends or family? Add them so each person’s dues clear.</p></div>
       <div class="sub"><span class="sublbl">Payment screenshot (optional)</span>
@@ -1123,7 +1137,9 @@ function openPaid(me,preset){
     $('#paadd').onchange=e=>{const n=e.target.value;if(!n)return;rows.push({name:n,amt:defAmt(n)});draw()};
     const fi=$('#paimg');if(fi)fi.onchange=async()=>{const f=fi.files[0];if(!f)return;try{img=await shrinkImage(f);draw()}catch(e){toast('Couldn’t read that image. Try another screenshot.')}};
     const ix=$('#paimgx');if(ix)ix.onclick=()=>{img='';draw()};
-    $('#pasend').onclick=async()=>{const go2=rows.filter(r=>+r.amt>0);if(!go2.length)return;const b=$('#pasend');b.disabled=true;
+    $('#pasend').onclick=async()=>{const go2=rows.filter(r=>+r.amt>0);if(!go2.length)return;const b=$('#pasend');
+      const dups=go2.map(r=>[r,recentSame(r.name,+r.amt)]).filter(x=>x[1]);
+      if(dups.length&&b.dataset.force!=='1'){b.dataset.force='1';b.lastChild.textContent='Yes, these are new payments';toast('⚠️ Already recorded: '+dups.map(([r,d])=>first(r.name)+' '+inr(r.amt)+' ('+whenD(d.at)+')').join(', ')+'. Tap again only if this is separate money.');return}b.disabled=true;
       try{if(db&&!isOrg&&!auth.currentUser)await auth.signInAnonymously()}catch(e){}
       let proof=null;if(img&&db){try{const ref=await proofCol().add({img,at:Date.now(),uid:auth.currentUser?auth.currentUser.uid:'',name:canon(me)});proof=ref.id}catch(e){toast('Screenshot couldn’t be saved, sending without it.')}}
       let ok=true;for(const r of go2){const ex={};if(nkey(r.name)!==nkey(me))ex.payer=canon(me);if(proof)ex.proof=proof;
@@ -1299,8 +1315,11 @@ function openPay(name){
   const L=ledger(name),W=wallet(name),amount=PRE()?(W.need||(+S.load||1000)):L.due;
   const bg=document.createElement('div');bg.className='sheet-bg';bg.id='whosheet';
   const head=`<div class="grab"></div><div class="sheet-h"><span class="ini">${esc(initials(name))}</span><div><b>${esc(name)}</b><small>${PRE()?'Wallet '+(W.bal<0?'−':'')+inr(Math.abs(W.bal))+(W.low?' · low':''):L.since?'Unpaid since '+esc(dlabel(L.since,{day:'numeric',month:'short'})):'Balance'}</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div>`;
-  const orgBox=isOrg||!db?`<div class="row"><div class="l"><b>Mark as received</b><small>Cash, or a UPI payment you can see. Change the amount for part payments.</small></div></div>
-    <div class="sub"><div class="inline"><div class="amt" style="flex:1;width:auto"><span>₹</span><input id="rcvamt" type="number" inputmode="decimal" min="1" value="${amount}" aria-label="Amount received"></div><button class="btn primary" id="rcvbtn">${ic('check')}Received</button></div>
+  const pc=pendingClaims(name),unclaimed=Math.max(0,r2(amount-pc.reduce((a,x)=>a+(+x.amount||0),0)));
+  const orgBox=isOrg||!db?`${pc.length?`<div class="row" style="background:color-mix(in srgb,var(--pop) 22%,var(--surface))"><div class="l"><b>${esc(first(name))} already said they paid</b><small>Confirm it here instead of recording it again</small></div></div>
+    ${pc.map(x=>`<div class="prow"><span class="ini">${ic('rupee')}</span><span class="nm">${inr(x.amount)}<small>${whenD(x.at)}${x.payer?' · paid by '+esc(x.payer):''}${x.proof?' · 📎 screenshot':''}</small></span><span class="acts"><button class="btn sm primary" data-pconf2="${esc(x.id)}">${ic('check')}Confirm</button><button class="btn sm line" data-prej2="${esc(x.id)}">${ic('x')}</button></span></div>`).join('')}`:''}
+    <div class="row"><div class="l"><b>Mark as received</b><small>${pc.length?'Only for money not covered above.':'Cash, or a UPI payment you can see. Change the amount for part payments.'}</small></div></div>
+    <div class="sub"><div class="inline"><div class="amt" style="flex:1;width:auto"><span>₹</span><input id="rcvamt" type="number" inputmode="decimal" min="1" value="${pc.length?(unclaimed||''):amount}" placeholder="0" aria-label="Amount received"></div><button class="btn primary" id="rcvbtn">${ic('check')}Received</button></div>
       <input class="txt" id="rcvnote" placeholder="Note (optional), e.g. paid in cash on 31 Oct"></div>
     <div class="row"><div class="l"><b>Fix the balance</b><small>For a mismatch or dispute: add a charge or give a credit, with a note the player will see</small></div></div>
     <div class="sub"><div class="grid2"><select class="txt" id="adjtype"><option value="1">Extra charge (+)</option><option value="-1">Credit (−)</option></select><div class="amt" style="width:auto"><span>₹</span><input id="adjamt" type="number" inputmode="decimal" min="1" placeholder="Amount"></div></div>
@@ -1334,7 +1353,11 @@ function openPay(name){
   const ab=$('#adjbtn');if(ab)ab.onclick=async()=>{const amt=r2(+$('#adjamt').value||0),note=norm($('#adjnote').value),sign=+$('#adjtype').value;
     if(!(amt>0))return toast('Enter the amount.');if(!note)return toast('Add a short reason so '+first(name)+' understands it.');
     ab.disabled=true;if(await addPayment(name,sign*amt,'confirmed','adjust',null,{kind:'adjust',note})){toast((sign>0?'Charge of ':'Credit of ')+inr(amt)+' added for '+first(name)+'.');setTimeout(()=>openPay(name),450)}else ab.disabled=false};
-  const rb=$('#rcvbtn');if(rb)rb.onclick=async()=>{const v=r2(+$('#rcvamt').value||0);if(v<=0)return toast('Enter the amount received.');rb.disabled=true;
+  bg.querySelectorAll('[data-pconf2]').forEach(b=>b.onclick=async()=>{b.disabled=true;await setPayStatus(b.dataset.pconf2,'confirmed');toast('Confirmed. Nothing was added twice.');setTimeout(()=>openPay(name),400)});
+  bg.querySelectorAll('[data-prej2]').forEach(b=>b.onclick=async()=>{b.disabled=true;await setPayStatus(b.dataset.prej2,'delete');toast('Marked as not received.');setTimeout(()=>openPay(name),400)});
+  const rb=$('#rcvbtn');if(rb)rb.onclick=async()=>{const v=r2(+$('#rcvamt').value||0);if(v<=0)return toast('Enter the amount received.');
+    const dup=recentSame(name,v);if(dup&&rb.dataset.force!=='1'){rb.dataset.force='1';rb.lastChild.textContent='Yes, it’s new';toast('⚠️ '+inr(v)+' for '+first(name)+' was already recorded '+whenD(dup.at)+' ('+(dup.status==='confirmed'?'confirmed':'waiting')+'). Tap again only if this is a separate payment.');return}
+    rb.disabled=true;
     const nt=norm(($('#rcvnote')||{}).value||'');if(await addPayment(name,v,'confirmed','manual',null,nt?{note:nt}:null)){closeWho();toast(inr(v)+' recorded for '+first(name)+'.'+(v<amount?' '+inr(r2(amount-v))+' still due.':''))}else rb.disabled=false};
 }
 
@@ -2564,7 +2587,7 @@ if('serviceWorker' in navigator)window.addEventListener('load',()=>{const had=!!
     if(!s.metadata.fromCache)CFG_READY=true;
     if(!s.exists&&!s.metadata.fromCache){cfgMissing=true;if(isOrg){cfgMissing=false;saveConfig()}}
     if(s.exists&&!s.metadata.hasPendingWrites)CFG_CLOUD=JSON.parse(JSON.stringify(s.data()));
-    if(s.exists){const d=s.data();if(Array.isArray(d.roster))S.roster=[...d.roster];S.rate=+d.rate||300;S.groupName=d.groupName||'';S.upiId=d.upiId||'';S.upiName=d.upiName||'';S.levels=d.levels&&typeof d.levels==='object'?d.levels:{};S.admins=Array.isArray(d.admins)?d.admins:[];S.inactive=Array.isArray(d.inactive)?d.inactive:[];S.ignored=Array.isArray(d.ignored)?d.ignored:[];S.openNames=d.openNames!==false;S.idleWeeks=d.idleWeeks==null?4:+d.idleWeeks;S.since=d.since||{};S.autoOff=d.autoOff||{};S.billed=Array.isArray(d.billed)?d.billed:[];S.msg=d.msg||null;S.sent=d.sent||{};S.board=d.board&&typeof d.board==='object'?d.board:null;S.model=d.model==='pre'?'pre':'post';S.load=+d.load||1000;S.low=d.low==null?200:+d.low;setTimeout(autoInactive,0);S.skin=SKINS[d.skin]?d.skin:'court';applySkin();saveLocal();if(GID)rememberGroup();if(computeOrg())renderTab(true)}
+    if(s.exists){const d=s.data();if(Array.isArray(d.roster))S.roster=[...d.roster];S.rate=+d.rate||300;S.groupName=d.groupName||'';S.upiId=d.upiId||'';S.upiName=d.upiName||'';S.levels=d.levels&&typeof d.levels==='object'?d.levels:{};S.admins=Array.isArray(d.admins)?d.admins:[];S.inactive=Array.isArray(d.inactive)?d.inactive:[];S.ignored=Array.isArray(d.ignored)?d.ignored:[];S.openNames=d.openNames!==false;S.idleWeeks=d.idleWeeks==null?4:+d.idleWeeks;S.since=d.since||{};S.autoOff=d.autoOff||{};S.billed=Array.isArray(d.billed)?d.billed:[];S.msg=d.msg||null;S.sent=d.sent||{};S.board=d.board&&typeof d.board==='object'?d.board:null;S.dupOk=Array.isArray(d.dupOk)?d.dupOk:[];S.model=d.model==='pre'?'pre':'post';S.load=+d.load||1000;S.low=d.low==null?200:+d.low;setTimeout(autoInactive,0);S.skin=SKINS[d.skin]?d.skin:'court';applySkin();saveLocal();if(GID)rememberGroup();if(computeOrg())renderTab(true)}
     renderTab(false)},e=>toast('Couldn’t load shared data ('+e.code+').'));
   fsDoc('config/photo').onSnapshot(s=>{if(busy('config/photo'))return;photo=s.exists?(s.data().data||''):'';try{photo?localStorage.setItem(LSP,photo):localStorage.removeItem(LSP)}catch(e){}renderHeader();if(tab==='team'&&!typingIn('#view-team'))renderTeam()},()=>{});
   col('days').onSnapshot(q=>{
