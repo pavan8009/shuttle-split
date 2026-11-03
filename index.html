@@ -208,7 +208,7 @@ label.row{cursor:pointer}
 .vote button.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
 .names{display:flex;flex-wrap:wrap;gap:6px}
 .nm-chip{height:28px;padding:0 10px;border-radius:999px;background:var(--soft);color:var(--accent);font-size:12.5px;font-weight:700;display:inline-flex;align-items:center}
-.nm-chip.maybe{background:transparent;border:1px dashed var(--accent)}
+.nm-chip.maybe{background:transparent;border:1px dashed var(--accent)}.vgrp{display:grid;gap:6px}.vlbl{font-size:11.5px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}.nm-chip.no{background:#FEF3F2;color:#B42318}.nm-chip.wait{background:transparent;border:1px dashed var(--line);color:var(--muted)}
 .cta{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
 .cta .pad h2{margin:0;font-size:18px;font-weight:800}
 .cta .pad p{margin:0;opacity:.85;font-size:13.5px}
@@ -364,7 +364,15 @@ details.poster:not([open]) .card-h{border-bottom:0}
 .medwrap{position:relative;flex:none;display:inline-flex}.medwrap .medal{position:absolute;right:-7px;bottom:-6px;font-size:17px;line-height:1;font-style:normal;filter:drop-shadow(0 1px 1px rgba(0,0,0,.2))}
 .tile .tav{position:relative;display:inline-flex}.tile .tav .mav{width:24px;height:24px;font-size:9.5px}.tile .tav i{position:absolute;right:-4px;bottom:-4px;width:14px;height:14px;border-radius:50%;background:var(--accent);color:#fff;display:none;place-items:center}.tile .tav i .ic{width:10px;height:10px}.tile.on .tav i{display:grid}
 .nm-chip .mav{width:18px;height:18px;margin-right:5px;font-size:8px}
+.avochip{display:inline-block;font-size:11.5px;font-weight:800;padding:2px 8px;border-radius:999px;background:#ECFDF3;color:#067647;margin-left:4px}
+.pickgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(72px,1fr));gap:8px;margin-top:8px}.pick{display:grid;justify-items:center;gap:4px;border:1.5px solid var(--line);background:var(--surface);border-radius:14px;padding:8px 4px;font:inherit;font-size:12.5px;font-weight:700;color:var(--ink);cursor:pointer;position:relative}.pick.on{border-color:var(--accent);background:var(--soft)}.pick.on::after{content:"✓";position:absolute;top:4px;right:6px;color:var(--accent);font-weight:900}.pick span{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.vsbox{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;text-align:center}.cside{display:grid;justify-items:center;gap:6px}.cside.w b{color:var(--ok)}.vs{font-weight:900;color:var(--muted);font-size:13px}.prow.quote .nm small{white-space:normal}
+.occ{background:linear-gradient(135deg,#FFF7E6,#FDF2FA)}
+.wachip{display:inline-flex;align-items:center;gap:4px;height:36px;padding:0 10px;border-radius:999px;background:#25D366;color:#fff;font-weight:800;font-size:12.5px;text-decoration:none}.wachip .ic{width:15px;height:15px}
 .mention{display:inline;border:0;background:var(--soft);color:var(--accent);font:inherit;font-weight:800;padding:0 4px;border-radius:6px;cursor:pointer}
+.mstrip{display:flex;align-items:center;gap:6px;overflow-x:auto;padding:6px 2px;margin:0 0 6px;scrollbar-width:none;animation:mfade .12s ease-out}.mstrip::-webkit-scrollbar{display:none}.mstrip small{font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;flex:none}
+.mstrip button{flex:none;display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:4px 10px 4px 4px;font:inherit;font-size:13.5px;font-weight:700;cursor:pointer}.mstrip button:active{background:var(--soft)}.mstrip .mav{width:24px;height:24px;font-size:9px}
+@keyframes mfade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
 .mpop{position:fixed;z-index:9999;background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:0 10px 30px rgba(16,24,40,.18);padding:4px;display:grid;max-height:280px;overflow:auto}
 .mpop button{display:flex;align-items:center;gap:10px;border:0;background:none;padding:8px 10px;border-radius:10px;font:inherit;text-align:left;cursor:pointer;color:var(--ink)}.mpop button:hover,.mpop button:focus{background:var(--soft)}.mpop .ini{width:28px;height:28px;font-size:11px}.mpop small{color:var(--muted);margin-left:auto}
 .nudge{position:fixed;left:12px;right:12px;top:calc(10px + env(safe-area-inset-top));z-index:9998;background:var(--surface);border:1px solid var(--line);border-radius:16px;box-shadow:0 10px 30px rgba(16,24,40,.2);padding:10px 12px;display:flex;align-items:center;gap:10px;font-size:14px;font-weight:700;max-width:520px;margin:0 auto}.nudge span{flex:1;min-width:0}
@@ -468,7 +476,7 @@ const FIREBASE_CONFIG = {
 /* Collections get this prefix so they never clash with the league app's data */
 const COLLECTION_PREFIX = "shuttleSplit_";
 /* App version shown in Team → About */
-const APP_VERSION = "2.9.1", APP_BUILD = "3 Nov 2026";
+const APP_VERSION = "3.0.0", APP_BUILD = "3 Nov 2026";
 /* Owner of the main group (the link without ?g=) */
 const LEGACY_OWNER = "pavankaki.cool@gmail.com";
 /* Starting player list, used only until the first save */
@@ -777,6 +785,8 @@ function myTasks(){if(!db)return[];const me=allNames().find(n=>nkey(n)===nkey(ge
   else{const L=ledger(me);if(L.due>0)out.push(L.claimed>=L.due?{ic:'rupee',done:true,t:'Payment sent',s:inr(L.claimed)+' waiting for the organizer to confirm',go:()=>{ME.who='';ME.sec='money';go('me')}}
     :{ic:'rupee',t:'Pay '+inr(r2(L.due-L.claimed)),s:'Your share from the bill'+(L.since?' · since '+dlabel(L.since,{day:'numeric',month:'short'}):''),go:()=>openPay(me)})}
   {const p=profOf(me),pct=profPct(me);if(!p||!p.photo||pct<60)out.push({ic:'user',t:p&&p.photo?'Complete your profile':'Add your profile photo',s:'Profile '+pct+'% complete · helps everyone know who’s who',go:()=>openEditProfile(me)})}
+  CHAL.list.filter(c=>c.status==='open'&&inSide(c,'b',me)).forEach(c=>out.push({ic:'trophy',t:first(c.from)+' challenged you ⚔️',s:(c.type==='doubles'?'Doubles · ':'')+(c.msg||'Accept or decline'),go:()=>openChalView(c.id)}));
+  {const bal=avoBalance(me);if(bal>0&&perm('kudos')!=='off'&&!avoGiven(me,todayStr().slice(0,7)))out.push({ic:'chat',opt:true,t:'Share your 🥑 '+bal+' Avokudos',s:'Thank someone for their play, kindness or leadership',go:()=>openAvo()})}
   const last=playedDays()[0];if(last&&last>=shift(todayStr(),-2)&&getDay(last).present.some(x=>nkey(x)===nkey(me))&&!(CLUB.list||[]).some(x=>nkey(x.name)===nkey(me)&&x.at>new Date(last+'T00:00').getTime()))
     out.push({ic:'camera',opt:true,t:'Share a photo from '+dlabel(last,{weekday:'short',day:'numeric'}),s:'Optional · we’ll turn it into a memory card',go:()=>{go('club');setTimeout(()=>openCompose('photo'),150)}});
   return out}
@@ -805,7 +815,7 @@ function openDupes(){const dp=dupPairs();const src=x=>(x.by==='player'?'sent fro
       ${[a,b].map((x,i)=>`<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding-top:8px"><small class="hint" style="margin:0;flex:1;min-width:0">${i+1}. ${esc(dlabel(ymd(new Date(x.at||0)),{day:'numeric',month:'short'}))} ${hm(x.at)} · ${esc(src(x))}</small><button class="lnk danger" data-dupdel="${esc(x.id)}" style="white-space:nowrap">Remove</button></div>`).join('')}</div>`).join('')||`<div class="empty">${ic('check')}Nothing repeated.</div>`}`,'Check repeated payments');
   bg.querySelectorAll('[data-dupdel]').forEach(b=>b.onclick=async()=>{if(b.dataset.c!=='1'){b.dataset.c='1';b.textContent='Tap to confirm';return}b.disabled=true;await setPayStatus(b.dataset.dupdel,'delete');toast('Removed. Balance corrected.');setTimeout(openDupes,400)});
   bg.querySelectorAll('[data-dupok]').forEach(b=>b.onclick=()=>{S.dupOk=[...(S.dupOk||[]),b.dataset.dupok];saveConfig();toast('Kept both.');setTimeout(openDupes,200)})}
-function openTodo(toRem){startClub();startComments();startChat();const it=todoItems(),mt=myTasks().filter(x=>!x.done),n=it.length+mt.filter(x=>!x.opt).length;
+function openTodo(toRem){startClub();startComments();startChat();startAvo();startOcc();startChal();const it=todoItems(),mt=myTasks().filter(x=>!x.done),n=it.length+mt.filter(x=>!x.opt).length;
   const ua=unreadActivity();const bg=sheetOpen(`<div class="sheet-h"><span class="ini">${ic('bell')}</span><div><b>To do & activity</b><small>${n?plural(n,'thing')+' waiting on you':'All caught up 🎉'}${ua?' · '+ua+' new':''}</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div>
     ${it.length?`<span class="sublbl" style="margin:8px 16px 0">For the group (organizer)</span><div class="menu">${it.map((x,i)=>`<button class="mi" data-todo="${i}"><span class="mico">${ic(x[0])}</span><span class="mt"><b>${esc(x[1])}</b><small>${esc(x[2])}</small></span>${ic('right')}</button>`).join('')}</div>`:''}
     ${isOrg&&db?`<div style="margin:8px 12px 0">${remindersCard()}</div>`:''}
@@ -846,6 +856,7 @@ function renderDay(){
   const days=[...Array(7)].map((_,i)=>shift(ws,i));
   v.innerHTML=`
   ${canEdit()?intro('Today’s game','Tick who played and enter the costs. Everyone’s share is worked out as you go.'):intro('Today','Your to-do, and each game day’s costs and shares.')}
+  <div id="occslot">${occBanner()}</div>
   <div id="taskslot"></div>
   ${boardCard()}
   <div id="daykpi"></div>
@@ -1571,6 +1582,9 @@ function playerStats(){const st={},get=n=>{const k=nkey(n);return st[k]=st[k]||{
       x.recent.unshift({t:T.name,vs:E[op].name,won,score:gs(m).map(g=>side?g[1]+'-'+g[0]:g.join('-')).join(', ')})})})});
     const ch=cupChampion(T);if(ch){const ce=(T.entries||[]).find(e=>e.name===ch);if(ce)ce.players.forEach(n=>get(n).titles++)}
     {const K=koMs(T),KR=K.length?Math.max(...K.map(m=>m.r)):0,f=K.find(m=>m.r===KR);if(f&&f.a&&f.b)[f.a,f.b].forEach(id=>E[id]&&E[id].players.forEach(n=>get(n).finals++))}});
+  CHAL.list.filter(c=>c.status==='done'&&c.counts&&c.winner).slice().reverse().forEach(c=>{[['a','b',0],['b','a',1]].forEach(([me,op,side])=>{const won=c.winner===me;(c[me]||[]).forEach(n=>{const x=get(n);x.m++;won?x.w++:x.l++;
+    (c.score||[]).forEach(g=>{const f=side?g.b:g.a,a2=side?g.a:g.b;x.pf+=f;x.pa+=a2;if(f-a2>=15)x.dom++});x.cur=won?x.cur+1:0;x.best=Math.max(x.best,x.cur);x.recent.unshift({t:'Challenge',vs:(c[op]||[]).join(' & '),won,score:(c.score||[]).map(g=>side?g.b+'-'+g.a:g.a+'-'+g.b).join(', ')})})})});
+  AVO.list.forEach(g=>{const x=st[g.toKey||nkey(g.to)];if(x&&nkey(g.from)!==nkey(g.to))x.kudos++});
   const d30=shift(todayStr(),-30);Object.keys(S.days).forEach(k=>uniq(S.days[k].present||[]).forEach(n=>{const x=get(n);x.att++;if(k>=d30)x.att30++}));
   (CMT.list||[]).forEach(c=>{if(c.target&&c.target.startsWith('player:')&&!c.parent){const x=st[c.target.slice(7)];if(x)x.kudos++}});
   Object.values(st).forEach(x=>{x.wr=x.m?Math.round(x.w*100/x.m):0;x.xp=x.m*2+x.w*5+x.titles*20+x.finals*8+x.giant*6+x.dom*2+Math.min(x.att,60)+x.kudos*2;x.badges=BADGES.filter(b=>b[4](x)).map(b=>b[0]);
@@ -1589,12 +1603,156 @@ function profileBody(x){const B=BADGES;return`${!x.m&&!x.xp?`<div class="sub" st
   ${x.recent.length?`<details class="sub"><summary class="sublbl" style="cursor:pointer">Recent matches · ${x.recent.length}</summary>${x.recent.slice(0,8).map(r=>`<div class="mix" style="justify-content:space-between;padding:4px 0"><small>${r.won?'✅':'❌'} vs ${esc(r.vs)} · ${esc(r.t)}</small><small class="hint" style="margin:0">${esc(r.score)}</small></div>`).join('')}</details>`:''}
   <div class="sub" style="border-top:1px solid var(--line2);padding-top:12px"><span class="sublbl">Kudos & feedback</span>${threadHTML('player:'+nkey(x.n),'Cheer '+first(x.n)+'…')}</div>`}
 function bindPromote(root,after){root.querySelectorAll('[data-promote]').forEach(b=>b.onclick=()=>{const k=nkey(b.dataset.promote),to=NEXT[(levelOf(b.dataset.promote)||['beginner'])[0]][0];S.levels={...(S.levels||{}),[k]:to};saveConfig();toast('🎉 '+first(b.dataset.promote)+' is now '+LEVELS.find(l=>l[0]===to)[1]+'!');setTimeout(after,200)})}
-function openProfile(name){startCup();startComments();const draw=()=>{const x=playerStats()[nkey(name)];if(!x)return;const sc=($('#whosheet .sheet')||{}).scrollTop||0;const bg=sheetOpen(profileHTML(x),'Player profile');const sh=bg.querySelector('.sheet');if(sh)sh.scrollTop=sc;bindThread(bg);bindPromote(bg,draw);bindProfTop(bg)};
+function openProfile(name,focus){startCup();startComments();const draw=()=>{const ST=playerStats();let x=ST[nkey(name)];if(!x){const n=canon(name);x={n,m:0,w:0,l:0,pf:0,pa:0,titles:0,finals:0,att:0,kudos:0,xp:0,wr:0,badges:[],recent:[],level:levelOf(n)?levelOf(n)[1]:'Level not set'}}const sc=($('#whosheet .sheet')||{}).scrollTop||0;const bg=sheetOpen(profileHTML(x),'Player profile');const sh=bg.querySelector('.sheet');if(sh)sh.scrollTop=sc;bindThread(bg);bindPromote(bg,draw);bindProfTop(bg);if(focus==='kudos'){focus='';const t=bg.querySelector('.thread');if(t)setTimeout(()=>t.scrollIntoView({block:'start',behavior:'smooth'}),80)}};
   CMT.redraw=draw;draw();if(nkey(name)===nkey(getMe())&&PROF.myPriv==null&&!isOrg)loadMyPriv(name).then(()=>{if($('#whosheet')&&CMT.redraw===draw)draw()})}
+/* ================= 🥑 AVOKUDOS ================= */
+/* 200 to give on the 1st of every month, unspent ones carry forward. What you receive is your score (leaderboard), not spendable. */
+const AVO_MONTHLY=200,AVO_START='2026-11';
+const AVO_TAGS=[['Leadership','🧭'],['Work','💼'],['Play','🏸'],['Skill','🎯'],['Empathy','🤝'],['Kindness','💛'],['Love','❤️'],['Spirit','🔥']];
+const AVO={list:[],unsub:null};
+function startAvo(){if(!db||AVO.unsub)return;AVO.unsub=col('avo').orderBy('at','desc').limit(3000).onSnapshot(q=>{AVO.list=q.docs.map(d=>({id:d.id,...d.data()}));renderHeader();if(!$('#whosheet')&&!typingIn('#view-'+tab))renderTab(false)},()=>{})}
+const mIdx=ym=>{const[y,m]=ym.split('-').map(Number);return y*12+m-1};
+function avoStartFor(n){const since=(S.since||{})[nkey(n)];let st=AVO_START;if(since){const m=ymd(new Date(since)).slice(0,7);if(m>st)st=m}return st}
+const avoCredit=n=>Math.max(0,mIdx(todayStr().slice(0,7))-mIdx(avoStartFor(n))+1)*AVO_MONTHLY;
+const avoGiven=(n,month)=>AVO.list.filter(g=>nkey(g.from)===nkey(n)&&(!month||ymd(new Date(g.at||0)).slice(0,7)===month)).reduce((a,g)=>a+(+g.amt||0),0);
+const avoBalance=n=>Math.max(0,avoCredit(n)-avoGiven(n));
+function avoBoard(month){const m={};AVO.list.forEach(g=>{if(month&&ymd(new Date(g.at||0)).slice(0,7)!==month)return;const k=g.toKey||nkey(g.to);const r=m[k]=m[k]||{n:allNames().find(x=>nkey(x)===k)||g.to,amt:0,gifts:0,tags:{},from:new Set()};r.amt+=+g.amt||0;r.gifts++;if(g.tag)r.tags[g.tag]=(r.tags[g.tag]||0)+1;r.from.add(nkey(g.from))});
+  return Object.values(m).filter(r=>isActiveP(r.n)).sort((a,b)=>b.amt-a.amt||b.gifts-a.gifts)}
+const topTags=r=>Object.entries(r.tags).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([t])=>{const x=AVO_TAGS.find(y=>y[0]===t);return(x?x[1]+' ':'')+t});
+const avoRecv=n=>AVO.list.filter(g=>(g.toKey||nkey(g.to))===nkey(n));
+function avoCard(){const me=myName(),mo=todayStr().slice(0,7),B=avoBoard(mo).slice(0,3),H=AVO.list.filter(g=>g.msg&&isActiveP(g.to)).slice(0,3),bal=me?avoBalance(me):0;
+  return`<section class="card avo">${cardH('chat','🥑 Avokudos',me?`<b style="color:var(--ok)">🥑 ${bal}</b> to give`:'')}
+    ${me&&perm('kudos')!=='off'?`<div class="pad" style="padding-bottom:4px"><button class="btn primary block" data-avo>🥑 Give Avokudos</button><p class="hint" style="margin:6px 0 0">Everyone gets 🥑 ${AVO_MONTHLY} on the 1st of each month to give. Unused ones carry forward.</p></div>`:''}
+    ${B.length?`<span class="sublbl" style="margin:10px 16px 0">Top this month</span>${B.map((r,i)=>avoRow(r,i)).join('')}`:`<div class="empty" style="padding:14px">No Avokudos yet this month. Be the first to appreciate someone 🥑</div>`}
+    ${H.length?`<span class="sublbl" style="margin:6px 16px 0">Highlights</span>${H.map(avoQuote).join('')}`:''}
+    <div class="card-f"><button class="lnk" data-avoboard>Leaderboard & highlights ›</button></div></section>`}
+const avoRow=(r,i)=>`<button class="prow" style="width:100%;text-align:left" data-prof="${esc(r.n)}"><span class="medwrap">${ini(r.n)}${i<3?`<i class="medal">${['🥇','🥈','🥉'][i]}</i>`:''}</span><span class="nm">${esc(r.n)}<small>${topTags(r).join(' · ')||plural(r.gifts,'gift')} · from ${r.from.size===1?'1 person':r.from.size+' people'}</small></span><span class="am">🥑 ${r.amt}</span></button>`;
+const avoQuote=g=>`<button class="prow quote" style="width:100%;text-align:left" data-prof="${esc(g.to)}">${ini(g.from)}<span class="nm"><b style="font-weight:700">${esc(first(g.from))} → ${esc(first(g.to))}</b> ${g.amt?`<span class="avochip">🥑 ${g.amt}</span>`:''}${g.tag?`<span class="tagchip">${esc(g.tag)}</span>`:''}<small style="color:var(--ink);font-size:13.5px">“${mtext(g.msg)}” · ${timeAgo(g.at)}</small></span></button>`;
+let AVOB='month';
+function openAvoBoard(){startAvo();const draw=()=>{const L=avoBoard(AVOB==='month'?todayStr().slice(0,7):''),H=AVO.list.filter(g=>g.msg&&(AVOB!=='month'||ymd(new Date(g.at||0)).slice(0,7)===todayStr().slice(0,7))).slice(0,20);
+  const bg=sheetOpen(`<div class="sheet-h"><span class="ini">🥑</span><div><b>Avokudos leaderboard</b><small>For leadership, play, skill, empathy, kindness and love</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div>
+    <div class="seg" style="margin:10px 12px 4px">${[['month','This month'],['all','All time']].map(([k,l])=>`<button type="button" class="${AVOB===k?'on':''}" data-avob="${k}">${l}</button>`).join('')}</div>
+    ${L.map((r,i)=>avoRow(r,i)).join('')||`<div class="empty">Nothing here yet.</div>`}
+    ${H.length?`<span class="sublbl" style="margin:10px 16px 0">Highlights</span>${H.map(avoQuote).join('')}`:''}`,'Avokudos leaderboard');
+  bg.querySelectorAll('[data-avob]').forEach(b=>b.onclick=()=>{AVOB=b.dataset.avob;draw()});bg.querySelectorAll('[data-prof]').forEach(b=>b.onclick=()=>openProfile(b.dataset.prof))};draw()}
+/* give to one or many, within your balance */
+function openAvo(pre){pre=pre||{};startAvo();const me=myName();if(!me){toast('Pick your name first (tap the person icon at the top).');ME.who='';go('me');return}
+  if(perm('kudos')==='off')return toast('Avokudos are turned off by the admins.');
+  const sel=new Set((pre.to||[]).filter(n=>nkey(n)!==nkey(me)).map(canon));let amt=pre.amt!=null?pre.amt:25,tag=pre.tag||'',wishN=0;
+  const ppl=activeRoster().filter(n=>nkey(n)!==nkey(me));
+  const bg=sheetOpen(`<div class="sheet-h"><span class="ini">🥑</span><div><b>${pre.title||'Give Avokudos'}</b><small id="avobal"></small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div>
+    <div class="sub" style="padding-top:12px"><div style="display:flex;justify-content:space-between;align-items:center"><span class="sublbl" style="margin:0">To</span><button type="button" class="lnk" id="avoall">Select all</button></div>
+      <div class="pickgrid" id="avoppl">${ppl.map(n=>`<button type="button" class="pick${sel.has(n)?' on':''}" data-avop="${esc(n)}">${ini(n)}<span>${esc(first(n))}</span></button>`).join('')}</div></div>
+    <div class="sub"><span class="sublbl">🥑 each</span><div class="mix" style="gap:6px;flex-wrap:wrap">${[0,10,25,50,100].map(v=>`<button type="button" class="chipbtn${amt===v?' on':''}" data-avoamt="${v}">${v?'🥑 '+v:'Just a wish'}</button>`).join('')}<input class="txt" id="avoamt" type="number" inputmode="numeric" min="0" max="1000" value="${amt}" style="width:90px;height:38px" aria-label="Avocados each"></div></div>
+    <div class="sub"><span class="sublbl">For their…</span><div class="mix" style="gap:6px;flex-wrap:wrap">${AVO_TAGS.map(([t,e])=>`<button type="button" class="chipbtn${tag===t?' on':''}" data-avotag="${t}">${e} ${t}</button>`).join('')}</div></div>
+    <div class="sub"><span class="sublbl">Message</span><textarea class="txt" id="avomsg" data-mention rows="3" maxlength="300" placeholder="What did they do that you loved? Type @ to mention">${esc(pre.msg||'')}</textarea>${pre.wish?`<button type="button" class="lnk" id="avonew" style="margin-top:6px">🔀 Another line</button>`:''}</div>
+    <div class="card-f"><button class="btn primary block" id="avosend">🥑 Send</button></div>`,'Give Avokudos');
+  const upd=()=>{const bal=avoBalance(me),tot=amt*sel.size;$('#avobal').innerHTML=`You have <b>🥑 ${bal}</b> to give${tot?` · this sends 🥑 ${tot}`:''}`;$('#avobal').style.color=tot>bal?'var(--danger)':'';$('#avosend').textContent=sel.size?`🥑 Send to ${sel.size===1?first([...sel][0]):sel.size+' people'}${tot?' · '+tot:''}`:'🥑 Send'};
+  bg.querySelectorAll('[data-avop]').forEach(b=>b.onclick=()=>{const n=b.dataset.avop;sel.has(n)?sel.delete(n):sel.add(n);b.classList.toggle('on');upd()});
+  $('#avoall').onclick=()=>{const all=sel.size<ppl.length;bg.querySelectorAll('[data-avop]').forEach(b=>{all?sel.add(b.dataset.avop):sel.delete(b.dataset.avop);b.classList.toggle('on',all)});upd()};
+  bg.querySelectorAll('[data-avoamt]').forEach(b=>b.onclick=()=>{amt=+b.dataset.avoamt;$('#avoamt').value=amt;bg.querySelectorAll('[data-avoamt]').forEach(x=>x.classList.toggle('on',x===b));upd()});
+  $('#avoamt').oninput=e=>{amt=Math.max(0,Math.min(1000,Math.round(+e.target.value||0)));bg.querySelectorAll('[data-avoamt]').forEach(x=>x.classList.toggle('on',+x.dataset.avoamt===amt));upd()};
+  bg.querySelectorAll('[data-avotag]').forEach(b=>b.onclick=()=>{tag=tag===b.dataset.avotag?'':b.dataset.avotag;bg.querySelectorAll('[data-avotag]').forEach(x=>x.classList.toggle('on',x.dataset.avotag===tag))});
+  const nw=$('#avonew');if(nw)nw.onclick=()=>{wishN++;$('#avomsg').value=uniqueWish(pre.wish,wishN)};
+  let busy=false;$('#avosend').onclick=async()=>{const msg=norm($('#avomsg').value);if(!sel.size)return toast('Pick at least one person.');if(!msg)return toast('Add a short message, it means more than the avocados 🙂');if(!allOk(msg))return;
+    const tot=amt*sel.size,bal=avoBalance(me);if(tot>bal)return toast('You have 🥑 '+bal+' to give. Lower the amount or pick fewer people.');
+    if(AVO.list.some(g=>nkey(g.from)===nkey(me)&&g.msg===msg&&sel.has(canon(g.to))&&Date.now()-(g.at||0)<10*60e3))return toast('✋ Already sent.');
+    if(busy)return;busy=true;$('#avosend').disabled=true;
+    try{await ensureAnon();const uid=auth.currentUser.uid,at=Date.now(),batch='b'+at.toString(36);
+      for(const n of sel)await col('avo').add({from:canon(me),fromUid:uid,to:canon(n),toKey:nkey(n),amt,tag,msg,at,batch});
+      closeWho();toast(`🥑 Sent to ${sel.size===1?first([...sel][0]):sel.size+' people'}!`);renderTab(false)}
+    catch(e){busy=false;$('#avosend').disabled=false;toast(e.code==='permission-denied'?'Ask the organizer to update the app rules.':'Couldn’t send ('+(e.code||'error')+').')}};
+  upd()}
+/* ================= 🎉 OCCASIONS & UNIQUE WISHES ================= */
+const OCC={list:[],unsub:null};
+function startOcc(){if(!db||OCC.unsub)return;OCC.unsub=col('occasions').orderBy('date','desc').limit(200).onSnapshot(q=>{OCC.list=q.docs.map(d=>({id:d.id,...d.data()}));renderHeader();if(!$('#whosheet')&&!typingIn('#view-'+tab))renderTab(false)},()=>{})}
+function occasionsToday(){const md=todayStr().slice(5),t=todayStr(),out=[];
+  activeRoster().forEach(n=>{const p=profOf(n)||{};if(p.bday===md)out.push({n,kind:'bday',emoji:'🎂',title:'Birthday'});if(p.anniv===md)out.push({n,kind:'anniv',emoji:'💍',title:'Anniversary'})});
+  OCC.list.forEach(o=>{if(o.date===t&&isActiveP(o.who))out.push({n:canon(o.who),kind:'custom',emoji:o.emoji||'🎉',title:o.title||'Special day',id:o.id})});return out}
+const WISHES={
+ bday:['Happy birthday {n}! 🎂 May your smashes stay sharp and your year be full of wins.','Many happy returns, {n}! 🎉 Here’s to more rallies, more laughs and zero injuries.','Happy birthday {n}! 🏸 The court is brighter with you on it. Have a fantastic day!','Cheers to you, {n}! 🥳 Wishing you health, joy and a killer drop shot this year.','Happy birthday {n}! 🎂 Thank you for the energy you bring every game.','{n}, happy birthday! 🌟 May this year serve you only good things.','Happy birthday {n}! 🎈 Another year stronger, faster and smashier!','Wishing you the happiest birthday, {n}! 💚 Cake first, footwork later.','Happy birthday {n}! 🍰 May your day be as smooth as your backhand.','Big birthday hugs, {n}! 🤗 Grateful to share the court with you.','Happy birthday {n}! 🔥 Keep shining on and off the court.','To {n}, happy birthday! 🏆 Here’s to a year of personal bests.'],
+ anniv:['Happy anniversary {n}! 💍 Wishing you both many more years of love and laughter.','Congratulations on your anniversary, {n}! 💞 Here’s to the best doubles partnership.','Happy anniversary {n}! 🥂 May your journey together keep getting sweeter.','Warm wishes on your anniversary, {n}! 🌹 Love, joy and lots of happy moments ahead.','Happy anniversary {n}! 💑 A perfect match, on and off the court.','Cheers to love, {n}! 🎉 Happy anniversary to you both.','Happy anniversary {n}! 💖 Wishing you a beautiful year ahead together.','Many happy returns of the day, {n}! 💐 Stay blessed together.'],
+ custom:['Congratulations {n}! 🎉 So happy for you on {t}.','{n}, this calls for a celebration! 🥳 Huge congratulations on {t}.','Big cheers to {n} for {t}! 🙌 Well deserved.','So proud of you, {n}! 🌟 Wishing you the very best with {t}.','Congratulations on {t}, {n}! 💚 Here’s to many more happy moments.','Way to go, {n}! 🏆 Warm wishes on {t}.']};
+const hashS=s=>{let h=2166136261;for(const c of String(s)){h^=c.codePointAt(0);h=Math.imul(h,16777619)}return h>>>0};
+function uniqueWish(o,shift2){const pool=WISHES[o.kind]||WISHES.custom,used=new Set(AVO.list.filter(g=>nkey(g.to)===nkey(o.n)&&ymd(new Date(g.at||0))===todayStr()).map(g=>g.msg));
+  let i=(hashS(getMe()+'|'+o.n+'|'+todayStr()+'|'+o.kind)+(shift2||0))%pool.length;for(let k=0;k<pool.length;k++){const line=pool[(i+k)%pool.length].replace(/\{n\}/g,first(o.n)).replace(/\{t\}/g,(o.title||'').toLowerCase());if(!used.has(line))return line}
+  return pool[i].replace(/\{n\}/g,first(o.n)).replace(/\{t\}/g,(o.title||'').toLowerCase())}
+function openWish(o){if(nkey(o.n)===nkey(getMe()))return openProfile(o.n);openAvo({to:[o.n],msg:uniqueWish(o),tag:'Love',amt:10,wish:o,title:o.emoji+' Wish '+first(o.n)})}
+function occBanner(){const L=occasionsToday();if(!L.length)return'';return`<section class="card occ">${L.map(o=>`<div class="prow">${ini(o.n)}<span class="nm">${o.emoji} ${nkey(o.n)===nkey(getMe())?'Happy '+(o.kind==='bday'?'birthday':o.kind==='anniv'?'anniversary':esc(o.title))+', '+esc(first(o.n))+'!':esc(first(o.n))+'’s '+(o.kind==='custom'?esc(o.title):o.title.toLowerCase())+' today'}<small>${nkey(o.n)===nkey(getMe())?'The whole group can see it today 💚':'Send a wish, everyone gets a different line'}</small></span>${nkey(o.n)===nkey(getMe())?'':`<button class="btn sm primary" data-wish="${esc(o.n)}|${o.kind}|${esc(o.id||'')}">Wish</button>`}</div>`).join('')}</section>`}
+document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-wish]');if(b){const[n,kind,id]=b.dataset.wish.split('|');const o=occasionsToday().find(x=>nkey(x.n)===nkey(n)&&x.kind===kind&&(x.id||'')===(id||''));if(o)openWish(o);return}
+  const a=e.target.closest&&e.target.closest('[data-avo]');if(a){openAvo({to:a.dataset.avo?[a.dataset.avo]:[]});return}
+  const ab=e.target.closest&&e.target.closest('[data-avoboard]');if(ab){openAvoBoard();return}
+  const ch=e.target.closest&&e.target.closest('[data-chal]');if(ch){openChallenge(ch.dataset.chal);return}
+  const cv=e.target.closest&&e.target.closest('[data-chv]');if(cv){openChalView(cv.dataset.chv);return}
+  const oc=e.target.closest&&e.target.closest('[data-addocc]');if(oc){openAddOcc(oc.dataset.addocc);return}});
+function openAddOcc(n){if(!isOrg)return;const EM=['🎉','💼','👶','🏆','🎓','🏠','💍','🌟'];let em='🎉';
+  const bg=sheetOpen(`<div class="sheet-h">${ini(n)}<div><b>Special occasion for ${esc(first(n))}</b><small>Everyone gets a bell alert on the day</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div>
+    <div class="sub" style="padding-top:12px"><label class="fld"><span>What</span><input class="txt" id="octitle" maxlength="40" placeholder="New job, baby boy, first tournament win…"></label>
+      <div class="mix" style="gap:6px;flex-wrap:wrap">${EM.map(x=>`<button type="button" class="chipbtn${x===em?' on':''}" data-oem="${x}">${x}</button>`).join('')}</div>
+      <label class="fld"><span>Date</span><input class="txt" type="date" id="ocdate" value="${todayStr()}"></label></div>
+    ${OCC.list.filter(o=>nkey(o.who)===nkey(n)).length?`<div class="sub"><span class="sublbl">Saved</span>${OCC.list.filter(o=>nkey(o.who)===nkey(n)).map(o=>`<div class="mix" style="justify-content:space-between"><small>${esc(o.emoji||'🎉')} ${esc(o.title)} · ${esc(dlabel(o.date,{day:'numeric',month:'short',year:'numeric'}))}</small><button class="lnk danger" data-ocdel="${esc(o.id)}">Remove</button></div>`).join('')}</div>`:''}
+    <div class="card-f"><button class="btn primary block" id="ocsave">${ic('check')}Save occasion</button></div>`,'Special occasion');
+  bg.querySelectorAll('[data-oem]').forEach(b=>b.onclick=()=>{em=b.dataset.oem;bg.querySelectorAll('[data-oem]').forEach(x=>x.classList.toggle('on',x===b))});
+  bg.querySelectorAll('[data-ocdel]').forEach(b=>b.onclick=async()=>{await col('occasions').doc(b.dataset.ocdel).delete();toast('Removed.');setTimeout(()=>openAddOcc(n),300)});
+  $('#ocsave').onclick=async()=>{const t=norm($('#octitle').value),d=$('#ocdate').value;if(!t||!d)return toast('Add what and when.');try{await col('occasions').add({who:canon(n),title:t,emoji:em,date:d,by:userEmail()||'',at:Date.now()});closeWho();toast('Saved. Everyone gets an alert on '+dlabel(d,{day:'numeric',month:'short'})+' 🎉')}catch(e){toast('Couldn’t save ('+(e.code||'error')+').')}}}
+/* ================= ⚔️ CHALLENGES ================= */
+const CHAL={list:[],unsub:null};
+function startChal(){if(!db||CHAL.unsub)return;CHAL.unsub=col('challenges').orderBy('at','desc').limit(200).onSnapshot(q=>{CHAL.list=q.docs.map(d=>({id:d.id,...d.data()}));renderHeader();if(!$('#whosheet')&&!typingIn('#view-'+tab))renderTab(false);else if($('#whosheet')&&CHAL.redraw)CHAL.redraw()},()=>{})}
+const inSide=(c,side,n)=>(c[side]||[]).some(x=>nkey(x)===nkey(n));
+const chalTitle=c=>`${(c.a||[]).map(first).join(' & ')} vs ${(c.b||[]).map(first).join(' & ')}`;
+const chalStatus=c=>c.status==='open'?'⏳ Waiting for reply':c.status==='accepted'?'✅ On!':c.status==='done'?'🏁 Played':c.status==='declined'?'🙅 Declined':'Cancelled';
+function openChallenge(to){if(perm('challenge')==='off')return toast('Challenges are turned off by the admins.');const me=myName();if(!me){toast('Pick your name first (tap the person icon at the top).');ME.who='';go('me');return}
+  const ppl=activeRoster().filter(n=>nkey(n)!==nkey(me)),days=gameRooms();let type='singles',counts=true;
+  const opt=(id,ph,val)=>`<select class="txt" id="${id}"><option value="">${ph}</option>${ppl.map(n=>`<option ${nkey(n)===nkey(val||'')?'selected':''}>${esc(n)}</option>`).join('')}</select>`;
+  const bg=sheetOpen(`<div class="sheet-h"><span class="ini">⚔️</span><div><b>Challenge a player</b><small>They get it in their bell and can accept</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div>
+    <div class="sub" style="padding-top:12px"><div class="seg" style="padding:0">${[['singles','Singles'],['doubles','Doubles']].map(([k,l])=>`<button type="button" class="${k===type?'on':''}" data-ctype="${k}">${l}</button>`).join('')}</div></div>
+    <div class="sub"><span class="sublbl">Opponent</span>${opt('cop','Choose opponent…',to)}<div id="cdbl" hidden><span class="sublbl" style="margin-top:8px">Their partner</span>${opt('cop2','Choose…')}<span class="sublbl" style="margin-top:8px">Your partner</span>${opt('cmate','Choose…')}</div></div>
+    <div class="sub"><span class="sublbl">When</span><select class="txt" id="cwhen"><option value="">Next time we play</option>${days.map(g=>`<option value="${g.date}">${esc(g.label)}</option>`).join('')}</select></div>
+    <div class="sub"><span class="sublbl">Message</span><input class="txt" id="cmsg" data-mention maxlength="200" placeholder="e.g. Rematch? Best of 3 😄"></div>
+    <label class="chkrow" style="margin:4px 16px 10px"><input type="checkbox" class="chk" id="ccount" checked><span>Counts for Cup stats (XP, wins, levels). Either player can change this until a score is added.</span></label>
+    <div class="card-f"><button class="btn primary block" id="csend">⚔️ Send challenge</button></div>`,'Challenge');
+  bg.querySelectorAll('[data-ctype]').forEach(b=>b.onclick=()=>{type=b.dataset.ctype;bg.querySelectorAll('[data-ctype]').forEach(x=>x.classList.toggle('on',x===b));$('#cdbl').hidden=type!=='doubles'});
+  let busy=false;$('#csend').onclick=async()=>{const op=$('#cop').value,op2=$('#cop2').value,mate=$('#cmate').value;if(!op)return toast('Choose an opponent.');
+    if(type==='doubles'&&(!op2||!mate))return toast('Doubles needs both partners.');const all=[me,op].concat(type==='doubles'?[op2,mate]:[]);if(new Set(all.map(nkey)).size!==all.length)return toast('Each player can only be in the match once.');
+    if(CHAL.list.some(c=>c.status==='open'&&nkey(c.from)===nkey(me)&&inSide(c,'b',op)))return toast('✋ You already challenged '+first(op)+'. Waiting for a reply.');
+    if(busy)return;busy=true;$('#csend').disabled=true;
+    try{await ensureAnon();await col('challenges').add({from:canon(me),fromUid:auth.currentUser.uid,a:type==='doubles'?[canon(me),canon(mate)]:[canon(me)],b:type==='doubles'?[canon(op),canon(op2)]:[canon(op)],type,date:$('#cwhen').value||'',msg:norm($('#cmsg').value),counts:$('#ccount').checked,status:'open',at:Date.now()});
+      closeWho();toast('⚔️ Challenge sent to '+first(op)+(type==='doubles'?' & '+first(op2):'')+'!')}catch(e){busy=false;$('#csend').disabled=false;toast(e.code==='permission-denied'?'Ask the organizer to update the app rules.':'Couldn’t send ('+(e.code||'error')+').')}}}
+async function chalSet(c,patch,msg){try{await ensureAnon();await col('challenges').doc(c.id).update(patch);if(msg)toast(msg)}catch(e){toast(e.code==='permission-denied'?'Ask the organizer to update the app rules.':'Couldn’t save ('+(e.code||'error')+').')}}
+function openChalView(id){const draw=()=>{const c=CHAL.list.find(x=>x.id===id);if(!c)return;const me=myName(),mineA=inSide(c,'a',me),mineB=inSide(c,'b',me),inIt=mineA||mineB||isOrg,G=(c.score||[]);
+  const side=(L,won)=>`<div class="cside${won?' w':''}"><span class="avs lg">${(L||[]).map(n=>ini(n)).join('')}</span><b>${(L||[]).map(n=>esc(first(n))).join(' & ')}</b>${won?'<i class="pill pw">WON</i>':''}</div>`;
+  const bg=sheetOpen(`<div class="sheet-h"><span class="ini">⚔️</span><div><b>${c.type==='doubles'?'Doubles':'Singles'} challenge</b><small>${chalStatus(c)}${c.date?' · '+esc(dlabel(c.date,{weekday:'short',day:'numeric',month:'short'})):''}</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div>
+    <div class="sub vsbox" style="padding-top:14px">${side(c.a,c.winner==='a')}<span class="vs">VS</span>${side(c.b,c.winner==='b')}</div>
+    ${c.msg?`<div class="sub"><p style="margin:0">“${mtext(c.msg)}” <small class="hint">· ${esc(first(c.from))}</small></p></div>`:''}
+    ${G.length?`<div class="sub"><b>Score:</b> ${G.map(g=>g.a+'–'+g.b).join(' · ')}</div>`:''}
+    <div class="sub"><label class="chkrow" style="margin:0"><input type="checkbox" class="chk" id="cvcount" ${c.counts?'checked':''} ${c.status==='done'||!inIt?'disabled':''}><span>${c.counts?'Counts for Cup stats':'Just for fun (not in Cup stats)'}${c.status==='done'?' · locked after the score':''}</span></label></div>
+    <div class="card-f" style="display:grid;gap:8px">
+      ${c.status==='open'&&mineB?`<div class="grid2"><button class="btn primary" data-cv="accept">✅ Accept</button><button class="btn line" data-cv="decline">Decline</button></div>`:''}
+      ${c.status==='open'&&(mineA||isOrg)?`<button class="btn line" data-cv="cancel">Cancel challenge</button>`:''}
+      ${c.status==='accepted'&&inIt?`<button class="btn primary" data-cv="score">🏸 Add score</button>`:''}
+      ${c.status==='open'&&!inIt?`<p class="hint" style="margin:0">Waiting for ${(c.b||[]).map(first).join(' & ')} to reply.</p>`:''}
+    </div>`,'Challenge');
+  const cc=bg.querySelector('#cvcount');if(cc)cc.onchange=()=>chalSet(c,{counts:cc.checked},cc.checked?'Counts for Cup stats ✅':'Just for fun 🙂');
+  bg.querySelectorAll('[data-cv]').forEach(b=>b.onclick=async()=>{const a=b.dataset.cv;b.disabled=true;
+    if(a==='accept')await chalSet(c,{status:'accepted',acceptedBy:canon(me),acceptedAt:Date.now()},'⚔️ Game on! '+first(c.from)+' will see it.');
+    else if(a==='decline')await chalSet(c,{status:'declined',acceptedBy:canon(me),acceptedAt:Date.now()},'Declined.');
+    else if(a==='cancel')await chalSet(c,{status:'cancelled'},'Challenge cancelled.');
+    else if(a==='score'){openChalScore(c);return}});CHAL.redraw=draw};draw()}
+function openChalScore(c){let n=1;const draw=()=>{const bg=sheetOpen(`<div class="sheet-h"><span class="ini">🏸</span><div><b>${esc(chalTitle(c))}</b><small>Enter each game’s points</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div>
+    <div class="sub" style="padding-top:12px"><div class="seg" style="padding:0">${[1,3].map(k=>`<button type="button" class="${n===k?'on':''}" data-cbo="${k}">Best of ${k}</button>`).join('')}</div></div>
+    ${Array.from({length:n},(_,i)=>`<div class="sub"><span class="sublbl">Game ${i+1}</span><div class="grid2"><label class="fld"><span>${esc((c.a||[]).map(first).join(' & '))}</span><input class="txt" type="number" inputmode="numeric" min="0" max="50" data-cg="${i}:a"></label><label class="fld"><span>${esc((c.b||[]).map(first).join(' & '))}</span><input class="txt" type="number" inputmode="numeric" min="0" max="50" data-cg="${i}:b"></label></div></div>`).join('')}
+    <div class="card-f"><button class="btn primary block" id="cgsave">${ic('check')}Save result</button></div>`,'Score');
+  bg.querySelectorAll('[data-cbo]').forEach(b=>b.onclick=()=>{n=+b.dataset.cbo;draw()});
+  $('#cgsave').onclick=async()=>{const G=[];for(let i=0;i<n;i++){const ea=bg.querySelector(`[data-cg="${i}:a"]`).value,eb=bg.querySelector(`[data-cg="${i}:b"]`).value;if(ea===''&&eb==='')continue;const a=+ea,b2=+eb;if(ea===''||eb==='')return toast('Fill in both scores for game '+(i+1)+'.');if(a===b2)return toast('Game '+(i+1)+' can’t be a tie.');G.push({a,b:b2})}
+    if(!G.length)return toast('Enter the score.');const wa=G.filter(g=>g.a>g.b).length,wb=G.length-wa;if(wa===wb)return toast('Add the deciding game.');
+    await chalSet(c,{score:G,winner:wa>wb?'a':'b',status:'done',doneAt:Date.now(),scoredBy:canon(myName()||'Organizer')},'🏁 Result saved'+(c.counts?' · Cup stats updated':''));closeWho()}};draw()}
+function chalHTML(){startChal();const me=myName(),L=CHAL.list.filter(c=>c.status!=='cancelled'&&c.status!=='declined').slice(0,12);
+  return`${perm('challenge')!=='off'?`<div class="pad" style="padding-bottom:6px"><button class="btn primary block" data-chal="">⚔️ Challenge a player</button></div>`:''}
+    ${L.map(c=>`<button class="prow" style="width:100%;text-align:left" data-chv="${esc(c.id)}"><span class="avs lg">${(c.a||[]).concat(c.b||[]).slice(0,4).map(n=>ini(n)).join('')}</span><span class="nm">${esc(chalTitle(c))}<small>${chalStatus(c)}${c.date?' · '+esc(dlabel(c.date,{weekday:'short',day:'numeric'})):''}${c.score?' · '+c.score.map(g=>g.a+'–'+g.b).join(', '):''}${c.counts?'':' · for fun'}</small></span>${c.status==='open'&&inSide(c,'b',me)?'<span class="mm" style="color:var(--accent)">Reply</span>':''}${ic('right')}</button>`).join('')||`<div class="empty" style="padding:14px">No challenges yet. Call out your rival 😄</div>`}`}
 /* ================= PLAYER PERMISSIONS ================= */
 /* admins decide what players may do: off · ask an admin · allowed. Admins can always do everything. */
 const PERMS=[['name','✏️','Edit group name',['off','ask','allow'],'allow'],['photo','🖼️','Change group photo',['off','ask','allow'],'ask'],['theme','🎨','Change theme',['off','ask','allow'],'ask'],
-  ['post','📸','Post in Club',['off','allow'],'allow'],['chat','💬','Chat',['off','allow'],'allow'],['kudos','👏','Kudos & comments',['off','allow'],'allow'],['poll','🗓️','Suggest a game day',['off','ask'],'ask']];
+  ['post','📸','Post in Club',['off','allow'],'allow'],['chat','💬','Chat',['off','allow'],'allow'],['kudos','👏','Kudos & comments',['off','allow'],'allow'],['poll','🗓️','Suggest a game day',['off','ask'],'ask'],['challenge','⚔️','Challenge players',['off','allow'],'allow']];
 const PMODE={off:'Off',ask:'Ask an admin',allow:'Allowed'};
 const permOf=k=>{const d=PERMS.find(p=>p[0]===k);return((S.perms||{})[k])||(d?d[4]:'allow')};
 const perm=k=>!db||isOrg?'allow':permOf(k);
@@ -1660,7 +1818,7 @@ function av(n){const ph=photoOf(n);return`<span class="mav${ph?' ph':''}" aria-h
 function who(label,names){const L=names||String(label).split(/\s*&\s*/);return`<span class="pnm"><span class="avs">${L.slice(0,2).map(av).join('')}</span><span class="wn">${esc(label)}</span></span>`}
 /* round avatar: the player's photo when they have one, else initials */
 function ini(n,style,cls){const ph=photoOf(n);return`<span class="ini${cls?' '+cls:''}${ph?' av':''}"${style?` style="${style}"`:''}>${ph?`<img src="${ph}" alt="" loading="lazy">`:esc(initials(n||'?'))}</span>`}
-function profPct(n){const p=profOf(n)||{};const f=[!!p.photo,!!p.fullName,!!p.username,!!p.place,!!p.bio,(p.interests||[]).length>0,!!p.bday];return Math.round(f.filter(Boolean).length*100/f.length)}
+function profPct(n){const p=profOf(n)||{};const f=[!!p.photo,!!p.fullName,!!p.username,!!p.place,!!p.bio,(p.interests||[]).length>0,!!p.bday||!!p.anniv];return Math.round(f.filter(Boolean).length*100/f.length)}
 const bdayLabel=md=>{if(!/^\d\d-\d\d$/.test(md||''))return'';return dlabel('2000-'+md,{day:'numeric',month:'long'})};
 function birthdaysToday(){const md=todayStr().slice(5);return allNames().filter(n=>{const p=profOf(n);return p&&p.bday===md})}
 /* square photo for a profile picture: centre crop, 320 px, about 30-60 KB */
@@ -1670,9 +1828,9 @@ function squareAvatar(file){return new Promise((res,rej)=>{const fr=new FileRead
 async function loadMyPriv(n){const k=nkey(n);if(isOrg&&PROF.priv[k])return PROF.priv[k];try{await ensureAnon();const d=await col('private').doc(k).get();PROF.myPriv=d.exists?d.data():{}}catch(e){PROF.myPriv={}}return PROF.myPriv}
 async function saveProfile(n,pub,priv){await ensureAnon();const k=nkey(n),uid=auth.currentUser.uid,cur=PROF.map[k];
   if(cur&&cur.uid&&cur.uid!==uid&&!isOrg){const e=new Error('owner');e.code='not-owner';throw e}
-  const owner=cur&&cur.uid&&isOrg&&cur.uid!==uid?cur.uid:uid,base=cur||{};
+  const own=nkey(n)===nkey(getMe()),owner=isOrg&&!own?((cur&&cur.uid)||''):(cur&&cur.uid&&isOrg&&cur.uid!==uid?cur.uid:uid),base=cur||{};
   const doc={name:canon(n),uid:owner,at:Date.now(),photo:pub.photo!=null?pub.photo:(base.photo||''),fullName:pub.fullName!=null?pub.fullName:(base.fullName||''),username:pub.username!=null?pub.username:(base.username||''),
-    place:pub.place!=null?pub.place:(base.place||''),bio:pub.bio!=null?pub.bio:(base.bio||''),interests:pub.interests||base.interests||[],bday:pub.bday!=null?pub.bday:(base.bday||'')};
+    place:pub.place!=null?pub.place:(base.place||''),bio:pub.bio!=null?pub.bio:(base.bio||''),interests:pub.interests||base.interests||[],bday:pub.bday!=null?pub.bday:(base.bday||''),anniv:pub.anniv!=null?pub.anniv:(base.anniv||'')};
   await col('profiles').doc(k).set(doc);PROF.map[k]=doc;
   if(priv){const pv={name:canon(n),uid:owner,at:Date.now(),phone:priv.phone||'',email:priv.email||'',dob:priv.dob||'',blood:priv.blood||''};await col('private').doc(k).set(pv);PROF.myPriv=pv;if(isOrg)PROF.priv[k]=pv}}
 const profErr=e=>toast(e.code==='not-owner'?'This profile is linked to another phone. Ask an organizer to reset it.':e.code==='permission-denied'?'Ask the organizer to update the app rules for profiles.':'Couldn’t save ('+(e.code||'error')+').');
@@ -1709,6 +1867,7 @@ async function openEditProfile(n){n=n||myName();if(!n)return;const k=nkey(n),p={
       <label class="fld"><span>Email</span><input class="txt" id="epemail" type="email" maxlength="100" value="${esc(pv.email||'')}" placeholder="name@example.com"></label>
       <label class="fld"><span>Date of birth</span><input class="txt" id="epdob" type="date" value="${esc(pv.dob||'')}"></label>
       <label class="chkrow"><input type="checkbox" class="chk" id="epbday" ${p.bday?'checked':''}><span>Show my birthday (day and month only) so the group can wish me 🎂</span></label>
+      <label class="fld"><span>Anniversary (optional · only day and month are shown)</span><input class="txt" id="epanniv" type="date" value="${p.anniv?'2000-'+esc(p.anniv):''}"></label>
       <label class="fld"><span>Blood group</span><select class="txt" id="epblood"><option value="">Not set</option>${BLOODS.map(b=>`<option ${pv.blood===b?'selected':''}>${b}</option>`).join('')}</select></label>
       <p class="hint" style="margin:6px 0 0">Blood group helps in an emergency at the court. Your number lets organizers reach you about games.</p></div>
     <div class="card-f"><button class="btn primary block" id="epsave">${ic('check')}Save profile</button></div>`,'Edit profile');
@@ -1723,7 +1882,7 @@ async function openEditProfile(n){n=n||myName();if(!n)return;const k=nkey(n),p={
     if(phone&&!/^[+\d][\d\s-]{6,19}$/.test(phone))return toast('That number doesn’t look right.');
     if($('#epbday').checked&&!dob)return toast('Add your date of birth to show your birthday.');
     busy=true;$('#epsave').disabled=true;
-    try{await saveProfile(n,{photo,fullName:norm($('#epfull').value),username:user,place:norm($('#epplace').value),bio:norm($('#epbio').value),interests:[...ints],bday:$('#epbday').checked&&dob?dob.slice(5):''},{phone,email,dob,blood:$('#epblood').value});
+    try{await saveProfile(n,{photo,fullName:norm($('#epfull').value),username:user,place:norm($('#epplace').value),bio:norm($('#epbio').value),interests:[...ints],bday:$('#epbday').checked&&dob?dob.slice(5):'',anniv:($('#epanniv').value||'').slice(5)},{phone,email,dob,blood:$('#epblood').value});
       closeWho();toast('Profile saved ✅');renderHeader();renderTab(false)}catch(e){busy=false;$('#epsave').disabled=false;profErr(e)}}}
 /* the public part of the player card */
 function profTop(n){const p=profOf(n),k=nkey(n),me=nkey(getMe())===k,pv=isOrg?PROF.priv[k]:(me?PROF.myPriv:null),bd=p&&p.bday===todayStr().slice(5);
@@ -1735,7 +1894,13 @@ function profTop(n){const p=profOf(n),k=nkey(n),me=nkey(getMe())===k,pv=isOrg?PR
     ${pv&&(pv.phone||pv.email||pv.dob||pv.blood)?`<div class="privbox"><span class="sublbl">🔒 ${me&&!isOrg?'Only you and organizers see this':'Organizers only'}</span>
       ${pv.phone?`<div class="mix" style="justify-content:space-between"><a href="tel:${esc(pv.phone.replace(/[^\d+]/g,''))}">📞 ${esc(pv.phone)}</a>${isOrg?`<a class="lnk" target="_blank" rel="noopener" href="https://wa.me/${waNum(pv.phone)}">WhatsApp</a>`:''}</div>`:''}
       ${pv.email?`<div><a href="mailto:${esc(pv.email)}">✉️ ${esc(pv.email)}</a></div>`:''}${pv.dob?`<div>🎂 ${esc(dlabel(pv.dob,{day:'numeric',month:'short',year:'numeric'}))}</div>`:''}${pv.blood?`<div>🩸 Blood group <b>${esc(pv.blood)}</b></div>`:''}</div>`:''}
-    ${me||isOrg?`<button class="lnk" data-editprof="${esc(n)}" style="margin-top:8px">${ic('user')} Edit profile</button>`:''}</div>`}
+    ${P.anniv&&!occasionsToday().some(o=>o.kind==='anniv'&&nkey(o.n)===k)?`<small class="hint" style="display:block;margin:4px 0 0">💍 Anniversary ${esc(bdayLabel(P.anniv))}</small>`:''}
+    ${me||isOrg?`<button class="lnk" data-editprof="${esc(n)}" style="margin-top:8px">${ic('user')} Edit profile</button>`:''}</div>${profActs(n)}`}
+function profActs(n){const k=nkey(n),me=k===nkey(getMe()),R=avoRecv(n),tot=R.reduce((a,g)=>a+(+g.amt||0),0),r=avoBoard('').find(x=>nkey(x.n)===k);
+  return`${!me&&myName()?`<div class="sub" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;padding-top:4px">${perm('kudos')!=='off'?`<button class="btn sm primary" data-avo="${esc(n)}">🥑 Give</button>`:''}${perm('challenge')!=='off'?`<button class="btn sm line" data-chal="${esc(n)}">⚔️ Challenge</button>`:''}</div>`:''}
+    ${isOrg?`<div class="sub" style="padding-top:0"><button class="lnk" data-addocc="${esc(n)}">🎉 Add a special occasion</button></div>`:''}
+    ${R.length?`<div class="sub" style="border-top:1px solid var(--line2);padding-top:12px"><div style="display:flex;justify-content:space-between"><span class="sublbl" style="margin:0">🥑 Avokudos received</span><b style="color:var(--ok)">🥑 ${tot}</b></div>${r?`<div class="mix" style="gap:6px;flex-wrap:wrap;margin:6px 0">${topTags(r).map(t=>`<span class="tagchip">${esc(t)}</span>`).join('')}</div>`:''}
+      ${R.slice(0,5).map(g=>`<div class="cmt" style="margin-top:8px">${ini(g.from,'','sm')}<div class="cb"><div><b>${esc(g.from)}</b> ${g.amt?`<span class="avochip">🥑 ${g.amt}</span>`:''} ${g.tag?`<span class="tagchip">${esc(g.tag)}</span>`:''} <small>${timeAgo(g.at)}</small></div><div class="ct">${mtext(g.msg)}</div></div></div>`).join('')}</div>`:''}`}
 const waNum=ph=>{let d=String(ph||'').replace(/\D/g,'');if(d.length===10)d='91'+d;return d};
 function bindProfTop(root){root.querySelectorAll('[data-editprof]').forEach(b=>b.onclick=()=>openEditProfile(b.dataset.editprof||myName()));
   root.querySelectorAll('[data-bwish]').forEach(b=>b.onclick=()=>openCheer(b.dataset.bwish,'Happy birthday '+first(b.dataset.bwish)+'! 🎂🎉'))}
@@ -1744,8 +1909,8 @@ function contactsHTML(){startPrivate();const rows=activeRoster().concat(allNames
   const filled=rows.filter(n=>{const v=PROF.priv[nkey(n)];return v&&v.phone}).length;
   return`${cardH('users','Player contacts',filled+' / '+rows.length+' with a number')}
     ${rows.map(n=>{const v=PROF.priv[nkey(n)]||{},p=profOf(n)||{};return`<div class="prow">${ini(n)}<span class="nm">${esc(n)}${p.username?` <small style="display:inline">@${esc(p.username)}</small>`:''}<small>${v.phone?'📞 '+esc(v.phone):'No number yet'}${v.blood?' · 🩸 '+esc(v.blood):''}${v.email?' · '+esc(v.email):''}${v.dob?' · 🎂 '+esc(dlabel(v.dob,{day:'numeric',month:'short'})):''}</small></span>
-      <span class="acts">${v.phone?`<a class="iconbtn" href="tel:${esc(v.phone.replace(/[^\d+]/g,''))}" aria-label="Call ${esc(n)}">📞</a><a class="iconbtn" target="_blank" rel="noopener" href="https://wa.me/${waNum(v.phone)}" aria-label="WhatsApp ${esc(n)}">${ic('chat')}</a>`:''}${p.uid?`<button class="iconbtn" data-preset="${esc(n)}" aria-label="Unlink phone for ${esc(n)}" title="Let ${esc(first(n))} edit from a new phone">${ic('lock')}</button>`:''}</span></div>`}).join('')}
-    <div class="card-f"><button class="btn sm line" data-act="contactsxl">${ic('share')}Export to Excel</button><p class="hint" style="margin:0 0 0 auto;text-align:right">Players fill these in from their own profile. 🔒 = let them edit from a new phone.</p></div>`}
+      <span class="acts">${v.phone?`<a class="iconbtn" href="tel:${esc(v.phone.replace(/[^\d+]/g,''))}" aria-label="Call ${esc(n)}" title="Call">📞</a><a class="wachip" target="_blank" rel="noopener" href="https://wa.me/${waNum(v.phone)}" aria-label="WhatsApp ${esc(n)}">${ic('chat')}WhatsApp</a>`:''}<button class="iconbtn" data-editprof="${esc(n)}" aria-label="Edit ${esc(n)}" title="Edit details">✏️</button>${p.uid?`<button class="iconbtn" data-preset="${esc(n)}" aria-label="Unlink phone for ${esc(n)}" title="Let ${esc(first(n))} edit from a new phone">${ic('lock')}</button>`:''}</span></div>`}).join('')}
+    <div class="card-f"><button class="btn sm line" data-act="contactsxl">${ic('share')}Export to Excel</button><p class="hint" style="margin:0 0 0 auto;text-align:right">Players fill these in, or tap ✏️ to add what you know. 🔒 = let them edit from a new phone.</p></div>`}
 async function exportContacts(){const head=[['Name','Full name','Username','Contact number','Email','Date of birth','Blood group','Place','Interests']];
   allNames().forEach(n=>{const v=PROF.priv[nkey(n)]||{},p=profOf(n)||{};if(!v.phone&&!v.email&&!p.username&&!p.place)return;head.push([n,p.fullName||'',p.username?'@'+p.username:'',v.phone||'',v.email||'',v.dob?{d:v.dob}:'',v.blood||'',p.place||'',(p.interests||[]).join(', ')])});
   await saveXlsx([{name:'Contacts',cols:[18,20,16,18,26,13,10,18,40],rows:head,filter:true}],(S.groupName||'Badminton').replace(/[^\w]+/g,'-')+'-contacts-'+todayStr()+'.xlsx')}
@@ -1783,7 +1948,7 @@ function bindThread(root){bindReacts(root);
     t.querySelectorAll('[data-emo]').forEach(b=>b.onclick=()=>{inp.value+=b.dataset.emo;inp.focus()});
     let sending=false;const send=async()=>{const text=norm(inp.value),parent=t._parent||'';if(!text||sending)return;if(!allOk(text))return;
       if((tList(target)||[]).some(c=>c.target===target&&nkey(c.name)===nkey(getMe())&&c.text===text&&(c.parent||'')===parent&&Date.now()-(c.at||0)<10*60e3)){inp.value='';return toast('✋ Already sent.')}
-      const me=allNames().find(n=>nkey(n)===nkey(getMe()));if(!me)return toast('Pick your name first (tap the person icon at the top).');sending=true;setTimeout(()=>sending=false,1500);
+      const me=allNames().find(n=>nkey(n)===nkey(getMe()));if(!me)return toast('Pick your name first (tap the person icon at the top).');if(target==='player:'+nkey(me)&&!parent)return toast('That’s your own card 🙂 Reply to someone’s kudos instead.');sending=true;setTimeout(()=>sending=false,1500);
       try{await ensureAnon();const d={target,name:canon(me),uid:auth.currentUser.uid,text,at:Date.now(),likes:{}};if(parent)d.parent=parent;inp.value='';closeMPop();await col(tCol(target)).add(d);t._parent='';rp.hidden=true;
         if(!isChatT(target))toast('Sent 💬');nudgeAfter(text,target==='chat:group'?'group chat':isChatT(target)?'game chat':'a comment')}
       catch(e){toast(e.code==='permission-denied'?'Ask the organizer to update the app rules.':'Couldn’t send ('+(e.code||'error')+').')}};
@@ -1800,12 +1965,11 @@ function mtext(text){const h=esc(text||''),N=mNames();if(!h.includes('@'))return
 const allOk=text=>{if(mentionsIn(text).has('all')&&!isOrg){toast('Only organizers can use @all.');return false}return true};
 let MPOP=null;const closeMPop=()=>{if(MPOP){MPOP.remove();MPOP=null}};
 function mentionPop(inp){closeMPop();const v=inp.value,pos=inp.selectionStart==null?v.length:inp.selectionStart,m=v.slice(0,pos).match(/(^|\s)@([\w.]{0,20})$/);if(!m)return;
-  const q=m[2].toLowerCase(),me=nkey(getMe());let L=activeRoster().filter(n=>nkey(n)!==me&&n.toLowerCase().includes(q)).sort((a,b)=>(b.toLowerCase().startsWith(q)?1:0)-(a.toLowerCase().startsWith(q)?1:0)).slice(0,6);
-  if(isOrg&&'all'.startsWith(q))L=['@all'].concat(L.slice(0,5));if(!L.length)return;
-  const r=inp.getBoundingClientRect(),d=document.createElement('div');d.className='mpop';d.setAttribute('role','listbox');
-  d.innerHTML=L.map(n=>`<button type="button" data-mpick="${esc(n)}">${n==='@all'?'<span class="ini">📣</span><b>@all</b><small>Everyone in the group</small>':ini(n)+'<b>'+esc(n)+'</b>'+(profOf(n)&&profOf(n).username?'<small>@'+esc(profOf(n).username)+'</small>':'')}</button>`).join('');
-  d.style.left=Math.max(8,r.left)+'px';d.style.width=Math.min(r.width,360)+'px';if(innerHeight-r.bottom>240)d.style.top=(r.bottom+4)+'px';else d.style.bottom=(innerHeight-r.top+4)+'px';
-  document.body.appendChild(d);MPOP=d;
+  const q=m[2].toLowerCase(),me=nkey(getMe());let L=activeRoster().filter(n=>nkey(n)!==me&&n.toLowerCase().includes(q)).sort((a,b)=>(b.toLowerCase().startsWith(q)?1:0)-(a.toLowerCase().startsWith(q)?1:0)).slice(0,12);
+  if(isOrg&&'all'.startsWith(q))L=['@all'].concat(L);if(!L.length)return;
+  const d=document.createElement('div');d.className='mstrip';d.setAttribute('role','listbox');d.setAttribute('aria-label','Mention a player');
+  d.innerHTML=`<small>Mention</small>`+L.map(n=>`<button type="button" data-mpick="${esc(n)}">${n==='@all'?'<span class="mav">📣</span>@all':av(n)+esc(first(n))}</button>`).join('');
+  const host=inp.closest('.inline')||inp;host.insertAdjacentElement('beforebegin',d);MPOP=d;
   d.querySelectorAll('[data-mpick]').forEach(b=>{b.addEventListener('pointerdown',e=>e.preventDefault());b.onclick=()=>{const n=b.dataset.mpick==='@all'?'all':b.dataset.mpick,start=pos-m[2].length-1;
     inp.value=v.slice(0,start)+'@'+n+' '+v.slice(pos);const c=start+n.length+2;inp.focus();try{inp.setSelectionRange(c,c)}catch(e){}closeMPop()}})}
 document.addEventListener('input',e=>{const t=e.target;if(t&&t.matches&&t.matches('[data-cin],#ktext,#ctext,[data-mention]'))mentionPop(t)});
@@ -1814,7 +1978,7 @@ document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest
   const r=e.target.closest&&e.target.closest('[data-room]');if(r){e.preventDefault();openRoom(r.dataset.room)}
   const sd=e.target.closest&&e.target.closest('[data-sday]');if(sd){e.preventDefault();openSuggestDay()}},true);
 /* after a message with @mentions: offer a WhatsApp nudge (there are no phone push alerts without a server) */
-function nudgeAfter(text,where){const ms=[...mentionsIn(text)].filter(k=>k!==nkey(getMe()));if(!ms.length)return;
+function nudgeAfter(text,where){return;const ms=[...mentionsIn(text)].filter(k=>k!==nkey(getMe()));if(!ms.length)return;
   const all=ms.includes('all'),names=all?[]:ms.map(k=>first(allNames().find(n=>nkey(n)===k)||k));
   const msg=`👋 ${all?'Hi all':names.map(n=>'@'+n).join(' ')}, ${first(getMe())} mentioned you in ${S.groupName||'Shuttle Split'}${where?' ('+where+')':''}:\n\n“${text}”\n\n👉 Open the app: ${HERE}`;
   let num='';if(ms.length===1&&!all&&isOrg){const v=PROF.priv[ms[0]];if(v&&v.phone)num=waNum(v.phone)}
@@ -1829,7 +1993,7 @@ function startChat(){if(!db||CHAT.unsub)return;CHAT.unsub=col('chat').orderBy('a
   const nb=$('#chatnb');if(nb){const n=unreadChat();nb.textContent=n||'';nb.hidden=!n}},()=>{})}
 const chatSeen=()=>{try{return+localStorage.getItem('ss-chatseen'+SUF)||0}catch(e){return 0}};
 function markChatSeen(){try{localStorage.setItem('ss-chatseen'+SUF,String(Date.now()))}catch(e){}try{clubDot()}catch(e){}}
-const unreadChat=()=>{const t=chatSeen(),uid=auth&&auth.currentUser&&auth.currentUser.uid;return CHAT.list.filter(c=>c.target==='chat:group'&&(c.at||0)>t&&c.uid!==uid).length};
+const unreadChat=()=>0,unreadChat0=()=>{const t=chatSeen(),uid=auth&&auth.currentUser&&auth.currentUser.uid;return CHAT.list.filter(c=>c.target==='chat:group'&&(c.at||0)>t&&c.uid!==uid).length};
 function gameRooms(){const from=shift(todayStr(),-1),m={};
   P.list.filter(p=>!isArchived(p)).forEach(p=>(p.dates||[]).forEach(dt=>{if(dt.date>=from){(m[dt.date]=m[dt.date]||new Set());if(dt.note)m[dt.date].add(dt.note)}}));
   boardDays().forEach(d=>{if(d.date>=from){m[d.date]=m[d.date]||new Set();(d.slots||[]).forEach(s=>{})}});
@@ -1838,10 +2002,11 @@ function openRoom(room){startChat();if(!isChatT(room))room='chat:game:'+room;con
   const bg=sheetOpen(`<div class="sheet-h"><span class="ini">💬</span><div><b>Game chat · ${esc(g?g.label:dlabel(date,{weekday:'short',day:'numeric',month:'short'}))}</b><small>Running late, need a partner, who’s bringing shuttles · type @ to mention</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div>
     <div class="sub chatroom" style="padding-top:12px">${threadHTML(room,'Message everyone playing…',{chat:true})}</div>`,'Game chat');
   bindThread(bg);const l=bg.querySelector('.tlist');if(l)l.scrollTop=l.scrollHeight}
+function gameChatsCard(){const G=gameRooms();if(!G.length)return'';return`<section class="card">${cardH('chat','Game-day chats',plural(G.length,'game'))}<div class="menu">${G.map(g=>`<button class="mi" data-room="${esc(g.room)}"><span class="mico">💬</span><span class="mt"><b>${esc(g.label)}</b><small>${g.last?esc(first(g.last.name))+': '+esc(String(g.last.text).slice(0,60)):'No messages yet · running late? need a partner?'}</small></span>${g.n?`<span class="mm">${g.n}</span>`:''}${ic('right')}</button>`).join('')}</div></section>`}
 function chatHTML(){const G=gameRooms();
   return`${G.length?`<section class="card">${cardH('cal','Game-day chats',plural(G.length,'game'))}<div class="menu">${G.map(g=>`<button class="mi" data-room="${esc(g.room)}"><span class="mico">💬</span><span class="mt"><b>${esc(g.label)}</b><small>${g.last?esc(first(g.last.name))+': '+esc(String(g.last.text).slice(0,60)):'No messages yet · say who’s coming'}</small></span>${g.n?`<span class="mm">${g.n}</span>`:''}${ic('right')}</button>`).join('')}</div></section>`:''}
     <section class="card">${cardH('chat','Group chat',CHAT.list.filter(c=>c.target==='chat:group').length||null)}<div class="sub chatroom" style="padding-top:12px">${threadHTML('chat:group','Message everyone · type @ to mention',{chat:true,limit:60})}</div></section>`}
-function openChatTarget(t){if(t==='chat:group'){SUB.club='chat';go('club');setTimeout(()=>{const l=document.querySelector('#view-club .chatroom .tlist');if(l)l.scrollTop=l.scrollHeight},120)}else openRoom(t)}
+function openChatTarget(t){if(t==='chat:group'){SUB.club='feed';go('club');setTimeout(()=>{const l=document.querySelector('#view-club .chatroom .tlist');if(l)l.scrollTop=l.scrollHeight},120)}else openRoom(t)}
 /* threads (comments, kudos, chat) refresh their message list in place, so typing is never lost */
 function refreshThreads(chatOnly){document.querySelectorAll('.thread').forEach(t=>{if(chatOnly&&!isChatT(t.dataset.target))return;const l=t.querySelector('.tlist');if(!l)return;
   const atEnd=l.scrollHeight-l.scrollTop-l.clientHeight<40;l.innerHTML=threadListHTML(t.dataset.target,+t.dataset.limit||0,t.dataset.chat==='1');bindList(t);if(atEnd||t.dataset.chat==='1'&&atEnd)l.scrollTop=l.scrollHeight})}
@@ -1853,6 +2018,7 @@ const cupDet=(key,summary,body)=>`<details class="card" data-open="${key}"${CUPO
 function renderCup(){
   const v=$('#view-cup');if(!db){v.innerHTML=intro('Cup','Tournaments, stars and achievements.')+`<section class="card"><div class="empty">${ic('trophy')}Tournaments need the shared database.</div></section>`;return}
   startCup();startComments();if(CUP.sel){CUPOPEN.add('t:'+CUP.sel);CUPOPEN.add('m:'+CUP.sel);CUP.sel=null}
+  startChal();if(CHAL.list.some(c=>c.status==='open'&&inSide(c,'b',myName()))||CHAL.list.some(c=>c.status==='accepted'&&(inSide(c,'a',myName())||inSide(c,'b',myName()))))CUPOPEN.add('chal');
   const ST=playerStats(),ACTK2=new Set(activeRoster().map(nkey)),all=Object.values(ST).filter(x=>ACTK2.has(nkey(x.n))||nkey(x.n)===nkey(getMe())),stars=all.filter(x=>x.m||x.att).sort((a,b)=>b.xp-a.xp).slice(0,10),ready=all.filter(x=>x.ready),me=ST[nkey(getMe())];
   const done=CUP.list.filter(t=>cupChampion(t));
   if(!CUPINIT&&CUP.list.length){CUPINIT=true;CUP.list.filter(t=>!cupChampion(t)).forEach(t=>{CUPOPEN.add('t:'+t.id);CUPOPEN.add('m:'+t.id)})}
@@ -1863,6 +2029,7 @@ function renderCup(){
       :`<button class="pchip dim" data-pickme>Pick your name to track your progress <span>›</span></button>`}</div>
     ${canEdit()?`<button class="btn primary block" id="cupnew">${ic('plus')}New tournament</button>`:''}
     ${CUP.list.map(T=>cupDet('t:'+T.id,`<span class="dt"><b>${cupChampion(T)?'🏆 ':'🔴 '}${esc(T.name)}</b><small>${T.type==='doubles'?'Doubles':'Singles'} · ${fmtName(T.format)}${cupChampion(T)?' · 👑 '+esc(cupChampion(T)):' · '+(T.matches||[]).filter(m=>m.w&&!m.bye).length+'/'+(T.matches||[]).filter(m=>!m.bye).length+' played'}</small></span>`,cupBody(T))).join('')||`<section class="card"><div class="empty">${ic('trophy')}No tournaments yet.${canEdit()?' Start one above!':''}</div></section>`}
+    ${cupDet('chal',`<span class="dt"><b>⚔️ Challenges</b><small>${(()=>{const me=myName(),n=CHAL.list.filter(c=>c.status==='open'&&inSide(c,'b',me)).length;return n?plural(n,'challenge')+' waiting for your reply':'Call out a rival · accept and play'})()}</small></span>`,chalHTML())}
     ${cupDet('stars',`<span class="dt"><b>⭐ Star players</b><small>${CUPSTAR==='xp'?'Ranked by XP from matches, wins, titles, attendance and kudos':CUPSTAR==='m30'?'Most games in the last 30 days':'Most games, all time'}</small></span>`,
       `<div class="seg" style="margin:4px 12px 8px">${[['xp','XP'],['m30','Games · 30d'],['all','All-time']].map(([k,l])=>`<button type="button" class="${CUPSTAR===k?'on':''}" data-cstar="${k}">${l}</button>`).join('')}</div>`+
       (CUPSTAR==='xp'?stars.map((x,i)=>prow(x,i)).join('')||`<div class="empty">Play a tournament to light up the board.</div>`
@@ -2029,13 +2196,12 @@ function renderClub(){
         <span style="margin-left:auto;display:flex;gap:6px"><button class="iconbtn" data-pshare="${esc(x.id)}" aria-label="Share to Instagram, WhatsApp…">${ic('share')}</button>${own||isOrg?`<button class="iconbtn" data-pdelpost="${esc(x.id)}" aria-label="Delete">${ic('trash')}</button>`:''}</span></div>
       ${CLUBOPEN.has(x.id)?`<div class="sub" style="border-top:1px solid var(--line2);padding-top:12px">${threadHTML('post:'+x.id,'Add a comment…')}</div>`:''}</article>`};
   v.innerHTML=`${intro('Club','Photos from our games, tips to play better and kudos for each other. Everyone can post.')}
-  ${subnav('club',[['feed','Feed'],['chat','Chat',unreadChat()||''],['tips','Tips']])}
-  <div data-in="chat">${chatHTML()}</div>
+  ${subnav('club',[['feed','Feed'],['tips','Tips']])}
   <div data-in="feed">
     <section class="card"><div class="pad" style="display:grid;gap:8px">${me?'':`<p class="hint" style="margin:0">Pick your name in Payouts → My wallet to post.</p>`}
       ${perm('post')==='off'?`<p class="hint" style="margin:0">🔒 Posting is turned off by the admins.</p>`:`<div class="grid2"><button class="btn primary" data-compose="photo">${ic('camera')}Photo memory</button><button class="btn line" data-compose="tip">💡 Share a tip</button></div>
-      `}${perm('kudos')==='off'?'':`<button class="btn line block" data-cheer>👏 Cheer a player</button>`}</div></section>
-    ${kudosCard()}
+      `}${perm('post')==='off'||!me?'':`<div class="inline"><input class="txt" id="qnote" data-mention maxlength="500" placeholder="Say something to the group… type @ to mention" autocomplete="off"><button class="btn sm primary" id="qpost" style="height:44px">Post</button></div>`}</div></section>
+    ${avoCard()}
     ${posts.filter(x=>x.kind!=='tip').map(postHTML).join('')||`<section class="card"><div class="empty">${ic('camera')}No posts yet. Share a photo from the last game and make it a memory card!</div></section>`}
     ${posts.length>=CLUB.limit?`<button class="btn line block" data-more>Show older posts</button>`:''}
   </div>
@@ -2046,20 +2212,24 @@ function renderClub(){
     <section class="card">${cardH('check','Quick tips')}${TIPS.map(([t,x])=>`<div class="row"><div class="l"><b style="font-size:13px;color:var(--accent)">${esc(t)}</b><small style="color:var(--ink);font-size:14px">${esc(x)}</small></div></div>`).join('')}</section>
   </div>
   </div>`;
-  applySub(v,'club');if(SUB.club==='chat'){markChatSeen();const l=v.querySelector('.chatroom .tlist');if(l)setTimeout(()=>l.scrollTop=l.scrollHeight,30)}
+  applySub(v,'club');if(SUB.club==='chat'){SUB.club='feed';applySub(v,'club')}
   v.querySelectorAll('[data-compose]').forEach(b=>b.onclick=()=>openCompose(b.dataset.compose));
   v.querySelectorAll('[data-cheer]').forEach(b=>b.onclick=()=>openCheer(b.dataset.cheer||''));
-  v.querySelectorAll('[data-kprof]').forEach(b=>b.onclick=()=>openProfile(b.dataset.kprof));
+  v.querySelectorAll('.avo [data-prof]').forEach(b=>b.onclick=()=>openProfile(b.dataset.prof,'kudos'));
+  {const qi=$('#qnote'),qp=$('#qpost');if(qp){let busy=false;const go2=async()=>{const text=norm(qi.value);if(!text||busy)return;if(!allOk(text))return;if(CLUB.list.some(x=>nkey(x.name)===nkey(me)&&x.text===text&&Date.now()-(x.at||0)<10*60e3)){qi.value='';return toast('✋ Already posted.')}
+      busy=true;try{await ensureAnon();await col('posts').add({name:canon(me),uid:auth.currentUser.uid,text,at:Date.now(),kind:'note',likes:{}});qi.value='';closeMPop();toast('Posted 💬')}catch(e){toast(e.code==='permission-denied'?'Ask the organizer to update the app rules.':'Couldn’t post ('+(e.code||'error')+').')}busy=false};
+    qp.onclick=go2;qi.onkeydown=e=>{if(e.key==='Enter'&&!MPOP){e.preventDefault();go2()}}}}
+  v.querySelectorAll('[data-kprof]').forEach(b=>b.onclick=()=>openProfile(b.dataset.kprof,'kudos'));
   bindThread(v);v.querySelectorAll('[data-cmts]').forEach(b=>b.onclick=()=>{const id=b.dataset.cmts;CLUBOPEN.has(id)?CLUBOPEN.delete(id):CLUBOPEN.add(id);renderClub()});
   v.querySelectorAll('[data-pdelpost]').forEach(b=>b.onclick=async()=>{if(b.dataset.c!=='1'){b.dataset.c='1';b.style.color='var(--danger)';toast('Tap again to delete this post.');return}try{await col('posts').doc(b.dataset.pdelpost).delete();toast('Post deleted.')}catch(e){toast('Couldn’t delete ('+e.code+').')}});
   v.querySelectorAll('[data-pshare]').forEach(b=>b.onclick=()=>{const x=CLUB.list.find(y=>y.id===b.dataset.pshare);if(x)sharePostCard(x)});
   const mo=v.querySelector('[data-more]');if(mo)mo.onclick=()=>{CLUB.limit+=20;if(CLUB.unsub){CLUB.unsub();CLUB.unsub=null}startClub()};
 }
 /* praise lives in one place: kudos on a player's card. The Club shows the latest ones. */
-function kudosList(){return(CMT.list||[]).filter(c=>String(c.target||'').startsWith('player:')&&!c.parent).sort((a,b)=>(b.at||0)-(a.at||0))}
+function kudosList(){return(CMT.list||[]).filter(c=>String(c.target||'').startsWith('player:')&&!c.parent&&String(c.target).slice(7)!==nkey(c.name||'')).sort((a,b)=>(b.at||0)-(a.at||0))}
 function kudosCard(){const K=kudosList().slice(0,5);if(!K.length)return'';const nm=k=>allNames().find(n=>nkey(n)===k)||k;
   return`<section class="card">${cardH('chat','👏 Latest kudos',kudosList().length)}${K.map(c=>{const to=nm(String(c.target).slice(7));return`<button class="prow" style="width:100%;text-align:left" data-kprof="${esc(to)}">${ini(c.name||'?')}<span class="nm">${esc(first(c.name||''))} → ${esc(to)}<small>${mtext(c.text||'')} · ${timeAgo(c.at)}</small></span>${ic('right')}</button>`}).join('')}</section>`}
-function openCheer(to,preset){if(perm('kudos')==='off')return toast('Kudos are turned off by the admins.');const me=allNames().find(n=>nkey(n)===nkey(getMe()));if(!me){toast('Pick your name first (tap the person icon at the top).');ME.who='';go('me');return}
+function openCheer(to,preset){return openAvo({to:to?[to]:[],msg:preset||''});if(perm('kudos')==='off')return toast('Kudos are turned off by the admins.');const me=allNames().find(n=>nkey(n)===nkey(getMe()));if(!me){toast('Pick your name first (tap the person icon at the top).');ME.who='';go('me');return}
   const bg=sheetOpen(`<div class="sheet-h"><span class="ini">👏</span><div><b>Cheer a player</b><small>Kudos go on their player card · everyone can see them</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div>
     <div class="sub" style="padding-top:12px"><span class="sublbl">Who?</span><select class="txt" id="kto"><option value="">Choose a player…</option>${activeRoster().filter(n=>nkey(n)!==nkey(me)).map(n=>`<option ${nkey(n)===nkey(to)?'selected':''}>${esc(n)}</option>`).join('')}</select></div>
     <div class="sub"><span class="sublbl">Message</span><div class="emo">${EMO.map(e=>`<button type="button" data-kemo="${e}">${e}</button>`).join('')}</div><input class="txt" id="ktext" maxlength="500" placeholder="e.g. That smash in the last game! 💥" value="${esc(preset||'')}"></div>
@@ -2175,7 +2345,7 @@ async function shareCupCard(T){const ch=cupChampion(T),body=T.format==='rr'||!ch
 const actSeen=()=>{try{return+localStorage.getItem('ss-actseen'+SUF)||0}catch(e){return 0}};
 function activityItems(){const me=nkey(getMe()),uid=auth&&auth.currentUser&&auth.currentUser.uid;if(!me)return[];const out=[];
   const mineP=x=>(uid&&x.uid===uid)||nkey(x.name||'')===me,ment=x=>{const m=mentionsIn(x.text);return m.has(me)||m.has('all')};
-  (CLUB.list||[]).forEach(x=>{if(mineP(x))return;if(ment(x)){out.push({at:x.at,ic:'📣',t:first(x.name)+' mentioned you in a post',s:x.text||'',go:()=>{SUB.club=x.kind==='tip'?'tips':'feed';CLUBOPEN.add(x.id);go('club')}});return}const what=x.kind==='photo'?'shared a photo memory 📸':x.kind==='tip'?'shared a tip 💡':'posted a shout-out 👏';
+  (CLUB.list||[]).forEach(x=>{if(mineP(x))return;if(ment(x)){out.push({at:x.at,ic:'📣',t:first(x.name)+' mentioned you in a post',s:x.text||'',go:()=>{SUB.club=x.kind==='tip'?'tips':'feed';CLUBOPEN.add(x.id);go('club')}});return}const what=x.kind==='photo'?'shared a photo memory 📸':x.kind==='tip'?'shared a tip 💡':x.kind==='note'?'posted in the Feed':'posted a shout-out 👏';
     const forMe=x.kind==='shout'&&nkey(String(x.text||'').replace(/^👏\s*/,'').split(':')[0])===me;
     out.push({at:x.at,ic:forMe?'👏':x.kind==='photo'?'📸':x.kind==='tip'?'💡':'👏',t:forMe?first(x.name)+' gave you a shout-out!':first(x.name)+' '+what,s:x.text||'',go:()=>{SUB.club=x.kind==='tip'?'tips':'feed';CLUBOPEN.add(x.id);go('club')}})});
   (CMT.list||[]).forEach(c=>{if(mineP(c))return;const tgt=c.target||'';
@@ -2188,7 +2358,15 @@ function activityItems(){const me=nkey(getMe()),uid=auth&&auth.currentUser&&auth
   (CHAT.list||[]).forEach(c=>{if(mineP(c))return;const where=c.target==='chat:group'?'the group chat':'a game chat',parent=c.parent&&CHAT.list.find(y=>y.id===c.parent);
     if(ment(c))out.push({at:c.at,ic:'📣',t:first(c.name)+' mentioned you in '+where,s:c.text,go:()=>openChatTarget(c.target)});
     else if(parent&&mineP(parent))out.push({at:c.at,ic:'💬',t:first(c.name)+' replied to you in '+where,s:c.text,go:()=>openChatTarget(c.target)})});
-  {const t0=new Date(todayStr()+'T00:00').getTime();birthdaysToday().forEach(n=>{const mine=nkey(n)===me;out.push({at:t0,ic:'🎂',t:mine?'Happy birthday, '+first(n)+'! 🎉':'It’s '+first(n)+'’s birthday today',s:mine?'The whole group can wish you today':'Tap to send a wish',go:()=>mine?openProfile(n):openCheer(n,'Happy birthday '+first(n)+'! 🎂🎉')})})}
+  {const t0=new Date(todayStr()+'T00:00').getTime();occasionsToday().forEach(o=>{const mine=nkey(o.n)===me,what=o.kind==='bday'?'birthday':o.kind==='anniv'?'anniversary':o.title;
+    out.push({at:t0,ic:o.emoji,t:mine?'Happy '+what+', '+first(o.n)+'! 🎉':'It’s '+first(o.n)+'’s '+what+' today',s:mine?'The whole group can wish you today':'Tap to send a wish · everyone gets a different line',go:()=>openWish(o)})})}
+  AVO.list.forEach(g=>{if((g.toKey||nkey(g.to))===me&&nkey(g.from)!==me)out.push({at:g.at,ic:'🥑',t:first(g.from)+' gave you '+(g.amt?'🥑 '+g.amt+' Avokudos':'a wish')+(g.tag?' for '+g.tag.toLowerCase():''),s:g.msg,go:()=>openProfile(getMe(),'kudos')})});
+  {const mo=todayStr().slice(0,7);if(mIdx(mo)>=mIdx(avoStartFor(getMe())))out.push({at:new Date(mo+'-01T00:00').getTime(),ic:'🥑',t:AVO_MONTHLY+' Avokudos landed for '+dlabel(mo+'-01',{month:'long'}),s:'You have 🥑 '+avoBalance(getMe())+' to give. Thank someone for their play, kindness or leadership',go:()=>openAvo()})}
+  CHAL.list.forEach(c=>{const mineA=(c.a||[]).some(n=>nkey(n)===me),mineB=(c.b||[]).some(n=>nkey(n)===me);if(!mineA&&!mineB)return;
+    if(c.status==='open'&&mineB)return;
+    if(c.status==='accepted'&&mineA&&c.acceptedAt)out.push({at:c.acceptedAt,ic:'⚔️',t:first(c.acceptedBy||'')+' accepted your challenge! Game on',s:chalTitle(c),go:()=>openChalView(c.id)});
+    else if(c.status==='declined'&&mineA&&c.acceptedAt)out.push({at:c.acceptedAt,ic:'🙅',t:first(c.acceptedBy||'')+' declined your challenge',s:chalTitle(c),go:()=>openChalView(c.id)});
+    else if(c.status==='done'&&c.doneAt)out.push({at:c.doneAt,ic:'🏁',t:'Result: '+chalTitle(c),s:(c.score||[]).map(g=>g.a+'–'+g.b).join(', ')+' · '+((c.winner==='a'?c.a:c.b)||[]).map(first).join(' & ')+' won',go:()=>openChalView(c.id)})});
   return out.sort((a,b)=>(b.at||0)-(a.at||0)).slice(0,25)}
 const unreadActivity=()=>{const t=actSeen();return activityItems().filter(x=>(x.at||0)>t).length};
 
@@ -2375,7 +2553,7 @@ function renderTeam(){
   <section data-g="group" class="card">
     <div class="profile"><div class="gphoto">${photo?`<img src="${photo}" alt="Group photo">`:ic('users')}</div>
       <div style="display:flex;flex-direction:column;gap:8px;flex:1;min-width:0">
-        ${org?`<input class="txt" id="gnamein" value="${esc(S.groupName)}" placeholder="Group name" aria-label="Group name">
+        ${org?`<div class="inline"><input class="txt" id="gnamep" maxlength="40" value="${esc(S.groupName)}" placeholder="Group name" aria-label="Group name"><button type="button" class="btn sm primary" style="height:44px" data-act="gnamesave">Save</button></div>
         <div style="display:flex;gap:10px;align-items:center"><label class="btn sm line filebtn">${ic('camera')}${photo?'Change photo':'Add group photo'}<input type="file" accept="image/*" id="photoin"></label>${photo?`<button type="button" class="lnk danger" data-act="nophoto">Remove</button>`:''}</div>`:`${perm('name')!=='off'?`<div class="inline"><input class="txt" id="gnamep" maxlength="40" value="${esc(S.groupName||'Badminton Family')}" aria-label="Group name"><button type="button" class="btn sm primary" style="height:44px" data-act="gnamesave">${perm('name')==='allow'?'Save':'Suggest'}</button></div>`:`<b style="font-size:18px">${esc(S.groupName||'Badminton Family')}</b>`}
         ${perm('photo')!=='off'?`<label class="btn sm line filebtn" style="align-self:flex-start">${ic('camera')}${perm('photo')==='allow'?(photo?'Change photo':'Add group photo'):'Suggest a photo'}<input type="file" accept="image/*" id="photoinp"></label>`:''}
         <span class="hint">${plural(act.length,'player')}${S.upiId?' · UPI '+esc(S.upiId):''}${perm('name')==='ask'||perm('photo')==='ask'||perm('theme')==='ask'?' · changes go to the admins for approval':''}</span>`}
@@ -2631,6 +2809,7 @@ function bindTeam(){
   const v=$('#view-team');
   v.addEventListener('click',async e=>{
     if(e.target.closest('[data-signin]')){userEmail()?auth.signOut():signIn();return}
+    const ep=e.target.closest('[data-editprof]');if(ep){openEditProfile(ep.dataset.editprof);return}
     const pm=e.target.closest('[data-perm]');if(pm){if(!isOrg)return;const[k,m]=pm.dataset.perm.split(':');S.perms={...(S.perms||{}),[k]:m};saveConfig();renderTeam();toast(PERMS.find(x=>x[0]===k)[2]+': '+PMODE[m]);return}
     const sw=e.target.closest('[data-skin]');if(sw&&!sw.disabled){if(db&&!isOrg){const k=sw.dataset.skin;if(k===S.skin)return;if(await playerAction('theme',k)&&perm('theme')==='allow'){S.skin=k;applySkin();renderTeam()}return}S.skin=sw.dataset.skin;applySkin();saveConfig();renderTeam();return}
     const mg=e.target.closest('[data-manage]');if(mg){openManage(mg.dataset.manage);return}
@@ -2658,7 +2837,8 @@ function bindTeam(){
     else if(a==='suggest')openSuggest();
     else if(a==='contactsxl')exportContacts();
     else if(a==='actions')openActions();
-    else if(a==='gnamesave'){const v=norm(($('#gnamep')||{}).value||'');if(!v||v.length>40)return toast('Group name: 1 to 40 characters.');if(v===S.groupName)return toast('That’s already the name.');if(await playerAction('name',v)&&perm('name')==='allow'){S.groupName=v;renderHeader();renderTeam()}}
+    else if(a==='gnamesave'){const v=norm(($('#gnamep')||{}).value||'');if(!v||v.length>40)return toast('Group name: 1 to 40 characters.');if(v===S.groupName)return toast('That’s already the name.');
+      if(isOrg||!db){S.groupName=v;saveConfig();renderHeader();renderTeam();toast('Group renamed to “'+v+'” for everyone ✅');return}if(await playerAction('name',v)&&perm('name')==='allow'){S.groupName=v;renderHeader();renderTeam()}}
   });
   v.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-preset]');if(!b)return;if(b.dataset.c!=='1'){b.dataset.c='1';toast('Tap 🔒 again to let '+first(b.dataset.preset)+' edit from a new phone.');return}resetProfileLink(b.dataset.preset)});
   v.addEventListener('input',e=>{const id=e.target.id;
@@ -2713,7 +2893,7 @@ function closeText(ms){const d=new Date(ms),ds=todayStr(),dd=ymd(d);const tm=d.t
   return(dd===ds?'today':dd===shift(ds,1)?'tomorrow':d.toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'short'}))+' at '+tm}
 function tally(poll,votes){
   const voters=latestByName(votes),per=Math.max(1,+poll.perCourt||6);
-  const res=(poll.dates||[]).map(dt=>{const yes=[],maybe=[],no=[];voters.forEach(v=>{const a=(v.answers||{})[dt.date];const vn=canon(v.name);if(a==='yes')yes.push(vn);else if(a==='maybe')maybe.push(vn);else if(a==='no')no.push(vn)});
+  const res=(poll.dates||[]).map(dt=>{const yes=[],maybe=[],no=[];voters.forEach(v=>{const a=(v.answers||{})[dt.date];const vn=canon(v.name);if(a==='yes')yes.push(vn);else if(a==='maybe'){}else if(a==='no')no.push(vn)});
     return{...dt,yes:orderNames(yes),maybe:orderNames(maybe),no:orderNames(no),courts:yes.length?Math.ceil(yes.length/per):0,courtsMax:(yes.length+maybe.length)?Math.ceil((yes.length+maybe.length)/per):0}});
   const replied=new Set(voters.map(v=>nkey(v.name)));
   return{voters,res,pending:activeRoster().filter(n=>!replied.has(nkey(n))),per};
@@ -2721,7 +2901,7 @@ function tally(poll,votes){
 function msgPoll(p,k){return fillTpl(tplOf(k||'start'),pollVars(p).v)}
 function msgReminder(p,t){return fillTpl(tplOf('remind'),pollVars(p).v)}
 function msgReminderOld(p,t){return['⏰ *'+p.title+'*','Still waiting for: '+t.pending.join(', ')+(p.closesAt&&!isClosed(p)?'\nPoll closes '+closeText(p.closesAt)+'. No vote = No game!':''),'','Vote here 👉 '+pollLink(p.id)].join('\n')}
-function msgResults(p,t){const L=['📋 *'+p.title+' — results*',''];t.res.forEach(r=>{L.push('*'+waOpt(r)+'*');L.push('✅ '+r.yes.length+(r.yes.length?': '+r.yes.join(', '):''));if(r.maybe.length)L.push('🤔 '+r.maybe.length+': '+r.maybe.join(', '));L.push('🏸 Courts: '+(r.courts||'none')+(r.courtsMax>r.courts?' (up to '+r.courtsMax+' if maybes come)':''));L.push('')});if(t.pending.length)L.push('No vote: '+t.pending.join(', '));return L.join('\n').trim()}
+function msgResults(p,t){const L=['📋 *'+p.title+' — results*',''];t.res.forEach(r=>{L.push('*'+waOpt(r)+'*');L.push('✅ '+r.yes.length+(r.yes.length?': '+r.yes.join(', '):''));if(false)L.push('🤔 '+r.maybe.length+': '+r.maybe.join(', '));L.push('🏸 Courts: '+(r.courts||'none')+(r.courtsMax>r.courts?' (up to '+r.courtsMax+' if maybes come)':''));L.push('')});if(t.pending.length)L.push('No vote: '+t.pending.join(', '));return L.join('\n').trim()}
 function msgOptions(p){const o=p.dates.map((dt,i)=>(i+1)+'. '+waOpt(dt));if(p.dates.length===2)o.push('3. Both 1&2');o.push((o.length+1)+'. Not available');return['🏸 '+p.title,'',...o].join('\n')}
 
 /* "5-7 PM" → 2, "6:30-8:30" → 2, "11-1" → 2 */
@@ -2741,7 +2921,7 @@ function recapHTML(p,title){
   const t=tally(p,votes);
   return`<section class="card">${cardH('cal',title,esc((p.dates||[]).map(dt=>dlabel(dt.date,{day:'numeric',month:'short'})).join(' · ')))}
     ${t.res.map(r=>{const d=S.days[r.date],c=d&&d.present&&d.present.length?calc(getDay(r.date)):null;
-      return`<div class="row"><div class="l"><b>${esc(waOpt(r))}</b><small>${r.yes.length} voted yes${r.maybe.length?' · '+r.maybe.length+' maybe':''}${c?' · '+c.n+' played · '+fmtH(getDay(r.date).hours)+' h':' · not billed yet'}</small></div><span class="v">${c?inr(c.collected):'–'}</span></div>`}).join('')}
+      return`<div class="row"><div class="l"><b>${esc(waOpt(r))}</b><small>${r.yes.length} voted yes${c?' · '+c.n+' played · '+fmtH(getDay(r.date).hours)+' h':' · not billed yet'}</small></div><span class="v">${c?inr(c.collected):'–'}</span></div>`}).join('')}
     <div class="card-f"><p class="hint">${isClosed(p)?'Voting closed.':'Voting still open.'} ${t.voters.length} of ${activeRoster().length} players voted.</p></div></section>`;
 }
 /* when voting closes, pre-fill "Who played" with everyone who voted yes, so billing starts from the poll */
@@ -2932,6 +3112,7 @@ function renderPolls(){
   ${kpis([['Open polls',open.length],['Recent',live.length],['Next game',open.length&&open[0].dates&&open[0].dates[0]?esc(dlabel(open[0].dates[0].date,{weekday:'short',day:'numeric'})):'–',true]])}
   <div data-in="list">
   ${boardCard()}
+  ${(startChat(),gameChatsCard())}
   <section class="card cta"><div class="pad"><h2>Who’s playing this weekend?</h2><p>Pick dates and time slots, send to WhatsApp, track votes live.</p>
     ${!isOrg&&db&&perm('poll')==='ask'?`<button class="btn block" data-sday>🗓️ Suggest a game day</button><button class="lnk" data-act="newpoll" style="color:#fff;margin-top:8px">${ic('lock')}Organizer? Sign in to create a poll</button>`:`<button class="btn block" data-act="newpoll">${ic(isOrg?'plus':'lock')}${isOrg?'Create a poll':'Sign in to create a poll'}</button>`}</div></section>
   ${latestDone?recapHTML(latestDone,'Latest results'):''}
@@ -3008,15 +3189,15 @@ function renderPollDetail(v){
       ${S.openNames===false?'<p class="hint">Not on the list? Ask the organizer to add you.</p>':''}
       <input class="txt" type="text" id="vother" placeholder="Type your name" value="${P.myName&&!known?esc(P.myName):''}" ${P.myName&&!known?'':'hidden'}>
       <p class="warn" id="vwarn" hidden></p></div>
-    ${p.dates.map(dt=>`<div class="row" style="flex-direction:column;align-items:stretch;gap:8px"><b>${esc(waOpt(dt))}</b><div class="vote">${['yes|Yes','maybe|Maybe','no|No'].map(s=>{const[val,l]=s.split('|');return`<button type="button" class="${P.myAns[dt.date]===val?'on':''}" data-ans="${dt.date}|${val}">${l}</button>`}).join('')}</div>${dt.date>=shift(todayStr(),-1)?`<button type="button" class="lnk" data-room="chat:game:${dt.date}" style="align-self:flex-start">💬 Game chat${(()=>{const n=CHAT.list.filter(c=>c.target==='chat:game:'+dt.date).length;return n?' · '+n:''})()}</button>`:''}</div>`).join('')}
+    ${p.dates.map(dt=>`<div class="row" style="flex-direction:column;align-items:stretch;gap:8px"><b>${esc(waOpt(dt))}</b><div class="vote">${['yes|Yes','no|No'].map(s=>{const[val,l]=s.split('|');return`<button type="button" class="${P.myAns[dt.date]===val?'on':''}" data-ans="${dt.date}|${val}">${l}</button>`}).join('')}</div>${dt.date>=shift(todayStr(),-1)?`<button type="button" class="lnk" data-room="chat:game:${dt.date}" style="align-self:flex-start">💬 Game chat${(()=>{const n=CHAT.list.filter(c=>c.target==='chat:game:'+dt.date).length;return n?' · '+n:''})()}</button>`:''}</div>`).join('')}
     <div class="card-f" style="display:grid;gap:8px"><button type="button" class="btn line block" id="cantmake">Not available on any of these</button>${p.dates.some(dt=>P.myAns[dt.date]==='yes')?`<button type="button" class="btn line block" id="vcal">${ic('cal')}Add my games to calendar</button>`:''}</div></section>`}
   ${isOrg?'':sendCardHTML}
   <section class="card">${cardH('poll','Results',t.per+' per court')}
     ${t.res.map(r=>`<div class="row" style="flex-direction:column;align-items:stretch;gap:8px">
       <div style="display:flex;justify-content:space-between;gap:8px;align-items:center"><b>${esc(waOpt(r))}</b><span class="badge solid">${r.courts?plural(r.courts,'court'):'No courts'}</span></div>
-      <small class="hint">${r.yes.length} yes · ${r.maybe.length} maybe · ${r.no.length} no${r.courtsMax>r.courts?' · up to '+plural(r.courtsMax,'court')+' if maybes come':''}</small>
-      ${r.yes.length||r.maybe.length?`<div class="names">${r.yes.map(n=>`<span class="nm-chip">${av(n)}${esc(n)}</span>`).join('')}${r.maybe.map(n=>`<span class="nm-chip maybe">${av(n)}${esc(n)}?</span>`).join('')}</div>`:''}</div>`).join('')}
-    <div class="row"><div class="l"><b>No vote yet</b><small>${t.pending.length?t.pending.map(esc).join(', '):'Everyone has voted'}</small></div></div>
+      ${(()=>{const done=new Set([...r.yes,...r.no].map(nkey)),wait=activeRoster().filter(n=>!done.has(nkey(n)));
+        const grp=(cls,lbl,L)=>L.length?`<div class="vgrp ${cls}"><span class="vlbl">${lbl} · ${L.length}</span><div class="names">${L.map(n=>`<span class="nm-chip ${cls}">${av(n)}${esc(n)}</span>`).join('')}</div></div>`:'';
+        return grp('yes','✅ Yes',r.yes)+grp('no','❌ No',r.no)+grp('wait','⏳ Not voted yet',wait)||'<small class="hint">No votes yet</small>'})()}</div>`).join('')}
     <div class="card-f" style="display:grid;grid-template-columns:${t.pending.length&&!closed?'1fr 1fr':'1fr'}">${t.pending.length&&!closed?`<a class="btn line" href="${waHref(msgReminder(p,t))}" target="_blank" rel="noopener">${ic('bell')}Remind</a>`:''}<a class="btn wa" href="${waHref(msgResults(p,t))}" target="_blank" rel="noopener">${ic('chat')}Post results</a></div>
   </section>
   ${isOrg?orgGrid(p,t)+`<section class="card">${cardH('gear','Manage poll')}
@@ -3141,7 +3322,7 @@ if('serviceWorker' in navigator)window.addEventListener('load',()=>{const had=!!
     if(!s.metadata.fromCache)CFG_READY=true;
     if(!s.exists&&!s.metadata.fromCache){cfgMissing=true;if(isOrg){cfgMissing=false;saveConfig()}}
     if(s.exists&&!s.metadata.hasPendingWrites)CFG_CLOUD=JSON.parse(JSON.stringify(s.data()));
-    if(s.exists){const d=s.data();if(Array.isArray(d.roster))S.roster=[...d.roster];S.rate=+d.rate||300;S.groupName=d.groupName||'';S.upiId=d.upiId||'';S.upiName=d.upiName||'';S.levels=d.levels&&typeof d.levels==='object'?d.levels:{};S.admins=Array.isArray(d.admins)?d.admins:[];S.inactive=Array.isArray(d.inactive)?d.inactive:[];S.ignored=Array.isArray(d.ignored)?d.ignored:[];S.openNames=d.openNames!==false;S.idleWeeks=d.idleWeeks==null?4:+d.idleWeeks;S.since=d.since||{};S.autoOff=d.autoOff||{};S.billed=Array.isArray(d.billed)?d.billed:[];S.msg=d.msg||null;S.sent=d.sent||{};S.board=d.board&&typeof d.board==='object'?d.board:null;S.dupOk=Array.isArray(d.dupOk)?d.dupOk:[];S.model=d.model==='pre'?'pre':'post';S.load=+d.load||1000;S.low=d.low==null?200:+d.low;S.perms=d.perms&&typeof d.perms==='object'?d.perms:{};setTimeout(autoInactive,0);S.skin=SKINS[d.skin]?d.skin:'court';applySkin();saveLocal();if(GID)rememberGroup();if(computeOrg())renderTab(true)}
+    if(s.exists){const d=s.data();if(Array.isArray(d.roster))S.roster=[...d.roster];S.rate=+d.rate||300;S.groupName=d.groupName||'';S.upiId=d.upiId||'';S.upiName=d.upiName||'';S.levels=d.levels&&typeof d.levels==='object'?d.levels:{};S.admins=Array.isArray(d.admins)?d.admins:[];S.inactive=Array.isArray(d.inactive)?d.inactive:[];S.ignored=Array.isArray(d.ignored)?d.ignored:[];S.openNames=d.openNames!==false;S.idleWeeks=d.idleWeeks==null?4:+d.idleWeeks;S.since=d.since||{};S.autoOff=d.autoOff||{};S.billed=Array.isArray(d.billed)?d.billed:[];S.msg=d.msg||null;S.sent=d.sent||{};S.board=d.board&&typeof d.board==='object'?d.board:null;S.dupOk=Array.isArray(d.dupOk)?d.dupOk:[];S.model=d.model==='pre'?'pre':'post';S.load=+d.load||1000;S.low=d.low==null?200:+d.low;S.perms=d.perms&&typeof d.perms==='object'?d.perms:{};setTimeout(autoInactive,0);S.skin=SKINS[d.skin]?d.skin:'court';applySkin();saveLocal();if(GID)rememberGroup();renderHeader();if(computeOrg()&&!typingIn('#view-'+tab)&&!$('#whosheet'))renderTab(true)}
     renderTab(false)},e=>toast('Couldn’t load shared data ('+e.code+').'));
   fsDoc('config/photo').onSnapshot(s=>{if(busy('config/photo'))return;photo=s.exists?(s.data().data||''):'';try{photo?localStorage.setItem(LSP,photo):localStorage.removeItem(LSP)}catch(e){}renderHeader();if(tab==='team'&&!typingIn('#view-team'))renderTeam()},()=>{});
   col('days').onSnapshot(q=>{
@@ -3152,7 +3333,7 @@ if('serviceWorker' in navigator)window.addEventListener('load',()=>{const had=!!
   payCol().onSnapshot(q=>{PAYS=q.docs.map(d=>({id:d.id,...d.data()}));if(!typingIn('#view-day')&&!typingIn('#view-team')&&!typingIn('#view-me'))renderTab(false);else STALE=true},()=>{});
   document.addEventListener('focusout',()=>setTimeout(()=>{if(STALE&&!typingIn('#view-'+tab)){STALE=false;renderTab(false)}},120));
   document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){renderTab(false);syncUI()}});
-  startPollsListener();startProfiles();routeHash();setTimeout(()=>{startClub();startComments();startChat()},tab==='club'||tab==='cup'?0:1200);setTimeout(startRequests,1200);setTimeout(takeShared,1600);window.addEventListener('hashchange',routeHash);
+  startPollsListener();startProfiles();routeHash();setTimeout(()=>{startClub();startComments();startChat();startAvo();startOcc();startChal()},tab==='club'||tab==='cup'?0:1200);setTimeout(startRequests,1200);setTimeout(takeShared,1600);window.addEventListener('hashchange',routeHash);
   setTimeout(()=>pingSeen(false),1500);startUse();
 })();
 })();
