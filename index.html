@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <title>Shuttle Split</title>
 <meta name="theme-color" content="#FFFFFF">
 <link rel="manifest" href="manifest.webmanifest">
@@ -358,6 +358,17 @@ details.poster:not([open]) .card-h{border-bottom:0}
 .ini.av-lg{width:72px;height:72px;font-size:22px}.ini.av-lg img{width:100%;height:100%;object-fit:cover}
 .fld{display:grid;gap:4px;margin:8px 0}.fld>span{font-size:12.5px;font-weight:700;color:var(--muted)}textarea.txt{height:auto;padding-top:10px;padding-bottom:10px;resize:vertical;font:inherit}
 .chipbtn{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:6px 12px;font:inherit;font-size:13px;font-weight:700;cursor:pointer}.chipbtn.on{background:var(--accent);border-color:var(--accent);color:#fff}
+html,body,button,a,input,select,textarea,label{touch-action:manipulation}
+.mic{flex:none;width:44px;height:44px;border-radius:var(--rs);border:1px solid var(--line);background:var(--surface);font-size:18px;display:grid;place-items:center;cursor:pointer}.mic.on{background:#FEE4E2;border-color:#F04438;animation:micp 1s infinite}.micwrap{position:relative}.micwrap>.mic{position:absolute;right:8px;bottom:8px;width:36px;height:36px}
+@keyframes micp{50%{box-shadow:0 0 0 6px rgba(240,68,56,.15)}}
+.lbwrap{overflow-x:auto;margin:0 0 4px;-webkit-overflow-scrolling:touch}.lboard{border-collapse:separate;border-spacing:0;font-size:13.5px;min-width:100%;white-space:nowrap}
+.lboard th,.lboard td{padding:9px 8px;text-align:center;border-bottom:1px solid var(--line2);background:var(--surface)}.lboard th{font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.3px;position:sticky;top:0;z-index:1}
+.lboard th button{border:0;background:none;font:inherit;color:inherit;text-transform:inherit;cursor:pointer;padding:0}.lboard th button.on{color:var(--accent)}.lboard td.on{background:var(--soft);font-weight:800}
+.lboard .stk{position:sticky;left:0;z-index:2;width:34px;font-weight:800}.lboard .stk2{position:sticky;left:34px;z-index:2;text-align:left;box-shadow:6px 0 6px -6px rgba(16,24,40,.18)}
+.lboard .stk2 button{display:flex;align-items:center;gap:8px;border:0;background:none;font:inherit;font-weight:700;color:var(--ink);cursor:pointer;padding:0}.lboard .stk2 .ini{width:28px;height:28px;font-size:10.5px}
+.lboard tr.me td{background:#F0F9FF}.lboard td.form i{display:inline-grid;place-items:center;width:18px;height:18px;border-radius:5px;font-size:10px;font-weight:900;font-style:normal;margin:0 1px;color:#fff}.lboard td.form i.W{background:#12B76A}.lboard td.form i.L{background:#F04438}
+.reqx{display:grid;gap:8px;margin:8px 0 2px;padding:10px;border-radius:12px;background:var(--field)}
+.feedmini{cursor:pointer}.feedmini .ph{align-items:center}
 .mav{width:20px;height:20px;border-radius:50%;background:var(--soft);color:var(--accent);display:inline-grid;place-items:center;font-size:8.5px;font-weight:800;overflow:hidden;flex:none;vertical-align:middle;box-shadow:0 0 0 1.5px var(--surface)}.mav img{width:100%;height:100%;object-fit:cover}
 .pnm{display:inline-flex;align-items:center;gap:6px;min-width:0;max-width:100%}.pnm .wn{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.avs{display:inline-flex;flex:none}.avs .mav+.mav{margin-left:-6px}
 .avs.lg .ini+.ini{margin-left:-10px;box-shadow:0 0 0 2px var(--surface)}
@@ -476,7 +487,7 @@ const FIREBASE_CONFIG = {
 /* Collections get this prefix so they never clash with the league app's data */
 const COLLECTION_PREFIX = "shuttleSplit_";
 /* App version shown in Team → About */
-const APP_VERSION = "3.0.0", APP_BUILD = "3 Nov 2026";
+const APP_VERSION = "3.2.0", APP_BUILD = "3 Nov 2026";
 /* Owner of the main group (the link without ?g=) */
 const LEGACY_OWNER = "pavankaki.cool@gmail.com";
 /* Starting player list, used only until the first save */
@@ -583,20 +594,26 @@ const getDay=date=>S.days[date]?normDay(S.days[date],date):blankDay(date);
 function shuttleMembers(){if(!db||!isOrg||!PDATA.at)return activeRoster();try{return adoption().rows.filter(r=>r.stage>=2).map(r=>r.n)}catch(e){return activeRoster()}}
 function spentOf(c,name){const k=nkey(name),key=Object.keys(c.spent||{}).find(x=>nkey(x)===k);return key?c.spent[key]:null}
 function perOf(c,name){const k=nkey(name);const key=Object.keys(c.per).find(x=>nkey(x)===k);return key?c.per[key]:null}
+/* winners play free on the day they win (challenge with the free-game prize, or a tournament champion when the organizer turns it on).
+   Their share is split evenly among everyone else who played that day. */
+function freeWinners(date){const out=new Set();if(!date)return out;
+  try{CHAL.list.forEach(c=>{if(c.status==='done'&&c.prize==='free'&&c.winner&&(c.date||ymd(new Date(c.doneAt||0)))===date)(c[c.winner]||[]).forEach(n=>out.add(nkey(n)))})}catch(e){}
+  try{CUP.list.forEach(T=>{if(T.prize&&T.prize.free&&T.prize.date===date){const ch=cupChampion(T);if(ch){const e=(T.entries||[]).find(x=>x.name===ch);(e&&e.players&&e.players.length?e.players:[ch]).forEach(n=>out.add(nkey(n)))}}})}catch(e){}return out}
 function calc(d){
   const n=d.present.length, court=(+d.hours||0)*(+d.rate||0);
+  const fw=freeWinners(d.date),freeP=d.present.filter(p=>fw.has(nkey(p))&&!(d.freeOff||[]).includes(nkey(p))),free=freeP.length&&freeP.length<n?freeP:[],isFree=p=>free.some(x=>nkey(x)===nkey(p)),payN=n-free.length;
   const pool=d.shuttleAll?uniq([...d.present,...(d.shuttleGroup||shuttleMembers())]):d.present;
-  const shS=pool.filter(p=>!d.shuttleSkip.some(x=>nkey(x)===nkey(p)));
-  const drS=d.drinksOn?d.present.filter(p=>!d.drinksSkip.includes(p)):[];
+  const shS=pool.filter(p=>!d.shuttleSkip.some(x=>nkey(x)===nkey(p))&&!isFree(p));
+  const drS=d.drinksOn?d.present.filter(p=>!d.drinksSkip.includes(p)&&!isFree(p)):[];
   const shuttle=+d.shuttle||0, drinks=d.drinksOn?(+d.drinks||0):0;
-  const cEach=n?Math.ceil(court/n):0, sEach=shS.length&&shuttle?Math.ceil(shuttle/shS.length):0, dEach=drS.length&&drinks?Math.ceil(drinks/drS.length):0;
-  const per={};d.present.forEach(p=>{const o={court:cEach,shuttle:shS.includes(p)?sEach:0,drinks:drS.includes(p)?dEach:0,played:true};o.total=o.court+o.shuttle+o.drinks;per[p]=o});
+  const cEach=payN?Math.ceil(court/payN):0, sEach=shS.length&&shuttle?Math.ceil(shuttle/shS.length):0, dEach=drS.length&&drinks?Math.ceil(drinks/drS.length):0;
+  const per={};d.present.forEach(p=>{const fr=isFree(p),o={court:fr?0:cEach,shuttle:shS.includes(p)?sEach:0,drinks:drS.includes(p)?dEach:0,played:true,free:fr};o.total=o.court+o.shuttle+o.drinks;per[p]=o});
   if(sEach)shS.forEach(p=>{if(!d.present.some(x=>nkey(x)===nkey(p)))per[p]={court:0,shuttle:sEach,drinks:0,total:sEach,played:false}});
   const actual=court+shuttle+drinks, collected=Object.values(per).reduce((a,b)=>a+b.total,0);
   /* money players paid out of pocket for this day (court, shuttles, drinks & others) */
   const spent={},addS=(n,a,what)=>{if(!n||!(a>0))return;const k=canon(n);spent[k]=spent[k]||{amt:0,what:[]};spent[k].amt=r2(spent[k].amt+a);spent[k].what.push(what+' '+inr(a))};
   addS(d.paidBy.court,court,'court');addS(d.paidBy.shuttle,shuttle,'shuttles');if(d.drinksOn)(d.items||[]).forEach(i=>addS(i.by,i.amt,(i.what||'item').toLowerCase()));
-  return{n,court,shuttle,drinks,cEach,sEach,dEach,shN:shS.length,drN:drS.length,per,actual,collected,spent};
+  return{n,court,shuttle,drinks,cEach,sEach,dEach,shN:shS.length,drN:drS.length,per,actual,collected,spent,free};
 }
 /* ---------- player levels + who is using this phone ---------- */
 const LEVELS=[['beginner','Beginner','#12B76A'],['intermediate','Intermediate','#2E90FA'],['advanced','Advanced','#F79009'],['pro','Pro','#7A5AF8']];
@@ -815,7 +832,7 @@ function openDupes(){const dp=dupPairs();const src=x=>(x.by==='player'?'sent fro
       ${[a,b].map((x,i)=>`<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding-top:8px"><small class="hint" style="margin:0;flex:1;min-width:0">${i+1}. ${esc(dlabel(ymd(new Date(x.at||0)),{day:'numeric',month:'short'}))} ${hm(x.at)} · ${esc(src(x))}</small><button class="lnk danger" data-dupdel="${esc(x.id)}" style="white-space:nowrap">Remove</button></div>`).join('')}</div>`).join('')||`<div class="empty">${ic('check')}Nothing repeated.</div>`}`,'Check repeated payments');
   bg.querySelectorAll('[data-dupdel]').forEach(b=>b.onclick=async()=>{if(b.dataset.c!=='1'){b.dataset.c='1';b.textContent='Tap to confirm';return}b.disabled=true;await setPayStatus(b.dataset.dupdel,'delete');toast('Removed. Balance corrected.');setTimeout(openDupes,400)});
   bg.querySelectorAll('[data-dupok]').forEach(b=>b.onclick=()=>{S.dupOk=[...(S.dupOk||[]),b.dataset.dupok];saveConfig();toast('Kept both.');setTimeout(openDupes,200)})}
-function openTodo(toRem){startClub();startComments();startChat();startAvo();startOcc();startChal();const it=todoItems(),mt=myTasks().filter(x=>!x.done),n=it.length+mt.filter(x=>!x.opt).length;
+function openTodo(toRem){startMyReq();startClub();startComments();startChat();startAvo();startOcc();startChal();const it=todoItems(),mt=myTasks().filter(x=>!x.done),n=it.length+mt.filter(x=>!x.opt).length;
   const ua=unreadActivity();const bg=sheetOpen(`<div class="sheet-h"><span class="ini">${ic('bell')}</span><div><b>To do & activity</b><small>${n?plural(n,'thing')+' waiting on you':'All caught up 🎉'}${ua?' · '+ua+' new':''}</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div>
     ${it.length?`<span class="sublbl" style="margin:8px 16px 0">For the group (organizer)</span><div class="menu">${it.map((x,i)=>`<button class="mi" data-todo="${i}"><span class="mico">${ic(x[0])}</span><span class="mt"><b>${esc(x[1])}</b><small>${esc(x[2])}</small></span>${ic('right')}</button>`).join('')}</div>`:''}
     ${isOrg&&db?`<div style="margin:8px 12px 0">${remindersCard()}</div>`:''}
@@ -948,7 +965,9 @@ function refreshDay(){
   const sc=$('#splitcard');
   if(!c.n){sc.innerHTML=cardH('wallet','Split')+`<div class="empty">${ic('users')}Tick who played to see each person’s share.</div>`;return}
   sc.innerHTML=cardH('wallet','Split',plural(c.n,'player'))+`<div class="split">${orderNames(d.present).map(p=>{const o=c.per[p],parts=['Court '+inr(o.court)];if(o.shuttle)parts.push('Shuttle '+inr(o.shuttle));if(o.drinks)parts.push('Drinks & others '+inr(o.drinks));const sp=spentOf(c,p),net=sp?r2(o.total-sp.amt):null;
+      if(o.free)return`<div class="prow">${ini(p)}<span class="nm">${esc(p)} <span class="avochip">🏆 Plays free</span><small>Won today · share split among the others${canEdit()?` · <button class="lnk" data-unfree="${esc(nkey(p))}">Charge anyway</button>`:''}</small></span><span class="am">₹0</span></div>`;
       return`<div class="prow">${ini(p)}<span class="nm">${esc(p)}<small>${parts.join(' · ')}${sp?`<br><b style="color:var(--ok)">Paid ${esc(sp.what.join(', '))} → ${net<0?'+'+inr(-net)+' to wallet':'pays '+inr(net)}</b>`:''}</small></span><span class="am">${inr(o.total)}</span></div>`}).join('')}</div>
+    ${(d.freeOff||[]).length&&canEdit()?`<div class="card-f"><button class="lnk" data-refree>Let today’s winners play free again</button></div>`:''}
     ${Object.keys(c.spent).filter(n=>!perOf(c,n)).map(n=>`<div class="prow">${ini(n)}<span class="nm">${esc(n)}<small><b style="color:var(--ok)">Paid ${esc(c.spent[n].what.join(', '))} · didn’t play → +${inr(c.spent[n].amt)} to wallet</b></small></span><span class="am">₹0</span></div>`).join('')}
     ${(()=>{const ex=Object.keys(c.per).filter(k=>!c.per[k].played);return ex.length?`<details class="inact"><summary>${plural(ex.length,'member')} who didn’t play · shuttle share ${inr(c.sEach)} each</summary><div class="split">${orderNames(ex).map(p=>`<div class="prow">${ini(p)}<span class="nm">${esc(p)}<small>Shuttle ${inr(c.sEach)}</small></span><span class="am">${inr(c.per[p].total)}</span></div>`).join('')}</div></details>`:''})()}
     <div class="tot"><span>To collect${c.collected>c.actual?` <small style="font-weight:600;color:var(--muted)">(cost ${inr(c.actual)}, rounded up)</small>`:''}</span><b>${inr(c.collected)}</b></div>
@@ -1522,7 +1541,7 @@ function checkMoments(){const now=momentSnap();if(!MOMENT_BASE){MOMENT_BASE=now;
     if(gain<=0&&!nb.length)return;const who=k===me?'You':first(x.n),st=playerStats()[k];
     msgs.push({mine:k===me,t:'🎉 '+who+(gain>0?' +'+gain+' XP':'')+(nb.length?' · '+nb.join(', ')+' unlocked':'')+(x.ready&&!p.ready?' · 🚀 ready for '+st.next.to+'!':st&&st.next&&!x.ready?' · '+st.next.pct+'% to '+st.next.to:'')})});
   MOMENT_BASE=now;if(!msgs.length)return;msgs.sort((a,b)=>b.mine-a.mine);showMoment(msgs.slice(0,2).map(m=>m.t).join('\n'))}
-function startCup(){if(!db||CUP.unsub)return;CUP.unsub=col('tournaments').orderBy('createdAt','desc').limit(30).onSnapshot(q=>{CUP.list=q.docs.map(d=>({id:d.id,...d.data()}));if(tab==='cup'&&!typingIn('#view-cup'))renderCup();if(CMT.redraw&&$('#whosheet'))CMT.redraw()},()=>{})}
+function startCup(){if(!db||CUP.unsub)return;CUP.unsub=col('tournaments').orderBy('createdAt','desc').limit(30).onSnapshot(q=>{CUP.list=q.docs.map(d=>({id:d.id,...d.data()}));if(tab==='cup'&&!typingIn('#view-cup'))renderCup();else if(!$('#whosheet')&&!typingIn('#view-'+tab))renderTab(false);if(CMT.redraw&&$('#whosheet'))CMT.redraw()},()=>{})}
 const lvlRank=n=>{const l=levelOf(n);return l?LEVELS.findIndex(x=>x[0]===l[0]):1.5};
 const ename=(T,id)=>{const e=(T.entries||[]).find(x=>x.id===id);return e?e.name:id==null?'Awaiting winner':'—'};
 const entNames=(T,id)=>{const e=(T.entries||[]).find(x=>x.id===id);return e&&e.players&&e.players.length?e.players:[]};
@@ -1625,16 +1644,33 @@ function avoCard(){const me=myName(),mo=todayStr().slice(0,7),B=avoBoard(mo).sli
     ${me&&perm('kudos')!=='off'?`<div class="pad" style="padding-bottom:4px"><button class="btn primary block" data-avo>🥑 Give Avokudos</button><p class="hint" style="margin:6px 0 0">Everyone gets 🥑 ${AVO_MONTHLY} on the 1st of each month to give. Unused ones carry forward.</p></div>`:''}
     ${B.length?`<span class="sublbl" style="margin:10px 16px 0">Top this month</span>${B.map((r,i)=>avoRow(r,i)).join('')}`:`<div class="empty" style="padding:14px">No Avokudos yet this month. Be the first to appreciate someone 🥑</div>`}
     ${H.length?`<span class="sublbl" style="margin:6px 16px 0">Highlights</span>${H.map(avoQuote).join('')}`:''}
-    <div class="card-f"><button class="lnk" data-avoboard>Leaderboard & highlights ›</button></div></section>`}
+    <div class="card-f"><button class="lnk" data-avoboard>🏅 Full leaderboard ›</button></div></section>`}
+function feedItems(posts){startAvo();const L=posts.filter(x=>x.kind!=='tip').map(x=>({t:'p',at:x.at,x}));const lo=L.length?Math.min(...L.map(i=>i.at||0)):0;
+  AVO.list.slice(0,40).forEach(g=>{if((g.at||0)>=lo||L.length<5)L.push({t:'a',at:g.at,x:g})});
+  CHAL.list.filter(c=>c.status==='done').slice(0,10).forEach(c=>{if((c.doneAt||0)>=lo||L.length<5)L.push({t:'c',at:c.doneAt,x:c})});return L.sort((a,b)=>(b.at||0)-(a.at||0))}
+const avoPost=g=>`<article class="card post feedmini" data-prof="${esc(g.to)}"><div class="ph"><span class="avs lg">${ini(g.from)}${ini(g.to)}</span><div style="flex:1;min-width:0"><b>${esc(first(g.from))} → ${esc(g.to)}</b><small>${timeAgo(g.at)}</small></div>${g.amt?`<span class="avochip" style="font-size:13px">🥑 ${g.amt}</span>`:'<span class="tagchip">💌 Wish</span>'}</div>
+  <div class="ptxt">${g.tag?`<span class="tagchip" style="margin-right:6px">${esc(g.tag)}</span>`:''}${mtext(g.msg)}</div></article>`;
+const chalPost=c=>{const W=(c.winner==='a'?c.a:c.b)||[];return`<article class="card post feedmini" data-chv="${esc(c.id)}"><div class="ph"><span class="avs lg">${(c.a||[]).concat(c.b||[]).slice(0,4).map(n=>ini(n)).join('')}</span><div style="flex:1;min-width:0"><b>⚔️ ${esc(chalTitle(c))}</b><small>${timeAgo(c.doneAt)} · ${(c.score||[]).map(g=>g.a+'–'+g.b).join(', ')}</small></div><span class="tagchip">🏆 ${esc(W.map(first).join(' & '))}</span></div>${c.prize==='free'?'<div class="ptxt">🏆 Winner plays free that day</div>':''}</article>`};
 const avoRow=(r,i)=>`<button class="prow" style="width:100%;text-align:left" data-prof="${esc(r.n)}"><span class="medwrap">${ini(r.n)}${i<3?`<i class="medal">${['🥇','🥈','🥉'][i]}</i>`:''}</span><span class="nm">${esc(r.n)}<small>${topTags(r).join(' · ')||plural(r.gifts,'gift')} · from ${r.from.size===1?'1 person':r.from.size+' people'}</small></span><span class="am">🥑 ${r.amt}</span></button>`;
 const avoQuote=g=>`<button class="prow quote" style="width:100%;text-align:left" data-prof="${esc(g.to)}">${ini(g.from)}<span class="nm"><b style="font-weight:700">${esc(first(g.from))} → ${esc(first(g.to))}</b> ${g.amt?`<span class="avochip">🥑 ${g.amt}</span>`:''}${g.tag?`<span class="tagchip">${esc(g.tag)}</span>`:''}<small style="color:var(--ink);font-size:13.5px">“${mtext(g.msg)}” · ${timeAgo(g.at)}</small></span></button>`;
-let AVOB='month';
-function openAvoBoard(){startAvo();const draw=()=>{const L=avoBoard(AVOB==='month'?todayStr().slice(0,7):''),H=AVO.list.filter(g=>g.msg&&(AVOB!=='month'||ymd(new Date(g.at||0)).slice(0,7)===todayStr().slice(0,7))).slice(0,20);
-  const bg=sheetOpen(`<div class="sheet-h"><span class="ini">🥑</span><div><b>Avokudos leaderboard</b><small>For leadership, play, skill, empathy, kindness and love</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div>
-    <div class="seg" style="margin:10px 12px 4px">${[['month','This month'],['all','All time']].map(([k,l])=>`<button type="button" class="${AVOB===k?'on':''}" data-avob="${k}">${l}</button>`).join('')}</div>
-    ${L.map((r,i)=>avoRow(r,i)).join('')||`<div class="empty">Nothing here yet.</div>`}
-    ${H.length?`<span class="sublbl" style="margin:10px 16px 0">Highlights</span>${H.map(avoQuote).join('')}`:''}`,'Avokudos leaderboard');
-  bg.querySelectorAll('[data-avob]').forEach(b=>b.onclick=()=>{AVOB=b.dataset.avob;draw()});bg.querySelectorAll('[data-prof]').forEach(b=>b.onclick=()=>openProfile(b.dataset.prof))};draw()}
+let AVOB='all',LBS='xp';
+/* one professional leaderboard: games, matches, wins, win %, titles, form, Avokudos received and given, XP */
+function lbRows(month){const ST=playerStats(),mo=todayStr().slice(0,7),inP=t=>!month||ymd(new Date(t||0)).slice(0,7)===mo;
+  return activeRoster().map(n=>{const k=nkey(n),x=ST[k]||{m:0,w:0,l:0,wr:0,xp:0,titles:0,best:0,recent:[]};
+    const days=Object.keys(S.days).filter(d=>(!month||d.slice(0,7)===mo)&&uniq(S.days[d].present||[]).some(p=>nkey(p)===k)).length;
+    const recv=AVO.list.filter(g=>(g.toKey||nkey(g.to))===k&&inP(g.at)),given=AVO.list.filter(g=>nkey(g.from)===k&&inP(g.at)).reduce((a,g)=>a+(+g.amt||0),0);
+    return{n,days,m:x.m,w:x.w,l:x.l,wr:x.m?x.wr:-1,titles:x.titles||0,best:x.best||0,xp:x.xp||0,avo:recv.reduce((a,g)=>a+(+g.amt||0),0),fans:new Set(recv.map(g=>nkey(g.from))).size,given,form:(x.recent||[]).slice(0,5).map(r=>r.won?'W':'L'),lvl:levelOf(n)}})}
+const LBCOLS=[['xp','XP','XP from matches, wins, titles, attendance and kudos'],['days','Games','Game days attended'],['m','P','Matches played'],['w','W','Won'],['l','L','Lost'],['wr','Win %',''],['titles','🏆','Titles'],['best','Streak','Best winning streak'],['avo','🥑 Got','Avokudos received'],['given','🥑 Gave','Avokudos given (generosity)']];
+function openAvoBoard(){startAvo();startCup();startChal();const draw=()=>{const R=lbRows(AVOB==='month').sort((a,b)=>(b[LBS]-a[LBS])||(b.xp-a.xp)||a.n.localeCompare(b.n)),H=AVO.list.filter(g=>g.msg&&(AVOB!=='month'||ymd(new Date(g.at||0)).slice(0,7)===todayStr().slice(0,7))).slice(0,10);
+  const cell=(r,k)=>k==='wr'?(r.wr<0?'–':r.wr+'%'):k==='avo'?(r.avo?`<b style="color:#067647">${r.avo}</b>`:'–'):k==='given'?(r.given||'–'):(r[k]||(k==='xp'?0:'–'));
+  const bg=sheetOpen(`<div class="sheet-h"><span class="ini">🏅</span><div><b>Leaderboard</b><small>Tap a column to sort · tap a name for their card</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div>
+    <div class="seg" style="margin:10px 12px 6px">${[['all','All time'],['month','This month']].map(([k,l])=>`<button type="button" class="${AVOB===k?'on':''}" data-avob="${k}">${l}</button>`).join('')}</div>
+    <div class="lbwrap"><table class="lboard"><thead><tr><th class="stk">#</th><th class="stk2">Player</th>${LBCOLS.map(([k,l,t])=>`<th><button type="button" data-lbs="${k}" title="${esc(t)}" class="${LBS===k?'on':''}">${l}${LBS===k?' ▾':''}</button></th>`).join('')}<th>Form</th></tr></thead>
+      <tbody>${R.map((r,i)=>`<tr${nkey(r.n)===nkey(getMe())?' class="me"':''}><td class="stk">${i<3&&r[LBS]>0?['🥇','🥈','🥉'][i]:i+1}</td><td class="stk2"><button type="button" data-prof="${esc(r.n)}">${ini(r.n,r.lvl?'box-shadow:0 0 0 2px '+r.lvl[2]:'','sm')}<span>${esc(first(r.n))}</span></button></td>${LBCOLS.map(([k])=>`<td class="${LBS===k?'on':''}">${cell(r,k)}</td>`).join('')}<td class="form">${r.form.map(f=>`<i class="${f}">${f}</i>`).join('')||'–'}</td></tr>`).join('')}</tbody></table></div>
+    <p class="hint" style="margin:8px 16px 0">${AVOB==='month'?'This month: games and 🥑 are for this month; matches, wins and XP are all time.':'Matches include tournaments and challenges that count for stats. Ring colour = level.'}</p>
+    ${H.length?`<span class="sublbl" style="margin:14px 16px 0">🥑 Highlights</span>${H.map(avoQuote).join('')}`:''}`,'Leaderboard');
+  bg.querySelectorAll('[data-avob]').forEach(b=>b.onclick=()=>{AVOB=b.dataset.avob;draw()});bg.querySelectorAll('[data-lbs]').forEach(b=>b.onclick=()=>{LBS=b.dataset.lbs;draw()});
+  bg.querySelectorAll('[data-prof]').forEach(b=>b.onclick=()=>openProfile(b.dataset.prof,'kudos'))};draw()}
 /* give to one or many, within your balance */
 function openAvo(pre){pre=pre||{};startAvo();const me=myName();if(!me){toast('Pick your name first (tap the person icon at the top).');ME.who='';go('me');return}
   if(perm('kudos')==='off')return toast('Avokudos are turned off by the admins.');
@@ -1644,7 +1680,8 @@ function openAvo(pre){pre=pre||{};startAvo();const me=myName();if(!me){toast('Pi
     <div class="sub" style="padding-top:12px"><div style="display:flex;justify-content:space-between;align-items:center"><span class="sublbl" style="margin:0">To</span><button type="button" class="lnk" id="avoall">Select all</button></div>
       <div class="pickgrid" id="avoppl">${ppl.map(n=>`<button type="button" class="pick${sel.has(n)?' on':''}" data-avop="${esc(n)}">${ini(n)}<span>${esc(first(n))}</span></button>`).join('')}</div></div>
     <div class="sub"><span class="sublbl">🥑 each</span><div class="mix" style="gap:6px;flex-wrap:wrap">${[0,10,25,50,100].map(v=>`<button type="button" class="chipbtn${amt===v?' on':''}" data-avoamt="${v}">${v?'🥑 '+v:'Just a wish'}</button>`).join('')}<input class="txt" id="avoamt" type="number" inputmode="numeric" min="0" max="1000" value="${amt}" style="width:90px;height:38px" aria-label="Avocados each"></div></div>
-    <div class="sub"><span class="sublbl">For their…</span><div class="mix" style="gap:6px;flex-wrap:wrap">${AVO_TAGS.map(([t,e])=>`<button type="button" class="chipbtn${tag===t?' on':''}" data-avotag="${t}">${e} ${t}</button>`).join('')}</div></div>
+    <div class="sub"><span class="sublbl">For their…</span><div class="mix" style="gap:6px;flex-wrap:wrap">${AVO_TAGS.map(([t,e])=>`<button type="button" class="chipbtn${tag===t?' on':''}" data-avotag="${t}">${e} ${t}</button>`).join('')}</div>
+      <input class="txt" id="avotagc" maxlength="20" placeholder="…or type your own: patience, coaching, banter" style="margin-top:8px" value="${tag&&!AVO_TAGS.some(x=>x[0]===tag)?esc(tag):''}"></div>
     <div class="sub"><span class="sublbl">Message</span><textarea class="txt" id="avomsg" data-mention rows="3" maxlength="300" placeholder="What did they do that you loved? Type @ to mention">${esc(pre.msg||'')}</textarea>${pre.wish?`<button type="button" class="lnk" id="avonew" style="margin-top:6px">🔀 Another line</button>`:''}</div>
     <div class="card-f"><button class="btn primary block" id="avosend">🥑 Send</button></div>`,'Give Avokudos');
   const upd=()=>{const bal=avoBalance(me),tot=amt*sel.size;$('#avobal').innerHTML=`You have <b>🥑 ${bal}</b> to give${tot?` · this sends 🥑 ${tot}`:''}`;$('#avobal').style.color=tot>bal?'var(--danger)':'';$('#avosend').textContent=sel.size?`🥑 Send to ${sel.size===1?first([...sel][0]):sel.size+' people'}${tot?' · '+tot:''}`:'🥑 Send'};
@@ -1652,14 +1689,15 @@ function openAvo(pre){pre=pre||{};startAvo();const me=myName();if(!me){toast('Pi
   $('#avoall').onclick=()=>{const all=sel.size<ppl.length;bg.querySelectorAll('[data-avop]').forEach(b=>{all?sel.add(b.dataset.avop):sel.delete(b.dataset.avop);b.classList.toggle('on',all)});upd()};
   bg.querySelectorAll('[data-avoamt]').forEach(b=>b.onclick=()=>{amt=+b.dataset.avoamt;$('#avoamt').value=amt;bg.querySelectorAll('[data-avoamt]').forEach(x=>x.classList.toggle('on',x===b));upd()});
   $('#avoamt').oninput=e=>{amt=Math.max(0,Math.min(1000,Math.round(+e.target.value||0)));bg.querySelectorAll('[data-avoamt]').forEach(x=>x.classList.toggle('on',+x.dataset.avoamt===amt));upd()};
-  bg.querySelectorAll('[data-avotag]').forEach(b=>b.onclick=()=>{tag=tag===b.dataset.avotag?'':b.dataset.avotag;bg.querySelectorAll('[data-avotag]').forEach(x=>x.classList.toggle('on',x.dataset.avotag===tag))});
+  bg.querySelectorAll('[data-avotag]').forEach(b=>b.onclick=()=>{tag=tag===b.dataset.avotag?'':b.dataset.avotag;$('#avotagc').value='';bg.querySelectorAll('[data-avotag]').forEach(x=>x.classList.toggle('on',x.dataset.avotag===tag))});
+  $('#avotagc').oninput=e=>{const t=norm(e.target.value);tag=t?t.charAt(0).toUpperCase()+t.slice(1):'';bg.querySelectorAll('[data-avotag]').forEach(x=>x.classList.toggle('on',x.dataset.avotag===tag))};
   const nw=$('#avonew');if(nw)nw.onclick=()=>{wishN++;$('#avomsg').value=uniqueWish(pre.wish,wishN)};
   let busy=false;$('#avosend').onclick=async()=>{const msg=norm($('#avomsg').value);if(!sel.size)return toast('Pick at least one person.');if(!msg)return toast('Add a short message, it means more than the avocados 🙂');if(!allOk(msg))return;
     const tot=amt*sel.size,bal=avoBalance(me);if(tot>bal)return toast('You have 🥑 '+bal+' to give. Lower the amount or pick fewer people.');
     if(AVO.list.some(g=>nkey(g.from)===nkey(me)&&g.msg===msg&&sel.has(canon(g.to))&&Date.now()-(g.at||0)<10*60e3))return toast('✋ Already sent.');
     if(busy)return;busy=true;$('#avosend').disabled=true;
     try{await ensureAnon();const uid=auth.currentUser.uid,at=Date.now(),batch='b'+at.toString(36);
-      for(const n of sel)await col('avo').add({from:canon(me),fromUid:uid,to:canon(n),toKey:nkey(n),amt,tag,msg,at,batch});
+      for(const n of sel){const g={from:canon(me),fromUid:uid,to:canon(n),toKey:nkey(n),amt,tag,msg,at,batch};if(pre.ref)g.ref=pre.ref;await col('avo').add(g)}
       closeWho();toast(`🥑 Sent to ${sel.size===1?first([...sel][0]):sel.size+' people'}!`);renderTab(false)}
     catch(e){busy=false;$('#avosend').disabled=false;toast(e.code==='permission-denied'?'Ask the organizer to update the app rules.':'Couldn’t send ('+(e.code||'error')+').')}};
   upd()}
@@ -1679,7 +1717,8 @@ function uniqueWish(o,shift2){const pool=WISHES[o.kind]||WISHES.custom,used=new 
   return pool[i].replace(/\{n\}/g,first(o.n)).replace(/\{t\}/g,(o.title||'').toLowerCase())}
 function openWish(o){if(nkey(o.n)===nkey(getMe()))return openProfile(o.n);openAvo({to:[o.n],msg:uniqueWish(o),tag:'Love',amt:10,wish:o,title:o.emoji+' Wish '+first(o.n)})}
 function occBanner(){const L=occasionsToday();if(!L.length)return'';return`<section class="card occ">${L.map(o=>`<div class="prow">${ini(o.n)}<span class="nm">${o.emoji} ${nkey(o.n)===nkey(getMe())?'Happy '+(o.kind==='bday'?'birthday':o.kind==='anniv'?'anniversary':esc(o.title))+', '+esc(first(o.n))+'!':esc(first(o.n))+'’s '+(o.kind==='custom'?esc(o.title):o.title.toLowerCase())+' today'}<small>${nkey(o.n)===nkey(getMe())?'The whole group can see it today 💚':'Send a wish, everyone gets a different line'}</small></span>${nkey(o.n)===nkey(getMe())?'':`<button class="btn sm primary" data-wish="${esc(o.n)}|${o.kind}|${esc(o.id||'')}">Wish</button>`}</div>`).join('')}</section>`}
-document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-wish]');if(b){const[n,kind,id]=b.dataset.wish.split('|');const o=occasionsToday().find(x=>nkey(x.n)===nkey(n)&&x.kind===kind&&(x.id||'')===(id||''));if(o)openWish(o);return}
+document.addEventListener('click',e=>{const u=e.target.closest&&e.target.closest('[data-unfree],[data-refree]');if(u&&canEdit()){const d=getDay(curDate);d.freeOff=u.dataset.unfree?uniq([...(d.freeOff||[]),u.dataset.unfree]):[];S.days[curDate]=d;queueWrite('days/'+curDate,d);renderDay();toast(u.dataset.unfree?'Charged like everyone else today.':'Today’s winners play free again 🏆');return}
+  const b=e.target.closest&&e.target.closest('[data-wish]');if(b){const[n,kind,id]=b.dataset.wish.split('|');const o=occasionsToday().find(x=>nkey(x.n)===nkey(n)&&x.kind===kind&&(x.id||'')===(id||''));if(o)openWish(o);return}
   const a=e.target.closest&&e.target.closest('[data-avo]');if(a){openAvo({to:a.dataset.avo?[a.dataset.avo]:[]});return}
   const ab=e.target.closest&&e.target.closest('[data-avoboard]');if(ab){openAvoBoard();return}
   const ch=e.target.closest&&e.target.closest('[data-chal]');if(ch){openChallenge(ch.dataset.chal);return}
@@ -1700,6 +1739,7 @@ const CHAL={list:[],unsub:null};
 function startChal(){if(!db||CHAL.unsub)return;CHAL.unsub=col('challenges').orderBy('at','desc').limit(200).onSnapshot(q=>{CHAL.list=q.docs.map(d=>({id:d.id,...d.data()}));renderHeader();if(!$('#whosheet')&&!typingIn('#view-'+tab))renderTab(false);else if($('#whosheet')&&CHAL.redraw)CHAL.redraw()},()=>{})}
 const inSide=(c,side,n)=>(c[side]||[]).some(x=>nkey(x)===nkey(n));
 const chalTitle=c=>`${(c.a||[]).map(first).join(' & ')} vs ${(c.b||[]).map(first).join(' & ')}`;
+const chalPrize=c=>c.prize==='free'?' · 🏆 winner plays free':'';
 const chalStatus=c=>c.status==='open'?'⏳ Waiting for reply':c.status==='accepted'?'✅ On!':c.status==='done'?'🏁 Played':c.status==='declined'?'🙅 Declined':'Cancelled';
 function openChallenge(to){if(perm('challenge')==='off')return toast('Challenges are turned off by the admins.');const me=myName();if(!me){toast('Pick your name first (tap the person icon at the top).');ME.who='';go('me');return}
   const ppl=activeRoster().filter(n=>nkey(n)!==nkey(me)),days=gameRooms();let type='singles',counts=true;
@@ -1709,6 +1749,7 @@ function openChallenge(to){if(perm('challenge')==='off')return toast('Challenges
     <div class="sub"><span class="sublbl">Opponent</span>${opt('cop','Choose opponent…',to)}<div id="cdbl" hidden><span class="sublbl" style="margin-top:8px">Their partner</span>${opt('cop2','Choose…')}<span class="sublbl" style="margin-top:8px">Your partner</span>${opt('cmate','Choose…')}</div></div>
     <div class="sub"><span class="sublbl">When</span><select class="txt" id="cwhen"><option value="">Next time we play</option>${days.map(g=>`<option value="${g.date}">${esc(g.label)}</option>`).join('')}</select></div>
     <div class="sub"><span class="sublbl">Message</span><input class="txt" id="cmsg" data-mention maxlength="200" placeholder="e.g. Rematch? Best of 3 😄"></div>
+    <label class="chkrow" style="margin:4px 16px 0"><input type="checkbox" class="chk" id="cprize"><span>🏆 Winner plays that day’s game free. Their share is split evenly among the other players.</span></label>
     <label class="chkrow" style="margin:4px 16px 10px"><input type="checkbox" class="chk" id="ccount" checked><span>Counts for Cup stats (XP, wins, levels). Either player can change this until a score is added.</span></label>
     <div class="card-f"><button class="btn primary block" id="csend">⚔️ Send challenge</button></div>`,'Challenge');
   bg.querySelectorAll('[data-ctype]').forEach(b=>b.onclick=()=>{type=b.dataset.ctype;bg.querySelectorAll('[data-ctype]').forEach(x=>x.classList.toggle('on',x===b));$('#cdbl').hidden=type!=='doubles'});
@@ -1716,7 +1757,7 @@ function openChallenge(to){if(perm('challenge')==='off')return toast('Challenges
     if(type==='doubles'&&(!op2||!mate))return toast('Doubles needs both partners.');const all=[me,op].concat(type==='doubles'?[op2,mate]:[]);if(new Set(all.map(nkey)).size!==all.length)return toast('Each player can only be in the match once.');
     if(CHAL.list.some(c=>c.status==='open'&&nkey(c.from)===nkey(me)&&inSide(c,'b',op)))return toast('✋ You already challenged '+first(op)+'. Waiting for a reply.');
     if(busy)return;busy=true;$('#csend').disabled=true;
-    try{await ensureAnon();await col('challenges').add({from:canon(me),fromUid:auth.currentUser.uid,a:type==='doubles'?[canon(me),canon(mate)]:[canon(me)],b:type==='doubles'?[canon(op),canon(op2)]:[canon(op)],type,date:$('#cwhen').value||'',msg:norm($('#cmsg').value),counts:$('#ccount').checked,status:'open',at:Date.now()});
+    try{await ensureAnon();await col('challenges').add({from:canon(me),fromUid:auth.currentUser.uid,a:type==='doubles'?[canon(me),canon(mate)]:[canon(me)],b:type==='doubles'?[canon(op),canon(op2)]:[canon(op)],type,date:$('#cwhen').value||'',msg:norm($('#cmsg').value),counts:$('#ccount').checked,prize:$('#cprize').checked?'free':'',status:'open',at:Date.now()});
       closeWho();toast('⚔️ Challenge sent to '+first(op)+(type==='doubles'?' & '+first(op2):'')+'!')}catch(e){busy=false;$('#csend').disabled=false;toast(e.code==='permission-denied'?'Ask the organizer to update the app rules.':'Couldn’t send ('+(e.code||'error')+').')}}}
 async function chalSet(c,patch,msg){try{await ensureAnon();await col('challenges').doc(c.id).update(patch);if(msg)toast(msg)}catch(e){toast(e.code==='permission-denied'?'Ask the organizer to update the app rules.':'Couldn’t save ('+(e.code||'error')+').')}}
 function openChalView(id){const draw=()=>{const c=CHAL.list.find(x=>x.id===id);if(!c)return;const me=myName(),mineA=inSide(c,'a',me),mineB=inSide(c,'b',me),inIt=mineA||mineB||isOrg,G=(c.score||[]);
@@ -1725,6 +1766,7 @@ function openChalView(id){const draw=()=>{const c=CHAL.list.find(x=>x.id===id);i
     <div class="sub vsbox" style="padding-top:14px">${side(c.a,c.winner==='a')}<span class="vs">VS</span>${side(c.b,c.winner==='b')}</div>
     ${c.msg?`<div class="sub"><p style="margin:0">“${mtext(c.msg)}” <small class="hint">· ${esc(first(c.from))}</small></p></div>`:''}
     ${G.length?`<div class="sub"><b>Score:</b> ${G.map(g=>g.a+'–'+g.b).join(' · ')}</div>`:''}
+    <div class="sub" style="padding-bottom:0"><label class="chkrow" style="margin:0"><input type="checkbox" class="chk" id="cvprize" ${c.prize==='free'?'checked':''} ${c.status==='done'||!inIt?'disabled':''}><span>🏆 Winner plays ${c.date?esc(dlabel(c.date,{weekday:'short',day:'numeric'})):'that day'}’s game free${c.status==='done'&&c.prize==='free'?' · '+((c.winner==='a'?c.a:c.b)||[]).map(first).join(' & '):''}</span></label></div>
     <div class="sub"><label class="chkrow" style="margin:0"><input type="checkbox" class="chk" id="cvcount" ${c.counts?'checked':''} ${c.status==='done'||!inIt?'disabled':''}><span>${c.counts?'Counts for Cup stats':'Just for fun (not in Cup stats)'}${c.status==='done'?' · locked after the score':''}</span></label></div>
     <div class="card-f" style="display:grid;gap:8px">
       ${c.status==='open'&&mineB?`<div class="grid2"><button class="btn primary" data-cv="accept">✅ Accept</button><button class="btn line" data-cv="decline">Decline</button></div>`:''}
@@ -1732,6 +1774,7 @@ function openChalView(id){const draw=()=>{const c=CHAL.list.find(x=>x.id===id);i
       ${c.status==='accepted'&&inIt?`<button class="btn primary" data-cv="score">🏸 Add score</button>`:''}
       ${c.status==='open'&&!inIt?`<p class="hint" style="margin:0">Waiting for ${(c.b||[]).map(first).join(' & ')} to reply.</p>`:''}
     </div>`,'Challenge');
+  const cpz=bg.querySelector('#cvprize');if(cpz)cpz.onchange=()=>chalSet(c,{prize:cpz.checked?'free':''},cpz.checked?'🏆 Winner plays free':'Free game prize off');
   const cc=bg.querySelector('#cvcount');if(cc)cc.onchange=()=>chalSet(c,{counts:cc.checked},cc.checked?'Counts for Cup stats ✅':'Just for fun 🙂');
   bg.querySelectorAll('[data-cv]').forEach(b=>b.onclick=async()=>{const a=b.dataset.cv;b.disabled=true;
     if(a==='accept')await chalSet(c,{status:'accepted',acceptedBy:canon(me),acceptedAt:Date.now()},'⚔️ Game on! '+first(c.from)+' will see it.');
@@ -1748,7 +1791,19 @@ function openChalScore(c){let n=1;const draw=()=>{const bg=sheetOpen(`<div class
     await chalSet(c,{score:G,winner:wa>wb?'a':'b',status:'done',doneAt:Date.now(),scoredBy:canon(myName()||'Organizer')},'🏁 Result saved'+(c.counts?' · Cup stats updated':''));closeWho()}};draw()}
 function chalHTML(){startChal();const me=myName(),L=CHAL.list.filter(c=>c.status!=='cancelled'&&c.status!=='declined').slice(0,12);
   return`${perm('challenge')!=='off'?`<div class="pad" style="padding-bottom:6px"><button class="btn primary block" data-chal="">⚔️ Challenge a player</button></div>`:''}
-    ${L.map(c=>`<button class="prow" style="width:100%;text-align:left" data-chv="${esc(c.id)}"><span class="avs lg">${(c.a||[]).concat(c.b||[]).slice(0,4).map(n=>ini(n)).join('')}</span><span class="nm">${esc(chalTitle(c))}<small>${chalStatus(c)}${c.date?' · '+esc(dlabel(c.date,{weekday:'short',day:'numeric'})):''}${c.score?' · '+c.score.map(g=>g.a+'–'+g.b).join(', '):''}${c.counts?'':' · for fun'}</small></span>${c.status==='open'&&inSide(c,'b',me)?'<span class="mm" style="color:var(--accent)">Reply</span>':''}${ic('right')}</button>`).join('')||`<div class="empty" style="padding:14px">No challenges yet. Call out your rival 😄</div>`}`}
+    ${L.map(c=>`<button class="prow" style="width:100%;text-align:left" data-chv="${esc(c.id)}"><span class="avs lg">${(c.a||[]).concat(c.b||[]).slice(0,4).map(n=>ini(n)).join('')}</span><span class="nm">${esc(chalTitle(c))}<small>${chalStatus(c)}${c.date?' · '+esc(dlabel(c.date,{weekday:'short',day:'numeric'})):''}${chalPrize(c)}${c.score?' · '+c.score.map(g=>g.a+'–'+g.b).join(', '):''}${c.counts?'':' · for fun'}</small></span>${c.status==='open'&&inSide(c,'b',me)?'<span class="mm" style="color:var(--accent)">Reply</span>':''}${ic('right')}</button>`).join('')||`<div class="empty" style="padding:14px">No challenges yet. Call out your rival 😄</div>`}`}
+/* ---------- 🎤 voice input: speak instead of typing, wherever there is a message box ---------- */
+const SRec=window.SpeechRecognition||window.webkitSpeechRecognition;let MICREC=null;
+const MIC_SEL='[data-cin],#ktext,#avomsg,#qnote,#rqtext,#ctext,#cmsg,#epbio,#octitle,#sdnote';
+function micFor(el){if(!SRec||el.dataset.mic||!el.parentElement)return;el.dataset.mic='1';const b=document.createElement('button');b.type='button';b.className='mic';b.setAttribute('aria-label','Speak your message');b.textContent='🎤';
+  if(el.parentElement.classList.contains('inline'))el.insertAdjacentElement('afterend',b);
+  else{const w=document.createElement('div');w.className='micwrap';el.parentNode.insertBefore(w,el);w.appendChild(el);w.appendChild(b);el.style.paddingRight='50px'}
+  b.addEventListener('pointerdown',e=>e.preventDefault());
+  b.onclick=()=>{if(MICREC){try{MICREC.stop()}catch(e){}return}const r=new SRec();r.lang='en-IN';r.interimResults=true;r.continuous=false;const base=el.value?el.value.replace(/\s*$/,' '):'';
+    r.onresult=e=>{let t='';for(const x of e.results)t+=x[0].transcript;el.value=(base+t).slice(0,+el.maxLength>0?+el.maxLength:2000);el.dispatchEvent(new Event('input',{bubbles:true}))};
+    r.onend=()=>{b.classList.remove('on');MICREC=null};r.onerror=e=>{b.classList.remove('on');MICREC=null;if(e.error==='not-allowed'||e.error==='service-not-allowed')toast('Allow the microphone to speak your message, or use the 🎤 on your keyboard.')};
+    try{r.start();MICREC=r;b.classList.add('on');toast('Listening… speak now 🎤')}catch(e){toast('Voice input isn’t available here. Use the 🎤 on your keyboard.')}}}
+if(SRec)setTimeout(()=>{const run=()=>document.querySelectorAll(MIC_SEL).forEach(micFor);run();new MutationObserver(run).observe(document.body,{childList:true,subtree:true})},500);
 /* ================= PLAYER PERMISSIONS ================= */
 /* admins decide what players may do: off · ask an admin · allowed. Admins can always do everything. */
 const PERMS=[['name','✏️','Edit group name',['off','ask','allow'],'allow'],['photo','🖼️','Change group photo',['off','ask','allow'],'ask'],['theme','🎨','Change theme',['off','ask','allow'],'ask'],
@@ -1836,7 +1891,7 @@ async function saveProfile(n,pub,priv){await ensureAnon();const k=nkey(n),uid=au
 const profErr=e=>toast(e.code==='not-owner'?'This profile is linked to another phone. Ask an organizer to reset it.':e.code==='permission-denied'?'Ask the organizer to update the app rules for profiles.':'Couldn’t save ('+(e.code||'error')+').');
 async function quickPhoto(file,n){try{const ph=await squareAvatar(file);await saveProfile(n,{photo:ph});toast('Profile photo updated 📸');renderHeader();renderTab(false)}catch(e){profErr(e)}}
 /* the M button: your profile, wallet and player card in one sheet */
-function openMe(){const me=myName();if(!me){ME.who='';go('me');return}
+function openMe(){startMyReq();const me=myName();if(!me){ME.who='';go('me');return}
   const p=profOf(me)||{},L=ledger(me),W=PRE()?wallet(me):null,pct=profPct(me),bal=PRE()?W.bal:L.bal;
   const bg=sheetOpen(`<div class="sheet-h"><label class="avpick" title="Change photo">${ini(me)}<i>${ic('camera')}</i><input type="file" accept="image/*" id="mephoto" hidden></label><div><b>${esc(p.fullName||me)}</b><small>${p.username?'@'+esc(p.username)+' · ':''}${p.place?'📍 '+esc(p.place):esc(levelOf(me)?levelOf(me)[1]:'Player')}</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div>
     ${p.bio||(p.interests||[]).length?`<div class="sub" style="padding-top:12px">${p.bio?`<p style="margin:0 0 8px">${esc(p.bio)}</p>`:''}${chipsHTML(p.interests)}</div>`:''}
@@ -1845,10 +1900,11 @@ function openMe(){const me=myName();if(!me){ME.who='';go('me');return}
       <button class="mi" data-mego="wallet"><span class="mico">${ic('wallet')}</span><span class="mt"><b>My wallet</b><small>Games, payments and history</small></span><span class="mm" style="color:${bal<0?'var(--danger)':'var(--ok)'}">${sinrP(bal)}</span>${ic('right')}</button>
       <button class="mi" data-editprof><span class="mico">${ic('user')}</span><span class="mt"><b>Edit profile</b><small>Photo, bio, interests, birthday and contact details</small></span>${ic('right')}</button>
       <button class="mi" data-mego="card"><span class="mico">${ic('trophy')}</span><span class="mt"><b>My player card</b><small>Level, XP, badges and kudos</small></span>${ic('right')}</button>
+      <button class="mi" data-mego="ideas"><span class="mico">💡</span><span class="mt"><b>My ideas & problems</b><small>What you suggested or reported, and its status</small></span>${MYREQ.list.length?`<span class="mm">${MYREQ.list.length}</span>`:''}${ic('right')}</button>
     </div>`,'My profile');
   const f=bg.querySelector('#mephoto');f.onchange=()=>{if(f.files[0])quickPhoto(f.files[0],me).then(()=>openMe())};
   bg.querySelectorAll('[data-editprof]').forEach(b=>b.onclick=()=>openEditProfile(me));
-  bg.querySelectorAll('[data-mego]').forEach(b=>b.onclick=()=>{if(b.dataset.mego==='wallet'){ME.who='';go('me')}else openProfile(me)})}
+  bg.querySelectorAll('[data-mego]').forEach(b=>b.onclick=()=>{if(b.dataset.mego==='wallet'){ME.who='';go('me')}else if(b.dataset.mego==='ideas')openMyRequests();else openProfile(me)})}
 const chipsHTML=a=>(a||[]).length?`<div class="mix" style="flex-wrap:wrap;gap:6px">${a.map(x=>`<span class="tagchip">${esc(x)}</span>`).join('')}</div>`:'';
 async function openEditProfile(n){n=n||myName();if(!n)return;const k=nkey(n),p={...(profOf(n)||{})},own=nkey(n)===nkey(getMe());
   if(p.uid&&auth&&auth.currentUser&&p.uid!==auth.currentUser.uid&&!isOrg){profErr({code:'not-owner'});return}
@@ -2034,6 +2090,7 @@ function renderCup(){
       `<div class="seg" style="margin:4px 12px 8px">${[['xp','XP'],['m30','Games · 30d'],['all','All-time']].map(([k,l])=>`<button type="button" class="${CUPSTAR===k?'on':''}" data-cstar="${k}">${l}</button>`).join('')}</div>`+
       (CUPSTAR==='xp'?stars.map((x,i)=>prow(x,i)).join('')||`<div class="empty">Play a tournament to light up the board.</div>`
         :attendTop(CUPSTAR==='m30'?shift(todayStr(),-30):'').map(([n,c],i)=>{const x=ST[nkey(n)];return x?prow(x,i,plural(c,'game')):`<div class="prow"><span class="medwrap">${ini(n)}${i<3?`<i class="medal">${['🥇','🥈','🥉'][i]}</i>`:''}</span><span class="nm">${esc(n)}</span><span class="am">${plural(c,'game')}</span></div>`}).join('')||`<div class="empty">No games in this period.</div>`))}
+    <button class="btn line block" data-avoboard>🏅 Full leaderboard: games, W/L, win %, 🥑 and more</button>
     ${cupDet('ready',`<span class="dt"><b>🚀 Ready for the next level</b><small>${ready.length?plural(ready.length,'player')+' meet the bar':'Nobody yet. Keep playing!'}</small></span>`,ready.map(x=>prow(x,9,'→ '+x.next.to)).join('')+`<div class="card-f"><p class="hint">Beginner → Intermediate: 80 XP, 6 matches, 45% wins · Intermediate → Advanced: 180 XP, 10 matches, 55% · Advanced → Pro: 350 XP, 15 matches, 65% and a title. Organizers make the final call.</p></div>`)}
     ${cupDet('all',`<span class="dt"><b>👥 Player cards</b><small>Stats, badges and kudos for everyone</small></span>`,all.slice().sort((a,b)=>a.n.localeCompare(b.n)).map(x=>prow(x,9)).join(''))}
     ${done.length?cupDet('hof',`<span class="dt"><b>👑 Hall of fame</b><small>${plural(done.length,'champion')}</small></span>`,done.map(t=>`<div class="prow"><span class="medwrap"><span class="avs lg">${String(cupChampion(t)).split(/\s*&\s*/).slice(0,2).map(n=>ini(n)).join('')}</span><i class="medal">👑</i></span><span class="nm">${esc(cupChampion(t))}<small>${esc(t.name)} · ${esc(dlabel(ymd(new Date(t.createdAt)),{day:'numeric',month:'short'}))}</small></span></div>`).join('')):''}`;
@@ -2044,6 +2101,8 @@ function renderCup(){
   v.querySelectorAll('[data-pickme]').forEach(b=>b.onclick=()=>{ME.who='';go('me')});
   v.querySelectorAll('[data-prof]').forEach(b=>b.onclick=e=>{e.preventDefault();e.stopPropagation();openProfile(b.dataset.prof)});
   v.querySelectorAll('[data-score]').forEach(b=>b.onclick=()=>{const T=CUP.list.find(x=>x.id===b.dataset.t);if(T)openScore(T,b.dataset.score)});
+  v.querySelectorAll('[data-cprize],[data-cpdate]').forEach(el=>el.onchange=async()=>{const id=el.dataset.cprize||el.dataset.cpdate,T=CUP.list.find(x=>x.id===id);if(!T)return;const box=v.querySelector(`[data-cprize="${id}"]`),dt=v.querySelector(`[data-cpdate="${id}"]`);
+    const pr={free:!!box.checked,date:dt.value||todayStr()};if(await saveCup(T,{prize:pr})){T.prize=pr;toast(pr.free?'🏆 Champion plays free on '+dlabel(pr.date,{day:'numeric',month:'short'}):'Free game prize off');renderTab(false)}});
   v.querySelectorAll('[data-cupimg]').forEach(b=>b.onclick=()=>{const T=CUP.list.find(x=>x.id===b.dataset.cupimg);if(T)shareCupCard(T)});
   v.querySelectorAll('[data-cupdel]').forEach(b=>b.onclick=async()=>{if(b.dataset.c!=='1'){b.dataset.c='1';b.lastChild.textContent='Tap again to delete';return}try{await col('tournaments').doc(b.dataset.cupdel).delete();toast('Tournament deleted.')}catch(e){toast('Couldn’t delete ('+e.code+').')}});
 }
@@ -2071,6 +2130,7 @@ function cupBody(T){const M=T.matches||[],ch=cupChampion(T),K=koMs(T),KR=K.lengt
     ${sub('m:'+T.id,'Matches',`<div class="pad" style="display:grid;gap:8px">${matches}</div>`)}
     ${sub('x:'+T.id,T.format==='ko'?'Bracket':T.format==='gk'?'Groups & bracket':'Table',table2)}
     ${sub('p:'+T.id,T.type==='doubles'?'Pairs':'Players',(T.entries||[]).map(e=>`<div class="prow">${ini(e.players[0])}<span class="nm">${e.players.map(n=>`<button class="lnk" data-prof="${esc(n)}">${esc(n)}</button>`).join(' & ')}<small>${e.grp?'Group '+e.grp+' · ':''}${e.players.map(n=>levelOf(n)?levelOf(n)[1]:'Level not set').join(' + ')}</small></span></div>`).join(''))}
+    ${canEdit()||(T.prize&&T.prize.free)?`<div class="sub" style="border-top:1px solid var(--line2);padding-top:10px">${canEdit()?`<label class="chkrow" style="margin:0;align-items:center"><input type="checkbox" class="chk" data-cprize="${esc(T.id)}" ${T.prize&&T.prize.free?'checked':''}><span>🏆 Champion plays free on</span><input class="txt" type="date" data-cpdate="${esc(T.id)}" value="${esc((T.prize&&T.prize.date)||todayStr())}" style="width:150px;height:36px"></label><small class="hint" style="display:block;margin-top:4px">Their share that day is split evenly among the other players.</small>`:`<small class="hint" style="margin:0">🏆 Champion plays free on ${esc(dlabel(T.prize.date,{weekday:'short',day:'numeric',month:'short'}))}</small>`}</div>`:''}
     <div class="card-f" style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn sm primary" data-cupimg="${esc(T.id)}">${ic('share')}Share image</button><a class="btn sm wa" href="${waHref(cupText(T))}" target="_blank" rel="noopener">${ic('chat')}Text</a>${canEdit()?`<button class="btn sm line" data-cupdel="${esc(T.id)}" style="color:var(--danger);margin-left:auto">${ic('trash')}Delete</button>`:''}</div>`}
 function openScore(T,mid){const M=JSON.parse(JSON.stringify(T.matches||[])),m=M.find(x=>x.id===mid);if(!m)return;const n=T.bo===3?3:1,pts=T.pts||21;const g=gs(m);while(g.length<n)g.push(['','']);
   const bg=sheetOpen(`<div class="sheet-h"><span class="ini">${ic('shuttle')}</span><div><b>${esc(ename(T,m.a))} vs ${esc(ename(T,m.b))}</b><small>Games to ${pts}${n===3?' · best of 3':''}</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div>
@@ -2190,7 +2250,7 @@ function renderClub(){
   const [tt,tx]=tipOfDay();
   const posts=CLUB.list,tips=posts.filter(x=>x.kind==='tip');
   const postHTML=x=>{const likes=Object.keys(x.likes||{}).length,mine=uid&&(x.likes||{})[uid],own=uid&&x.uid===uid;
-    return`<article class="card post"><div class="ph">${ini(x.name||'?')}<div style="flex:1;min-width:0"><b>${esc(x.name||'Someone')}</b><small>${timeAgo(x.at)}${x.day?' · game on '+esc(dlabel(x.day,{weekday:'short',day:'numeric',month:'short'})):''}</small></div>${x.tag?`<span class="tagchip">${esc(x.tag)}</span>`:x.kind==='photo'?'<span class="tagchip">📸 Memory</span>':''}</div>
+    return`<article class="card post"><div class="ph">${ini(x.name||'?')}<div style="flex:1;min-width:0"><b>${esc(x.name||'Someone')}</b><small>${timeAgo(x.at)}${x.day?' · game on '+esc(dlabel(x.day,{weekday:'short',day:'numeric',month:'short'})):''}</small></div>${x.tag?`<span class="tagchip">${esc(x.tag)}</span>`:x.kind==='photo'?'<span class="tagchip">📸 Memory</span>':x.kind==='idea'?'<span class="tagchip">💡 Idea</span>':x.kind==='update'?'<span class="tagchip">✅ Update</span>':''}</div>
       ${x.img?`<img class="pimg" src="${x.img}" alt="Photo by ${esc(x.name||'')}" loading="lazy">`:''}${x.text?`<div class="ptxt">${mtext(x.text)}</div>`:''}
       <div class="pf">${reactBar('p',x.id,x)}<button class="lnk" data-cmts="${esc(x.id)}">💬 ${(CMT.list||[]).filter(c=>c.target==='post:'+x.id).length||''}</button>
         <span style="margin-left:auto;display:flex;gap:6px"><button class="iconbtn" data-pshare="${esc(x.id)}" aria-label="Share to Instagram, WhatsApp…">${ic('share')}</button>${own||isOrg?`<button class="iconbtn" data-pdelpost="${esc(x.id)}" aria-label="Delete">${ic('trash')}</button>`:''}</span></div>
@@ -2202,7 +2262,7 @@ function renderClub(){
       ${perm('post')==='off'?`<p class="hint" style="margin:0">🔒 Posting is turned off by the admins.</p>`:`<div class="grid2"><button class="btn primary" data-compose="photo">${ic('camera')}Photo memory</button><button class="btn line" data-compose="tip">💡 Share a tip</button></div>
       `}${perm('post')==='off'||!me?'':`<div class="inline"><input class="txt" id="qnote" data-mention maxlength="500" placeholder="Say something to the group… type @ to mention" autocomplete="off"><button class="btn sm primary" id="qpost" style="height:44px">Post</button></div>`}</div></section>
     ${avoCard()}
-    ${posts.filter(x=>x.kind!=='tip').map(postHTML).join('')||`<section class="card"><div class="empty">${ic('camera')}No posts yet. Share a photo from the last game and make it a memory card!</div></section>`}
+    ${feedItems(posts).map(it=>it.t==='p'?postHTML(it.x):it.t==='a'?avoPost(it.x):chalPost(it.x)).join('')||`<section class="card"><div class="empty">${ic('camera')}No posts yet. Share a photo from the last game and make it a memory card!</div></section>`}
     ${posts.length>=CLUB.limit?`<button class="btn line block" data-more>Show older posts</button>`:''}
   </div>
   <div data-in="tips">
@@ -2215,6 +2275,7 @@ function renderClub(){
   applySub(v,'club');if(SUB.club==='chat'){SUB.club='feed';applySub(v,'club')}
   v.querySelectorAll('[data-compose]').forEach(b=>b.onclick=()=>openCompose(b.dataset.compose));
   v.querySelectorAll('[data-cheer]').forEach(b=>b.onclick=()=>openCheer(b.dataset.cheer||''));
+  v.querySelectorAll('.feedmini[data-prof]').forEach(b=>b.onclick=()=>openProfile(b.dataset.prof,'kudos'));
   v.querySelectorAll('.avo [data-prof]').forEach(b=>b.onclick=()=>openProfile(b.dataset.prof,'kudos'));
   {const qi=$('#qnote'),qp=$('#qpost');if(qp){let busy=false;const go2=async()=>{const text=norm(qi.value);if(!text||busy)return;if(!allOk(text))return;if(CLUB.list.some(x=>nkey(x.name)===nkey(me)&&x.text===text&&Date.now()-(x.at||0)<10*60e3)){qi.value='';return toast('✋ Already posted.')}
       busy=true;try{await ensureAnon();await col('posts').add({name:canon(me),uid:auth.currentUser.uid,text,at:Date.now(),kind:'note',likes:{}});qi.value='';closeMPop();toast('Posted 💬')}catch(e){toast(e.code==='permission-denied'?'Ask the organizer to update the app rules.':'Couldn’t post ('+(e.code||'error')+').')}busy=false};
@@ -2299,14 +2360,17 @@ function openSuggest(){const me=allNames().find(n=>nkey(n)===nkey(getMe()));cons
     <div class="sub"><textarea class="txt" id="rqtext" rows="5" maxlength="1000" placeholder="${kind==='bug'?'What happened, and what did you expect? e.g. I tapped Save score and nothing happened.':kind==='q'?'What would you like to know?':'What would make the app better for you?'}">${esc(($('#rqtext')||{}).value||'')}</textarea></div>
     <div class="sub">${img?`<div class="mix" style="gap:10px"><img src="${img}" alt="" style="width:64px;height:84px;object-fit:cover;border-radius:10px;border:1px solid var(--line)"><button class="lnk danger" id="rqimgx">Remove screenshot</button></div>`:`<label class="btn sm line" style="cursor:pointer">${ic('camera')}Add a screenshot (optional)<input type="file" accept="image/*" id="rqimg" hidden></label>`}</div>
     <div class="sub"><small class="hint" style="margin:0">Attached automatically: page “${esc(ctx.page)}” · v${esc(ctx.ver)} · ${esc(ctx.dev)}</small></div>
-    <div class="card-f"><button class="btn primary block" id="rqsend">${ic('check')}Send</button></div>`,'Suggest or report');
+    <div class="card-f" style="display:grid;gap:8px"><button class="btn primary block" id="rqsend">${ic('check')}Send</button>${MYREQ.list.length?`<button class="lnk" id="rqmine" type="button">See what I’ve sent (${MYREQ.list.length}) ›</button>`:''}</div>`,'Suggest or report');
+    const rm=$('#rqmine');if(rm)rm.onclick=openMyRequests;
     bg.querySelectorAll('[data-rk]').forEach(b=>b.onclick=()=>{kind=b.dataset.rk;draw()});
     const fi=$('#rqimg');if(fi)fi.onchange=async()=>{const f=fi.files[0];if(!f)return;try{img=await shrinkImage(f);draw()}catch(e){toast('Couldn’t read that image.')}};
     const ix=$('#rqimgx');if(ix)ix.onclick=()=>{img='';draw()};
     $('#rqsend').onclick=async()=>{const text=norm($('#rqtext').value);if(text.length<4)return toast('Write a few words first.');const b=$('#rqsend');
       const key='ss-lastreq'+SUF;let last='';try{last=localStorage.getItem(key)||''}catch(e){}if(last===text)return toast('✋ You already sent this one.');
       b.disabled=true;try{await ensureAnon();const d={kind,text,name:me?canon(me):'Someone',uid:auth.currentUser.uid,at:Date.now(),ctx,status:'new'};if(img)d.img=img;
-        await col('requests').add(d);try{localStorage.setItem(key,text)}catch(e){}closeWho();toast('Thanks! Sent to the organizers 💚')}
+        await col('requests').add(d);try{localStorage.setItem(key,text)}catch(e){}
+        if(kind==='idea'&&me){try{await col('posts').add({name:canon(me),uid:auth.currentUser.uid,text:text.slice(0,1000),at:Date.now(),kind:'idea',likes:{}})}catch(e){}}
+        closeWho();toast(kind==='idea'?'Thanks! Shared in the Feed and sent to the organizers 💡':'Thanks! Sent to the organizers 💚')}
       catch(e){b.disabled=false;toast(e.code==='permission-denied'?'Ask the organizer to publish the latest app rules.':'Couldn’t send ('+(e.code||'error')+').')}};
   };draw()}
 function requestsHTML(){startRequests();const F=REQ.filter,L=REQ.list.filter(r=>F==='all'||(F==='done'?r.status==='done':r.status!=='done'));const open=REQ.list.filter(r=>r.status!=='done');
@@ -2316,16 +2380,47 @@ function requestsHTML(){startRequests();const F=REQ.filter,L=REQ.list.filter(r=>
     ${L.map(r=>{const [e,l]=REQK[r.kind]||REQK.idea,c=r.ctx||{};return`<div class="row" style="flex-direction:column;align-items:stretch;gap:6px${r.status==='done'?';opacity:.6':''}"><div style="display:flex;justify-content:space-between;gap:8px"><b>${e} ${l} · ${esc(r.name||'')}</b><small class="hint" style="margin:0;white-space:nowrap">${timeAgo(r.at)} ${hm(r.at)}</small></div>
       <div style="white-space:pre-wrap;line-height:1.4">${esc(r.text)}</div><small class="hint" style="margin:0">${esc(c.page||'')} · v${esc(c.ver||'')} · ${esc(c.dev||'')}${c.role?' · '+esc(c.role):''}</small>
       ${r.img?`<img src="${r.img}" alt="Screenshot" style="max-width:120px;border-radius:10px;border:1px solid var(--line);cursor:zoom-in" data-rq="img:${esc(r.id)}">`:''}
-      <div class="mix" style="gap:14px">${r.status==='done'?`<button class="lnk" data-rq="reopen:${esc(r.id)}">Reopen</button>`:`<button class="lnk" data-rq="done:${esc(r.id)}">${ic('check')} Mark done</button>`}<button class="lnk" data-rq="copy:${esc(r.id)}">Copy</button><button class="lnk danger" data-rq="del:${esc(r.id)}">Delete</button></div></div>`}).join('')||`<div class="empty">${ic('check')}${F==='done'?'Nothing marked done yet.':'No open ideas or problems.'}</div>`}`}
+      ${reqExtras(r)}
+      <div class="mix" style="gap:14px;flex-wrap:wrap"><button class="lnk" data-rq="reply:${esc(r.id)}">💬 Reply</button>${r.name&&nkey(r.name)!==nkey(getMe())?`<button class="lnk" data-rq="reward:${esc(r.id)}">🥑 Reward</button>`:''}${r.status==='done'?`<button class="lnk" data-rq="reopen:${esc(r.id)}">Reopen</button>`:`<button class="lnk" data-rq="done:${esc(r.id)}">${ic('check')} Mark done</button>`}<button class="lnk" data-rq="copy:${esc(r.id)}">Copy</button><button class="lnk danger" data-rq="del:${esc(r.id)}">Delete</button></div></div>`}).join('')||`<div class="empty">${ic('check')}${F==='done'?'Nothing marked done yet.':'No open ideas or problems.'}</div>`}`}
 function reqText(list){const L=['Shuttle Split feedback · '+(S.groupName||'Badminton Family')+' · '+list.length+' item'+(list.length===1?'':'s')+' (app v'+APP_VERSION+')',''];
   list.forEach((r,i)=>{const [e,l]=REQK[r.kind]||REQK.idea,c=r.ctx||{};L.push((i+1)+'. '+e+' '+l+' from '+(r.name||'someone')+' · '+dlabel(ymd(new Date(r.at)),{day:'numeric',month:'short'})+' '+hm(r.at));
     L.push('   "'+r.text.replace(/\n/g,' ')+'"');L.push('   Page: '+(c.page||'?')+' · v'+(c.ver||'?')+' · '+(c.dev||'?')+(c.role?' · '+c.role:'')+(r.img?' · screenshot in the app':''));L.push('')});return L.join('\n')}
+/* players: everything they suggested or reported, with its status */
+const MYREQ={list:[],unsub:null,uid:''};
+function startMyReq(){if(!db||!auth||!auth.currentUser)return;const uid=auth.currentUser.uid;if(MYREQ.unsub&&MYREQ.uid===uid)return;if(MYREQ.unsub)MYREQ.unsub();MYREQ.uid=uid;
+  MYREQ.unsub=col('requests').where('uid','==',uid).onSnapshot(q=>{MYREQ.list=q.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(b.at||0)-(a.at||0));renderHeader();if($('#myreqs'))openMyRequests()},()=>{})}
+function openMyRequests(){startMyReq();startAvo();const L=MYREQ.list,ideas=L.filter(r=>r.kind==='idea'),done=L.filter(r=>r.status==='done');
+  const postOf=r=>r.kind==='idea'&&(CLUB.list||[]).find(x=>x.kind==='idea'&&x.text===String(r.text).slice(0,1000)&&nkey(x.name)===nkey(r.name||''));
+  const bg=sheetOpen(`<div class="sheet-h" id="myreqs"><span class="ini">💡</span><div><b>My ideas & problems</b><small>Everything you sent from this phone, and what happened to it</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div>
+    <div class="acct" style="grid-template-columns:repeat(2,minmax(0,1fr))"><div><span>💡 Ideas</span><b>${ideas.length}</b></div><div><span>🐞 Problems & questions</span><b>${L.length-ideas.length}</b></div><div class="good"><span>✅ Done</span><b>${done.length}</b></div><div class="good"><span>🥑 Rewards</span><b>${AVO.list.filter(g=>g.ref&&L.some(r=>r.id===g.ref)).reduce((a,g)=>a+(+g.amt||0),0)}</b></div></div>
+    ${L.map(r=>{const k=REQK[r.kind]||['💬',''],p=postOf(r),rc=p?Object.keys(p.likes||{}).length:0,cc=p?(CMT.list||[]).filter(c=>c.target==='post:'+p.id).length:0;
+      return`<div class="sub" style="border-top:1px solid var(--line2);padding:12px 16px"><div class="mix" style="justify-content:space-between;gap:8px"><b>${k[0]} ${esc(k[1])}</b><span class="${r.status==='done'?'ok-chip':'wait-chip'}" style="font-size:12px">${r.status==='done'?'✅ Done'+(r.doneAt?' · '+esc(dlabel(ymd(new Date(r.doneAt)),{day:'numeric',month:'short'})):''):'📬 With the organizers'}</span></div>
+        <p style="margin:6px 0 4px">${esc(r.text)}</p><small class="hint" style="margin:0">Sent ${timeAgo(r.at)}${r.ctx&&r.ctx.page?' · from '+esc(r.ctx.page):''}${p?' · in the Feed'+(rc?' · '+rc+' reaction'+(rc>1?'s':''):'')+(cc?' · '+cc+' comment'+(cc>1?'s':''):''):''}</small>
+        ${reqExtras(r)}${p?`<button class="lnk" data-myreqpost="${esc(p.id)}" style="display:block;margin-top:4px">See it in the Feed ›</button>`:''}</div>`}).join('')||`<div class="empty">${ic('chat')}Nothing yet. Your ideas make the app better for everyone 💚</div>`}
+    <div class="card-f"><button class="btn primary block" id="myreqnew">${ic('chat')}Suggest an idea or report a problem</button></div>`,'My ideas & problems');
+  $('#myreqnew').onclick=openSuggest;bg.querySelectorAll('[data-myreqpost]').forEach(b=>b.onclick=()=>{closeWho();CLUBOPEN.add(b.dataset.myreqpost);SUB.club='feed';go('club')})}
+/* organizer comments and Avokudos rewards attached to an idea or problem */
+function reqExtras(r){const R=(r.replies||[]),G=AVO.list.filter(g=>g.ref===r.id);if(!R.length&&!G.length)return'';
+  return`<div class="reqx">${R.map(x=>`<div class="cmt">${ini(x.by,'','sm')}<div class="cb"><div><b>${esc(x.by)}</b> <span class="tagchip">Organizer</span> <small>${timeAgo(x.at)}</small></div><div class="ct">${mtext(x.text)}</div></div></div>`).join('')}
+    ${G.map(g=>`<div class="cmt">${ini(g.from,'','sm')}<div class="cb"><div><b>${esc(g.from)}</b> <span class="avochip">🥑 ${g.amt}</span> <small>${timeAgo(g.at)}</small></div><div class="ct">${mtext(g.msg)}</div></div></div>`).join('')}</div>`}
+function openReqReply(r){const bg=sheetOpen(`<div class="sheet-h"><span class="ini">💬</span><div><b>Reply to ${esc(first(r.name||'player'))}</b><small>They see it under “My ideas & problems” and in their bell</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div>
+    <div class="sub" style="padding-top:12px"><p class="hint" style="margin:0 0 8px">${(REQK[r.kind]||REQK.idea)[0]} “${esc(String(r.text).slice(0,160))}”</p><textarea class="txt" id="rrtext" data-mention rows="3" maxlength="500" placeholder="Thanks! We’ll add this next week…"></textarea>
+      <label class="chkrow"><input type="checkbox" class="chk" id="rrdone" ${r.status==='done'?'checked disabled':''}><span>Mark as done</span></label></div>
+    <div class="card-f"><button class="btn primary block" id="rrsend">${ic('check')}Send reply</button></div>`,'Reply');
+  $('#rrsend').onclick=async()=>{const t=norm($('#rrtext').value);if(!t)return toast('Write a reply.');$('#rrsend').disabled=true;
+    try{const by=canon(myName()||'Organizer'),patch={replies:[...(r.replies||[]),{by,text:t,at:Date.now()}]};if($('#rrdone').checked&&r.status!=='done'){patch.status='done';patch.doneAt=Date.now()}
+      await col('requests').doc(r.id).update(patch);closeWho();toast('Reply sent to '+first(r.name||'the player')+' 💬');
+      if(patch.status==='done'&&r.kind==='idea'){try{await ensureAnon();await col('posts').add({name:by,uid:auth.currentUser.uid,text:('✅ Done: “'+r.text+'”'+(r.name?' (idea by '+first(r.name)+')':'')).slice(0,1000),at:Date.now(),kind:'update',likes:{}})}catch(e){}}}
+    catch(e){$('#rrsend').disabled=false;toast('Couldn’t send ('+(e.code||'error')+').')}}}
 async function reqAction(act,id,el){const r=REQ.list.find(x=>x.id===id),open=REQ.list.filter(x=>x.status!=='done').slice().reverse();
+  if(act==='reply'&&r)return openReqReply(r);
+  if(act==='reward'&&r)return openAvo({to:[r.name],msg:'Thanks for your '+(r.kind==='idea'?'idea':r.kind==='bug'?'report':'question')+' 💡 “'+String(r.text).slice(0,120)+'”',tag:'Ideas',amt:25,ref:r.id,title:'🥑 Reward '+first(r.name)});
   if(act==='copy')return copyText(reqText(r?[r]:open),'Copied. Paste it in your chat with Claude.');
   if(act==='share'){const t=reqText(open);if(navigator.share){try{await navigator.share({text:t})}catch(e){}}else copyText(t,'Copied.');return}
   if(act==='img'&&r)return sheetOpen(`<div class="sheet-h"><span class="ini">${ic('image')}</span><div><b>Screenshot</b><small>${esc(r.name||'')} · ${timeAgo(r.at)}</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div><img src="${r.img}" alt="Screenshot" style="width:100%;display:block">`,'Screenshot');
   if(act==='del'&&el.dataset.c!=='1'){el.dataset.c='1';el.textContent='Tap to delete';return}
-  try{const ref=col('requests').doc(id);if(act==='del')await ref.delete();else await ref.update({status:act==='done'?'done':'new',doneAt:Date.now()})}catch(e){toast('Couldn’t update ('+(e.code||'error')+').')}}
+  try{const ref=col('requests').doc(id);if(act==='del')await ref.delete();else{await ref.update({status:act==='done'?'done':'new',doneAt:Date.now()});
+    if(act==='done'&&r&&r.kind==='idea'){const me=myName()||'Organizer';try{await ensureAnon();await col('posts').add({name:canon(me),uid:auth.currentUser.uid,text:('✅ Done: “'+r.text+'”'+(r.name?' (idea by '+first(r.name)+')':'')).slice(0,1000),at:Date.now(),kind:'update',likes:{}});toast('Marked done and announced in the Feed ✅')}catch(e){}}}}catch(e){toast('Couldn’t update ('+(e.code||'error')+').')}}
 /* ---------- 2. any post or result as a picture card, so Instagram & co. accept it ---------- */
 async function textCard(o){try{await document.fonts.load('800 40px Manrope')}catch(e){}const sk=SKINS[S.skin]||SKINS.court,W=1080,H=1350,cv=document.createElement('canvas');cv.width=W;cv.height=H;const g=cv.getContext('2d'),F='Manrope,system-ui,sans-serif';
   const gr=g.createLinearGradient(0,0,W,H);gr.addColorStop(0,sk.accent);gr.addColorStop(1,mix(sk.accent,'#000000',.35));g.fillStyle=gr;g.fillRect(0,0,W,H);
@@ -2345,7 +2440,7 @@ async function shareCupCard(T){const ch=cupChampion(T),body=T.format==='rr'||!ch
 const actSeen=()=>{try{return+localStorage.getItem('ss-actseen'+SUF)||0}catch(e){return 0}};
 function activityItems(){const me=nkey(getMe()),uid=auth&&auth.currentUser&&auth.currentUser.uid;if(!me)return[];const out=[];
   const mineP=x=>(uid&&x.uid===uid)||nkey(x.name||'')===me,ment=x=>{const m=mentionsIn(x.text);return m.has(me)||m.has('all')};
-  (CLUB.list||[]).forEach(x=>{if(mineP(x))return;if(ment(x)){out.push({at:x.at,ic:'📣',t:first(x.name)+' mentioned you in a post',s:x.text||'',go:()=>{SUB.club=x.kind==='tip'?'tips':'feed';CLUBOPEN.add(x.id);go('club')}});return}const what=x.kind==='photo'?'shared a photo memory 📸':x.kind==='tip'?'shared a tip 💡':x.kind==='note'?'posted in the Feed':'posted a shout-out 👏';
+  (CLUB.list||[]).forEach(x=>{if(mineP(x))return;if(ment(x)){out.push({at:x.at,ic:'📣',t:first(x.name)+' mentioned you in a post',s:x.text||'',go:()=>{SUB.club=x.kind==='tip'?'tips':'feed';CLUBOPEN.add(x.id);go('club')}});return}const what=x.kind==='photo'?'shared a photo memory 📸':x.kind==='tip'?'shared a tip 💡':x.kind==='note'?'posted in the Feed':x.kind==='idea'?'shared an idea 💡':x.kind==='update'?'posted an update ✅':'posted a shout-out 👏';
     const forMe=x.kind==='shout'&&nkey(String(x.text||'').replace(/^👏\s*/,'').split(':')[0])===me;
     out.push({at:x.at,ic:forMe?'👏':x.kind==='photo'?'📸':x.kind==='tip'?'💡':'👏',t:forMe?first(x.name)+' gave you a shout-out!':first(x.name)+' '+what,s:x.text||'',go:()=>{SUB.club=x.kind==='tip'?'tips':'feed';CLUBOPEN.add(x.id);go('club')}})});
   (CMT.list||[]).forEach(c=>{if(mineP(c))return;const tgt=c.target||'';
@@ -2358,15 +2453,19 @@ function activityItems(){const me=nkey(getMe()),uid=auth&&auth.currentUser&&auth
   (CHAT.list||[]).forEach(c=>{if(mineP(c))return;const where=c.target==='chat:group'?'the group chat':'a game chat',parent=c.parent&&CHAT.list.find(y=>y.id===c.parent);
     if(ment(c))out.push({at:c.at,ic:'📣',t:first(c.name)+' mentioned you in '+where,s:c.text,go:()=>openChatTarget(c.target)});
     else if(parent&&mineP(parent))out.push({at:c.at,ic:'💬',t:first(c.name)+' replied to you in '+where,s:c.text,go:()=>openChatTarget(c.target)})});
+  MYREQ.list.forEach(r=>(r.replies||[]).forEach(x=>out.push({at:x.at,ic:'💬',t:first(x.by)+' replied to your '+(r.kind==='idea'?'idea':r.kind==='bug'?'problem report':'question'),s:x.text,go:openMyRequests})));
+  MYREQ.list.filter(r=>r.status==='done'&&r.doneAt).forEach(r=>out.push({at:r.doneAt,ic:'✅',t:'Your '+(r.kind==='idea'?'idea':r.kind==='bug'?'problem report':'question')+' is done!',s:r.text,go:openMyRequests}));
   {const t0=new Date(todayStr()+'T00:00').getTime();occasionsToday().forEach(o=>{const mine=nkey(o.n)===me,what=o.kind==='bday'?'birthday':o.kind==='anniv'?'anniversary':o.title;
     out.push({at:t0,ic:o.emoji,t:mine?'Happy '+what+', '+first(o.n)+'! 🎉':'It’s '+first(o.n)+'’s '+what+' today',s:mine?'The whole group can wish you today':'Tap to send a wish · everyone gets a different line',go:()=>openWish(o)})})}
+  AVO.list.slice(0,40).forEach(g=>{const tk=g.toKey||nkey(g.to);if(tk!==me&&nkey(g.from)!==me)out.push({at:g.at,ic:'🥑',t:first(g.from)+' gave '+first(g.to)+(g.amt?' 🥑 '+g.amt:' a wish')+(g.tag?' for '+g.tag.toLowerCase():''),s:g.msg,go:()=>openProfile(g.to,'kudos')})});
   AVO.list.forEach(g=>{if((g.toKey||nkey(g.to))===me&&nkey(g.from)!==me)out.push({at:g.at,ic:'🥑',t:first(g.from)+' gave you '+(g.amt?'🥑 '+g.amt+' Avokudos':'a wish')+(g.tag?' for '+g.tag.toLowerCase():''),s:g.msg,go:()=>openProfile(getMe(),'kudos')})});
   {const mo=todayStr().slice(0,7);if(mIdx(mo)>=mIdx(avoStartFor(getMe())))out.push({at:new Date(mo+'-01T00:00').getTime(),ic:'🥑',t:AVO_MONTHLY+' Avokudos landed for '+dlabel(mo+'-01',{month:'long'}),s:'You have 🥑 '+avoBalance(getMe())+' to give. Thank someone for their play, kindness or leadership',go:()=>openAvo()})}
+  CHAL.list.filter(c=>c.status==='done'&&c.doneAt).slice(0,10).forEach(c=>out.push({at:c.doneAt,ic:'🏁',t:'Result: '+chalTitle(c),s:(c.score||[]).map(g=>g.a+'–'+g.b).join(', ')+' · '+((c.winner==='a'?c.a:c.b)||[]).map(first).join(' & ')+' won'+(c.prize==='free'?' and plays free 🏆':''),go:()=>openChalView(c.id)}));
   CHAL.list.forEach(c=>{const mineA=(c.a||[]).some(n=>nkey(n)===me),mineB=(c.b||[]).some(n=>nkey(n)===me);if(!mineA&&!mineB)return;
     if(c.status==='open'&&mineB)return;
     if(c.status==='accepted'&&mineA&&c.acceptedAt)out.push({at:c.acceptedAt,ic:'⚔️',t:first(c.acceptedBy||'')+' accepted your challenge! Game on',s:chalTitle(c),go:()=>openChalView(c.id)});
     else if(c.status==='declined'&&mineA&&c.acceptedAt)out.push({at:c.acceptedAt,ic:'🙅',t:first(c.acceptedBy||'')+' declined your challenge',s:chalTitle(c),go:()=>openChalView(c.id)});
-    else if(c.status==='done'&&c.doneAt)out.push({at:c.doneAt,ic:'🏁',t:'Result: '+chalTitle(c),s:(c.score||[]).map(g=>g.a+'–'+g.b).join(', ')+' · '+((c.winner==='a'?c.a:c.b)||[]).map(first).join(' & ')+' won',go:()=>openChalView(c.id)})});
+    else if(c.status==='done'&&c.doneAt&&false)out.push({at:c.doneAt,ic:'🏁',t:'Result: '+chalTitle(c),s:(c.score||[]).map(g=>g.a+'–'+g.b).join(', ')+' · '+((c.winner==='a'?c.a:c.b)||[]).map(first).join(' & ')+' won',go:()=>openChalView(c.id)})});
   return out.sort((a,b)=>(b.at||0)-(a.at||0)).slice(0,25)}
 const unreadActivity=()=>{const t=actSeen();return activityItems().filter(x=>(x.at||0)>t).length};
 
@@ -2464,6 +2563,7 @@ function teamMenu(org,AD,att,act){const rev=org?att.fresh.length+att.dups.length
     org?['Messages',[menuItem('','bell','Messages & reminders','Templates and reminder schedule',MSGS().on?'On':'Off','msgset2'),
       menuItem('contacts','users','Player contacts','Phones, emails, birthdays and blood groups · organizers only',Object.values(PROF.priv).filter(v=>v.phone).length+' 📞')]]:null,
     ['Help & ideas',[menuItem('','chat','Suggest an idea or report a problem','Goes to the organizers with the page and phone details attached','','suggest'),
+      menuItem('','check','My ideas & problems','What you sent and its status',(startMyReq(),MYREQ.list.length||''),'myreqs'),
       org?menuItem('requests','bell','Ideas & problems inbox','From players · copy them for Claude in one tap',(()=>{const n=REQ.list.filter(r=>r.status!=='done').length;return n?`<i class="nb">${n}</i>`:''})()):'']],
     ['Account',[menuItem('access','lock',org?'Access, groups & account':'Account & groups',org?'Co-organizers, other groups, sign in/out':'Sign in, other groups',isOrg?'Organizer':userEmail()?'Viewer':'Player'),
       org?menuItem('reset','trash','Start fresh','Clear test data before going live',''):'']]].filter(Boolean);
@@ -2835,6 +2935,7 @@ function bindTeam(){
     else if(a==='records'){teamUI.page='records';teamUI.rec=teamUI.rec||'pays';renderTeam();window.scrollTo(0,0);if(isOrg)loadOrgData(true)}
     else if(a==='msgset2')openMsgSettings();
     else if(a==='suggest')openSuggest();
+    else if(a==='myreqs')openMyRequests();
     else if(a==='contactsxl')exportContacts();
     else if(a==='actions')openActions();
     else if(a==='gnamesave'){const v=norm(($('#gnamep')||{}).value||'');if(!v||v.length>40)return toast('Group name: 1 to 40 characters.');if(v===S.groupName)return toast('That’s already the name.');
@@ -2884,7 +2985,7 @@ function defClose(first){let c=shift(first,-1)+'T22:00';if(new Date(c).getTime()
 /* one live poll per game date: anything not archived that covers an upcoming date it shares */
 function pollClash(dates,except){const t=todayStr();return P.list.filter(p=>p.id!==except&&!isArchived(p)&&(p.dates||[]).some(d=>d.date>=t&&dates.some(x=>x.date===d.date)))}
 function startNewPoll(){if(!isOrg){signIn();return}const[sa,su]=nextWeekend(0);
-  {const c=pollClash([{date:sa},{date:su}]).filter(p=>!isClosed(p));if(c.length){toast('This weekend’s poll is already open. Opening it.');if(tab!=='polls')go('polls');location.hash='poll-'+c[0].id;return}}P.draft={title:'Who’s up for Badminton this weekend?',dates:[{date:sa,note:'5-7 PM'},{date:su,note:'9-11 AM'}],perCourt:6,closes:defClose(sa)};P.mode='new';SUB.polls='list';if(tab!=='polls')go('polls');renderPolls();window.scrollTo(0,0)}
+  {const c=pollClash([{date:sa},{date:su}]).filter(p=>!isClosed(p));if(c.length){toast('This weekend’s poll is already open. Opening it.');if(tab!=='polls')go('polls');location.hash='poll-'+c[0].id;return}}P.draft={title:'Who’s up for Badminton this weekend?',dates:[{date:sa,note:'5-7 PM'},{date:su,note:'9-11 AM'}],perCourt:4,closes:defClose(sa)};P.mode='new';SUB.polls='list';if(tab!=='polls')go('polls');renderPolls();window.scrollTo(0,0)}
 function nextWeekend(w){const d=new Date(),sat=shift(todayStr(),((6-d.getDay()+7)%7)+7*w);return[sat,shift(sat,1)]}
 function latestByName(arr){const m={};arr.forEach(v=>{if(!v||!v.name)return;const k=nkey(v.name);if(!m[k]||(v.updatedAt||0)>(m[k].updatedAt||0))m[k]=v});return Object.values(m)}
 function waOpt(dt){const d=new Date(dt.date+'T00:00');return d.getDate()+'-'+d.toLocaleDateString('en-IN',{month:'short'})+' ('+d.toLocaleDateString('en-IN',{weekday:'long'})+')'+(dt.note?' | '+dt.note:'')}
@@ -2892,7 +2993,7 @@ const isClosed=p=>!!p&&(p.closed||(p.closesAt&&Date.now()>p.closesAt));
 function closeText(ms){const d=new Date(ms),ds=todayStr(),dd=ymd(d);const tm=d.toLocaleTimeString('en-IN',{hour:'numeric',minute:'2-digit'}).replace(':00','').toUpperCase();
   return(dd===ds?'today':dd===shift(ds,1)?'tomorrow':d.toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'short'}))+' at '+tm}
 function tally(poll,votes){
-  const voters=latestByName(votes),per=Math.max(1,+poll.perCourt||6);
+  const voters=latestByName(votes),per=Math.max(1,Math.min(4,+poll.perCourt||4));
   const res=(poll.dates||[]).map(dt=>{const yes=[],maybe=[],no=[];voters.forEach(v=>{const a=(v.answers||{})[dt.date];const vn=canon(v.name);if(a==='yes')yes.push(vn);else if(a==='maybe'){}else if(a==='no')no.push(vn)});
     return{...dt,yes:orderNames(yes),maybe:orderNames(maybe),no:orderNames(no),courts:yes.length?Math.ceil(yes.length/per):0,courtsMax:(yes.length+maybe.length)?Math.ceil((yes.length+maybe.length)/per):0}});
   const replied=new Set(voters.map(v=>nkey(v.name)));
@@ -2949,7 +3050,7 @@ async function autoBillFromPolls(){
       if(cur&&(cur.present||[]).length){S.billed.push(key);cfgChanged=true;continue}
       if(!yesRaw.length)continue;
       const yes=uniq(yesRaw.map(v=>toRoster(v.name)));S.billed.push(key);cfgChanged=true;
-      const per=Math.max(1,+p.perCourt||6),courts=Math.max(1,Math.ceil(yes.length/per)),h=slotHours(dt.note);
+      const per=Math.max(1,Math.min(4,+p.perCourt||4)),courts=Math.max(1,Math.ceil(yes.length/per)),h=slotHours(dt.note);
       const base=cur?getDay(dt.date):Object.assign(blankDay(dt.date),{hours:h?h*courts:2});
       const d=Object.assign(base,{present:yes,src:'poll',poll:p.id,slot:dt.note||'',courtsBooked:courts,autoSync:true});
       S.days[dt.date]=d;queueWrite('days/'+dt.date,d);made.push(dt.date)}}
@@ -3140,7 +3241,7 @@ function renderNewPoll(v){
   <section class="card">${cardH('bell','Voting closes')}
     <div class="pad"><input class="txt" type="datetime-local" id="pclose" value="${esc(D.closes||'')}" aria-label="Voting closes"><p class="hint">No more votes after this. Leave empty to close it yourself.</p></div></section>
   <section class="card">${cardH('users','Court booking')}
-    <div class="row"><div class="l"><b>Players per court</b><small>4 = everyone plays every game; 6+ = rotate</small></div>
+    <div class="row"><div class="l"><b>Players per court</b><small>Each court takes up to 4 players</small></div>
       <div class="stp"><button type="button" id="pcm" aria-label="Fewer">${ic('minus')}</button><output>${D.perCourt}</output><button type="button" id="pcp" aria-label="More">${ic('plus')}</button></div></div></section>
   <button class="btn primary block" id="createpoll">${ic('check')}Create poll</button>`;
   const keep=()=>{D.title=$('#ptitle').value;D.closes=$('#pclose').value};
@@ -3150,7 +3251,7 @@ function renderNewPoll(v){
   v.querySelectorAll('[data-rmdate]').forEach(b=>b.onclick=()=>{keep();D.dates.splice(+b.dataset.rmdate,1);renderPolls()});
   $('#adddate').onclick=()=>{keep();const d=$('#ndate').value;if(!d)return;const note=norm($('#nnote').value);D.dates=D.dates.filter(x=>!(x.date===d&&x.note===note));D.dates.push({date:d,note});D.dates.sort((a,b)=>a.date.localeCompare(b.date));renderPolls()};
   $('#pcm').onclick=()=>{keep();D.perCourt=Math.max(2,D.perCourt-1);renderPolls()};
-  $('#pcp').onclick=()=>{keep();D.perCourt=Math.min(12,D.perCourt+1);renderPolls()};
+  $('#pcp').onclick=()=>{keep();D.perCourt=Math.min(4,D.perCourt+1);renderPolls()};
   $('#createpoll').onclick=async()=>{keep();if(!norm(D.title))return toast('Add a question for the poll.');if(!D.dates.length)return toast('Add at least one date.');
     const ca=D.closes?new Date(D.closes).getTime():null;if(ca&&ca<Date.now())return toast('The closing time has already passed.');
     const clash=pollClash(D.dates);if(clash.length){const c=clash[0],days=(c.dates||[]).filter(d=>D.dates.some(x=>x.date===d.date)).map(d=>dlabel(d.date,{weekday:'short',day:'numeric',month:'short'})).join(', ');
@@ -3314,7 +3415,7 @@ if('serviceWorker' in navigator)window.addEventListener('load',()=>{const had=!!
   auth.getRedirectResult().catch(e=>toast('Sign-in failed: '+(e.message||e.code)));
   auth.onAuthStateChanged(u=>{const changed=computeOrg();
     if(!authInit||changed){authInit=true;renderTab(true);if(isOrg&&cfgMissing){cfgMissing=false;saveConfig()}}else renderHeader();
-    if(isOrg){loadOrgData(true);startRequests();startPrivate();startActions()}});
+    if(isOrg){loadOrgData(true);startRequests();startPrivate();startActions()}setTimeout(startMyReq,0)});
   if(GID)db.doc(COLLECTION_PREFIX+'groups/'+GID).onSnapshot(s=>{
     if(!s.exists&&!s.metadata.fromCache){GROUP_MISSING=true;renderHeader();return}
     if(s.exists){GROUP=s.data();GROUP_MISSING=false;if(!S.groupName)S.groupName=GROUP.name||'';rememberGroup();if(computeOrg()){renderTab(true);if(isOrg)loadOrgData(true)}else renderHeader()}},()=>{});
@@ -3333,7 +3434,7 @@ if('serviceWorker' in navigator)window.addEventListener('load',()=>{const had=!!
   payCol().onSnapshot(q=>{PAYS=q.docs.map(d=>({id:d.id,...d.data()}));if(!typingIn('#view-day')&&!typingIn('#view-team')&&!typingIn('#view-me'))renderTab(false);else STALE=true},()=>{});
   document.addEventListener('focusout',()=>setTimeout(()=>{if(STALE&&!typingIn('#view-'+tab)){STALE=false;renderTab(false)}},120));
   document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){renderTab(false);syncUI()}});
-  startPollsListener();startProfiles();routeHash();setTimeout(()=>{startClub();startComments();startChat();startAvo();startOcc();startChal()},tab==='club'||tab==='cup'?0:1200);setTimeout(startRequests,1200);setTimeout(takeShared,1600);window.addEventListener('hashchange',routeHash);
+  startPollsListener();startProfiles();startChal();startCup();routeHash();setTimeout(()=>{startClub();startComments();startChat();startAvo();startOcc();startChal();startMyReq()},tab==='club'||tab==='cup'?0:1200);setTimeout(startRequests,1200);setTimeout(takeShared,1600);window.addEventListener('hashchange',routeHash);
   setTimeout(()=>pingSeen(false),1500);startUse();
 })();
 })();
