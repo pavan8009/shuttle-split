@@ -358,6 +358,17 @@ details.poster:not([open]) .card-h{border-bottom:0}
 .ini.av-lg{width:72px;height:72px;font-size:22px}.ini.av-lg img{width:100%;height:100%;object-fit:cover}
 .fld{display:grid;gap:4px;margin:8px 0}.fld>span{font-size:12.5px;font-weight:700;color:var(--muted)}textarea.txt{height:auto;padding-top:10px;padding-bottom:10px;resize:vertical;font:inherit}
 .chipbtn{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:6px 12px;font:inherit;font-size:13px;font-weight:700;cursor:pointer}.chipbtn.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.mav{width:20px;height:20px;border-radius:50%;background:var(--soft);color:var(--accent);display:inline-grid;place-items:center;font-size:8.5px;font-weight:800;overflow:hidden;flex:none;vertical-align:middle;box-shadow:0 0 0 1.5px var(--surface)}.mav img{width:100%;height:100%;object-fit:cover}
+.pnm{display:inline-flex;align-items:center;gap:6px;min-width:0;max-width:100%}.pnm .wn{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.avs{display:inline-flex;flex:none}.avs .mav+.mav{margin-left:-6px}
+.avs.lg .ini+.ini{margin-left:-10px;box-shadow:0 0 0 2px var(--surface)}
+.medwrap{position:relative;flex:none;display:inline-flex}.medwrap .medal{position:absolute;right:-7px;bottom:-6px;font-size:17px;line-height:1;font-style:normal;filter:drop-shadow(0 1px 1px rgba(0,0,0,.2))}
+.tile .tav{position:relative;display:inline-flex}.tile .tav .mav{width:24px;height:24px;font-size:9.5px}.tile .tav i{position:absolute;right:-4px;bottom:-4px;width:14px;height:14px;border-radius:50%;background:var(--accent);color:#fff;display:none;place-items:center}.tile .tav i .ic{width:10px;height:10px}.tile.on .tav i{display:grid}
+.nm-chip .mav{width:18px;height:18px;margin-right:5px;font-size:8px}
+.mention{display:inline;border:0;background:var(--soft);color:var(--accent);font:inherit;font-weight:800;padding:0 4px;border-radius:6px;cursor:pointer}
+.mpop{position:fixed;z-index:9999;background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:0 10px 30px rgba(16,24,40,.18);padding:4px;display:grid;max-height:280px;overflow:auto}
+.mpop button{display:flex;align-items:center;gap:10px;border:0;background:none;padding:8px 10px;border-radius:10px;font:inherit;text-align:left;cursor:pointer;color:var(--ink)}.mpop button:hover,.mpop button:focus{background:var(--soft)}.mpop .ini{width:28px;height:28px;font-size:11px}.mpop small{color:var(--muted);margin-left:auto}
+.nudge{position:fixed;left:12px;right:12px;top:calc(10px + env(safe-area-inset-top));z-index:9998;background:var(--surface);border:1px solid var(--line);border-radius:16px;box-shadow:0 10px 30px rgba(16,24,40,.2);padding:10px 12px;display:flex;align-items:center;gap:10px;font-size:14px;font-weight:700;max-width:520px;margin:0 auto}.nudge span{flex:1;min-width:0}
+.chatroom .tlist{max-height:52vh;overflow:auto;overscroll-behavior:contain}
 .chkrow{display:flex;gap:10px;align-items:flex-start;margin:10px 0;font-size:13.5px}.privbox{margin-top:10px;padding:10px 12px;border-radius:12px;background:var(--field);display:grid;gap:6px;font-size:14px}.privbox a{color:var(--accent);font-weight:700;text-decoration:none}
 .sheet-h div{flex:1;min-width:0}
 .sheet-h b{display:block;font-size:18px;font-weight:800}
@@ -457,7 +468,7 @@ const FIREBASE_CONFIG = {
 /* Collections get this prefix so they never clash with the league app's data */
 const COLLECTION_PREFIX = "shuttleSplit_";
 /* App version shown in Team → About */
-const APP_VERSION = "2.7.0", APP_BUILD = "3 Nov 2026";
+const APP_VERSION = "2.9.1", APP_BUILD = "3 Nov 2026";
 /* Owner of the main group (the link without ?g=) */
 const LEGACY_OWNER = "pavankaki.cool@gmail.com";
 /* Starting player list, used only until the first save */
@@ -538,7 +549,7 @@ async function flush(path){
 function syncUI(){const el=$('#sync');if(!el||!db)return;const n=Object.keys(pending).length+Object.values(inflight).filter(Boolean).length;
   const st=!navigator.onLine?'off':n?'save':'live';el.className='sync '+st;el.textContent=st==='off'?'Offline · will sync':st==='save'?'Saving…':'Live';el.hidden=false}
 window.addEventListener('online',()=>syncUI());window.addEventListener('offline',()=>syncUI());
-function saveConfig(){queueWrite('config/main',{roster:S.roster,rate:S.rate,courts:1,groupName:S.groupName||'',skin:S.skin||'court',upiId:S.upiId||'',upiName:S.upiName||'',levels:S.levels||{},admins:S.admins||[],inactive:S.inactive||[],ignored:S.ignored||[],openNames:S.openNames!==false,idleWeeks:S.idleWeeks==null?4:S.idleWeeks,since:S.since||{},autoOff:S.autoOff||{},billed:(S.billed||[]).slice(-200),msg:S.msg||null,sent:trimSent(S.sent),board:S.board||null,dupOk:(S.dupOk||[]).slice(-100),model:S.model||'post',load:+S.load||1000,low:S.low==null?200:+S.low})}
+function saveConfig(){queueWrite('config/main',{roster:S.roster,rate:S.rate,courts:1,groupName:S.groupName||'',skin:S.skin||'court',upiId:S.upiId||'',upiName:S.upiName||'',levels:S.levels||{},admins:S.admins||[],inactive:S.inactive||[],ignored:S.ignored||[],openNames:S.openNames!==false,idleWeeks:S.idleWeeks==null?4:S.idleWeeks,since:S.since||{},autoOff:S.autoOff||{},billed:(S.billed||[]).slice(-200),msg:S.msg||null,sent:trimSent(S.sent),board:S.board||null,dupOk:(S.dupOk||[]).slice(-100),model:S.model||'post',load:+S.load||1000,low:S.low==null?200:+S.low,perms:S.perms||{}})}
 /* ---------- organizers ---------- */
 const userEmail=()=>{const u=auth&&auth.currentUser;return u&&!u.isAnonymous&&u.email?u.email.toLowerCase():''};
 const ownerEmail=()=>String((GID?(GROUP&&GROUP.owner):LEGACY_OWNER)||'').toLowerCase();
@@ -755,7 +766,7 @@ const SUB={pay:'',polls:'list',club:'feed',cup:'m'};
 const subnav=(key,items)=>`<nav class="subnav" role="tablist">${items.filter(Boolean).map(([k,l,n])=>`<button role="tab" data-sub="${key}:${k}"${SUB[key]===k?' class="on" aria-selected="true"':''}>${l}${n?`<i class="nb">${n}</i>`:''}</button>`).join('')}</nav>`;
 function applySub(v,key){const cur=SUB[key];v.querySelectorAll(':scope>[data-in]').forEach(el=>el.hidden=el.dataset.in!==cur);v.querySelectorAll('[data-sub]').forEach(b=>{const on=b.dataset.sub===key+':'+cur;b.classList.toggle('on',on);b.setAttribute('aria-selected',String(on))})}
 function goSub(t,sub){if(t==='team'){teamUI.page=sub;go('team');teamUI.page=sub;renderTeam();return}SUB[t]=sub;go(t)}
-document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-sub]');if(!b)return;const[k,sv]=b.dataset.sub.split(':');SUB[k]=sv;const v=$('#view-'+(k==='pay'?'pay':k));applySub(v,k);if(k==='pay')renderHeader();const n=v.querySelector('.subnav');if(n&&n.getBoundingClientRect().top<0)n.scrollIntoView({block:'start'})});
+document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-sub]');if(!b)return;const[k,sv]=b.dataset.sub.split(':');SUB[k]=sv;const v=$('#view-'+(k==='pay'?'pay':k));applySub(v,k);if(k==='pay')renderHeader();if(k==='club'&&sv==='chat'){markChatSeen();const l=v.querySelector('.chatroom .tlist');if(l)l.scrollTop=l.scrollHeight}const n=v.querySelector('.subnav');if(n&&n.getBoundingClientRect().top<0)n.scrollIntoView({block:'start'})});
 const menuItem=(key,icon,title,desc,meta,act)=>`<button class="mi" ${act?`data-act="${act}"`:`data-hub="${key}"`}><span class="mico">${ic(icon)}</span><span class="mt"><b>${title}</b>${desc?`<small>${desc}</small>`:''}</span>${meta?`<span class="mm">${meta}</span>`:''}${ic('right')}</button>`;
 /* player tasks: what this person should do next (vote, pay, share) */
 function myTasks(){if(!db)return[];const me=allNames().find(n=>nkey(n)===nkey(getMe())),out=[];
@@ -783,6 +794,7 @@ function todoItems(){if(!isOrg||!db)return[];const out=[];
   if(rp||rd)out.push(['bell',plural(rp+rd,'reminder')+' to send',[rp?'poll and game':'',rd?(PRE()?'wallet top-up':'payment'):''].filter(Boolean).join(' and ')+' · send on WhatsApp below',()=>openTodo(true)]);
   const cl=allPays().filter(x=>x.status==='claimed').length;if(cl)out.push(['check',plural(cl,'payment')+' to confirm','Players say they’ve paid',()=>goSub('pay','dues')]);
   const q=billQueue();if(q.length)out.push(['share','Bill waiting to send',q.map(shortD).join(', '),()=>{closeWho();openBillSend()}]);
+  {const L=actOpen();if(L.length)out.push(['lock',plural(L.length,'player change')+' to review',L.slice(0,2).map(a=>first(a.name)+(a.status==='pending'?' asks: ':': ')+ACTK[a.kind]).join(' · '),openActions])}
   {const nr=REQ.list.filter(r=>r.status==='new').length;if(nr)out.push(['chat',nr===1?'1 new idea or problem':nr+' new ideas or problems','From players · tap to read',()=>goSub('team','requests')])}
   {const dp=dupPairs();if(dp.length)out.push(['copy',plural(dp.length,'repeated payment')+' to check',[...new Set(dp.map(x=>first(x[0].name)))].join(', ')+' · same amount recorded twice',openDupes])}
   try{const a=attention();const n=a.fresh.length+a.dups.length;if(n)out.push(['users',plural(n,'name')+' to review','New or duplicate names',()=>goSub('team','players')])}catch(e){}
@@ -793,7 +805,7 @@ function openDupes(){const dp=dupPairs();const src=x=>(x.by==='player'?'sent fro
       ${[a,b].map((x,i)=>`<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding-top:8px"><small class="hint" style="margin:0;flex:1;min-width:0">${i+1}. ${esc(dlabel(ymd(new Date(x.at||0)),{day:'numeric',month:'short'}))} ${hm(x.at)} · ${esc(src(x))}</small><button class="lnk danger" data-dupdel="${esc(x.id)}" style="white-space:nowrap">Remove</button></div>`).join('')}</div>`).join('')||`<div class="empty">${ic('check')}Nothing repeated.</div>`}`,'Check repeated payments');
   bg.querySelectorAll('[data-dupdel]').forEach(b=>b.onclick=async()=>{if(b.dataset.c!=='1'){b.dataset.c='1';b.textContent='Tap to confirm';return}b.disabled=true;await setPayStatus(b.dataset.dupdel,'delete');toast('Removed. Balance corrected.');setTimeout(openDupes,400)});
   bg.querySelectorAll('[data-dupok]').forEach(b=>b.onclick=()=>{S.dupOk=[...(S.dupOk||[]),b.dataset.dupok];saveConfig();toast('Kept both.');setTimeout(openDupes,200)})}
-function openTodo(toRem){startClub();startComments();const it=todoItems(),mt=myTasks().filter(x=>!x.done),n=it.length+mt.filter(x=>!x.opt).length;
+function openTodo(toRem){startClub();startComments();startChat();const it=todoItems(),mt=myTasks().filter(x=>!x.done),n=it.length+mt.filter(x=>!x.opt).length;
   const ua=unreadActivity();const bg=sheetOpen(`<div class="sheet-h"><span class="ini">${ic('bell')}</span><div><b>To do & activity</b><small>${n?plural(n,'thing')+' waiting on you':'All caught up 🎉'}${ua?' · '+ua+' new':''}</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div>
     ${it.length?`<span class="sublbl" style="margin:8px 16px 0">For the group (organizer)</span><div class="menu">${it.map((x,i)=>`<button class="mi" data-todo="${i}"><span class="mico">${ic(x[0])}</span><span class="mt"><b>${esc(x[1])}</b><small>${esc(x[2])}</small></span>${ic('right')}</button>`).join('')}</div>`:''}
     ${isOrg&&db?`<div style="margin:8px 12px 0">${remindersCard()}</div>`:''}
@@ -897,7 +909,7 @@ function refreshDay(){
     ${dueB.slice(0,6).map(x=>`<div class="prow">${ini(x.name)}<span class="nm">${esc(x.name)}<small>${x.since?'Due since '+esc(dlabel(x.since,{day:'numeric',month:'short'})):''}${x.claimed?' · '+inr(x.claimed)+' waiting confirmation':''}</small></span><span class="due-amt">${inr(x.due)}</span></div>`).join('')}
     ${dueB.length>6?`<div class="row"><small class="hint">and ${dueB.length-6} more</small></div>`:''}
     <div class="card-f"><a class="btn sm wa" href="${waHref(duesMsg(dueB))}" target="_blank" rel="noopener">${ic('chat')}Remind on WhatsApp</a><span class="hint" style="margin-left:auto">Red dot = owes money</span></div></section>`:'';
-  $('#att').innerHTML=names.length?names.map(p=>`<button type="button" class="tile ${d.present.includes(p)?'on':''}${dueSet.has(nkey(p))?' due':''}"${levelOf(p)?` style="box-shadow:inset 0 -3px 0 ${levelOf(p)[2]}" title="${levelOf(p)[1]}"`:''} data-act="toggle" data-v="${esc(p)}" aria-pressed="${d.present.includes(p)}">${ic('check')}<span>${esc(p)}</span></button>`).join(''):'<p class="hint">No players yet. Add names below.</p>';
+  $('#att').innerHTML=names.length?names.map(p=>`<button type="button" class="tile ${d.present.includes(p)?'on':''}${dueSet.has(nkey(p))?' due':''}"${levelOf(p)?` style="box-shadow:inset 0 -3px 0 ${levelOf(p)[2]}" title="${levelOf(p)[1]}"`:''} data-act="toggle" data-v="${esc(p)}" aria-pressed="${d.present.includes(p)}"><span class="tav">${av(p)}<i>${ic('check')}</i></span><span>${esc(p)}</span></button>`).join(''):'<p class="hint">No players yet. Add names below.</p>';
   $('#hval').textContent=fmtH(d.hours)+' h';
   $('#courtcalc').textContent=fmtH(d.hours)+' h × '+inr(d.rate)+' = '+inr(c.court);
   $('#costmeta').textContent=inr(c.actual);
@@ -1502,6 +1514,7 @@ function checkMoments(){const now=momentSnap();if(!MOMENT_BASE){MOMENT_BASE=now;
 function startCup(){if(!db||CUP.unsub)return;CUP.unsub=col('tournaments').orderBy('createdAt','desc').limit(30).onSnapshot(q=>{CUP.list=q.docs.map(d=>({id:d.id,...d.data()}));if(tab==='cup'&&!typingIn('#view-cup'))renderCup();if(CMT.redraw&&$('#whosheet'))CMT.redraw()},()=>{})}
 const lvlRank=n=>{const l=levelOf(n);return l?LEVELS.findIndex(x=>x[0]===l[0]):1.5};
 const ename=(T,id)=>{const e=(T.entries||[]).find(x=>x.id===id);return e?e.name:id==null?'Awaiting winner':'—'};
+const entNames=(T,id)=>{const e=(T.entries||[]).find(x=>x.id===id);return e&&e.players&&e.players.length?e.players:[]};
 function rrRounds(ids){const a=[...ids];if(a.length%2)a.push(null);const n=a.length,out=[];for(let r=0;r<n-1;r++){const pr=[];for(let i=0;i<n/2;i++){const x=a[i],y=a[n-1-i];if(x&&y)pr.push([x,y])}out.push(pr);a.splice(1,0,a.pop())}return out}
 /* scores are stored as [{a:21,b:18}] (Firestore can't store lists inside lists); older [[21,18]] still read fine */
 const gs=m=>(m.g||[]).map(x=>Array.isArray(x)?[+x[0],+x[1]]:[+x.a,+x.b]);
@@ -1578,6 +1591,55 @@ function profileBody(x){const B=BADGES;return`${!x.m&&!x.xp?`<div class="sub" st
 function bindPromote(root,after){root.querySelectorAll('[data-promote]').forEach(b=>b.onclick=()=>{const k=nkey(b.dataset.promote),to=NEXT[(levelOf(b.dataset.promote)||['beginner'])[0]][0];S.levels={...(S.levels||{}),[k]:to};saveConfig();toast('🎉 '+first(b.dataset.promote)+' is now '+LEVELS.find(l=>l[0]===to)[1]+'!');setTimeout(after,200)})}
 function openProfile(name){startCup();startComments();const draw=()=>{const x=playerStats()[nkey(name)];if(!x)return;const sc=($('#whosheet .sheet')||{}).scrollTop||0;const bg=sheetOpen(profileHTML(x),'Player profile');const sh=bg.querySelector('.sheet');if(sh)sh.scrollTop=sc;bindThread(bg);bindPromote(bg,draw);bindProfTop(bg)};
   CMT.redraw=draw;draw();if(nkey(name)===nkey(getMe())&&PROF.myPriv==null&&!isOrg)loadMyPriv(name).then(()=>{if($('#whosheet')&&CMT.redraw===draw)draw()})}
+/* ================= PLAYER PERMISSIONS ================= */
+/* admins decide what players may do: off · ask an admin · allowed. Admins can always do everything. */
+const PERMS=[['name','✏️','Edit group name',['off','ask','allow'],'allow'],['photo','🖼️','Change group photo',['off','ask','allow'],'ask'],['theme','🎨','Change theme',['off','ask','allow'],'ask'],
+  ['post','📸','Post in Club',['off','allow'],'allow'],['chat','💬','Chat',['off','allow'],'allow'],['kudos','👏','Kudos & comments',['off','allow'],'allow'],['poll','🗓️','Suggest a game day',['off','ask'],'ask']];
+const PMODE={off:'Off',ask:'Ask an admin',allow:'Allowed'};
+const permOf=k=>{const d=PERMS.find(p=>p[0]===k);return((S.perms||{})[k])||(d?d[4]:'allow')};
+const perm=k=>!db||isOrg?'allow':permOf(k);
+const ACT={list:[],unsub:null};
+function startActions(){if(!db||!isOrg||ACT.unsub)return;ACT.unsub=col('actions').orderBy('at','desc').limit(100).onSnapshot(q=>{ACT.list=q.docs.map(d=>({id:d.id,...d.data()}));renderHeader();if(tab==='team'&&!typingIn('#view-team'))renderTab(false)},()=>{})}
+const ACTK={name:'the group name',photo:'the group photo',theme:'the theme',poll:'a game day'};
+const actLabel=a=>a.kind==='name'?`“${a.value}”`:a.kind==='theme'?(SKINS[a.value]?SKINS[a.value].name:a.value)+' theme':a.kind==='poll'?(()=>{try{const x=JSON.parse(a.value);return dlabel(x.date,{weekday:'short',day:'numeric',month:'short'})+(x.note?' · '+x.note:'')}catch(e){return''}})():'a new photo';
+/* a player's change: applied straight away when allowed (and logged for admins), or sent as a request */
+async function playerAction(kind,value){const mode=perm(kind);if(mode==='off')return toast('Only admins can change '+ACTK[kind]+'.');
+  if(isOrg||!db)return false;const me=myName();if(!me){toast('Pick your name first (tap the person icon at the top).');return true}
+  try{await ensureAnon();const prev=kind==='name'?(S.groupName||''):kind==='theme'?(S.skin||'court'):kind==='photo'?'':'';
+    if(ACT.list.concat(ACTMY).some(a=>a.kind===kind&&a.value===value&&a.status==='pending'))return toast('✋ Already sent to the admins.'),true;
+    if(mode==='allow'){if(kind==='name')await fsDoc('config/main').update({groupName:value});else if(kind==='theme')await fsDoc('config/main').update({skin:value});else if(kind==='photo')await fsDoc('config/photo').set({data:value,updatedAt:Date.now()})}
+    const a={kind,value:kind==='photo'?value:String(value),prev:kind==='photo'?'':prev,name:canon(me),uid:auth.currentUser.uid,at:Date.now(),status:mode==='allow'?'done':'pending'};
+    await col('actions').add(a);ACTMY.push(a);
+    toast(mode==='allow'?(kind==='name'?'Group renamed ✅ Admins can see the change.':kind==='theme'?'Theme changed ✅':'Group photo updated ✅'):'Sent to the admins for approval 👍')}
+  catch(e){toast(e.code==='permission-denied'?'Ask the organizer to update the app rules.':'Couldn’t save ('+(e.code||'error')+').')}return true}
+const ACTMY=[];
+/* admins: approve, decline, keep or undo */
+async function applyAct(a,how){try{
+  if(how==='approve'||how==='undo'){const v=how==='undo'?a.prev:a.value;
+    if(a.kind==='name'){S.groupName=v;saveConfig()}else if(a.kind==='theme'){S.skin=v||'court';applySkin();saveConfig()}
+    else if(a.kind==='photo'){if(how==='undo'){toast('Pick the photo to put back, or remove it in Team › Group.')}else{photo=v;try{localStorage.setItem(LSP,photo)}catch(x){}queueWrite('config/photo',{data:photo,updatedAt:Date.now()})}}
+    else if(a.kind==='poll'){let x={};try{x=JSON.parse(a.value)}catch(e){}closeWho();await col('actions').doc(a.id).update({status:'approved'});startNewPoll();setTimeout(()=>{if(P.draft&&x.date){P.draft.dates=[{date:x.date,note:x.note||''}];P.draft.closes=defClose(x.date);renderPolls()}},80);toast('Poll drafted for '+actLabel(a)+'. Check and publish.');return}}
+  await col('actions').doc(a.id).update({status:how==='approve'?'approved':how==='decline'?'declined':how==='undo'?'undone':'kept'});renderHeader();renderTab(false);
+  toast(how==='approve'?'Approved ✅':how==='decline'?'Declined':how==='undo'?'Change undone ↩️':'Kept 👍')}catch(e){toast('Couldn’t save ('+(e.code||'error')+').')}}
+const actOpen=()=>ACT.list.filter(a=>a.status==='pending'||a.status==='done');
+function openActions(){const L=actOpen(),H=ACT.list.filter(a=>a.status!=='pending'&&a.status!=='done').slice(0,15);
+  const row=(a,btns)=>`<div class="sub" style="border-top:1px solid var(--line2);padding:12px 16px"><div class="mix" style="gap:10px">${ini(a.name)}<div style="flex:1;min-width:0"><b>${esc(first(a.name))} ${a.kind==='poll'?'suggests':a.status==='pending'?'asks to change':'changed'} ${ACTK[a.kind]}</b><small class="hint" style="display:block;margin:2px 0 0">${a.kind==='photo'?'':esc(actLabel(a))}${a.prev&&a.kind!=='poll'&&a.kind!=='photo'?' · was '+esc(a.kind==='theme'&&SKINS[a.prev]?SKINS[a.prev].name:a.prev):''} · ${timeAgo(a.at)}</small></div></div>
+    ${a.kind==='photo'?`<img src="${a.value}" alt="" style="width:100%;max-height:180px;object-fit:cover;border-radius:12px;margin-top:10px">`:''}<div class="grid2" style="margin-top:10px">${btns}</div></div>`;
+  const bg=sheetOpen(`<div class="sheet-h"><span class="ini">${ic('lock')}</span><div><b>Player changes</b><small>${L.length?plural(L.length,'item')+' to review':'Nothing to review'}</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div>
+    ${L.map(a=>row(a,a.status==='pending'?`<button class="btn sm primary" data-acth="approve:${esc(a.id)}">${ic('check')}${a.kind==='poll'?'Create poll':'Approve'}</button><button class="btn sm line" data-acth="decline:${esc(a.id)}">Decline</button>`
+      :`<button class="btn sm line" data-acth="keep:${esc(a.id)}">${ic('check')}Keep</button><button class="btn sm line" data-acth="undo:${esc(a.id)}"${a.kind==='photo'?' disabled':''}>↩️ Undo</button>`)).join('')||`<div class="empty">${ic('check')}All reviewed.</div>`}
+    ${H.length?`<details class="sub"><summary class="sublbl" style="cursor:pointer">History · ${H.length}</summary>${H.map(a=>`<div class="mix" style="justify-content:space-between;padding:5px 0"><small>${esc(first(a.name))} · ${esc(ACTK[a.kind])}${a.kind==='photo'?'':' → '+esc(actLabel(a))}</small><small class="hint" style="margin:0">${esc(a.status)} · ${timeAgo(a.at)}</small></div>`).join('')}</details>`:''}
+    <div class="card-f"><button class="lnk" data-gop>Player permissions ›</button></div>`,'Player changes');
+  bg.querySelectorAll('[data-acth]').forEach(b=>b.onclick=async()=>{const[h,id]=b.dataset.acth.split(':');const a=ACT.list.find(x=>x.id===id);if(!a)return;b.disabled=true;await applyAct(a,h);if(h!=='approve'||a.kind!=='poll')setTimeout(openActions,300)});
+  const gp=bg.querySelector('[data-gop]');if(gp)gp.onclick=()=>{closeWho();goSub('team','perms')}}
+function permsHTML(){return`${cardH('lock','Player permissions')}<p class="hint" style="margin:0;padding:0 16px 8px">Admins and co-organizers can always do everything.</p>
+  ${PERMS.map(([k,e,l,modes])=>`<div class="sub" style="border-top:1px solid var(--line2);padding:10px 16px"><b>${e} ${l}</b><div class="seg" style="padding:6px 0 0">${modes.map(m=>`<button type="button" class="${permOf(k)===m?'on':''}" data-perm="${k}:${m}">${PMODE[m]}</button>`).join('')}</div></div>`).join('')}
+  <div class="card-f"><p class="hint" style="margin:0">Allowed changes happen straight away and land in your bell with Undo. “Ask an admin” sends you a request to approve.</p>${ACT.list.length?`<button class="lnk" data-act="actions" style="margin-left:auto;white-space:nowrap">Changes & history</button>`:''}</div>`}
+/* players: suggest a game day (organizers turn it into a poll) */
+function openSuggestDay(){const [sa]=nextWeekend(0);const bg=sheetOpen(`<div class="sheet-h"><span class="ini">🗓️</span><div><b>Suggest a game day</b><small>The admins get it and can open a poll in one tap</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div>
+  <div class="sub" style="padding-top:12px"><label class="fld"><span>Date</span><input class="txt" type="date" id="sdday" value="${sa}" min="${todayStr()}"></label><label class="fld"><span>Time</span><input class="txt" id="sdnote" maxlength="30" placeholder="e.g. 6-8 PM"></label></div>
+  <div class="card-f"><button class="btn primary block" id="sdsend">${ic('check')}Send to admins</button></div>`,'Suggest a game day');
+  $('#sdsend').onclick=async()=>{const d=$('#sdday').value;if(!d)return toast('Pick a date.');$('#sdsend').disabled=true;if(await playerAction('poll',JSON.stringify({date:d,note:norm($('#sdnote').value)})))closeWho();else $('#sdsend').disabled=false}}
 /* ================= PLAYER PROFILES ================= */
 /* public profile: everyone in the group sees it · private details: only the player and organizers */
 const PROF={map:{},unsub:null,priv:{},punsub:null,myPriv:null};
@@ -1588,8 +1650,16 @@ function startPrivate(){if(!db||!isOrg||PROF.punsub)return;PROF.punsub=col('priv
 const profOf=n=>PROF.map[nkey(n||'')]||null;
 const photoOf=n=>{const p=profOf(n);return p&&p.photo||''};
 const myName=()=>allNames().find(n=>nkey(n)===nkey(getMe()))||'';
+/* ---------- player master: one record per player, used everywhere a name shows ---------- */
+const isActiveP=n=>activeRoster().some(a=>nkey(a)===nkey(n));
+function playerRec(n){const k=nkey(n),nm=allNames().find(x=>nkey(x)===k)||canon(n),p=PROF.map[k]||{},lv=levelOf(nm);
+  return{name:nm,key:k,active:isActiveP(nm),level:lv?lv[1]:'',color:lv?lv[2]:'',photo:p.photo||'',username:p.username||'',fullName:p.fullName||'',place:p.place||'',bday:p.bday||''}}
+/* small inline avatar next to a name (photo, else initials) */
+function av(n){const ph=photoOf(n);return`<span class="mav${ph?' ph':''}" aria-hidden="true">${ph?`<img src="${ph}" alt="" loading="lazy">`:esc(initials(n||'?'))}</span>`}
+/* a name with its avatar; pairs ("A & B") show both faces */
+function who(label,names){const L=names||String(label).split(/\s*&\s*/);return`<span class="pnm"><span class="avs">${L.slice(0,2).map(av).join('')}</span><span class="wn">${esc(label)}</span></span>`}
 /* round avatar: the player's photo when they have one, else initials */
-function ini(n,style){const ph=photoOf(n);return`<span class="ini${ph?' av':''}"${style?` style="${style}"`:''}>${ph?`<img src="${ph}" alt="" loading="lazy">`:esc(initials(n||'?'))}</span>`}
+function ini(n,style,cls){const ph=photoOf(n);return`<span class="ini${cls?' '+cls:''}${ph?' av':''}"${style?` style="${style}"`:''}>${ph?`<img src="${ph}" alt="" loading="lazy">`:esc(initials(n||'?'))}</span>`}
 function profPct(n){const p=profOf(n)||{};const f=[!!p.photo,!!p.fullName,!!p.username,!!p.place,!!p.bio,(p.interests||[]).length>0,!!p.bday];return Math.round(f.filter(Boolean).length*100/f.length)}
 const bdayLabel=md=>{if(!/^\d\d-\d\d$/.test(md||''))return'';return dlabel('2000-'+md,{day:'numeric',month:'long'})};
 function birthdaysToday(){const md=todayStr().slice(5);return allNames().filter(n=>{const p=profOf(n);return p&&p.bday===md})}
@@ -1682,48 +1752,111 @@ async function exportContacts(){const head=[['Name','Full name','Username','Cont
 async function resetProfileLink(n){const k=nkey(n);try{const p=PROF.map[k];if(p)await col('profiles').doc(k).set({...p,uid:'',at:Date.now()});const v=PROF.priv[k];if(v)await col('private').doc(k).set({...v,uid:'',at:Date.now()});toast(first(n)+' can now edit their profile from a new phone.')}catch(e){profErr(e)}}
 /* ---------- comments & kudos threads with emoji reactions (one reaction each, like iMessage) ---------- */
 const CMT={list:[],unsub:null,redraw:null};const EMO=['👏','🔥','💪','🏸','❤️','😂','🎉','👍'];
-function startComments(){if(!db||CMT.unsub)return;CMT.unsub=col('comments').orderBy('at','desc').limit(200).onSnapshot(q=>{CMT.list=q.docs.map(d=>({id:d.id,...d.data()}));renderHeader();
+function startComments(){if(!db||CMT.unsub)return;CMT.unsub=col('comments').orderBy('at','desc').limit(200).onSnapshot(q=>{CMT.list=q.docs.map(d=>({id:d.id,...d.data()}));renderHeader();refreshThreads();
   if(CMT.redraw&&$('#whosheet')&&!typingIn('#whosheet'))CMT.redraw();else if(!$('#whosheet')){if(tab==='club'&&!typingIn('#view-club'))renderClub();if(tab==='cup'&&!typingIn('#view-cup'))renderCup()}},()=>{})}
 const reactsOf=o=>{const m={};Object.entries(o.likes||{}).forEach(([u,v])=>{const s2=String(v),i=s2.indexOf('|'),e=i>0?s2.slice(0,i):'🏸',n=i>0?s2.slice(i+1):s2;(m[e]=m[e]||[]).push({u,n})});return m};
 function reactBar(kind,id,o){const uid=auth&&auth.currentUser&&auth.currentUser.uid,m=reactsOf(o),mine=uid&&o.likes&&o.likes[uid]?(String(o.likes[uid]).includes('|')?String(o.likes[uid]).split('|')[0]:'🏸'):'';
   return`<span class="rbar">${Object.entries(m).map(([e,l])=>`<button class="rchip${e===mine?' on':''}" data-react="${kind}:${esc(id)}:${e}" title="${esc(l.map(x=>x.n).join(', '))}">${e} ${l.length}</button>`).join('')}<button class="rchip add" data-rpick="${kind}:${esc(id)}" aria-label="React">😊＋</button></span>`}
-function threadHTML(target,ph){const L=(CMT.list||[]).filter(c=>c.target===target).sort((a,b)=>(a.at||0)-(b.at||0)),top=L.filter(c=>!c.parent),uid=auth&&auth.currentUser&&auth.currentUser.uid;
+function threadListHTML(target,limit,chat){const L=(tList(target)||[]).filter(c=>c.target===target).sort((a,b)=>(a.at||0)-(b.at||0)),uid=auth&&auth.currentUser&&auth.currentUser.uid,rk=isChatT(target)?'h':'c';
+  let top=L.filter(c=>!c.parent);const more=limit&&top.length>limit?top.length-limit:0;if(more)top=top.slice(-limit);
   const del=c=>(uid&&c.uid===uid)||isOrg?`<button class="lnk" data-cdel="${esc(c.id)}" style="color:var(--muted)">Delete</button>`:'';
-  const one=c=>`<div class="cmt"><span class="ini sm">${esc(initials(c.name||'?'))}</span><div class="cb"><div><b>${esc(c.name||'')}</b> <small>${timeAgo(c.at)}</small></div><div class="ct">${esc(c.text)}</div>
-    <div class="ca">${reactBar('c',c.id,c)}<button class="lnk" data-reply="${esc(c.id)}">Reply</button>${del(c)}</div>
-    ${L.filter(r=>r.parent===c.id).map(r=>`<div class="cmt reply"><span class="ini sm">${esc(initials(r.name||'?'))}</span><div class="cb"><div><b>${esc(r.name||'')}</b> <small>${timeAgo(r.at)}</small></div><div class="ct">${esc(r.text)}</div><div class="ca">${reactBar('c',r.id,r)}${del(r)}</div></div></div>`).join('')}</div></div>`;
-  return`<div class="thread" data-target="${esc(target)}">${top.map(one).join('')||'<p class="hint" style="margin:0">Be the first to say something nice 💚</p>'}
-    <div class="emo">${EMO.map(e=>`<button type="button" data-emo="${e}">${e}</button>`).join('')}</div>
-    <div class="inline"><input class="txt" data-cin placeholder="${esc(ph||'Write a comment…')}" maxlength="500"><button class="btn sm primary" data-csend style="height:44px">Send</button></div>
-    <small class="hint" data-replying hidden></small></div>`}
+  const one=c=>`<div class="cmt">${ini(c.name||'?','','sm')}<div class="cb"><div><b>${esc(c.name||'')}</b> <small>${timeAgo(c.at)}</small></div><div class="ct">${mtext(c.text)}</div>
+    <div class="ca">${reactBar(rk,c.id,c)}<button class="lnk" data-reply="${esc(c.id)}">Reply</button>${del(c)}</div>
+    ${L.filter(r=>r.parent===c.id).map(r=>`<div class="cmt reply">${ini(r.name||'?','','sm')}<div class="cb"><div><b>${esc(r.name||'')}</b> <small>${timeAgo(r.at)}</small></div><div class="ct">${mtext(r.text)}</div><div class="ca">${reactBar(rk,r.id,r)}${del(r)}</div></div></div>`).join('')}</div></div>`;
+  return(more?`<p class="hint" style="margin:0 0 8px">${plural(more,'earlier message')}</p>`:'')+(top.map(one).join('')||`<p class="hint" style="margin:0">${chat?'No messages yet. Say hi 👋':'Be the first to say something nice 💚'}</p>`)}
+function threadHTML(target,ph,o){o=o||{};return`<div class="thread${o.chat?' chat':''}" data-target="${esc(target)}" data-limit="${o.limit||0}" data-chat="${o.chat?1:0}"><div class="tlist">${threadListHTML(target,o.limit||0,o.chat)}</div>
+    ${perm(isChatT(target)?'chat':'kudos')==='off'?`<p class="hint" style="margin:0">🔒 ${isChatT(target)?'Chat':'Comments'} turned off by the admins.</p></div>`:`<div class="emo">${EMO.map(e=>`<button type="button" data-emo="${e}">${e}</button>`).join('')}</div>
+    <div class="inline"><input class="txt" data-cin placeholder="${esc(ph||'Write a comment… type @ to mention')}" maxlength="500" autocomplete="off"><button class="btn sm primary" data-csend style="height:44px">Send</button></div>
+    <small class="hint" data-replying hidden></small></div>`}`}
 async function setReact(kind,id,emo){const me=allNames().find(n=>nkey(n)===nkey(getMe()));if(!me)return toast('Pick your name first (tap the person icon at the top).');
-  try{await ensureAnon();const uid=auth.currentUser.uid,F=firebase.firestore,c=kind==='c'?'comments':'posts',o=(kind==='c'?CMT.list:CLUB.list).find(x=>x.id===id)||{},v0=o.likes&&o.likes[uid]?String(o.likes[uid]):'',cur=v0?(v0.includes('|')?v0.split('|')[0]:'🏸'):'';
+  try{await ensureAnon();const uid=auth.currentUser.uid,F=firebase.firestore,c=kind==='c'?'comments':kind==='h'?'chat':'posts',o=(kind==='c'?CMT.list:kind==='h'?CHAT.list:CLUB.list).find(x=>x.id===id)||{},v0=o.likes&&o.likes[uid]?String(o.likes[uid]):'',cur=v0?(v0.includes('|')?v0.split('|')[0]:'🏸'):'';
     await col(c).doc(id).update(new F.FieldPath('likes',uid),cur===emo?F.FieldValue.delete():emo+'|'+canon(me))}catch(e){toast(e.code==='permission-denied'?'Ask the organizer to update the app rules.':'Couldn’t save ('+(e.code||'error')+').')}}
-function bindThread(root){
+function bindReacts(root){
   root.querySelectorAll('[data-react]').forEach(b=>b.onclick=e=>{e.stopPropagation();const[k,id,em]=b.dataset.react.split(':');setReact(k,id,em)});
   root.querySelectorAll('[data-rpick]').forEach(b=>b.onclick=e=>{e.stopPropagation();const[k,id]=b.dataset.rpick.split(':');const pop=document.createElement('span');pop.className='rpop';pop.innerHTML=EMO.map(x=>`<button type="button">${x}</button>`).join('');
-    b.replaceWith(pop);pop.querySelectorAll('button').forEach(x=>x.onclick=ev=>{ev.stopPropagation();setReact(k,id,x.textContent)})});
-  root.querySelectorAll('.thread').forEach(t=>{const inp=t.querySelector('[data-cin]'),rp=t.querySelector('[data-replying]');let parent='';
+    b.replaceWith(pop);pop.querySelectorAll('button').forEach(x=>x.onclick=ev=>{ev.stopPropagation();setReact(k,id,x.textContent)})})}
+function bindList(t){bindReacts(t);const inp=t.querySelector('[data-cin]'),rp=t.querySelector('[data-replying]'),L=tList(t.dataset.target);
+  t.querySelectorAll('[data-reply]').forEach(b=>b.onclick=()=>{if(!inp)return toast('Turned off by the admins.');t._parent=b.dataset.reply;const c=L.find(x=>x.id===t._parent);rp.hidden=false;rp.innerHTML='Replying to '+esc(c?c.name:'')+' · <button class="lnk" type="button">cancel</button>';rp.querySelector('button').onclick=()=>{t._parent='';rp.hidden=true};inp.focus()});
+  t.querySelectorAll('[data-cdel]').forEach(b=>b.onclick=async()=>{if(b.dataset.c!=='1'){b.dataset.c='1';b.textContent='Tap to delete';return}try{await col(tCol(t.dataset.target)).doc(b.dataset.cdel).delete()}catch(e){toast('Couldn’t delete.')}})}
+function bindThread(root){bindReacts(root);
+  root.querySelectorAll('.thread').forEach(t=>{bindList(t);if(t.dataset.bound||!t.querySelector('[data-cin]'))return;t.dataset.bound='1';const inp=t.querySelector('[data-cin]'),rp=t.querySelector('[data-replying]'),target=t.dataset.target;
     t.querySelectorAll('[data-emo]').forEach(b=>b.onclick=()=>{inp.value+=b.dataset.emo;inp.focus()});
-    t.querySelectorAll('[data-reply]').forEach(b=>b.onclick=()=>{parent=b.dataset.reply;const c=CMT.list.find(x=>x.id===parent);rp.hidden=false;rp.innerHTML='Replying to '+esc(c?c.name:'')+' · <button class="lnk" type="button">cancel</button>';rp.querySelector('button').onclick=()=>{parent='';rp.hidden=true};inp.focus()});
-    t.querySelectorAll('[data-cdel]').forEach(b=>b.onclick=async()=>{if(b.dataset.c!=='1'){b.dataset.c='1';b.textContent='Tap to delete';return}try{await col('comments').doc(b.dataset.cdel).delete()}catch(e){toast('Couldn’t delete.')}});
-    let sending=false;const send=async()=>{const text=norm(inp.value);if(!text||sending)return;
-      if((CMT.list||[]).some(c=>c.target===t.dataset.target&&nkey(c.name)===nkey(getMe())&&c.text===text&&(c.parent||'')===parent&&Date.now()-(c.at||0)<10*60e3)){inp.value='';return toast('✋ Already sent.')}sending=true;setTimeout(()=>sending=false,1500);const me=allNames().find(n=>nkey(n)===nkey(getMe()));if(!me)return toast('Pick your name first (tap the person icon at the top).');
-      try{await ensureAnon();const d={target:t.dataset.target,name:canon(me),uid:auth.currentUser.uid,text,at:Date.now(),likes:{}};if(parent)d.parent=parent;inp.value='';await col('comments').add(d);parent='';rp.hidden=true;toast('Sent 💬')}
+    let sending=false;const send=async()=>{const text=norm(inp.value),parent=t._parent||'';if(!text||sending)return;if(!allOk(text))return;
+      if((tList(target)||[]).some(c=>c.target===target&&nkey(c.name)===nkey(getMe())&&c.text===text&&(c.parent||'')===parent&&Date.now()-(c.at||0)<10*60e3)){inp.value='';return toast('✋ Already sent.')}
+      const me=allNames().find(n=>nkey(n)===nkey(getMe()));if(!me)return toast('Pick your name first (tap the person icon at the top).');sending=true;setTimeout(()=>sending=false,1500);
+      try{await ensureAnon();const d={target,name:canon(me),uid:auth.currentUser.uid,text,at:Date.now(),likes:{}};if(parent)d.parent=parent;inp.value='';closeMPop();await col(tCol(target)).add(d);t._parent='';rp.hidden=true;
+        if(!isChatT(target))toast('Sent 💬');nudgeAfter(text,target==='chat:group'?'group chat':isChatT(target)?'game chat':'a comment')}
       catch(e){toast(e.code==='permission-denied'?'Ask the organizer to update the app rules.':'Couldn’t send ('+(e.code||'error')+').')}};
-    t.querySelector('[data-csend]').onclick=send;inp.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();send()}}})}
+    t.querySelector('[data-csend]').onclick=send;inp.onkeydown=e=>{if(e.key==='Enter'&&!MPOP){e.preventDefault();send()}}})}
+/* ---------- @mentions: type @ for a list of players, mentioned players get a bell alert ---------- */
+const reEsc=s=>String(s).replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+const mNames=()=>allNames().slice().sort((a,b)=>b.length-a.length);
+function mentionsIn(text){const t=String(text||''),out=new Set();if(/(^|[^\w@])@all(?![\w])/i.test(t))out.add('all');
+  mNames().forEach(n=>{if(new RegExp('(^|[^\\w@])@'+reEsc(n)+'(?![\\w])','i').test(t))out.add(nkey(n))});return out}
+/* message text with @names turned into tappable chips */
+function mtext(text){const h=esc(text||''),N=mNames();if(!h.includes('@'))return h;
+  const re=new RegExp('(^|[^\\w@])@('+N.map(n=>reEsc(esc(n))).concat(['all']).join('|')+')(?![\\w])','gi');
+  return h.replace(re,(m,pre,nm)=>{if(nm.toLowerCase()==='all')return pre+'<span class="mention">@all</span>';const c=N.find(n=>esc(n).toLowerCase()===nm.toLowerCase())||nm;return pre+`<button type="button" class="mention" data-mprof="${esc(c)}">@${esc(c)}</button>`})}
+const allOk=text=>{if(mentionsIn(text).has('all')&&!isOrg){toast('Only organizers can use @all.');return false}return true};
+let MPOP=null;const closeMPop=()=>{if(MPOP){MPOP.remove();MPOP=null}};
+function mentionPop(inp){closeMPop();const v=inp.value,pos=inp.selectionStart==null?v.length:inp.selectionStart,m=v.slice(0,pos).match(/(^|\s)@([\w.]{0,20})$/);if(!m)return;
+  const q=m[2].toLowerCase(),me=nkey(getMe());let L=activeRoster().filter(n=>nkey(n)!==me&&n.toLowerCase().includes(q)).sort((a,b)=>(b.toLowerCase().startsWith(q)?1:0)-(a.toLowerCase().startsWith(q)?1:0)).slice(0,6);
+  if(isOrg&&'all'.startsWith(q))L=['@all'].concat(L.slice(0,5));if(!L.length)return;
+  const r=inp.getBoundingClientRect(),d=document.createElement('div');d.className='mpop';d.setAttribute('role','listbox');
+  d.innerHTML=L.map(n=>`<button type="button" data-mpick="${esc(n)}">${n==='@all'?'<span class="ini">📣</span><b>@all</b><small>Everyone in the group</small>':ini(n)+'<b>'+esc(n)+'</b>'+(profOf(n)&&profOf(n).username?'<small>@'+esc(profOf(n).username)+'</small>':'')}</button>`).join('');
+  d.style.left=Math.max(8,r.left)+'px';d.style.width=Math.min(r.width,360)+'px';if(innerHeight-r.bottom>240)d.style.top=(r.bottom+4)+'px';else d.style.bottom=(innerHeight-r.top+4)+'px';
+  document.body.appendChild(d);MPOP=d;
+  d.querySelectorAll('[data-mpick]').forEach(b=>{b.addEventListener('pointerdown',e=>e.preventDefault());b.onclick=()=>{const n=b.dataset.mpick==='@all'?'all':b.dataset.mpick,start=pos-m[2].length-1;
+    inp.value=v.slice(0,start)+'@'+n+' '+v.slice(pos);const c=start+n.length+2;inp.focus();try{inp.setSelectionRange(c,c)}catch(e){}closeMPop()}})}
+document.addEventListener('input',e=>{const t=e.target;if(t&&t.matches&&t.matches('[data-cin],#ktext,#ctext,[data-mention]'))mentionPop(t)});
+document.addEventListener('focusout',()=>setTimeout(()=>{const a=document.activeElement;if(!(a&&a.matches&&a.matches('[data-cin],#ktext,#ctext,[data-mention]')))closeMPop()},180));
+document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-mprof]');if(b){e.preventDefault();e.stopPropagation();openProfile(b.dataset.mprof)}
+  const r=e.target.closest&&e.target.closest('[data-room]');if(r){e.preventDefault();openRoom(r.dataset.room)}
+  const sd=e.target.closest&&e.target.closest('[data-sday]');if(sd){e.preventDefault();openSuggestDay()}},true);
+/* after a message with @mentions: offer a WhatsApp nudge (there are no phone push alerts without a server) */
+function nudgeAfter(text,where){const ms=[...mentionsIn(text)].filter(k=>k!==nkey(getMe()));if(!ms.length)return;
+  const all=ms.includes('all'),names=all?[]:ms.map(k=>first(allNames().find(n=>nkey(n)===k)||k));
+  const msg=`👋 ${all?'Hi all':names.map(n=>'@'+n).join(' ')}, ${first(getMe())} mentioned you in ${S.groupName||'Shuttle Split'}${where?' ('+where+')':''}:\n\n“${text}”\n\n👉 Open the app: ${HERE}`;
+  let num='';if(ms.length===1&&!all&&isOrg){const v=PROF.priv[ms[0]];if(v&&v.phone)num=waNum(v.phone)}
+  const old=$('#nudge');if(old)old.remove();const d=document.createElement('div');d.id='nudge';d.className='nudge';
+  d.innerHTML=`<span>Let ${all?'everyone':esc(names.join(', '))} know?</span><a class="btn sm wa" target="_blank" rel="noopener" href="https://wa.me/${num}?text=${encodeURIComponent(msg)}">${ic('chat')}Nudge on WhatsApp</a><button class="iconbtn" aria-label="Dismiss">${ic('x')}</button>`;
+  document.body.appendChild(d);const go=()=>d.remove();d.querySelector('button').onclick=go;d.querySelector('a').addEventListener('click',()=>setTimeout(go,300));setTimeout(go,12000)}
+/* ---------- chat: one group chat + a chat for each upcoming game day ---------- */
+const CHAT={list:[],unsub:null};
+const isChatT=t=>String(t||'').startsWith('chat:');
+const tList=t=>isChatT(t)?CHAT.list:CMT.list,tCol=t=>isChatT(t)?'chat':'comments';
+function startChat(){if(!db||CHAT.unsub)return;CHAT.unsub=col('chat').orderBy('at','desc').limit(300).onSnapshot(q=>{CHAT.list=q.docs.map(d=>({id:d.id,...d.data()}));renderHeader();try{clubDot()}catch(e){}refreshThreads(true);
+  const nb=$('#chatnb');if(nb){const n=unreadChat();nb.textContent=n||'';nb.hidden=!n}},()=>{})}
+const chatSeen=()=>{try{return+localStorage.getItem('ss-chatseen'+SUF)||0}catch(e){return 0}};
+function markChatSeen(){try{localStorage.setItem('ss-chatseen'+SUF,String(Date.now()))}catch(e){}try{clubDot()}catch(e){}}
+const unreadChat=()=>{const t=chatSeen(),uid=auth&&auth.currentUser&&auth.currentUser.uid;return CHAT.list.filter(c=>c.target==='chat:group'&&(c.at||0)>t&&c.uid!==uid).length};
+function gameRooms(){const from=shift(todayStr(),-1),m={};
+  P.list.filter(p=>!isArchived(p)).forEach(p=>(p.dates||[]).forEach(dt=>{if(dt.date>=from){(m[dt.date]=m[dt.date]||new Set());if(dt.note)m[dt.date].add(dt.note)}}));
+  boardDays().forEach(d=>{if(d.date>=from){m[d.date]=m[d.date]||new Set();(d.slots||[]).forEach(s=>{})}});
+  return Object.keys(m).sort().slice(0,6).map(date=>({date,room:'chat:game:'+date,label:dlabel(date,{weekday:'short',day:'numeric',month:'short'})+(m[date].size?' · '+[...m[date]].join(', '):''),n:CHAT.list.filter(c=>c.target==='chat:game:'+date).length,last:CHAT.list.find(c=>c.target==='chat:game:'+date)}))}
+function openRoom(room){startChat();if(!isChatT(room))room='chat:game:'+room;const date=room.slice(10),g=gameRooms().find(x=>x.room===room);
+  const bg=sheetOpen(`<div class="sheet-h"><span class="ini">💬</span><div><b>Game chat · ${esc(g?g.label:dlabel(date,{weekday:'short',day:'numeric',month:'short'}))}</b><small>Running late, need a partner, who’s bringing shuttles · type @ to mention</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div>
+    <div class="sub chatroom" style="padding-top:12px">${threadHTML(room,'Message everyone playing…',{chat:true})}</div>`,'Game chat');
+  bindThread(bg);const l=bg.querySelector('.tlist');if(l)l.scrollTop=l.scrollHeight}
+function chatHTML(){const G=gameRooms();
+  return`${G.length?`<section class="card">${cardH('cal','Game-day chats',plural(G.length,'game'))}<div class="menu">${G.map(g=>`<button class="mi" data-room="${esc(g.room)}"><span class="mico">💬</span><span class="mt"><b>${esc(g.label)}</b><small>${g.last?esc(first(g.last.name))+': '+esc(String(g.last.text).slice(0,60)):'No messages yet · say who’s coming'}</small></span>${g.n?`<span class="mm">${g.n}</span>`:''}${ic('right')}</button>`).join('')}</div></section>`:''}
+    <section class="card">${cardH('chat','Group chat',CHAT.list.filter(c=>c.target==='chat:group').length||null)}<div class="sub chatroom" style="padding-top:12px">${threadHTML('chat:group','Message everyone · type @ to mention',{chat:true,limit:60})}</div></section>`}
+function openChatTarget(t){if(t==='chat:group'){SUB.club='chat';go('club');setTimeout(()=>{const l=document.querySelector('#view-club .chatroom .tlist');if(l)l.scrollTop=l.scrollHeight},120)}else openRoom(t)}
+/* threads (comments, kudos, chat) refresh their message list in place, so typing is never lost */
+function refreshThreads(chatOnly){document.querySelectorAll('.thread').forEach(t=>{if(chatOnly&&!isChatT(t.dataset.target))return;const l=t.querySelector('.tlist');if(!l)return;
+  const atEnd=l.scrollHeight-l.scrollTop-l.clientHeight<40;l.innerHTML=threadListHTML(t.dataset.target,+t.dataset.limit||0,t.dataset.chat==='1');bindList(t);if(atEnd||t.dataset.chat==='1'&&atEnd)l.scrollTop=l.scrollHeight})}
 /* ---------- Cup page: one page, everything in collapsible sections ---------- */
 const CUPOPEN=new Set(['stars']);let CUPINIT=false,CUPSTAR='xp';
 /* most games played since a date (all time when empty), for the Star players board */
-function attendTop(from){const m={};Object.keys(S.days).filter(k=>!from||k>=from).forEach(k=>uniq(S.days[k].present||[]).forEach(p=>{const c=canon(p);m[c]=(m[c]||0)+1}));return Object.entries(m).sort((a,b)=>b[1]-a[1]).slice(0,10)}
+function attendTop(from){const m={};Object.keys(S.days).filter(k=>!from||k>=from).forEach(k=>uniq(S.days[k].present||[]).forEach(p=>{const c=canon(p);if(isActiveP(c))m[c]=(m[c]||0)+1}));return Object.entries(m).sort((a,b)=>b[1]-a[1]).slice(0,10)}
 const cupDet=(key,summary,body)=>`<details class="card" data-open="${key}"${CUPOPEN.has(key)?' open':''}><summary class="dsum">${summary}<span class="chev">${ic('right')}</span></summary>${body}</details>`;
 function renderCup(){
   const v=$('#view-cup');if(!db){v.innerHTML=intro('Cup','Tournaments, stars and achievements.')+`<section class="card"><div class="empty">${ic('trophy')}Tournaments need the shared database.</div></section>`;return}
   startCup();startComments();if(CUP.sel){CUPOPEN.add('t:'+CUP.sel);CUPOPEN.add('m:'+CUP.sel);CUP.sel=null}
-  const ST=playerStats(),all=Object.values(ST),stars=all.filter(x=>x.m||x.att).sort((a,b)=>b.xp-a.xp).slice(0,10),ready=all.filter(x=>x.ready),me=ST[nkey(getMe())];
+  const ST=playerStats(),ACTK2=new Set(activeRoster().map(nkey)),all=Object.values(ST).filter(x=>ACTK2.has(nkey(x.n))||nkey(x.n)===nkey(getMe())),stars=all.filter(x=>x.m||x.att).sort((a,b)=>b.xp-a.xp).slice(0,10),ready=all.filter(x=>x.ready),me=ST[nkey(getMe())];
   const done=CUP.list.filter(t=>cupChampion(t));
   if(!CUPINIT&&CUP.list.length){CUPINIT=true;CUP.list.filter(t=>!cupChampion(t)).forEach(t=>{CUPOPEN.add('t:'+t.id);CUPOPEN.add('m:'+t.id)})}
-  const prow=(x,i,extra)=>`<button class="prow" style="width:100%;text-align:left" data-prof="${esc(x.n)}"><span class="ini">${i<3?['🥇','🥈','🥉'][i]:esc(initials(x.n))}</span><span class="nm">${esc(x.n)}<small>${esc(x.level)} · ${x.w}W ${x.l}L${x.titles?' · 🏆'+x.titles:''} ${x.badges.map(b=>BADGES.find(y=>y[0]===b)[1]).join('')}</small></span><span class="am">${extra||x.xp+' XP'}</span></button>`;
+  const prow=(x,i,extra)=>`<button class="prow" style="width:100%;text-align:left" data-prof="${esc(x.n)}"><span class="medwrap">${ini(x.n)}${i<3?`<i class="medal">${['🥇','🥈','🥉'][i]}</i>`:''}</span><span class="nm">${esc(x.n)}<small>${esc(x.level)} · ${x.w}W ${x.l}L${x.titles?' · 🏆'+x.titles:''} ${x.badges.map(b=>BADGES.find(y=>y[0]===b)[1]).join('')}</small></span><span class="am">${extra||x.xp+' XP'}</span></button>`;
   v.innerHTML=`${intro('Cup','Tournaments, star players, achievements and the road to the next level.')}
     <div class="mix" style="flex-wrap:wrap;gap:8px">${me?(me.m||me.xp?`<button class="pchip" data-myplayer>🏸 ${esc(me.level)} · ${me.xp} XP · ${plural(me.badges.length,'badge')}${me.ready?' · 🚀 ready to level up':''} <span>›</span></button>`
       :`<button class="pchip dim" data-myplayer>New here? <b>Play a match to start earning XP</b> <span>›</span></button>`)
@@ -1733,10 +1866,10 @@ function renderCup(){
     ${cupDet('stars',`<span class="dt"><b>⭐ Star players</b><small>${CUPSTAR==='xp'?'Ranked by XP from matches, wins, titles, attendance and kudos':CUPSTAR==='m30'?'Most games in the last 30 days':'Most games, all time'}</small></span>`,
       `<div class="seg" style="margin:4px 12px 8px">${[['xp','XP'],['m30','Games · 30d'],['all','All-time']].map(([k,l])=>`<button type="button" class="${CUPSTAR===k?'on':''}" data-cstar="${k}">${l}</button>`).join('')}</div>`+
       (CUPSTAR==='xp'?stars.map((x,i)=>prow(x,i)).join('')||`<div class="empty">Play a tournament to light up the board.</div>`
-        :attendTop(CUPSTAR==='m30'?shift(todayStr(),-30):'').map(([n,c],i)=>{const x=ST[nkey(n)];return x?prow(x,i,plural(c,'game')):`<div class="prow"><span class="ini">${['🥇','🥈','🥉'][i]||esc(initials(n))}</span><span class="nm">${esc(n)}</span><span class="am">${plural(c,'game')}</span></div>`}).join('')||`<div class="empty">No games in this period.</div>`))}
+        :attendTop(CUPSTAR==='m30'?shift(todayStr(),-30):'').map(([n,c],i)=>{const x=ST[nkey(n)];return x?prow(x,i,plural(c,'game')):`<div class="prow"><span class="medwrap">${ini(n)}${i<3?`<i class="medal">${['🥇','🥈','🥉'][i]}</i>`:''}</span><span class="nm">${esc(n)}</span><span class="am">${plural(c,'game')}</span></div>`}).join('')||`<div class="empty">No games in this period.</div>`))}
     ${cupDet('ready',`<span class="dt"><b>🚀 Ready for the next level</b><small>${ready.length?plural(ready.length,'player')+' meet the bar':'Nobody yet. Keep playing!'}</small></span>`,ready.map(x=>prow(x,9,'→ '+x.next.to)).join('')+`<div class="card-f"><p class="hint">Beginner → Intermediate: 80 XP, 6 matches, 45% wins · Intermediate → Advanced: 180 XP, 10 matches, 55% · Advanced → Pro: 350 XP, 15 matches, 65% and a title. Organizers make the final call.</p></div>`)}
     ${cupDet('all',`<span class="dt"><b>👥 Player cards</b><small>Stats, badges and kudos for everyone</small></span>`,all.slice().sort((a,b)=>a.n.localeCompare(b.n)).map(x=>prow(x,9)).join(''))}
-    ${done.length?cupDet('hof',`<span class="dt"><b>👑 Hall of fame</b><small>${plural(done.length,'champion')}</small></span>`,done.map(t=>`<div class="prow"><span class="ini">👑</span><span class="nm">${esc(cupChampion(t))}<small>${esc(t.name)} · ${esc(dlabel(ymd(new Date(t.createdAt)),{day:'numeric',month:'short'}))}</small></span></div>`).join('')):''}`;
+    ${done.length?cupDet('hof',`<span class="dt"><b>👑 Hall of fame</b><small>${plural(done.length,'champion')}</small></span>`,done.map(t=>`<div class="prow"><span class="medwrap"><span class="avs lg">${String(cupChampion(t)).split(/\s*&\s*/).slice(0,2).map(n=>ini(n)).join('')}</span><i class="medal">👑</i></span><span class="nm">${esc(cupChampion(t))}<small>${esc(t.name)} · ${esc(dlabel(ymd(new Date(t.createdAt)),{day:'numeric',month:'short'}))}</small></span></div>`).join('')):''}`;
   v.querySelectorAll('[data-cstar]').forEach(b=>b.onclick=e=>{e.preventDefault();CUPSTAR=b.dataset.cstar;renderCup()});
   v.querySelectorAll('details[data-open]').forEach(d=>d.addEventListener('toggle',()=>{d.open?CUPOPEN.add(d.dataset.open):CUPOPEN.delete(d.dataset.open)}));
   const nb=$('#cupnew');if(nb)nb.onclick=openNewCup;
@@ -1755,11 +1888,11 @@ function cupBody(T){const M=T.matches||[],ch=cupChampion(T),K=koMs(T),KR=K.lengt
       if(!id)return`<div class="ms" style="color:var(--muted)"><span>⏳ Awaiting winner</span><span></span></div>`;
       const won=m.w&&m.w===id,lost=m.w&&!m.bye&&m.w!==id;
       const pill=won?(m.bye?`<i class="pill pq">DIRECT TO ${short(m.r+1)}</i>`:final?`<i class="pill pc">CHAMPION</i>`:ko?`<i class="pill pw">WON ▸ ${short(m.r+1)}</i>`:`<i class="pill pw">WON</i>`):lost&&ko?`<i class="pill po">${final?'RUNNER-UP':'OUT'}</i>`:'';
-      return`<div class="ms${won?' w':''}"${lost?' style="color:var(--muted)"':''}><span class="mn">${esc(ename(T,id))}</span><span class="mr">${pill}<b>${g.map(x=>x[i]).join(' · ')||(i===1&&can?'<small style="color:var(--accent);font-weight:700">Add score</small>':'')}</b></span></div>`};
+      return`<div class="ms${won?' w':''}"${lost?' style="color:var(--muted)"':''}><span class="mn">${who(ename(T,id),entNames(T,id))}</span><span class="mr">${pill}<b>${g.map(x=>x[i]).join(' · ')||(i===1&&can?'<small style="color:var(--accent);font-weight:700">Add score</small>':'')}</b></span></div>`};
     return`<button class="mcard" ${can?`data-score="${m.id}" data-t="${esc(T.id)}"`:'disabled'}>${side(m.a,0)}${side(m.b,1)}</button>`};
   const sub=(k,t,body)=>`<details class="sub2" data-open="${k}"${CUPOPEN.has(k)?' open':''}><summary>${t}</summary>${body}</details>`;
   const lbl=t=>`<b style="font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px">${t}</b>`;
-  const table=(rows,q)=>`<div class="tablewrap"><table class="btable std"><thead><tr><th>#</th><th>${T.type==='doubles'?'Pair':'Player'}</th><th>P</th><th>W</th><th>L</th><th>+/−</th></tr></thead><tbody>${rows.map((x,i)=>`<tr${q&&i<q?' style="background:var(--soft)"':''}><td>${i+1}</td><td><b>${esc(x.name)}</b>${q&&i<q?' ✓':''}</td><td>${x.p}</td><td>${x.w}</td><td>${x.l}</td><td>${x.pd>0?'+':''}${x.pd}</td></tr>`).join('')}</tbody></table></div>`;
+  const table=(rows,q)=>`<div class="tablewrap"><table class="btable std"><thead><tr><th>#</th><th>${T.type==='doubles'?'Pair':'Player'}</th><th>P</th><th>W</th><th>L</th><th>+/−</th></tr></thead><tbody>${rows.map((x,i)=>`<tr${q&&i<q?' style="background:var(--soft)"':''}><td>${i+1}</td><td><b>${who(x.name,entNames(T,x.id))}</b>${q&&i<q?' ✓':''}</td><td>${x.p}</td><td>${x.w}</td><td>${x.l}</td><td>${x.pd>0?'+':''}${x.pd}</td></tr>`).join('')}</tbody></table></div>`;
   const bracket=()=>`<div class="bracket">${[...new Set(K.map(m=>m.r))].sort((a,b)=>a-b).map(r=>`<div class="rnd"><b>${koRoundName(r,KR)}</b>${K.filter(m=>m.r===r).sort((a,b)=>a.i-b.i).map(mcard).join('')}</div>`).join('')}</div>`;
   const groups=[...new Set((T.entries||[]).map(e=>e.grp).filter(Boolean))].sort();
   let matches,table2;
@@ -1881,26 +2014,27 @@ function startClub(){if(!db||CLUB.unsub)return;CLUB.unsub=col('posts').orderBy('
   if(tab==='club'&&!typingIn('#view-club'))renderClub();clubDot();renderHeader();if(tab==='day')refreshTasks()},()=>{})}
 function clubSeen(){try{localStorage.setItem('ss-clubseen'+SUF,String(Date.now()))}catch(e){}clubDot()}
 function clubDot(){const b=document.querySelector('.tabbar [data-tab="club"]');if(!b)return;let seen=0;try{seen=+localStorage.getItem('ss-clubseen'+SUF)||0}catch(e){}
-  b.classList.toggle('has-due',tab!=='club'&&CLUB.list.some(x=>x.at>seen&&x.uid!==(auth&&auth.currentUser&&auth.currentUser.uid)))}
+  b.classList.toggle('has-due',(tab!=='club'&&CLUB.list.some(x=>x.at>seen&&x.uid!==(auth&&auth.currentUser&&auth.currentUser.uid)))||(!(tab==='club'&&SUB.club==='chat')&&unreadChat()>0))}
 function tipOfDay(){const n=Math.floor(Date.now()/864e5);return TIPS[n%TIPS.length]}
 function renderClub(){
   const v=$('#view-club');if(!db){v.innerHTML=intro('Club','Photos, tips and shout-outs.')+`<section class="card"><div class="empty">${ic('chat')}The club needs the shared database.</div></section>`;return}
-  startClub();startComments();
+  startClub();startComments();startChat();
   const me=allNames().find(n=>nkey(n)===nkey(getMe())),uid=auth&&auth.currentUser&&auth.currentUser.uid,month=todayStr().slice(0,7);
   const [tt,tx]=tipOfDay();
   const posts=CLUB.list,tips=posts.filter(x=>x.kind==='tip');
   const postHTML=x=>{const likes=Object.keys(x.likes||{}).length,mine=uid&&(x.likes||{})[uid],own=uid&&x.uid===uid;
     return`<article class="card post"><div class="ph">${ini(x.name||'?')}<div style="flex:1;min-width:0"><b>${esc(x.name||'Someone')}</b><small>${timeAgo(x.at)}${x.day?' · game on '+esc(dlabel(x.day,{weekday:'short',day:'numeric',month:'short'})):''}</small></div>${x.tag?`<span class="tagchip">${esc(x.tag)}</span>`:x.kind==='photo'?'<span class="tagchip">📸 Memory</span>':''}</div>
-      ${x.img?`<img class="pimg" src="${x.img}" alt="Photo by ${esc(x.name||'')}" loading="lazy">`:''}${x.text?`<div class="ptxt">${esc(x.text)}</div>`:''}
+      ${x.img?`<img class="pimg" src="${x.img}" alt="Photo by ${esc(x.name||'')}" loading="lazy">`:''}${x.text?`<div class="ptxt">${mtext(x.text)}</div>`:''}
       <div class="pf">${reactBar('p',x.id,x)}<button class="lnk" data-cmts="${esc(x.id)}">💬 ${(CMT.list||[]).filter(c=>c.target==='post:'+x.id).length||''}</button>
         <span style="margin-left:auto;display:flex;gap:6px"><button class="iconbtn" data-pshare="${esc(x.id)}" aria-label="Share to Instagram, WhatsApp…">${ic('share')}</button>${own||isOrg?`<button class="iconbtn" data-pdelpost="${esc(x.id)}" aria-label="Delete">${ic('trash')}</button>`:''}</span></div>
       ${CLUBOPEN.has(x.id)?`<div class="sub" style="border-top:1px solid var(--line2);padding-top:12px">${threadHTML('post:'+x.id,'Add a comment…')}</div>`:''}</article>`};
   v.innerHTML=`${intro('Club','Photos from our games, tips to play better and kudos for each other. Everyone can post.')}
-  ${subnav('club',[['feed','Feed'],['tips','Tips']])}
+  ${subnav('club',[['feed','Feed'],['chat','Chat',unreadChat()||''],['tips','Tips']])}
+  <div data-in="chat">${chatHTML()}</div>
   <div data-in="feed">
     <section class="card"><div class="pad" style="display:grid;gap:8px">${me?'':`<p class="hint" style="margin:0">Pick your name in Payouts → My wallet to post.</p>`}
-      <div class="grid2"><button class="btn primary" data-compose="photo">${ic('camera')}Photo memory</button><button class="btn line" data-compose="tip">💡 Share a tip</button></div>
-      <button class="btn line block" data-cheer>👏 Cheer a player</button></div></section>
+      ${perm('post')==='off'?`<p class="hint" style="margin:0">🔒 Posting is turned off by the admins.</p>`:`<div class="grid2"><button class="btn primary" data-compose="photo">${ic('camera')}Photo memory</button><button class="btn line" data-compose="tip">💡 Share a tip</button></div>
+      `}${perm('kudos')==='off'?'':`<button class="btn line block" data-cheer>👏 Cheer a player</button>`}</div></section>
     ${kudosCard()}
     ${posts.filter(x=>x.kind!=='tip').map(postHTML).join('')||`<section class="card"><div class="empty">${ic('camera')}No posts yet. Share a photo from the last game and make it a memory card!</div></section>`}
     ${posts.length>=CLUB.limit?`<button class="btn line block" data-more>Show older posts</button>`:''}
@@ -1912,7 +2046,7 @@ function renderClub(){
     <section class="card">${cardH('check','Quick tips')}${TIPS.map(([t,x])=>`<div class="row"><div class="l"><b style="font-size:13px;color:var(--accent)">${esc(t)}</b><small style="color:var(--ink);font-size:14px">${esc(x)}</small></div></div>`).join('')}</section>
   </div>
   </div>`;
-  applySub(v,'club');
+  applySub(v,'club');if(SUB.club==='chat'){markChatSeen();const l=v.querySelector('.chatroom .tlist');if(l)setTimeout(()=>l.scrollTop=l.scrollHeight,30)}
   v.querySelectorAll('[data-compose]').forEach(b=>b.onclick=()=>openCompose(b.dataset.compose));
   v.querySelectorAll('[data-cheer]').forEach(b=>b.onclick=()=>openCheer(b.dataset.cheer||''));
   v.querySelectorAll('[data-kprof]').forEach(b=>b.onclick=()=>openProfile(b.dataset.kprof));
@@ -1924,16 +2058,16 @@ function renderClub(){
 /* praise lives in one place: kudos on a player's card. The Club shows the latest ones. */
 function kudosList(){return(CMT.list||[]).filter(c=>String(c.target||'').startsWith('player:')&&!c.parent).sort((a,b)=>(b.at||0)-(a.at||0))}
 function kudosCard(){const K=kudosList().slice(0,5);if(!K.length)return'';const nm=k=>allNames().find(n=>nkey(n)===k)||k;
-  return`<section class="card">${cardH('chat','👏 Latest kudos',kudosList().length)}${K.map(c=>{const to=nm(String(c.target).slice(7));return`<button class="prow" style="width:100%;text-align:left" data-kprof="${esc(to)}">${ini(c.name||'?')}<span class="nm">${esc(first(c.name||''))} → ${esc(to)}<small>${esc(c.text||'')} · ${timeAgo(c.at)}</small></span>${ic('right')}</button>`}).join('')}</section>`}
-function openCheer(to,preset){const me=allNames().find(n=>nkey(n)===nkey(getMe()));if(!me){toast('Pick your name first (tap the person icon at the top).');ME.who='';go('me');return}
+  return`<section class="card">${cardH('chat','👏 Latest kudos',kudosList().length)}${K.map(c=>{const to=nm(String(c.target).slice(7));return`<button class="prow" style="width:100%;text-align:left" data-kprof="${esc(to)}">${ini(c.name||'?')}<span class="nm">${esc(first(c.name||''))} → ${esc(to)}<small>${mtext(c.text||'')} · ${timeAgo(c.at)}</small></span>${ic('right')}</button>`}).join('')}</section>`}
+function openCheer(to,preset){if(perm('kudos')==='off')return toast('Kudos are turned off by the admins.');const me=allNames().find(n=>nkey(n)===nkey(getMe()));if(!me){toast('Pick your name first (tap the person icon at the top).');ME.who='';go('me');return}
   const bg=sheetOpen(`<div class="sheet-h"><span class="ini">👏</span><div><b>Cheer a player</b><small>Kudos go on their player card · everyone can see them</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div>
-    <div class="sub" style="padding-top:12px"><span class="sublbl">Who?</span><select class="txt" id="kto"><option value="">Choose a player…</option>${allNames().filter(n=>nkey(n)!==nkey(me)).map(n=>`<option ${nkey(n)===nkey(to)?'selected':''}>${esc(n)}</option>`).join('')}</select></div>
+    <div class="sub" style="padding-top:12px"><span class="sublbl">Who?</span><select class="txt" id="kto"><option value="">Choose a player…</option>${activeRoster().filter(n=>nkey(n)!==nkey(me)).map(n=>`<option ${nkey(n)===nkey(to)?'selected':''}>${esc(n)}</option>`).join('')}</select></div>
     <div class="sub"><span class="sublbl">Message</span><div class="emo">${EMO.map(e=>`<button type="button" data-kemo="${e}">${e}</button>`).join('')}</div><input class="txt" id="ktext" maxlength="500" placeholder="e.g. That smash in the last game! 💥" value="${esc(preset||'')}"></div>
     <div class="card-f"><button class="btn primary block" id="ksend">${ic('check')}Send kudos</button></div>`,'Cheer a player');
   bg.querySelectorAll('[data-kemo]').forEach(b=>b.onclick=()=>{const t=$('#ktext');t.value+=b.dataset.kemo;t.focus()});
   let busy=false;$('#ksend').onclick=async()=>{const who=$('#kto').value,text=norm($('#ktext').value);if(!who||!text)return toast('Choose a player and write a message.');if(busy)return;
-    const target='player:'+nkey(who);if(kudosList().some(c=>c.target===target&&nkey(c.name)===nkey(me)&&c.text===text&&Date.now()-(c.at||0)<10*60e3))return toast('✋ Already sent.');
-    busy=true;try{await ensureAnon();await col('comments').add({target,name:canon(me),uid:auth.currentUser.uid,text,at:Date.now(),likes:{}});closeWho();toast('Kudos sent to '+first(who)+' 👏')}
+    if(!allOk(text))return;const target='player:'+nkey(who);if(kudosList().some(c=>c.target===target&&nkey(c.name)===nkey(me)&&c.text===text&&Date.now()-(c.at||0)<10*60e3))return toast('✋ Already sent.');
+    busy=true;try{await ensureAnon();await col('comments').add({target,name:canon(me),uid:auth.currentUser.uid,text,at:Date.now(),likes:{}});closeWho();toast('Kudos sent to '+first(who)+' 👏');nudgeAfter(text,'kudos for '+first(who))}
     catch(e){busy=false;toast(e.code==='permission-denied'?'Ask the organizer to update the app rules.':'Couldn’t send ('+(e.code||'error')+').')}}}
 async function toggleLike(id){const x=CLUB.list.find(y=>y.id===id);if(!x)return;const me=allNames().find(n=>nkey(n)===nkey(getMe()));if(!me)return toast('Pick your name first (Payouts → My wallet).');
   try{await ensureAnon();const uid=auth.currentUser.uid,F=firebase.firestore,on=(x.likes||{})[uid];
@@ -1951,7 +2085,7 @@ async function memoryCard(src,ds,caption){const img=await loadImg(src);if(!img)r
   if(caption){g.font='italic 700 34px '+F;fit(g,'“'+caption+'”',56,ph+215,W-112)}
   g.font='700 24px '+F;g.globalAlpha=.75;g.fillText('🏸 Shuttle Split',56,H-40);g.globalAlpha=1;
   let q=.8,u=cv.toDataURL('image/jpeg',q);while(u.length>700000&&q>.35){q-=.1;u=cv.toDataURL('image/jpeg',q)}return u}
-function openCompose(kind,preset){
+function openCompose(kind,preset){if(perm('post')==='off')return toast('Posting is turned off by the admins.');
   const me=allNames().find(n=>nkey(n)===nkey(getMe()));if(!me){toast('Pick your name first (tap the person icon at the top).');ME.who='';go('me');return}
   const days=playedDays().slice(0,10);let raw=preset&&preset.img||'',card='',initText=preset&&preset.text||'',ds=days.find(k=>getDay(k).present.some(x=>nkey(x)===nkey(me)))||days[0]||'',tag='',shoutTo='',mk=true;
   const draw=()=>{const bg=sheetOpen(`<div class="sheet-h"><span class="ini">${kind==='photo'?ic('camera'):kind==='tip'?'💡':'👏'}</span><div><b>${kind==='photo'?'Photo memory':kind==='tip'?'Share a tip':'Shout-out'}</b><small>Posting as ${esc(me)} · everyone in the group can see it</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div>
@@ -1970,12 +2104,12 @@ function openCompose(kind,preset){
     const to=$('#cto');if(to)to.onchange=()=>{shoutTo=to.value};
     const wa=$('#cwa');if(wa)wa.onclick=()=>sharePoster(mk&&card?card:raw,'badminton-memory.jpg',(norm($('#ctext').value)?norm($('#ctext').value)+'\n\n':'')+'🏸 '+(S.groupName||'Badminton Family'));
     $('#cpost').onclick=async()=>{const text=norm($('#ctext').value);
-      if(kind==='photo'&&!raw)return toast('Choose a photo first.');if(kind==='tip'&&!text)return toast('Write your tip.');if(kind==='shout'&&(!shoutTo||!text))return toast('Choose a player and write a message.');
+      if(!allOk(text))return;if(kind==='photo'&&!raw)return toast('Choose a photo first.');if(kind==='tip'&&!text)return toast('Write your tip.');if(kind==='shout'&&(!shoutTo||!text))return toast('Choose a player and write a message.');
       const b=$('#cpost');const twin=CLUB.list.find(x=>nkey(x.name)===nkey(me)&&x.kind===kind&&(x.text||'')===(kind==='shout'?'👏 '+shoutTo+': '+text:text)&&Date.now()-(x.at||0)<30*60e3&&(kind!=='photo'||x.day===ds));
       if(twin)return toast('✋ You already posted this '+timeAgo(twin.at)+'. It’s in the feed.');b.disabled=true;
       try{await ensureAnon();const doc={name:canon(me),uid:auth.currentUser.uid,text:kind==='shout'?'👏 '+shoutTo+': '+text:text,at:Date.now(),kind,likes:{}};
         if(kind==='photo'){doc.img=mk&&card?card:raw;if(ds)doc.day=ds}if(kind==='tip'&&tag)doc.tag=tag;
-        await col('posts').add(doc);closeWho();SUB.club=kind==='tip'?'tips':'feed';go('club');toast(kind==='photo'?'Posted! 📸':'Posted! Thanks for sharing.')}
+        await col('posts').add(doc);closeWho();SUB.club=kind==='tip'?'tips':'feed';go('club');toast(kind==='photo'?'Posted! 📸':'Posted! Thanks for sharing.');nudgeAfter(text,'a Club post')}
       catch(e){b.disabled=false;toast(e.code==='permission-denied'?'Ask the organizer to update the app rules for the Club.':'Couldn’t post ('+(e.code||'error')+').')}};
   };draw();if(raw&&mk)memoryCard(raw,ds,initText).then(c=>{card=c||'';if($('#whosheet #cpost'))draw()});
 }
@@ -2040,16 +2174,20 @@ async function shareCupCard(T){const ch=cupChampion(T),body=T.format==='rr'||!ch
 /* ---------- 1A. activity feed: new posts, comments on yours, replies, kudos and shout-outs for you ---------- */
 const actSeen=()=>{try{return+localStorage.getItem('ss-actseen'+SUF)||0}catch(e){return 0}};
 function activityItems(){const me=nkey(getMe()),uid=auth&&auth.currentUser&&auth.currentUser.uid;if(!me)return[];const out=[];
-  const mineP=x=>(uid&&x.uid===uid)||nkey(x.name||'')===me;
-  (CLUB.list||[]).forEach(x=>{if(mineP(x))return;const what=x.kind==='photo'?'shared a photo memory 📸':x.kind==='tip'?'shared a tip 💡':'posted a shout-out 👏';
+  const mineP=x=>(uid&&x.uid===uid)||nkey(x.name||'')===me,ment=x=>{const m=mentionsIn(x.text);return m.has(me)||m.has('all')};
+  (CLUB.list||[]).forEach(x=>{if(mineP(x))return;if(ment(x)){out.push({at:x.at,ic:'📣',t:first(x.name)+' mentioned you in a post',s:x.text||'',go:()=>{SUB.club=x.kind==='tip'?'tips':'feed';CLUBOPEN.add(x.id);go('club')}});return}const what=x.kind==='photo'?'shared a photo memory 📸':x.kind==='tip'?'shared a tip 💡':'posted a shout-out 👏';
     const forMe=x.kind==='shout'&&nkey(String(x.text||'').replace(/^👏\s*/,'').split(':')[0])===me;
     out.push({at:x.at,ic:forMe?'👏':x.kind==='photo'?'📸':x.kind==='tip'?'💡':'👏',t:forMe?first(x.name)+' gave you a shout-out!':first(x.name)+' '+what,s:x.text||'',go:()=>{SUB.club=x.kind==='tip'?'tips':'feed';CLUBOPEN.add(x.id);go('club')}})});
   (CMT.list||[]).forEach(c=>{if(mineP(c))return;const tgt=c.target||'';
+    if(ment(c)&&tgt!=='player:'+me){out.push({at:c.at,ic:'📣',t:first(c.name)+' mentioned you'+(tgt.startsWith('player:')?' in kudos':' in a comment'),s:c.text,go:()=>{if(tgt.startsWith('post:')){CLUBOPEN.add(tgt.slice(5));SUB.club='feed';go('club')}else{const n=allNames().find(x=>nkey(x)===tgt.slice(7));if(n)openProfile(n)}}});return}
     if(tgt==='player:'+me)out.push({at:c.at,ic:'👏',t:first(c.name)+(c.parent?' replied on your card':' sent you kudos'),s:c.text,go:()=>openProfile(getMe())});
     else if(tgt.startsWith('player:')&&!c.parent){const n=allNames().find(x=>nkey(x)===tgt.slice(7));if(n)out.push({at:c.at,ic:'👏',t:first(c.name)+' cheered '+first(n),s:c.text,go:()=>openProfile(n)})}
     else if(tgt.startsWith('post:')){const post=(CLUB.list||[]).find(x=>'post:'+x.id===tgt),parent=c.parent&&(CMT.list||[]).find(y=>y.id===c.parent);
       if((post&&mineP(post))||(parent&&mineP(parent)))out.push({at:c.at,ic:'💬',t:first(c.name)+(parent&&mineP(parent)?' replied to you':' commented on your post'),s:c.text,go:()=>{if(post){CLUBOPEN.add(post.id);SUB.club=post.kind==='tip'?'tips':'feed'}go('club')}})}
     else if(c.parent){const parent=(CMT.list||[]).find(y=>y.id===c.parent);if(parent&&mineP(parent))out.push({at:c.at,ic:'💬',t:first(c.name)+' replied to you',s:c.text,go:()=>{const k=tgt.slice(7),n=allNames().find(x=>nkey(x)===k);if(n)openProfile(n)}})}});
+  (CHAT.list||[]).forEach(c=>{if(mineP(c))return;const where=c.target==='chat:group'?'the group chat':'a game chat',parent=c.parent&&CHAT.list.find(y=>y.id===c.parent);
+    if(ment(c))out.push({at:c.at,ic:'📣',t:first(c.name)+' mentioned you in '+where,s:c.text,go:()=>openChatTarget(c.target)});
+    else if(parent&&mineP(parent))out.push({at:c.at,ic:'💬',t:first(c.name)+' replied to you in '+where,s:c.text,go:()=>openChatTarget(c.target)})});
   {const t0=new Date(todayStr()+'T00:00').getTime();birthdaysToday().forEach(n=>{const mine=nkey(n)===me;out.push({at:t0,ic:'🎂',t:mine?'Happy birthday, '+first(n)+'! 🎉':'It’s '+first(n)+'’s birthday today',s:mine?'The whole group can wish you today':'Tap to send a wish',go:()=>mine?openProfile(n):openCheer(n,'Happy birthday '+first(n)+'! 🎂🎉')})})}
   return out.sort((a,b)=>(b.at||0)-(a.at||0)).slice(0,25)}
 const unreadActivity=()=>{const t=actSeen();return activityItems().filter(x=>(x.at||0)>t).length};
@@ -2141,7 +2279,8 @@ function teamMenu(org,AD,att,act){const rev=org?att.fresh.length+att.dups.length
   const groups=[
     ['Group',[menuItem('players','users','Players & levels','Roster, levels, rename, merge or pause',act.length+(rev?` · <i class="nb">${rev}</i>`:'')),
       org&&AD?menuItem('adoption','poll','App adoption','Who’s using the app, nudges, auto-inactive',AD.joined+'%'):'',
-      menuItem('group','palette',org?'Name, photo & theme':'Group photo & theme',org?'How the app and posters look':'',esc(SKINS[S.skin]?SKINS[S.skin].name:''))]],
+      menuItem('group','palette',org?'Name, photo & theme':'Group name, photo & theme',org?'How the app and posters look':(perm('name')==='allow'?'You can rename the group':perm('name')==='ask'?'Suggest a new name':''),esc(SKINS[S.skin]?SKINS[S.skin].name:'')),
+      org?menuItem('perms','lock','Player permissions','What players can change: name, photo, theme, posts, chat',actOpen().length?`<i class="nb">${actOpen().length}</i>`:''):'']],
     org?['Money',[menuItem('money','rupee','Payments & pricing','UPI ID, pay after games or prepaid wallet, court rate',PRE()?'Wallet':'After games'),
       menuItem('','cal','Records','Add, edit or delete payments, days, polls and votes',allPays().length+' pay','records')]]:null,
     org?['Messages',[menuItem('','bell','Messages & reminders','Templates and reminder schedule',MSGS().on?'On':'Off','msgset2'),
@@ -2219,7 +2358,7 @@ function renderTeam(){
   const nDays=playedDays().length, org=canEdit(), act=activeRoster(), inact=S.roster.filter(n=>!act.includes(n));
   const att=org&&db?attention():{fresh:[],dups:[]}, AD=org&&db?adoption():null;
   if(org&&db)loadOrgData(false);
-  const pRow=p=>{const g=ledger(p),lv=levelOf(p);return`<div class="prow"><span class="ini"${lv?` style="box-shadow:inset 0 0 0 2px ${lv[2]}"`:''}>${esc(initials(p))}</span><span class="nm">${esc(p)}<small>Played ${plural(played[nkey(p)]||0,'day')}${g.due?` · <b style="color:var(--danger)">owes ${inr(g.due)}</b>`:g.charged?' · all paid':''}</small></span>
+  const pRow=p=>{const g=ledger(p),lv=levelOf(p);return`<div class="prow">${ini(p,lv?'box-shadow:0 0 0 2px '+lv[2]:'')}<span class="nm">${esc(p)}<small>Played ${plural(played[nkey(p)]||0,'day')}${g.due?` · <b style="color:var(--danger)">owes ${inr(g.due)}</b>`:g.charged?' · all paid':''}</small></span>
     <span class="acts" style="align-items:center">${org?`<select class="lvl" data-lvl="${esc(p)}"${lv?` style="--lc:${lv[2]}"`:''} aria-label="Level for ${esc(p)}"><option value="">Level</option>${LEVELS.map(l=>`<option value="${l[0]}"${lv&&lv[0]===l[0]?' selected':''}>${l[1]}</option>`).join('')}</select><button type="button" class="iconbtn" data-manage="${esc(p)}" aria-label="Manage ${esc(p)}">${ic('gear')}</button>`:lv?`<span class="lvl" style="--lc:${lv[2]};display:inline-flex;align-items:center">${lv[1]}</span>`:''}</span></div>`};
   v.innerHTML=`
   ${intro('Team',org?'Players, access, adoption and settings. Changes apply to everyone in this group.':'Everyone in the group, their level and who’s settled up.')}
@@ -2237,9 +2376,13 @@ function renderTeam(){
     <div class="profile"><div class="gphoto">${photo?`<img src="${photo}" alt="Group photo">`:ic('users')}</div>
       <div style="display:flex;flex-direction:column;gap:8px;flex:1;min-width:0">
         ${org?`<input class="txt" id="gnamein" value="${esc(S.groupName)}" placeholder="Group name" aria-label="Group name">
-        <div style="display:flex;gap:10px;align-items:center"><label class="btn sm line filebtn">${ic('camera')}${photo?'Change photo':'Add group photo'}<input type="file" accept="image/*" id="photoin"></label>${photo?`<button type="button" class="lnk danger" data-act="nophoto">Remove</button>`:''}</div>`:`<b style="font-size:18px">${esc(S.groupName||'Badminton Family')}</b><span class="hint">${plural(act.length,'player')}${S.upiId?' · UPI '+esc(S.upiId):''}</span>`}
+        <div style="display:flex;gap:10px;align-items:center"><label class="btn sm line filebtn">${ic('camera')}${photo?'Change photo':'Add group photo'}<input type="file" accept="image/*" id="photoin"></label>${photo?`<button type="button" class="lnk danger" data-act="nophoto">Remove</button>`:''}</div>`:`${perm('name')!=='off'?`<div class="inline"><input class="txt" id="gnamep" maxlength="40" value="${esc(S.groupName||'Badminton Family')}" aria-label="Group name"><button type="button" class="btn sm primary" style="height:44px" data-act="gnamesave">${perm('name')==='allow'?'Save':'Suggest'}</button></div>`:`<b style="font-size:18px">${esc(S.groupName||'Badminton Family')}</b>`}
+        ${perm('photo')!=='off'?`<label class="btn sm line filebtn" style="align-self:flex-start">${ic('camera')}${perm('photo')==='allow'?(photo?'Change photo':'Add group photo'):'Suggest a photo'}<input type="file" accept="image/*" id="photoinp"></label>`:''}
+        <span class="hint">${plural(act.length,'player')}${S.upiId?' · UPI '+esc(S.upiId):''}${perm('name')==='ask'||perm('photo')==='ask'||perm('theme')==='ask'?' · changes go to the admins for approval':''}</span>`}
       </div></div>
   </section>
+  ${!org&&db&&perm('theme')!=='off'?`<section data-g="group" class="card">${cardH('palette','Theme',perm('theme')==='ask'?'Suggest one':'')}
+    <div class="swatches">${Object.entries(SKINS).map(([k,s])=>`<button type="button" class="sw" data-skin="${k}" aria-pressed="${S.skin===k}"><i style="background:linear-gradient(135deg,${s.accent} 0 60%,${s.pop===s.accent?'#D0D5DD':s.pop} 60%)"></i>${s.name}</button>`).join('')}</div></section>`:''}
   <section data-g="players" class="card">
     ${cardH('users','Players',act.length)}
     ${org?`<div class="pad" style="padding-bottom:6px"><div class="inline"><input class="txt" id="newp" placeholder="Add a player" autocomplete="off" autocapitalize="words" enterkeyhint="done"><button type="button" class="btn sm primary" style="height:44px" data-act="addp">${ic('plus')}Add</button></div>
@@ -2256,7 +2399,7 @@ function renderTeam(){
     <div class="acct" style="border-top:0;grid-template-columns:repeat(3,minmax(0,1fr))"><div><span>Opened app</span><b>${AD.joined}%</b></div><div><span>Vote in app</span><b>${AD.voting}%</b></div><div><span>Pay in app</span><b>${AD.paying}%</b></div></div>
     <div class="sub"><span class="sublbl">By level</span>${AD.byLvl.map(([l,c,rs])=>{const pc=Math.round(rs.filter(r=>r.on).length*100/rs.length);return`<div class="bar"><span><i class="lvl-dot" style="background:${c}"></i>${l}</span><div><i style="width:${pc}%;background:${c}"></i></div><b>${rs.filter(r=>r.on).length}/${rs.length}</b></div>`}).join('')}</div>
     ${AD.rows.sort((a,b)=>a.stage-b.stage||a.n.localeCompare(b.n)).map(r=>`<div class="prow">${ini(r.n)}<span class="nm">${esc(r.n)}<small>${r.on?'Last opened '+timeAgo(r.last):'Hasn’t opened the app'}${r.sv?' · voted '+r.sv+'×':''}${r.ov?' · '+r.ov+' vote'+(r.ov>1?'s':'')+' via WhatsApp':''}${r.pp?' · paid in app':''}</small></span><span class="stage s${r.stage}">${['','Not yet','Joined','Active'][r.stage]}</span></div>`).join('')}
-    ${AD.idle.map(r=>`<div class="prow"><span class="ini" style="opacity:.6">${esc(initials(r.n))}</span><span class="nm" style="opacity:.75">${esc(r.n)}<small>No activity since ${r.act?timeAgo(r.act):'joining'} · auto-paused ${timeAgo(r.since)}</small></span><span class="stage s0">Inactive</span></div>`).join('')}
+    ${AD.idle.map(r=>`<div class="prow">${ini(r.n,'opacity:.6')}<span class="nm" style="opacity:.75">${esc(r.n)}<small>No activity since ${r.act?timeAgo(r.act):'joining'} · auto-paused ${timeAgo(r.since)}</small></span><span class="stage s0">Inactive</span></div>`).join('')}
     ${AD.rows.some(r=>r.stage===1)?`<div class="card-f"><a class="btn sm wa" href="${waHref(nudgeMsg(AD.rows.filter(r=>r.stage===1).map(r=>r.n)))}" target="_blank" rel="noopener">${ic('chat')}Nudge ${AD.rows.filter(r=>r.stage===1).length} who haven’t started</a><button class="lnk" data-act="refreshad" style="margin-left:auto">Refresh</button></div>`:`<div class="card-f"><span class="ok-chip">${ic('check')}Everyone has started using the app. 🎉</span><button class="lnk" data-act="refreshad" style="margin-left:auto">Refresh</button></div>`}
     <div class="card-f"><p class="hint"><b>Not yet</b> = hasn’t used the app. <b>Joined</b> = opened it and picked their name. <b>Active</b> = votes or pays inside the app. <b>Inactive</b> = no app use, game or payment for ${S.idleWeeks||4} weeks. They come back automatically the moment they vote, play or open the app. “Via WhatsApp” = votes you recorded by hand.</p></div>
   </section>`:''}
@@ -2300,6 +2443,7 @@ function renderTeam(){
     <div class="card-f"><p class="hint">Poll, reminder, game-day and payment messages. Edit the wording and schedule.</p><button class="btn sm line" data-act="msgset2" style="margin-left:auto">Edit</button></div></section>`:''}
   ${org?`<section data-g="requests" class="card">${requestsHTML()}</section>`:''}
   ${org?`<section data-g="contacts" class="card">${contactsHTML()}</section>`:''}
+  ${org?`<section data-g="perms" class="card">${permsHTML()}</section>`:''}
   <section data-g="reset" class="card danger-card">
     ${cardH('trash','Start fresh','Go live')}
     <div class="pad" style="padding-bottom:6px"><p class="hint">Clears test data so you can start clean. Players, levels, photo, UPI and settings are kept.</p></div>
@@ -2487,7 +2631,8 @@ function bindTeam(){
   const v=$('#view-team');
   v.addEventListener('click',async e=>{
     if(e.target.closest('[data-signin]')){userEmail()?auth.signOut():signIn();return}
-    const sw=e.target.closest('[data-skin]');if(sw&&!sw.disabled){S.skin=sw.dataset.skin;applySkin();saveConfig();renderTeam();return}
+    const pm=e.target.closest('[data-perm]');if(pm){if(!isOrg)return;const[k,m]=pm.dataset.perm.split(':');S.perms={...(S.perms||{}),[k]:m};saveConfig();renderTeam();toast(PERMS.find(x=>x[0]===k)[2]+': '+PMODE[m]);return}
+    const sw=e.target.closest('[data-skin]');if(sw&&!sw.disabled){if(db&&!isOrg){const k=sw.dataset.skin;if(k===S.skin)return;if(await playerAction('theme',k)&&perm('theme')==='allow'){S.skin=k;applySkin();renderTeam()}return}S.skin=sw.dataset.skin;applySkin();saveConfig();renderTeam();return}
     const mg=e.target.closest('[data-manage]');if(mg){openManage(mg.dataset.manage);return}
     const me=e.target.closest('[data-merge]');if(me){me.disabled=true;const r=await renamePlayer(me.dataset.merge,me.dataset.into);toast(me.dataset.merge+' merged into '+r.fin+'.');return}
     const an=e.target.closest('[data-addnew]');if(an){const n=tcase(an.dataset.addnew);if(!S.roster.some(r=>nkey(r)===nkey(n))){S.roster.push(n);saveConfig()}if(n!==an.dataset.addnew)await renamePlayer(an.dataset.addnew,n);renderTeam();toast(n+' added to the team.');return}
@@ -2512,6 +2657,8 @@ function bindTeam(){
     else if(a==='msgset2')openMsgSettings();
     else if(a==='suggest')openSuggest();
     else if(a==='contactsxl')exportContacts();
+    else if(a==='actions')openActions();
+    else if(a==='gnamesave'){const v=norm(($('#gnamep')||{}).value||'');if(!v||v.length>40)return toast('Group name: 1 to 40 characters.');if(v===S.groupName)return toast('That’s already the name.');if(await playerAction('name',v)&&perm('name')==='allow'){S.groupName=v;renderHeader();renderTeam()}}
   });
   v.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-preset]');if(!b)return;if(b.dataset.c!=='1'){b.dataset.c='1';toast('Tap 🔒 again to let '+first(b.dataset.preset)+' edit from a new phone.');return}resetProfileLink(b.dataset.preset)});
   v.addEventListener('input',e=>{const id=e.target.id;
@@ -2529,12 +2676,14 @@ function bindTeam(){
     if(e.target.id==='idlewk'){S.idleWeeks=+e.target.value;saveConfig();autoInactive();renderTeam();toast(S.idleWeeks?'Players inactive for '+S.idleWeeks+' weeks will be paused automatically.':'Auto-inactive is off.');return}
     if(e.target.dataset&&e.target.dataset.reset){teamUI.reset[e.target.dataset.reset]=e.target.checked;return}
     if(e.target.dataset&&e.target.dataset.lvl!==undefined){if(!canEdit())return;const k=nkey(e.target.dataset.lvl);S.levels=S.levels||{};if(e.target.value)S.levels[k]=e.target.value;else delete S.levels[k];saveConfig();renderTeam();return}
+    if(e.target.id==='photoinp'&&e.target.files[0]){try{const d=await shrinkPhoto(e.target.files[0]);if(await playerAction('photo',d)&&perm('photo')==='allow'){photo=d;renderHeader();renderTeam()}}catch(x){toast('Couldn’t read that photo. Try another one.')}return}
     if(e.target.id!=='photoin'||!e.target.files[0])return;
     try{photo=await shrinkPhoto(e.target.files[0]);try{localStorage.setItem(LSP,photo)}catch(x){}queueWrite('config/photo',{data:photo,updatedAt:Date.now()});renderHeader();renderTeam();toast('Group photo updated.')}
     catch(x){toast('Couldn’t read that photo. Try another one.')}});
   v.addEventListener('click',e=>{if(e.target.id==='resetbtn'&&!e.target.disabled)resetData()});
 }
 function avatarTap(){
+  if(!canEdit()&&perm('photo')!=='off'&&!photo){const i=document.createElement('input');i.type='file';i.accept='image/*';i.onchange=async()=>{const f=i.files[0];if(!f)return;try{const d=await shrinkPhoto(f);if(await playerAction('photo',d)&&perm('photo')==='allow'){photo=d;renderHeader()}}catch(x){toast('Couldn’t read that photo.')}};i.click();return}
   if(canEdit()){const i=document.createElement('input');i.type='file';i.accept='image/*';i.onchange=async()=>{const f=i.files[0];if(!f)return;
       try{photo=await shrinkPhoto(f);try{localStorage.setItem(LSP,photo)}catch(x){}queueWrite('config/photo',{data:photo,updatedAt:Date.now()});renderHeader();if(tab==='team')renderTeam();toast('Group photo updated for everyone.')}catch(x){toast('Couldn’t read that photo. Try another one.')}};i.click();return}
   if(!photo)return toast('No group photo yet. Organizers can add one by tapping here.');
@@ -2784,7 +2933,7 @@ function renderPolls(){
   <div data-in="list">
   ${boardCard()}
   <section class="card cta"><div class="pad"><h2>Who’s playing this weekend?</h2><p>Pick dates and time slots, send to WhatsApp, track votes live.</p>
-    <button class="btn block" data-act="newpoll">${ic(isOrg?'plus':'lock')}${isOrg?'Create a poll':'Sign in to create a poll'}</button></div></section>
+    ${!isOrg&&db&&perm('poll')==='ask'?`<button class="btn block" data-sday>🗓️ Suggest a game day</button><button class="lnk" data-act="newpoll" style="color:#fff;margin-top:8px">${ic('lock')}Organizer? Sign in to create a poll</button>`:`<button class="btn block" data-act="newpoll">${ic(isOrg?'plus':'lock')}${isOrg?'Create a poll':'Sign in to create a poll'}</button>`}</div></section>
   ${latestDone?recapHTML(latestDone,'Latest results'):''}
   <section class="card">${cardH('poll','Recent polls',live.length||null)}
     ${live.length?live.map(p=>`<button class="row" style="width:100%;text-align:left" data-open="${esc(p.id)}"><div class="l"><b>${esc(p.title)}</b><small>${(p.dates||[]).map(dt=>esc(dlabel(dt.date))).join(' · ')}</small></div><span class="badge ${isClosed(p)?'':'on'}">${isClosed(p)?'Closed':'Open'}</span><span class="chev">${ic('right')}</span></button>`).join(''):`<div class="empty">${ic('poll')}No recent polls.</div>`}
@@ -2859,14 +3008,14 @@ function renderPollDetail(v){
       ${S.openNames===false?'<p class="hint">Not on the list? Ask the organizer to add you.</p>':''}
       <input class="txt" type="text" id="vother" placeholder="Type your name" value="${P.myName&&!known?esc(P.myName):''}" ${P.myName&&!known?'':'hidden'}>
       <p class="warn" id="vwarn" hidden></p></div>
-    ${p.dates.map(dt=>`<div class="row" style="flex-direction:column;align-items:stretch;gap:8px"><b>${esc(waOpt(dt))}</b><div class="vote">${['yes|Yes','maybe|Maybe','no|No'].map(s=>{const[val,l]=s.split('|');return`<button type="button" class="${P.myAns[dt.date]===val?'on':''}" data-ans="${dt.date}|${val}">${l}</button>`}).join('')}</div></div>`).join('')}
+    ${p.dates.map(dt=>`<div class="row" style="flex-direction:column;align-items:stretch;gap:8px"><b>${esc(waOpt(dt))}</b><div class="vote">${['yes|Yes','maybe|Maybe','no|No'].map(s=>{const[val,l]=s.split('|');return`<button type="button" class="${P.myAns[dt.date]===val?'on':''}" data-ans="${dt.date}|${val}">${l}</button>`}).join('')}</div>${dt.date>=shift(todayStr(),-1)?`<button type="button" class="lnk" data-room="chat:game:${dt.date}" style="align-self:flex-start">💬 Game chat${(()=>{const n=CHAT.list.filter(c=>c.target==='chat:game:'+dt.date).length;return n?' · '+n:''})()}</button>`:''}</div>`).join('')}
     <div class="card-f" style="display:grid;gap:8px"><button type="button" class="btn line block" id="cantmake">Not available on any of these</button>${p.dates.some(dt=>P.myAns[dt.date]==='yes')?`<button type="button" class="btn line block" id="vcal">${ic('cal')}Add my games to calendar</button>`:''}</div></section>`}
   ${isOrg?'':sendCardHTML}
   <section class="card">${cardH('poll','Results',t.per+' per court')}
     ${t.res.map(r=>`<div class="row" style="flex-direction:column;align-items:stretch;gap:8px">
       <div style="display:flex;justify-content:space-between;gap:8px;align-items:center"><b>${esc(waOpt(r))}</b><span class="badge solid">${r.courts?plural(r.courts,'court'):'No courts'}</span></div>
       <small class="hint">${r.yes.length} yes · ${r.maybe.length} maybe · ${r.no.length} no${r.courtsMax>r.courts?' · up to '+plural(r.courtsMax,'court')+' if maybes come':''}</small>
-      ${r.yes.length||r.maybe.length?`<div class="names">${r.yes.map(n=>`<span class="nm-chip">${esc(n)}</span>`).join('')}${r.maybe.map(n=>`<span class="nm-chip maybe">${esc(n)}?</span>`).join('')}</div>`:''}</div>`).join('')}
+      ${r.yes.length||r.maybe.length?`<div class="names">${r.yes.map(n=>`<span class="nm-chip">${av(n)}${esc(n)}</span>`).join('')}${r.maybe.map(n=>`<span class="nm-chip maybe">${av(n)}${esc(n)}?</span>`).join('')}</div>`:''}</div>`).join('')}
     <div class="row"><div class="l"><b>No vote yet</b><small>${t.pending.length?t.pending.map(esc).join(', '):'Everyone has voted'}</small></div></div>
     <div class="card-f" style="display:grid;grid-template-columns:${t.pending.length&&!closed?'1fr 1fr':'1fr'}">${t.pending.length&&!closed?`<a class="btn line" href="${waHref(msgReminder(p,t))}" target="_blank" rel="noopener">${ic('bell')}Remind</a>`:''}<a class="btn wa" href="${waHref(msgResults(p,t))}" target="_blank" rel="noopener">${ic('chat')}Post results</a></div>
   </section>
@@ -2984,7 +3133,7 @@ if('serviceWorker' in navigator)window.addEventListener('load',()=>{const had=!!
   auth.getRedirectResult().catch(e=>toast('Sign-in failed: '+(e.message||e.code)));
   auth.onAuthStateChanged(u=>{const changed=computeOrg();
     if(!authInit||changed){authInit=true;renderTab(true);if(isOrg&&cfgMissing){cfgMissing=false;saveConfig()}}else renderHeader();
-    if(isOrg){loadOrgData(true);startRequests();startPrivate()}});
+    if(isOrg){loadOrgData(true);startRequests();startPrivate();startActions()}});
   if(GID)db.doc(COLLECTION_PREFIX+'groups/'+GID).onSnapshot(s=>{
     if(!s.exists&&!s.metadata.fromCache){GROUP_MISSING=true;renderHeader();return}
     if(s.exists){GROUP=s.data();GROUP_MISSING=false;if(!S.groupName)S.groupName=GROUP.name||'';rememberGroup();if(computeOrg()){renderTab(true);if(isOrg)loadOrgData(true)}else renderHeader()}},()=>{});
@@ -2992,7 +3141,7 @@ if('serviceWorker' in navigator)window.addEventListener('load',()=>{const had=!!
     if(!s.metadata.fromCache)CFG_READY=true;
     if(!s.exists&&!s.metadata.fromCache){cfgMissing=true;if(isOrg){cfgMissing=false;saveConfig()}}
     if(s.exists&&!s.metadata.hasPendingWrites)CFG_CLOUD=JSON.parse(JSON.stringify(s.data()));
-    if(s.exists){const d=s.data();if(Array.isArray(d.roster))S.roster=[...d.roster];S.rate=+d.rate||300;S.groupName=d.groupName||'';S.upiId=d.upiId||'';S.upiName=d.upiName||'';S.levels=d.levels&&typeof d.levels==='object'?d.levels:{};S.admins=Array.isArray(d.admins)?d.admins:[];S.inactive=Array.isArray(d.inactive)?d.inactive:[];S.ignored=Array.isArray(d.ignored)?d.ignored:[];S.openNames=d.openNames!==false;S.idleWeeks=d.idleWeeks==null?4:+d.idleWeeks;S.since=d.since||{};S.autoOff=d.autoOff||{};S.billed=Array.isArray(d.billed)?d.billed:[];S.msg=d.msg||null;S.sent=d.sent||{};S.board=d.board&&typeof d.board==='object'?d.board:null;S.dupOk=Array.isArray(d.dupOk)?d.dupOk:[];S.model=d.model==='pre'?'pre':'post';S.load=+d.load||1000;S.low=d.low==null?200:+d.low;setTimeout(autoInactive,0);S.skin=SKINS[d.skin]?d.skin:'court';applySkin();saveLocal();if(GID)rememberGroup();if(computeOrg())renderTab(true)}
+    if(s.exists){const d=s.data();if(Array.isArray(d.roster))S.roster=[...d.roster];S.rate=+d.rate||300;S.groupName=d.groupName||'';S.upiId=d.upiId||'';S.upiName=d.upiName||'';S.levels=d.levels&&typeof d.levels==='object'?d.levels:{};S.admins=Array.isArray(d.admins)?d.admins:[];S.inactive=Array.isArray(d.inactive)?d.inactive:[];S.ignored=Array.isArray(d.ignored)?d.ignored:[];S.openNames=d.openNames!==false;S.idleWeeks=d.idleWeeks==null?4:+d.idleWeeks;S.since=d.since||{};S.autoOff=d.autoOff||{};S.billed=Array.isArray(d.billed)?d.billed:[];S.msg=d.msg||null;S.sent=d.sent||{};S.board=d.board&&typeof d.board==='object'?d.board:null;S.dupOk=Array.isArray(d.dupOk)?d.dupOk:[];S.model=d.model==='pre'?'pre':'post';S.load=+d.load||1000;S.low=d.low==null?200:+d.low;S.perms=d.perms&&typeof d.perms==='object'?d.perms:{};setTimeout(autoInactive,0);S.skin=SKINS[d.skin]?d.skin:'court';applySkin();saveLocal();if(GID)rememberGroup();if(computeOrg())renderTab(true)}
     renderTab(false)},e=>toast('Couldn’t load shared data ('+e.code+').'));
   fsDoc('config/photo').onSnapshot(s=>{if(busy('config/photo'))return;photo=s.exists?(s.data().data||''):'';try{photo?localStorage.setItem(LSP,photo):localStorage.removeItem(LSP)}catch(e){}renderHeader();if(tab==='team'&&!typingIn('#view-team'))renderTeam()},()=>{});
   col('days').onSnapshot(q=>{
@@ -3003,7 +3152,7 @@ if('serviceWorker' in navigator)window.addEventListener('load',()=>{const had=!!
   payCol().onSnapshot(q=>{PAYS=q.docs.map(d=>({id:d.id,...d.data()}));if(!typingIn('#view-day')&&!typingIn('#view-team')&&!typingIn('#view-me'))renderTab(false);else STALE=true},()=>{});
   document.addEventListener('focusout',()=>setTimeout(()=>{if(STALE&&!typingIn('#view-'+tab)){STALE=false;renderTab(false)}},120));
   document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){renderTab(false);syncUI()}});
-  startPollsListener();startProfiles();routeHash();setTimeout(()=>{startClub();startComments()},tab==='club'||tab==='cup'?0:1200);setTimeout(startRequests,1200);setTimeout(takeShared,1600);window.addEventListener('hashchange',routeHash);
+  startPollsListener();startProfiles();routeHash();setTimeout(()=>{startClub();startComments();startChat()},tab==='club'||tab==='cup'?0:1200);setTimeout(startRequests,1200);setTimeout(takeShared,1600);window.addEventListener('hashchange',routeHash);
   setTimeout(()=>pingSeen(false),1500);startUse();
 })();
 })();
