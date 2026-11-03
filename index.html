@@ -367,6 +367,22 @@ html,body,button,a,input,select,textarea,label{touch-action:manipulation}
 .lboard .stk{position:sticky;left:0;z-index:2;width:34px;font-weight:800}.lboard .stk2{position:sticky;left:34px;z-index:2;text-align:left;box-shadow:6px 0 6px -6px rgba(16,24,40,.18)}
 .lboard .stk2 button{display:flex;align-items:center;gap:8px;border:0;background:none;font:inherit;font-weight:700;color:var(--ink);cursor:pointer;padding:0}.lboard .stk2 .ini{width:28px;height:28px;font-size:10.5px}
 .lboard tr.me td{background:#F0F9FF}.lboard td.form i{display:inline-grid;place-items:center;width:18px;height:18px;border-radius:5px;font-size:10px;font-weight:900;font-style:normal;margin:0 1px;color:#fff}.lboard td.form i.W{background:#12B76A}.lboard td.form i.L{background:#F04438}
+.ini{position:relative;overflow:visible}.ini.av img{border-radius:50%}.ini.pres::after{content:"";position:absolute;right:-1px;bottom:-1px;width:28%;height:28%;min-width:8px;min-height:8px;border-radius:50%;background:#12B76A;box-shadow:0 0 0 2px var(--surface)}
+.ini.story{box-shadow:0 0 0 2px var(--surface),0 0 0 4px #E04F5F}.ini.story.seen{box-shadow:0 0 0 2px var(--surface),0 0 0 3.5px #D0D5DD}.ini.lg{width:58px;height:58px;font-size:18px}
+.stories{display:flex;gap:14px;overflow-x:auto;padding:10px 4px 14px;scrollbar-width:none}.stories::-webkit-scrollbar{display:none}.st{flex:none;display:grid;justify-items:center;gap:6px;border:0;background:none;font:inherit;cursor:pointer;width:68px}.st small{font-size:12px;font-weight:600;color:var(--ink);max-width:68px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.stav{position:relative;padding:4px}
+.stplus{position:absolute;right:2px;bottom:2px;width:20px;height:20px;border-radius:50%;background:#1570EF;color:#fff;font-style:normal;font-weight:900;display:grid;place-items:center;box-shadow:0 0 0 2px var(--surface)}
+.igi{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linejoin:round;stroke-linecap:round}.igbar{display:flex;align-items:center;gap:14px;padding:10px 14px 4px}.igb{border:0;background:none;padding:0;color:var(--ink);cursor:pointer;display:inline-flex;align-items:center;gap:4px;font:inherit}.igb small{font-weight:700}
+.igb.like.on .igi{fill:#ED4956;stroke:#ED4956}.igb.pulse,.igmini.pulse{animation:igpulse .35s}.igemo{font-size:24px;line-height:1}@keyframes igpulse{40%{transform:scale(1.25)}}
+.iglikes{padding:2px 14px;font-size:14px}.igcap{padding:2px 14px 4px;font-size:14.5px;line-height:1.4}.igmore{display:block;padding:2px 14px 8px;color:var(--muted)!important;font-weight:500!important}
+.post.ig .ptxt{padding:4px 14px 2px}.pimgw{position:relative}.pimgw .pimg{display:block}.bigheart{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);animation:bigh .9s ease-out forwards;pointer-events:none}.bigheart .igi{width:96px;height:96px;fill:#fff;stroke:#fff;filter:drop-shadow(0 4px 12px rgba(0,0,0,.35))}
+@keyframes bigh{0%{opacity:0;transform:translate(-50%,-50%) scale(.3)}20%{opacity:1;transform:translate(-50%,-50%) scale(1.15)}40%{transform:translate(-50%,-50%) scale(.95)}80%{opacity:1}100%{opacity:0;transform:translate(-50%,-50%) scale(1)}}
+.igmini{border:0;background:none;color:var(--muted);display:inline-flex;align-items:center;gap:3px;cursor:pointer;font:inherit;font-size:12px;padding:0}.igmini .igi{width:16px;height:16px}.igmini.on{color:#ED4956}.igmini.on .igi{fill:#ED4956;stroke:#ED4956}.cmt .ca{display:flex;align-items:center;gap:12px}
+.igpop{position:absolute;z-index:30;bottom:110%;left:0}.rpbox{border:1px solid var(--line);border-radius:12px;padding:10px;display:grid;gap:6px;cursor:pointer;margin-top:6px}.rpbox img{width:100%;max-height:220px;object-fit:cover;border-radius:8px}
+.storyview{position:fixed;inset:0;z-index:10000;background:#000;color:#fff;display:flex;flex-direction:column}.svbars{display:flex;gap:4px;padding:calc(10px + env(safe-area-inset-top)) 10px 6px}.svbars i{flex:1;height:3px;border-radius:2px;background:rgba(255,255,255,.35);overflow:hidden;position:relative}.svbars i.done{background:#fff}.svbars i.run::after{content:"";position:absolute;inset:0;background:#fff;animation:svrun 6s linear forwards;transform-origin:left}@keyframes svrun{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+.svhead{display:flex;align-items:center;gap:8px;padding:6px 12px}.svhead small{opacity:.75}.svx{margin-left:auto;border:0;background:none;color:#fff;cursor:pointer}.svbody{flex:1;position:relative;display:grid;place-items:center;overflow:hidden}.svbody img{max-width:100%;max-height:100%;object-fit:contain}
+.svtext{font-size:24px;font-weight:800;text-align:center;padding:24px;line-height:1.35}.svtext.cap{position:absolute;bottom:0;left:0;right:0;font-size:16px;font-weight:600;background:linear-gradient(transparent,rgba(0,0,0,.7));padding:30px 16px 16px}
+.svnav{position:absolute;top:0;bottom:0;width:35%;border:0;background:none;cursor:pointer}.svnav.prev{left:0}.svnav.next{right:0;width:65%}.svfoot{display:flex;align-items:center;gap:12px;padding:12px 16px calc(14px + env(safe-area-inset-bottom))}.svfoot button{border:0;background:none;color:#fff;cursor:pointer;font:inherit;display:inline-flex;gap:6px;align-items:center}.svlike .igi{width:30px;height:30px}.svlike.on .igi{fill:#ED4956;stroke:#ED4956}.svdel{margin-left:auto}
+.stprev{height:220px;border-radius:14px;display:grid;place-items:center;overflow:hidden;position:relative;margin-top:6px}.stprev img{width:100%;height:100%;object-fit:cover}.stprev .svtext{color:#fff;font-size:18px}.stbg{width:28px;height:28px;border-radius:50%;border:2px solid var(--surface);box-shadow:0 0 0 1px var(--line);cursor:pointer}
 .reqx{display:grid;gap:8px;margin:8px 0 2px;padding:10px;border-radius:12px;background:var(--field)}
 .feedmini{cursor:pointer}.feedmini .ph{align-items:center}
 .mav{width:20px;height:20px;border-radius:50%;background:var(--soft);color:var(--accent);display:inline-grid;place-items:center;font-size:8.5px;font-weight:800;overflow:hidden;flex:none;vertical-align:middle;box-shadow:0 0 0 1.5px var(--surface)}.mav img{width:100%;height:100%;object-fit:cover}
@@ -487,7 +503,7 @@ const FIREBASE_CONFIG = {
 /* Collections get this prefix so they never clash with the league app's data */
 const COLLECTION_PREFIX = "shuttleSplit_";
 /* App version shown in Team → About */
-const APP_VERSION = "3.2.0", APP_BUILD = "3 Nov 2026";
+const APP_VERSION = "3.3.0", APP_BUILD = "3 Nov 2026";
 /* Owner of the main group (the link without ?g=) */
 const LEGACY_OWNER = "pavankaki.cool@gmail.com";
 /* Starting player list, used only until the first save */
@@ -1804,6 +1820,102 @@ function micFor(el){if(!SRec||el.dataset.mic||!el.parentElement)return;el.datase
     r.onend=()=>{b.classList.remove('on');MICREC=null};r.onerror=e=>{b.classList.remove('on');MICREC=null;if(e.error==='not-allowed'||e.error==='service-not-allowed')toast('Allow the microphone to speak your message, or use the 🎤 on your keyboard.')};
     try{r.start();MICREC=r;b.classList.add('on');toast('Listening… speak now 🎤')}catch(e){toast('Voice input isn’t available here. Use the 🎤 on your keyboard.')}}}
 if(SRec)setTimeout(()=>{const run=()=>document.querySelectorAll(MIC_SEL).forEach(micFor);run();new MutationObserver(run).observe(document.body,{childList:true,subtree:true})},500);
+/* ================= POST ACTIONS: like · comment · reshare · send ================= */
+const IGI={heart:'<svg viewBox="0 0 24 24" class="igi" aria-hidden="true"><path d="M12 20.4C7 16.5 3.2 13.3 3.2 9.3c0-2.6 2-4.6 4.5-4.6 1.8 0 3.3 1 4.3 2.5 1-1.5 2.5-2.5 4.3-2.5 2.5 0 4.5 2 4.5 4.6 0 4-3.8 7.2-8.8 11.1Z"/></svg>',
+  comment:'<svg viewBox="0 0 24 24" class="igi" aria-hidden="true"><path d="M20.6 11.6a8.6 8.6 0 0 1-12.4 7.7l-4.7 1.3 1.4-4.6a8.6 8.6 0 1 1 15.7-4.4Z"/></svg>',
+  repost:'<svg viewBox="0 0 24 24" class="igi" aria-hidden="true"><path d="M16.8 3.6 19.9 6.7l-3.1 3.1M19.6 6.7H9.2a4.3 4.3 0 0 0-4.3 4.3v1M7.2 20.4l-3.1-3.1 3.1-3.1M4.4 17.3h10.4a4.3 4.3 0 0 0 4.3-4.3v-1"/></svg>',
+  send:'<svg viewBox="0 0 24 24" class="igi" aria-hidden="true"><path d="M21 3.2 10.3 13.6M21 3.2l-6.6 17.6-4.1-7.2-7.3-4.2Z"/></svg>'};
+const myReact=o=>{const uid=auth&&auth.currentUser&&auth.currentUser.uid,v=uid&&o&&o.likes&&o.likes[uid];return v?(String(v).includes('|')?String(v).split('|')[0]:'🏸'):''};
+function likesLine(o){const R=reactsOf(o),all=Object.values(R).flat();if(!all.length)return'';const names=all.map(x=>first(x.n));const mine=myReact(o);
+  const lead=mine?'you':names[0],rest=all.length-1;const other=Object.entries(R).filter(([e])=>e!=='❤️').map(([e,l])=>e+l.length).join(' ');
+  return`<div class="iglikes">${R['❤️']?'❤️ ':''}Liked by <b>${esc(lead)}</b>${rest>0?` and <b>${rest===1?(mine?esc(names.find(n=>n!==first(myName()))||'1 other'):esc(names[1])):rest+' others'}</b>`:''}${other?` <span class="hint" style="margin:0">· ${other}</span>`:''}</div>`}
+const igBtn=(kind,id,o)=>{const m=myReact(o);return`<button class="igb like${m?' on':''}" data-heart="${kind}:${esc(id)}" aria-label="${m?'Unlike':'Like'}" aria-pressed="${!!m}">${m&&m!=='❤️'?`<span class="igemo">${m}</span>`:IGI.heart}</button>`};
+function heartMini(kind,c){const n=Object.keys(c.likes||{}).length,m=myReact(c);return`<button class="igmini${m?' on':''}" data-heart="${kind}:${esc(c.id)}" aria-label="Like">${m&&m!=='❤️'?m:IGI.heart}${n?`<span>${n}</span>`:''}</button>`}
+/* tap = ❤️ on/off · hold = pick another reaction · double-tap a photo = ❤️ */
+(function(){let hold=null,held=false;
+  document.addEventListener('pointerdown',e=>{const b=e.target.closest&&e.target.closest('[data-heart]');if(!b)return;held=false;clearTimeout(hold);hold=setTimeout(()=>{held=true;const[k,id]=b.dataset.heart.split(':');
+    const pop=document.createElement('span');pop.className='rpop igpop';pop.innerHTML=EMO.concat(['❤️']).filter((x,i,a)=>a.indexOf(x)===i).map(x=>`<button type="button">${x}</button>`).join('');b.parentElement.appendChild(pop);
+    pop.querySelectorAll('button').forEach(x=>x.onclick=ev=>{ev.stopPropagation();pop.remove();setReact(k,id,x.textContent)});setTimeout(()=>document.addEventListener('click',function rm(ev){if(!pop.contains(ev.target)){pop.remove();document.removeEventListener('click',rm,true)}},true),50)},450)});
+  ['pointerup','pointercancel','pointerleave'].forEach(t=>document.addEventListener(t,()=>clearTimeout(hold)));
+  document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-heart]');if(!b)return;e.preventDefault();e.stopPropagation();if(held){held=false;return}
+    const[k,id]=b.dataset.heart.split(':');b.classList.add('pulse');setTimeout(()=>b.classList.remove('pulse'),400);setReact(k,id,'❤️')},true);
+  let last={id:'',t:0};document.addEventListener('click',e=>{const im=e.target.closest&&e.target.closest('[data-dbl]');if(!im)return;const id=im.dataset.dbl,now=Date.now();
+    if(last.id===id&&now-last.t<320){last={id:'',t:0};const x=(CLUB.list||[]).find(y=>y.id===id);if(x&&myReact(x)!=='❤️')setReact('p',id,'❤️');const h=document.createElement('i');h.className='bigheart';h.innerHTML=IGI.heart;im.appendChild(h);setTimeout(()=>h.remove(),900)}else last={id,t:now}})})();
+/* reshare a post to the Feed, with credit */
+function openRepost(id){const x=(CLUB.list||[]).find(y=>y.id===id);if(!x)return;const me=myName();if(!me){toast('Pick your name first (tap the person icon at the top).');return}if(perm('post')==='off')return toast('Posting is turned off by the admins.');
+  const bg=sheetOpen(`<div class="sheet-h"><span class="ini">${IGI.repost}</span><div><b>Reshare to the Feed</b><small>${esc(first(x.name))} gets the credit</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div>
+    <div class="sub" style="padding-top:12px"><textarea class="txt" id="rptext" data-mention rows="2" maxlength="500" placeholder="Add a thought (optional)…"></textarea>${repostBox(x)}</div>
+    <div class="card-f"><button class="btn primary block" id="rpsend">${IGI.repost} Reshare</button></div>`,'Reshare');
+  $('#rpsend').onclick=async()=>{const t=norm($('#rptext').value);if(t&&!allOk(t))return;if(CLUB.list.some(y=>y.repost&&y.repost.id===id&&nkey(y.name)===nkey(me)&&Date.now()-(y.at||0)<60*60e3))return toast('✋ You already reshared this.');
+    $('#rpsend').disabled=true;try{await ensureAnon();await col('posts').add({name:canon(me),uid:auth.currentUser.uid,text:t,at:Date.now(),kind:'note',likes:{},repost:{id,name:canon(x.name||''),at:x.at||0}});closeWho();toast('Reshared to the Feed 🔁')}catch(e){$('#rpsend').disabled=false;toast(e.code==='permission-denied'?'Ask the organizer to update the app rules.':'Couldn’t reshare ('+(e.code||'error')+').')}}}
+function repostBox(o){const x=o&&o.repost?((CLUB.list||[]).find(y=>y.id===o.repost.id)):o;if(!x)return`<div class="rpbox"><small class="hint" style="margin:0">The original post was removed.</small></div>`;
+  return`<div class="rpbox" data-goto="${esc(x.id)}"><div class="mix" style="gap:8px">${ini(x.name||'?','','sm')}<b>${esc(x.name||'')}</b><small class="hint" style="margin:0">${timeAgo(x.at)}</small></div>${x.img?`<img src="${x.img}" alt="" loading="lazy">`:''}${x.text?`<div class="ptxt" style="padding:6px 0 0">${mtext(String(x.text).slice(0,220))}</div>`:''}</div>`}
+document.addEventListener('click',e=>{const r=e.target.closest&&e.target.closest('[data-repost]');if(r){e.preventDefault();openRepost(r.dataset.repost);return}
+  const g=e.target.closest&&e.target.closest('.post .rpbox[data-goto]');if(g){const el=document.getElementById('post-'+g.dataset.goto);if(el)el.scrollIntoView({behavior:'smooth',block:'start'})}});
+/* ================= PRESENCE + STATUS + 24-HOUR STORIES ================= */
+var PRES={map:{},unsub:null,timer:null};
+function startPresence(){if(!db||PRES.unsub)return;PRES.unsub=col('presence').onSnapshot(q=>{const m={};q.docs.forEach(d=>{const x=d.data(),k=nkey(x.name||'');if(!k)return;const cur=m[k];
+    m[k]={at:Math.max(cur?cur.at:0,x.at||0),st:(!cur||!cur.st||(x.stAt||0)>(cur.st.at||0))&&x.stAt?{emo:x.emo||'',text:x.text||'',at:x.stAt}:(cur&&cur.st)||null}});PRES.map=m;if(!$('#whosheet')&&!typingIn('#view-'+tab))renderTab(false)},()=>{});pingPresence();
+  clearInterval(PRES.timer);PRES.timer=setInterval(()=>{if(document.visibilityState==='visible')pingPresence()},120e3);document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')pingPresence()})}
+async function pingPresence(extra){const me=myName();if(!db||!me)return;try{await ensureAnon();const uid=auth.currentUser.uid;await col('presence').doc(uid).set(Object.assign({name:canon(me),at:Date.now()},extra||{}),{merge:true})}catch(e){}}
+const presOf=n=>PRES.map[nkey(n||'')]||null;
+const onlineNow=n=>{const p=presOf(n);return!!p&&Date.now()-p.at<5*60e3};
+function seenText(n){const p=presOf(n);if(!p||!p.at)return'';return onlineNow(n)?'🟢 Active now':'Active '+timeAgo(p.at)}
+const statusOf=n=>{const p=presOf(n);return p&&p.st&&(p.st.emo||p.st.text)?p.st:null};
+const statusLine=n=>{const s=statusOf(n);return s?`${esc(s.emo||'')} ${esc(s.text||'')}`.trim():''};
+const STATUSES=[['🏸','Ready to play'],['🔥','In form'],['🤕','Injured'],['✈️','Travelling'],['📚','Busy this week'],['🎉','Celebrating'],['😴','Resting'],['🏆','Tournament mode']];
+var STORY={list:[],unsub:null};
+function startStories(){if(!db||STORY.unsub)return;STORY.unsub=col('stories').orderBy('at','desc').limit(150).onSnapshot(q=>{STORY.list=q.docs.map(d=>({id:d.id,...d.data()}));if(!$('#storyview')&&!$('#whosheet')&&!typingIn('#view-'+tab))renderTab(false)},()=>{})}
+const liveStories=n=>STORY.list.filter(s=>Date.now()-(s.at||0)<24*3600e3&&(!n||nkey(s.name)===nkey(n))).sort((a,b)=>(a.at||0)-(b.at||0));
+const storySeen=()=>{try{return JSON.parse(localStorage.getItem('ss-storyseen'+SUF)||'{}')}catch(e){return{}}};
+const markStory=id=>{try{const m=storySeen();m[id]=1;localStorage.setItem('ss-storyseen'+SUF,JSON.stringify(m))}catch(e){}};
+const storyRing=n=>{const L=liveStories(n);if(!L.length)return'';const sn=storySeen();return L.some(s=>!sn[s.id])?' story':' story seen'};
+function storiesStrip(){startStories();startPresence();const me=myName(),people=[...new Set(liveStories().map(s=>canon(s.name)))].filter(n=>nkey(n)!==nkey(me)),sn=storySeen();
+  people.sort((a,b)=>(liveStories(a).some(s=>!sn[s.id])?0:1)-(liveStories(b).some(s=>!sn[s.id])?0:1));
+  const mine=me?liveStories(me):[];
+  return`<div class="stories">${me?`<button class="st" data-mystatus><span class="stav">${ini(me,'',mine.length?'lg'+storyRing(me):'lg')}${mine.length?'':'<i class="stplus">+</i>'}</span><small>${mine.length?'Your status':'Add status'}</small></button>`:''}
+    ${people.map(n=>`<button class="st" data-story="${esc(n)}"><span class="stav">${ini(n,'','lg'+storyRing(n))}</span><small>${esc(first(n))}</small></button>`).join('')}
+    ${!people.length&&!mine.length?`<p class="hint" style="margin:0 8px;align-self:center">Share a photo or a quick update. It disappears after 24 hours.</p>`:''}</div>`}
+/* full-screen viewer: tap right = next, tap left = back, auto-advance */
+function openStories(n){const L=liveStories(n);if(!L.length)return openStatus();let i=Math.max(0,L.findIndex(s=>!storySeen()[s.id]));let tm=null;const ov=document.createElement('div');ov.id='storyview';ov.className='storyview';document.body.appendChild(ov);
+  const close=()=>{clearTimeout(tm);ov.remove();renderTab(false)};
+  const show=()=>{clearTimeout(tm);const s=L[i];if(!s)return close();markStory(s.id);const own=nkey(s.name)===nkey(getMe()),m=myReact(s),lc=Object.keys(s.likes||{}).length;
+    ov.innerHTML=`<div class="svbars">${L.map((x,j)=>`<i class="${j<i?'done':j===i?'run':''}"></i>`).join('')}</div>
+      <div class="svhead">${ini(s.name,'','sm')}<b>${esc(first(s.name))}</b><small>${timeAgo(s.at)}</small>${statusLine(s.name)?`<small>· ${statusLine(s.name)}</small>`:''}<button class="svx" aria-label="Close">${ic('x')}</button></div>
+      <div class="svbody" style="${s.img?'':'background:'+esc(s.bg||'#0B6E4F')}">${s.img?`<img src="${s.img}" alt="">`:''}${s.text?`<div class="svtext${s.img?' cap':''}">${mtext(s.text)}</div>`:''}<button class="svnav prev" aria-label="Previous"></button><button class="svnav next" aria-label="Next"></button></div>
+      <div class="svfoot">${own?`<span>❤️ ${lc} · ${plural(lc,'like')}</span><button class="svdel">${ic('trash')} Delete</button>`:`<button class="svlike${m?' on':''}" aria-label="Like">${IGI.heart}</button><span>${lc?lc+' ❤️':''}</span>`}</div>`;
+    ov.querySelector('.svx').onclick=close;ov.querySelector('.prev').onclick=()=>{if(i>0){i--;show()}};ov.querySelector('.next').onclick=()=>{i++;show()};
+    const lk=ov.querySelector('.svlike');if(lk)lk.onclick=async()=>{await setReact('s',s.id,'❤️');s.likes=s.likes||{};const uid=auth.currentUser.uid;if(s.likes[uid])delete s.likes[uid];else s.likes[uid]='❤️|'+canon(myName());show()};
+    const dl=ov.querySelector('.svdel');if(dl)dl.onclick=async()=>{try{await col('stories').doc(s.id).delete();L.splice(i,1);toast('Status deleted.');L.length?show():close()}catch(e){toast('Couldn’t delete.')}};
+    tm=setTimeout(()=>{i++;show()},s.img?6000:5000)};show()}
+/* set an availability status and/or post a 24-hour photo or text status */
+function openStatus(){const me=myName();if(!me){toast('Pick your name first (tap the person icon at the top).');return}startPresence();startStories();const cur=statusOf(me)||{};let emo=cur.emo||'',img='',bg='#0B6E4F';
+  const BGS=['#0B6E4F','#7A5AF8','#E04F5F','#F79009','#1570EF','#101828'];const mine=liveStories(me);
+  const bg2=sheetOpen(`<div class="sheet-h">${ini(me)}<div><b>Your status</b><small>${seenText(me)||'Visible to everyone in the group'}</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div>
+    <div class="sub" style="padding-top:12px"><span class="sublbl">How are you? (stays until you change it)</span><div class="mix" style="gap:6px;flex-wrap:wrap">${STATUSES.map(([e,t])=>`<button type="button" class="chipbtn${cur.text===t?' on':''}" data-st="${e}|${t}">${e} ${t}</button>`).join('')}</div>
+      <div class="inline" style="margin-top:8px"><input class="txt" id="stemo" maxlength="4" value="${esc(emo)}" placeholder="🙂" style="width:58px;flex:none;text-align:center"><input class="txt" id="sttext" maxlength="40" value="${esc(cur.text||'')}" placeholder="Or write your own…"></div>
+      <div class="grid2" style="margin-top:8px"><button class="btn line" id="stclear">Clear</button><button class="btn primary" id="stsave">${ic('check')}Save status</button></div></div>
+    <div class="sub" style="border-top:1px solid var(--line2)"><span class="sublbl">Photo or text status · disappears in 24 h</span>
+      <div id="stprev" class="stprev" style="background:${bg}"><span class="hint" style="color:#fff;margin:0">Add a photo or type something</span></div>
+      <div class="mix" style="gap:6px;margin:8px 0">${BGS.map(c=>`<button type="button" class="stbg" data-stbg="${c}" style="background:${c}" aria-label="Colour"></button>`).join('')}<label class="btn sm line" style="margin-left:auto">${ic('camera')}Photo<input type="file" accept="image/*" id="stimg" hidden></label></div>
+      <textarea class="txt" id="sttxt" data-mention rows="2" maxlength="300" placeholder="Caption or message…"></textarea>
+      <button class="btn primary block" id="stpost" style="margin-top:8px">Share status</button>
+      ${mine.length?`<button class="lnk" id="stview" style="margin-top:8px">View my ${mine.length===1?'status':mine.length+' statuses'} (${mine.reduce((a,s)=>a+Object.keys(s.likes||{}).length,0)} ❤️)</button>`:''}</div>`,'Your status');
+  const prev=()=>{const p=$('#stprev'),t=norm($('#sttxt').value);p.style.background=img?'#000':bg;p.innerHTML=(img?`<img src="${img}" alt="">`:'')+(t?`<div class="svtext${img?' cap':''}">${esc(t)}</div>`:'')||'<span class="hint" style="color:#fff;margin:0">Add a photo or type something</span>'};
+  bg2.querySelectorAll('[data-st]').forEach(b=>b.onclick=()=>{const[e,t]=b.dataset.st.split('|');$('#stemo').value=e;$('#sttext').value=t;bg2.querySelectorAll('[data-st]').forEach(x=>x.classList.toggle('on',x===b))});
+  bg2.querySelectorAll('[data-stbg]').forEach(b=>b.onclick=()=>{bg=b.dataset.stbg;prev()});$('#sttxt').addEventListener('input',prev);
+  $('#stimg').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{img=await shrinkImage(f,1280);prev()}catch(x){toast('Couldn’t read that photo.')}};
+  $('#stsave').onclick=async()=>{const e=norm($('#stemo').value),t=norm($('#sttext').value);await pingPresence({emo:e,text:t,stAt:Date.now()});PRES.map[nkey(me)]=Object.assign(presOf(me)||{at:Date.now()},{st:{emo:e,text:t,at:Date.now()}});closeWho();toast(t||e?'Status updated '+e:'Status cleared');renderTab(false)};
+  $('#stclear').onclick=async()=>{await pingPresence({emo:'',text:'',stAt:Date.now()});PRES.map[nkey(me)]=Object.assign(presOf(me)||{at:Date.now()},{st:null});closeWho();toast('Status cleared');renderTab(false)};
+  const vw=$('#stview');if(vw)vw.onclick=()=>{closeWho();openStories(me)};
+  let busy=false;$('#stpost').onclick=async()=>{const t=norm($('#sttxt').value);if(!img&&!t)return toast('Add a photo or some text.');if(t&&!allOk(t))return;if(perm('post')==='off')return toast('Posting is turned off by the admins.');if(busy)return;busy=true;$('#stpost').disabled=true;
+    try{await ensureAnon();const d={name:canon(me),uid:auth.currentUser.uid,text:t,bg,at:Date.now(),likes:{}};if(img)d.img=img;await col('stories').add(d);closeWho();toast('Status shared for 24 hours ✨')}catch(e){busy=false;$('#stpost').disabled=false;toast(e.code==='permission-denied'?'Ask the organizer to update the app rules.':'Couldn’t share ('+(e.code||'error')+').')}}}
+document.addEventListener('click',e=>{const a=e.target.closest&&e.target.closest('[data-story]');if(a){e.preventDefault();openStories(a.dataset.story);return}
+  const m=e.target.closest&&e.target.closest('[data-mystatus]');if(m){e.preventDefault();liveStories(myName()).length?openMyStatusMenu():openStatus()}});
+function openMyStatusMenu(){const me=myName();const bg=sheetOpen(`<div class="sheet-h">${ini(me)}<div><b>Your status</b><small>${statusLine(me)||'No status message'}</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div>
+  <div class="menu"><button class="mi" id="msv"><span class="mico">👀</span><span class="mt"><b>View my status</b><small>${plural(liveStories(me).length,'update')} · ${liveStories(me).reduce((a,s)=>a+Object.keys(s.likes||{}).length,0)} ❤️</small></span>${ic('right')}</button>
+  <button class="mi" id="msn"><span class="mico">${ic('plus')}</span><span class="mt"><b>Add or change status</b><small>Availability, photo or text</small></span>${ic('right')}</button></div>`,'Your status');
+  $('#msv').onclick=()=>{closeWho();openStories(me)};$('#msn').onclick=openStatus}
 /* ================= PLAYER PERMISSIONS ================= */
 /* admins decide what players may do: off · ask an admin · allowed. Admins can always do everything. */
 const PERMS=[['name','✏️','Edit group name',['off','ask','allow'],'allow'],['photo','🖼️','Change group photo',['off','ask','allow'],'ask'],['theme','🎨','Change theme',['off','ask','allow'],'ask'],
@@ -1872,7 +1984,7 @@ function av(n){const ph=photoOf(n);return`<span class="mav${ph?' ph':''}" aria-h
 /* a name with its avatar; pairs ("A & B") show both faces */
 function who(label,names){const L=names||String(label).split(/\s*&\s*/);return`<span class="pnm"><span class="avs">${L.slice(0,2).map(av).join('')}</span><span class="wn">${esc(label)}</span></span>`}
 /* round avatar: the player's photo when they have one, else initials */
-function ini(n,style,cls){const ph=photoOf(n);return`<span class="ini${cls?' '+cls:''}${ph?' av':''}"${style?` style="${style}"`:''}>${ph?`<img src="${ph}" alt="" loading="lazy">`:esc(initials(n||'?'))}</span>`}
+function ini(n,style,cls){const ph=photoOf(n);return`<span class="ini${cls?' '+cls:''}${ph?' av':''}${typeof PRES!=='undefined'&&onlineNow(n)?' pres':''}"${style?` style="${style}"`:''}>${ph?`<img src="${ph}" alt="" loading="lazy">`:esc(initials(n||'?'))}</span>`}
 function profPct(n){const p=profOf(n)||{};const f=[!!p.photo,!!p.fullName,!!p.username,!!p.place,!!p.bio,(p.interests||[]).length>0,!!p.bday||!!p.anniv];return Math.round(f.filter(Boolean).length*100/f.length)}
 const bdayLabel=md=>{if(!/^\d\d-\d\d$/.test(md||''))return'';return dlabel('2000-'+md,{day:'numeric',month:'long'})};
 function birthdaysToday(){const md=todayStr().slice(5);return allNames().filter(n=>{const p=profOf(n);return p&&p.bday===md})}
@@ -1891,13 +2003,14 @@ async function saveProfile(n,pub,priv){await ensureAnon();const k=nkey(n),uid=au
 const profErr=e=>toast(e.code==='not-owner'?'This profile is linked to another phone. Ask an organizer to reset it.':e.code==='permission-denied'?'Ask the organizer to update the app rules for profiles.':'Couldn’t save ('+(e.code||'error')+').');
 async function quickPhoto(file,n){try{const ph=await squareAvatar(file);await saveProfile(n,{photo:ph});toast('Profile photo updated 📸');renderHeader();renderTab(false)}catch(e){profErr(e)}}
 /* the M button: your profile, wallet and player card in one sheet */
-function openMe(){startMyReq();const me=myName();if(!me){ME.who='';go('me');return}
+function openMe(){startMyReq();startPresence();startStories();const me=myName();if(!me){ME.who='';go('me');return}
   const p=profOf(me)||{},L=ledger(me),W=PRE()?wallet(me):null,pct=profPct(me),bal=PRE()?W.bal:L.bal;
   const bg=sheetOpen(`<div class="sheet-h"><label class="avpick" title="Change photo">${ini(me)}<i>${ic('camera')}</i><input type="file" accept="image/*" id="mephoto" hidden></label><div><b>${esc(p.fullName||me)}</b><small>${p.username?'@'+esc(p.username)+' · ':''}${p.place?'📍 '+esc(p.place):esc(levelOf(me)?levelOf(me)[1]:'Player')}</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div>
     ${p.bio||(p.interests||[]).length?`<div class="sub" style="padding-top:12px">${p.bio?`<p style="margin:0 0 8px">${esc(p.bio)}</p>`:''}${chipsHTML(p.interests)}</div>`:''}
     ${pct<100?`<div class="sub" style="padding-top:12px"><div style="display:flex;justify-content:space-between"><b>Profile ${pct}% complete</b><button class="lnk" data-editprof>Complete it</button></div><div style="height:8px;border-radius:4px;background:var(--field);margin-top:8px"><i style="display:block;height:8px;border-radius:4px;width:${pct}%;background:var(--accent)"></i></div></div>`:''}
     <div class="menu" style="margin-top:8px">
       <button class="mi" data-mego="wallet"><span class="mico">${ic('wallet')}</span><span class="mt"><b>My wallet</b><small>Games, payments and history</small></span><span class="mm" style="color:${bal<0?'var(--danger)':'var(--ok)'}">${sinrP(bal)}</span>${ic('right')}</button>
+      <button class="mi" data-mystatus><span class="mico">🟢</span><span class="mt"><b>My status</b><small>${statusLine(me)||'Ready to play? Injured? Share a photo or update for 24 h'}</small></span>${ic('right')}</button>
       <button class="mi" data-editprof><span class="mico">${ic('user')}</span><span class="mt"><b>Edit profile</b><small>Photo, bio, interests, birthday and contact details</small></span>${ic('right')}</button>
       <button class="mi" data-mego="card"><span class="mico">${ic('trophy')}</span><span class="mt"><b>My player card</b><small>Level, XP, badges and kudos</small></span>${ic('right')}</button>
       <button class="mi" data-mego="ideas"><span class="mico">💡</span><span class="mt"><b>My ideas & problems</b><small>What you suggested or reported, and its status</small></span>${MYREQ.list.length?`<span class="mm">${MYREQ.list.length}</span>`:''}${ic('right')}</button>
@@ -1941,7 +2054,8 @@ async function openEditProfile(n){n=n||myName();if(!n)return;const k=nkey(n),p={
     try{await saveProfile(n,{photo,fullName:norm($('#epfull').value),username:user,place:norm($('#epplace').value),bio:norm($('#epbio').value),interests:[...ints],bday:$('#epbday').checked&&dob?dob.slice(5):'',anniv:($('#epanniv').value||'').slice(5)},{phone,email,dob,blood:$('#epblood').value});
       closeWho();toast('Profile saved ✅');renderHeader();renderTab(false)}catch(e){busy=false;$('#epsave').disabled=false;profErr(e)}}}
 /* the public part of the player card */
-function profTop(n){const p=profOf(n),k=nkey(n),me=nkey(getMe())===k,pv=isOrg?PROF.priv[k]:(me?PROF.myPriv:null),bd=p&&p.bday===todayStr().slice(5);
+function profTop(n){const pres=(statusLine(n)||seenText(n))?`<div class="sub" style="padding-top:10px"><div class="mix" style="gap:10px;justify-content:space-between"><span>${statusLine(n)?`<b>${statusLine(n)}</b> `:''}<small class="hint" style="margin:0">${seenText(n)}</small></span>${liveStories(n).length?`<button class="btn sm line" data-story="${esc(n)}">👀 Status</button>`:''}</div></div>`:(liveStories(n).length?`<div class="sub" style="padding-top:10px"><button class="btn sm line" data-story="${esc(n)}">👀 View status</button></div>`:'');return pres+profTop0(n)}
+function profTop0(n){const p=profOf(n),k=nkey(n),me=nkey(getMe())===k,pv=isOrg?PROF.priv[k]:(me?PROF.myPriv:null),bd=p&&p.bday===todayStr().slice(5);
   if(!p&&!pv)return me?`<div class="sub" style="padding-top:12px"><button class="btn sm line" data-editprof="${esc(n)}">${ic('user')}Add your photo and profile</button></div>`:'';
   const P=p||{};return`<div class="sub" style="padding-top:12px">
     ${bd?`<div class="note" style="margin:0 0 10px"><p>🎂 <b>Birthday today!</b> Send ${me?'yourself some love':esc(first(n))+' a wish'}.</p>${me?'':`<button class="btn sm primary" data-bwish="${esc(n)}">Wish</button>`}</div>`:''}
@@ -1982,15 +2096,15 @@ function threadListHTML(target,limit,chat){const L=(tList(target)||[]).filter(c=
   let top=L.filter(c=>!c.parent);const more=limit&&top.length>limit?top.length-limit:0;if(more)top=top.slice(-limit);
   const del=c=>(uid&&c.uid===uid)||isOrg?`<button class="lnk" data-cdel="${esc(c.id)}" style="color:var(--muted)">Delete</button>`:'';
   const one=c=>`<div class="cmt">${ini(c.name||'?','','sm')}<div class="cb"><div><b>${esc(c.name||'')}</b> <small>${timeAgo(c.at)}</small></div><div class="ct">${mtext(c.text)}</div>
-    <div class="ca">${reactBar(rk,c.id,c)}<button class="lnk" data-reply="${esc(c.id)}">Reply</button>${del(c)}</div>
-    ${L.filter(r=>r.parent===c.id).map(r=>`<div class="cmt reply">${ini(r.name||'?','','sm')}<div class="cb"><div><b>${esc(r.name||'')}</b> <small>${timeAgo(r.at)}</small></div><div class="ct">${mtext(r.text)}</div><div class="ca">${reactBar(rk,r.id,r)}${del(r)}</div></div></div>`).join('')}</div></div>`;
+    <div class="ca"><button class="lnk" data-reply="${esc(c.id)}">Reply</button>${del(c)}<span style="margin-left:auto">${heartMini(rk,c)}</span></div>
+    ${L.filter(r=>r.parent===c.id).map(r=>`<div class="cmt reply">${ini(r.name||'?','','sm')}<div class="cb"><div><b>${esc(r.name||'')}</b> <small>${timeAgo(r.at)}</small></div><div class="ct">${mtext(r.text)}</div><div class="ca">${del(r)}<span style="margin-left:auto">${heartMini(rk,r)}</span></div></div></div>`).join('')}</div></div>`;
   return(more?`<p class="hint" style="margin:0 0 8px">${plural(more,'earlier message')}</p>`:'')+(top.map(one).join('')||`<p class="hint" style="margin:0">${chat?'No messages yet. Say hi 👋':'Be the first to say something nice 💚'}</p>`)}
 function threadHTML(target,ph,o){o=o||{};return`<div class="thread${o.chat?' chat':''}" data-target="${esc(target)}" data-limit="${o.limit||0}" data-chat="${o.chat?1:0}"><div class="tlist">${threadListHTML(target,o.limit||0,o.chat)}</div>
     ${perm(isChatT(target)?'chat':'kudos')==='off'?`<p class="hint" style="margin:0">🔒 ${isChatT(target)?'Chat':'Comments'} turned off by the admins.</p></div>`:`<div class="emo">${EMO.map(e=>`<button type="button" data-emo="${e}">${e}</button>`).join('')}</div>
     <div class="inline"><input class="txt" data-cin placeholder="${esc(ph||'Write a comment… type @ to mention')}" maxlength="500" autocomplete="off"><button class="btn sm primary" data-csend style="height:44px">Send</button></div>
     <small class="hint" data-replying hidden></small></div>`}`}
 async function setReact(kind,id,emo){const me=allNames().find(n=>nkey(n)===nkey(getMe()));if(!me)return toast('Pick your name first (tap the person icon at the top).');
-  try{await ensureAnon();const uid=auth.currentUser.uid,F=firebase.firestore,c=kind==='c'?'comments':kind==='h'?'chat':'posts',o=(kind==='c'?CMT.list:kind==='h'?CHAT.list:CLUB.list).find(x=>x.id===id)||{},v0=o.likes&&o.likes[uid]?String(o.likes[uid]):'',cur=v0?(v0.includes('|')?v0.split('|')[0]:'🏸'):'';
+  try{await ensureAnon();const uid=auth.currentUser.uid,F=firebase.firestore,c=kind==='c'?'comments':kind==='h'?'chat':kind==='s'?'stories':'posts',o=(kind==='c'?CMT.list:kind==='h'?CHAT.list:kind==='s'?STORY.list:CLUB.list).find(x=>x.id===id)||{},v0=o.likes&&o.likes[uid]?String(o.likes[uid]):'',cur=v0?(v0.includes('|')?v0.split('|')[0]:'🏸'):'';
     await col(c).doc(id).update(new F.FieldPath('likes',uid),cur===emo?F.FieldValue.delete():emo+'|'+canon(me))}catch(e){toast(e.code==='permission-denied'?'Ask the organizer to update the app rules.':'Couldn’t save ('+(e.code||'error')+').')}}
 function bindReacts(root){
   root.querySelectorAll('[data-react]').forEach(b=>b.onclick=e=>{e.stopPropagation();const[k,id,em]=b.dataset.react.split(':');setReact(k,id,em)});
@@ -2249,15 +2363,19 @@ function renderClub(){
   const me=allNames().find(n=>nkey(n)===nkey(getMe())),uid=auth&&auth.currentUser&&auth.currentUser.uid,month=todayStr().slice(0,7);
   const [tt,tx]=tipOfDay();
   const posts=CLUB.list,tips=posts.filter(x=>x.kind==='tip');
-  const postHTML=x=>{const likes=Object.keys(x.likes||{}).length,mine=uid&&(x.likes||{})[uid],own=uid&&x.uid===uid;
-    return`<article class="card post"><div class="ph">${ini(x.name||'?')}<div style="flex:1;min-width:0"><b>${esc(x.name||'Someone')}</b><small>${timeAgo(x.at)}${x.day?' · game on '+esc(dlabel(x.day,{weekday:'short',day:'numeric',month:'short'})):''}</small></div>${x.tag?`<span class="tagchip">${esc(x.tag)}</span>`:x.kind==='photo'?'<span class="tagchip">📸 Memory</span>':x.kind==='idea'?'<span class="tagchip">💡 Idea</span>':x.kind==='update'?'<span class="tagchip">✅ Update</span>':''}</div>
-      ${x.img?`<img class="pimg" src="${x.img}" alt="Photo by ${esc(x.name||'')}" loading="lazy">`:''}${x.text?`<div class="ptxt">${mtext(x.text)}</div>`:''}
-      <div class="pf">${reactBar('p',x.id,x)}<button class="lnk" data-cmts="${esc(x.id)}">💬 ${(CMT.list||[]).filter(c=>c.target==='post:'+x.id).length||''}</button>
-        <span style="margin-left:auto;display:flex;gap:6px"><button class="iconbtn" data-pshare="${esc(x.id)}" aria-label="Share to Instagram, WhatsApp…">${ic('share')}</button>${own||isOrg?`<button class="iconbtn" data-pdelpost="${esc(x.id)}" aria-label="Delete">${ic('trash')}</button>`:''}</span></div>
+  const postHTML=x=>{const own=uid&&x.uid===uid,cc=(CMT.list||[]).filter(c=>c.target==='post:'+x.id).length,rp=CLUB.list.filter(y=>y.repost&&y.repost.id===x.id).length;
+    const tag=x.tag?`<span class="tagchip">${esc(x.tag)}</span>`:x.kind==='photo'?'<span class="tagchip">📸 Memory</span>':x.kind==='idea'?'<span class="tagchip">💡 Idea</span>':x.kind==='update'?'<span class="tagchip">✅ Update</span>':x.repost?'<span class="tagchip">🔁 Reshared</span>':'';
+    return`<article class="card post ig" id="post-${esc(x.id)}"><div class="ph">${ini(x.name||'?','',storyRing(x.name||'').trim())}<div style="flex:1;min-width:0"><b>${esc(x.name||'Someone')}</b><small>${timeAgo(x.at)}${x.day?' · game on '+esc(dlabel(x.day,{weekday:'short',day:'numeric',month:'short'})):''}${statusOf(x.name)?' · '+statusLine(x.name):''}</small></div>${tag}${own||isOrg?`<button class="iconbtn" data-pdelpost="${esc(x.id)}" aria-label="Delete">${ic('trash')}</button>`:''}</div>
+      ${x.img?`<div class="pimgw" data-dbl="${esc(x.id)}"><img class="pimg" src="${x.img}" alt="Photo by ${esc(x.name||'')}" loading="lazy"></div>`:''}
+      ${!x.img&&x.text?`<div class="ptxt">${mtext(x.text)}</div>`:''}${x.repost?`<div style="padding:0 14px 6px">${repostBox(x)}</div>`:''}
+      <div class="igbar">${igBtn('p',x.id,x)}<button class="igb" data-cmts="${esc(x.id)}" aria-label="Comment">${IGI.comment}</button><button class="igb" data-repost="${esc(x.id)}" aria-label="Reshare">${IGI.repost}${rp?`<small>${rp}</small>`:''}</button><button class="igb" data-pshare="${esc(x.id)}" aria-label="Send">${IGI.send}</button></div>
+      ${likesLine(x)}${x.img&&x.text?`<div class="igcap"><b>${esc(first(x.name||''))}</b> ${mtext(x.text)}</div>`:''}
+      ${cc&&!CLUBOPEN.has(x.id)?`<button class="lnk igmore" data-cmts="${esc(x.id)}">View ${cc===1?'1 comment':'all '+cc+' comments'}</button>`:''}
       ${CLUBOPEN.has(x.id)?`<div class="sub" style="border-top:1px solid var(--line2);padding-top:12px">${threadHTML('post:'+x.id,'Add a comment…')}</div>`:''}</article>`};
   v.innerHTML=`${intro('Club','Photos from our games, tips to play better and kudos for each other. Everyone can post.')}
   ${subnav('club',[['feed','Feed'],['tips','Tips']])}
   <div data-in="feed">
+    ${storiesStrip()}
     <section class="card"><div class="pad" style="display:grid;gap:8px">${me?'':`<p class="hint" style="margin:0">Pick your name in Payouts → My wallet to post.</p>`}
       ${perm('post')==='off'?`<p class="hint" style="margin:0">🔒 Posting is turned off by the admins.</p>`:`<div class="grid2"><button class="btn primary" data-compose="photo">${ic('camera')}Photo memory</button><button class="btn line" data-compose="tip">💡 Share a tip</button></div>
       `}${perm('post')==='off'||!me?'':`<div class="inline"><input class="txt" id="qnote" data-mention maxlength="500" placeholder="Say something to the group… type @ to mention" autocomplete="off"><button class="btn sm primary" id="qpost" style="height:44px">Post</button></div>`}</div></section>
@@ -2636,7 +2754,7 @@ function renderTeam(){
   const nDays=playedDays().length, org=canEdit(), act=activeRoster(), inact=S.roster.filter(n=>!act.includes(n));
   const att=org&&db?attention():{fresh:[],dups:[]}, AD=org&&db?adoption():null;
   if(org&&db)loadOrgData(false);
-  const pRow=p=>{const g=ledger(p),lv=levelOf(p);return`<div class="prow">${ini(p,lv?'box-shadow:0 0 0 2px '+lv[2]:'')}<span class="nm">${esc(p)}<small>Played ${plural(played[nkey(p)]||0,'day')}${g.due?` · <b style="color:var(--danger)">owes ${inr(g.due)}</b>`:g.charged?' · all paid':''}</small></span>
+  const pRow=p=>{const g=ledger(p),lv=levelOf(p);return`<div class="prow">${ini(p,lv?'box-shadow:0 0 0 2px '+lv[2]:'')}<span class="nm">${esc(p)}${statusOf(p)?` <small style="display:inline;color:var(--ink)">${statusLine(p)}</small>`:''}<small>${onlineNow(p)?'🟢 Active now · ':''}Played ${plural(played[nkey(p)]||0,'day')}${g.due?` · <b style="color:var(--danger)">owes ${inr(g.due)}</b>`:g.charged?' · all paid':''}</small></span>
     <span class="acts" style="align-items:center">${org?`<select class="lvl" data-lvl="${esc(p)}"${lv?` style="--lc:${lv[2]}"`:''} aria-label="Level for ${esc(p)}"><option value="">Level</option>${LEVELS.map(l=>`<option value="${l[0]}"${lv&&lv[0]===l[0]?' selected':''}>${l[1]}</option>`).join('')}</select><button type="button" class="iconbtn" data-manage="${esc(p)}" aria-label="Manage ${esc(p)}">${ic('gear')}</button>`:lv?`<span class="lvl" style="--lc:${lv[2]};display:inline-flex;align-items:center">${lv[1]}</span>`:''}</span></div>`};
   v.innerHTML=`
   ${intro('Team',org?'Players, access, adoption and settings. Changes apply to everyone in this group.':'Everyone in the group, their level and who’s settled up.')}
@@ -3434,7 +3552,7 @@ if('serviceWorker' in navigator)window.addEventListener('load',()=>{const had=!!
   payCol().onSnapshot(q=>{PAYS=q.docs.map(d=>({id:d.id,...d.data()}));if(!typingIn('#view-day')&&!typingIn('#view-team')&&!typingIn('#view-me'))renderTab(false);else STALE=true},()=>{});
   document.addEventListener('focusout',()=>setTimeout(()=>{if(STALE&&!typingIn('#view-'+tab)){STALE=false;renderTab(false)}},120));
   document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){renderTab(false);syncUI()}});
-  startPollsListener();startProfiles();startChal();startCup();routeHash();setTimeout(()=>{startClub();startComments();startChat();startAvo();startOcc();startChal();startMyReq()},tab==='club'||tab==='cup'?0:1200);setTimeout(startRequests,1200);setTimeout(takeShared,1600);window.addEventListener('hashchange',routeHash);
+  startPollsListener();startProfiles();startChal();startCup();routeHash();setTimeout(()=>{startClub();startComments();startChat();startAvo();startOcc();startChal();startMyReq();startPresence();startStories()},tab==='club'||tab==='cup'?0:1200);setTimeout(startRequests,1200);setTimeout(takeShared,1600);window.addEventListener('hashchange',routeHash);
   setTimeout(()=>pingSeen(false),1500);startUse();
 })();
 })();
