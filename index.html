@@ -459,10 +459,39 @@ button.brand{border:0;background:none;padding:0;font:inherit;color:inherit;text-
 .lbwrap{border-top:1px solid var(--line2)}.lboard{width:100%;min-width:0;table-layout:fixed;font-size:13.5px}.lboard th,.lboard td{padding:9px 2px;font-variant-numeric:tabular-nums}.lboard th{background:var(--surface);font-size:10.5px}.lboard th.rk,.lboard td.rk{width:28px;color:var(--muted);font-weight:800}.lboard th.pl,.lboard td.pl{width:38%;text-align:left}
 .lboard tbody tr{cursor:pointer}.lboard tbody tr:nth-child(even) td{background:#FCFCFD}.lboard tr.me td{background:#EFF8FF!important}.lboard td.on{background:var(--soft)!important;font-weight:800}.lboard .z{color:#C3C8D1;font-weight:500}.lboard b.avo{color:#067647}
 .plw{display:flex;align-items:center;gap:8px;min-width:0}.plw>span{display:grid;min-width:0}.plw b{font-size:14px;overflow:hidden;text-overflow:ellipsis}.plw small{font-size:11px;color:var(--muted);font-weight:600;overflow:hidden;text-overflow:ellipsis}.plw .ini{width:30px;height:30px;font-size:11px;flex:none}
+.appbar .wrap{gap:6px}.gleft{display:flex;align-items:center;gap:8px;min-width:0;flex:1 1 auto}.gleft .avatar{width:34px;height:34px}.gleft .brand{min-width:0}.gleft .brand b{font-size:15.5px}
+.livenow{flex:none;display:flex;align-items:center;gap:2px;border:0;background:none;padding:0 2px;cursor:pointer;font:inherit}.livenow b{font-size:11.5px;color:var(--ok,#12B76A);font-weight:900;margin-left:2px}
+.lvav{display:flex}.lvav .mav{width:24px;height:24px;font-size:9px;margin-left:-8px;box-shadow:0 0 0 2px var(--surface)}.lvav .mav:first-child{margin-left:0}.livenow .mav{box-shadow:0 0 0 2px var(--surface),0 0 0 3.5px #12B76A}
+.appbar .mebtn{position:relative;overflow:visible}.mebtn.online::after{content:'';position:absolute;right:-1px;bottom:-1px;width:11px;height:11px;border-radius:50%;background:#12B76A;box-shadow:0 0 0 2px var(--surface)}.mebtn.hasph img{border-radius:50%}
+.hello{padding:4px 2px 0}.hello h1{margin:0;font-size:26px;letter-spacing:-.4px}.hello p{margin:2px 0 0;color:var(--muted);font-weight:600}
+.sect{padding:6px 2px 0}.sect h2{margin:0;font-size:17px}.sect p{margin:2px 0 0;color:var(--muted);font-size:13.5px}
+.nextgame .ng-h{display:flex;gap:12px;align-items:center;padding:14px 16px;background:linear-gradient(135deg,var(--soft),var(--surface) 70%)}.ng-h>div{flex:1;min-width:0;display:grid;gap:2px}.ng-h small{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--accent)}.ng-h b{font-size:19px}.ng-h span{color:var(--muted);font-size:13px}
+.ng-date{flex:none;width:58px;height:62px;border-radius:14px;background:var(--ink);color:var(--surface)!important;display:grid;place-items:center;align-content:center;line-height:1}.ng-date b{font-size:24px}.ng-date small{color:inherit!important;font-size:11px;letter-spacing:.5px}
+.ngtiles{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:12px 16px 14px}.ngt{border:1px solid var(--line);background:var(--surface);border-radius:14px;padding:10px;text-align:left;display:grid;gap:4px;font:inherit;cursor:pointer;min-width:0}.ngt .l{font-size:11px;font-weight:800;color:var(--muted);line-height:1.25}.ngt b{font-size:24px;line-height:1.1}.ngt .lvav{min-height:24px;align-items:center}.ngt .lvav i{font-style:normal;font-size:11px;font-weight:800;color:var(--muted);margin-left:4px}
+.ngt.yes b{color:#067647}.ngt.no b{color:#B42318}.ngt.on{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+.courts .venue{display:flex;align-items:center;gap:12px;padding:14px 16px;background:linear-gradient(120deg,#0B6E4F,#12B76A);color:#fff;border-radius:var(--r,18px) var(--r,18px) 0 0}.venue .vico{font-size:28px}.venue>div{flex:1;min-width:0;display:grid}.venue small{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;opacity:.85}.venue b{font-size:18px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.vhrs{background:rgba(255,255,255,.18);border-radius:999px;padding:5px 10px;font-weight:900}
+.names.attn{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}.names.attn .nm-chip{border:0;font:inherit;font-size:13px;font-weight:700;height:32px;cursor:pointer}.nm-chip.yes{background:#ECFDF3;color:#067647}.nm-chip.due{box-shadow:inset 0 0 0 1.5px #F04438}
+details.vcard>summary{list-style:none;cursor:pointer}details.vcard>summary::-webkit-details-marker{display:none}details.vcard:not([open])>summary .card-h{border-bottom:0}details.vcard>summary .card-h::after{content:'▾';margin-left:8px;color:var(--muted);font-size:14px}details.vcard[open]>summary .card-h::after{content:'▴'}
+.vme{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:12px;background:var(--field);font-size:14px}.hrsbtn{border:0;font:inherit;cursor:pointer}.badge.line{background:transparent;border:1px dashed var(--accent);color:var(--accent)}
+details.legend{padding:4px 16px 10px}details.legend summary{font-size:12.5px;font-weight:700;color:var(--accent);cursor:pointer}details.legend p{font-size:13px;color:var(--muted);margin:6px 0 0;line-height:1.5}
+.igb small{font-size:14px;font-weight:700;margin-left:5px;color:var(--ink)}.igb{display:inline-flex;align-items:center}.iglikes{display:flex;align-items:center;gap:8px}.iglikes .lvav .mav{width:20px;height:20px;font-size:8px}.igemos{color:var(--muted);font-size:13px}
+.igtime{padding:2px 14px 12px;font-size:12px;color:var(--muted)}.avop .avomsg{font-size:15.5px;line-height:1.45}.avogive small{font-weight:700;color:var(--ok,#067647);margin-left:4px}
+.stchip{display:inline-flex;align-items:center;gap:4px;font-size:11.5px;font-weight:800;border-radius:999px;padding:3px 9px;white-space:nowrap;background:var(--field);color:var(--ink)}.st-new{background:#EFF8FF;color:#175CD3}.st-awaiting{background:#FFFAEB;color:#B54708}.st-backlog{background:#F4F3FF;color:#5925DC}.st-hold{background:#F2F4F7;color:#344054}.st-done{background:#ECFDF3;color:#067647}.st-dropped{background:#FEF3F2;color:#B42318}
+.rqc{border-top:1px solid var(--line2);padding:14px 16px;display:grid;gap:8px}.rqc.closed{opacity:.7}.rqh{display:flex;align-items:center;gap:10px}.rqh>div{flex:1;min-width:0;display:grid}.rqh small{color:var(--muted);font-size:12px}.rqt{white-space:pre-wrap;line-height:1.45;font-size:15px}
+.rqbar{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:2px}.rqb{border:1px solid var(--line);background:var(--surface);border-radius:10px;height:36px;padding:0 12px;font:inherit;font-weight:800;font-size:13px;color:var(--ink);cursor:pointer;display:inline-flex;align-items:center;list-style:none}.rqb.main{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+.rqmore{position:relative;margin-left:auto}.rqmore summary::-webkit-details-marker{display:none}.rqmore>div{position:absolute;right:0;bottom:42px;z-index:5;background:var(--surface);border:1px solid var(--line);border-radius:12px;box-shadow:0 8px 24px rgba(16,24,40,.16);display:grid;min-width:170px;overflow:hidden}.rqmore>div button{border:0;background:none;text-align:left;padding:11px 14px;font:inherit;font-weight:700;font-size:14px;display:flex;gap:8px;align-items:center;color:var(--ink)}.rqmore>div button.danger{color:#B42318}.rqmore>div button+button{border-top:1px solid var(--line2)}
+.stgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.stopt{border:1.5px solid var(--line);border-radius:12px;padding:11px 10px;font:inherit;font-weight:800;font-size:13.5px;text-align:left;cursor:pointer;background:var(--surface)}.stopt.on{border-color:currentColor;box-shadow:inset 0 0 0 1px currentColor}
+.myrq{cursor:pointer}.tline{display:grid;gap:12px;margin-top:6px}.tl{display:flex;gap:10px}.tl>i{font-style:normal;width:30px;height:30px;border-radius:50%;background:var(--field);display:grid;place-items:center;flex:none}.tl>span{display:grid;gap:2px;min-width:0}.tl small{color:var(--muted);font-size:12px}.tl em{font-style:normal;font-size:14px;background:var(--field);border-radius:10px;padding:8px 10px;margin-top:4px}
+.pushrow{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.push{border:0;border-radius:16px;padding:12px 8px 11px;background:var(--surface);box-shadow:0 1px 0 var(--line),0 4px 0 #D0D5DD,0 6px 14px rgba(16,24,40,.08);display:grid;justify-items:center;gap:2px;font:inherit;cursor:pointer;transition:transform .08s,box-shadow .08s;text-align:center}
+.push span{font-size:26px;line-height:1.1}.push b{font-size:13.5px}.push small{font-size:10.5px;color:var(--muted);font-weight:600;line-height:1.25}.push:active{transform:translateY(3px);box-shadow:0 1px 0 var(--line),0 1px 0 #D0D5DD}.push.hot{background:linear-gradient(160deg,#FFF6ED,#FFFFFF);box-shadow:0 1px 0 #FEC84B,0 4px 0 #F79009,0 6px 14px rgba(247,144,9,.18)}
+.ctgrid{display:grid;gap:8px;padding:10px 12px}.ctc{display:flex;align-items:center;gap:12px;border:1px solid var(--line);border-radius:14px;padding:10px 12px;background:var(--surface)}.ctm{flex:1;min-width:0}.ctm b{font-size:15px}.ctf{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:13px;color:var(--ink);margin-top:2px}.ctf .dim{color:var(--muted)}.cta{display:flex;gap:4px}.cta .iconbtn{width:36px;height:36px}.cta .wa{color:#25D366}
+[data-card].cardgrp{display:flex;flex-direction:column;gap:12px}[data-card]:empty{display:none}.arrange{align-self:center;font-size:13px;color:var(--muted);margin-top:4px}
+.arrl{display:grid;gap:6px;padding:12px 16px}.arr{display:flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:12px;padding:6px 6px 6px 12px}.arr span{flex:1;font-weight:700;font-size:14px}.arr.off span{opacity:.45;text-decoration:line-through}.arr .iconbtn{width:36px;height:36px}
 </style>
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M3.5 10.6 12 3.8l8.5 6.8"/><path d="M5.6 9v10.4a1 1 0 0 0 1 1h3.6v-5.6h3.6v5.6h3.6a1 1 0 0 0 1-1V9"/></symbol>
   <symbol id="i-shuttle" viewBox="0 0 24 24"><circle cx="6.5" cy="17.5" r="3"/><path d="M8.6 15.4 18.5 5.5M7.8 14.6 13 4.2M9.4 16.2 19.8 11M13 4.2l3.2-1 4.6 4.6-1 3.2"/></symbol>
   <symbol id="i-trophy" viewBox="0 0 24 24"><path d="M7 4h10v5a5 5 0 0 1-10 0V4z"/><path d="M7 6H4v1.5A3.5 3.5 0 0 0 7.5 11M17 6h3v1.5a3.5 3.5 0 0 1-3.5 3.5"/><path d="M12 14v3M8.5 20h7M9.5 17h5v3h-5z"/></symbol>
   <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c.8-4.2 4-6.6 8-6.6s7.2 2.4 8 6.6"/></symbol>
@@ -493,10 +522,11 @@ button.brand{border:0;background:none;padding:0;font:inherit;color:inherit;text-
 
 <header class="appbar">
   <div class="wrap">
-    <button class="iconbtn mebtn" id="mebtn" aria-label="Me"><svg class="ic"><use href="#i-user"/></svg></button>
-    <div class="gcenter"><div class="avatar" id="avatar"><svg class="ic"><use href="#i-shuttle"/></svg></div>
-    <button type="button" class="brand" id="brandbtn" aria-label="Group name and photo"><b id="gname">Badminton Family</b><small><span id="pagename">Today</span> <span class="sync" id="sync" hidden></span></small></button></div>
+    <div class="gleft"><div class="avatar" id="avatar"><svg class="ic"><use href="#i-shuttle"/></svg></div>
+    <button type="button" class="brand" id="brandbtn" aria-label="Group name and photo"><b id="gname">Badminton Family</b><small><span id="pagename">Home</span> <span class="sync" id="sync" hidden></span></small></button></div>
+    <button type="button" class="livenow" id="livenow" hidden aria-label="Who’s using the app now"></button>
     <button class="iconbtn todo" id="todobtn" hidden aria-label="To do"><svg class="ic"><use href="#i-bell"/></svg><i class="nb" id="todonb"></i></button>
+    <button class="iconbtn mebtn" id="mebtn" aria-label="Me"><svg class="ic"><use href="#i-user"/></svg></button>
     <button class="status" id="status" hidden></button>
   </div>
 </header>
@@ -514,7 +544,7 @@ button.brand{border:0;background:none;padding:0;font:inherit;color:inherit;text-
 
 <nav class="tabbar" aria-label="Sections">
   <div class="wrap" role="tablist">
-    <button role="tab" data-tab="day" aria-selected="true"><svg class="ic"><use href="#i-shuttle"/></svg>Today</button>
+    <button role="tab" data-tab="day" aria-selected="true"><svg class="ic"><use href="#i-home"/></svg>Home</button>
     <button role="tab" data-tab="polls" aria-selected="false"><svg class="ic"><use href="#i-poll"/></svg>Polls</button>
     <button role="tab" data-tab="pay" aria-selected="false"><svg class="ic"><use href="#i-wallet"/></svg>Payouts</button>
     <button role="tab" data-tab="club" aria-selected="false"><svg class="ic"><use href="#i-chat"/></svg>Club</button>
@@ -541,7 +571,7 @@ const FIREBASE_CONFIG = {
 /* Collections get this prefix so they never clash with the league app's data */
 const COLLECTION_PREFIX = "shuttleSplit_";
 /* App version shown in Team → About */
-const APP_VERSION = "3.5.0", APP_BUILD = "3 Nov 2026";
+const APP_VERSION = "3.6.0", APP_BUILD = "5 Nov 2026";
 /* Owner of the main group (the link without ?g=) */
 const LEGACY_OWNER = "pavankaki.cool@gmail.com";
 /* Starting player list, used only until the first save */
@@ -622,7 +652,7 @@ async function flush(path){
 function syncUI(){const el=$('#sync');if(!el||!db)return;const n=Object.keys(pending).length+Object.values(inflight).filter(Boolean).length;
   const st=!navigator.onLine?'off':n?'save':'live';el.className='sync '+st;el.textContent=st==='off'?'Offline · will sync':st==='save'?'Saving…':'Live';el.hidden=false}
 window.addEventListener('online',()=>syncUI());window.addEventListener('offline',()=>syncUI());
-function saveConfig(){queueWrite('config/main',{roster:S.roster,rate:S.rate,courts:1,groupName:S.groupName||'',skin:S.skin||'court',upiId:S.upiId||'',upiName:S.upiName||'',levels:S.levels||{},admins:S.admins||[],inactive:S.inactive||[],ignored:S.ignored||[],openNames:S.openNames!==false,idleWeeks:S.idleWeeks==null?4:S.idleWeeks,since:S.since||{},autoOff:S.autoOff||{},billed:(S.billed||[]).slice(-200),msg:S.msg||null,sent:trimSent(S.sent),board:S.board||null,dupOk:(S.dupOk||[]).slice(-100),model:S.model||'post',load:+S.load||1000,low:S.low==null?200:+S.low,perms:S.perms||{},giphy:S.giphy||''})}
+function saveConfig(){queueWrite('config/main',{roster:S.roster,rate:S.rate,courts:1,groupName:S.groupName||'',skin:S.skin||'court',upiId:S.upiId||'',upiName:S.upiName||'',levels:S.levels||{},admins:S.admins||[],inactive:S.inactive||[],ignored:S.ignored||[],openNames:S.openNames!==false,idleWeeks:S.idleWeeks==null?4:S.idleWeeks,since:S.since||{},autoOff:S.autoOff||{},billed:(S.billed||[]).slice(-200),msg:S.msg||null,sent:trimSent(S.sent),board:S.board||null,layout:S.layout||{},dupOk:(S.dupOk||[]).slice(-100),model:S.model||'post',load:+S.load||1000,low:S.low==null?200:+S.low,perms:S.perms||{},giphy:S.giphy||''})}
 /* ---------- organizers ---------- */
 const userEmail=()=>{const u=auth&&auth.currentUser;return u&&!u.isAnonymous&&u.email?u.email.toLowerCase():''};
 const ownerEmail=()=>String((GID?(GROUP&&GROUP.owner):LEGACY_OWNER)||'').toLowerCase();
@@ -862,10 +892,11 @@ function myTasks(){if(!db)return[];const me=allNames().find(n=>nkey(n)===nkey(ge
     out.push({ic:'camera',opt:true,t:'Share a photo from '+dlabel(last,{weekday:'short',day:'numeric'}),s:'Optional · we’ll turn it into a memory card',go:()=>{go('club');setTimeout(()=>openCompose('photo'),150)}});
   return out}
 const pendingTasks=()=>myTasks().filter(x=>!x.done&&!x.opt);
-function tasksCard(){const t=myTasks();if(!t.length)return'';const done=t.filter(x=>x.done).length,req=t.filter(x=>!x.opt).length,doneReq=t.filter(x=>!x.opt&&x.done).length;
-  return`<section class="card${req>doneReq?' due-card':''}" id="taskcard">${cardH('check','Your to-do',req?doneReq+' of '+req+' done':'',req&&req===doneReq)}
-    <div class="menu">${t.map((x,i)=>`<button class="mi" data-task="${i}"><span class="mico" style="${x.done?'background:var(--ok);color:#fff':''}">${ic(x.done?'check':x.ic)}</span><span class="mt"><b${x.done?' style="color:var(--muted)"':''}>${esc(x.t)}</b><small>${esc(x.s)}</small></span>${x.opt?'<span class="mm">Optional</span>':''}${ic('right')}</button>`).join('')}</div>
-    ${req&&req===doneReq?`<div class="card-f"><span class="ok-chip">${ic('check')}All done. Thank you! 🏸</span></div>`:''}</section>`}
+function tasksCard(){const t=myTasks();if(!t.length)return'';const pend=t.filter(x=>!x.opt&&!x.done).length;
+  const vis=t.map((x,i)=>[x,i]).filter(([x])=>!x.done);
+  return`<section class="card${pend?' due-card':''}" id="taskcard">${cardH('check','Tasks',pend?`<b style="color:var(--danger,#D92D20)">Pending (${pend})</b>`:'All good 😊',!pend)}
+    ${pend?'':`<div class="row"><small class="hint" style="margin:0">Nothing waiting on you. Thank you! 🏸${vis.length?' A couple of optional ideas below.':''}</small></div>`}
+    <div class="menu">${vis.map(([x,i])=>`<button class="mi" data-task="${i}"><span class="mico" style="${x.done?'background:var(--ok);color:#fff':''}">${ic(x.done?'check':x.ic)}</span><span class="mt"><b${x.done?' style="color:var(--muted)"':''}>${esc(x.t)}</b><small>${esc(x.s)}</small></span>${x.opt?'<span class="mm">Optional</span>':''}${ic('right')}</button>`).join('')}</div></section>`}
 function refreshTasks(){const c=$('#taskslot');if(!c)return;c.innerHTML=tasksCard();const t=myTasks();c.querySelectorAll('[data-task]').forEach(b=>b.onclick=()=>t[+b.dataset.task].go())}
 /* organizer to-do: everything waiting on you, in one place */
 function todoItems(){if(!isOrg||!db)return[];const out=[];
@@ -875,8 +906,9 @@ function todoItems(){if(!isOrg||!db)return[];const out=[];
   if(rp||rd)out.push(['bell',plural(rp+rd,'reminder')+' to send',[rp?'poll and game':'',rd?(PRE()?'wallet top-up':'payment'):''].filter(Boolean).join(' and ')+' · send on WhatsApp below',()=>openTodo(true)]);
   const cl=allPays().filter(x=>x.status==='claimed').length;if(cl)out.push(['check',plural(cl,'payment')+' to confirm','Players say they’ve paid',()=>goSub('pay','dues')]);
   const q=billQueue();if(q.length)out.push(['share','Bill waiting to send',q.map(shortD).join(', '),()=>{closeWho();openBillSend()}]);
-  {const L=actOpen();if(L.length)out.push(['lock',plural(L.length,'player change')+' to review',L.slice(0,2).map(a=>first(a.name)+(a.status==='pending'?' asks: ':': ')+ACTK[a.kind]).join(' · '),openActions])}
-  {const nr=REQ.list.filter(r=>r.status==='new').length;if(nr)out.push(['chat',nr===1?'1 new idea or problem':nr+' new ideas or problems','From players · tap to read',()=>goSub('team','requests')])}
+  {const L=ACT.list.filter(a=>a.status==='pending');if(L.length)out.push(['lock',plural(L.length,'request')+' to approve',L.slice(0,2).map(a=>first(a.name)+' asks: '+ACTK[a.kind]).join(' · '),openActions])}
+  occasionsToday().forEach(o=>out.push(['chat',o.emoji+' Post '+first(o.n)+'’s '+(o.kind==='bday'?'birthday':o.kind==='anniv'?'anniversary':o.title)+' wishes on WhatsApp','A ready-made line for the group',()=>{closeWho();window.open(waHref(occWA(o)),'_blank')}]));
+  {const nr=REQ.list.filter(r=>!r.status||r.status==='new').length;if(nr)out.push(['chat',nr===1?'1 new idea or problem':nr+' new ideas or problems','From players · tap to read',()=>goSub('team','requests')])}
   {const dp=dupPairs();if(dp.length)out.push(['copy',plural(dp.length,'repeated payment')+' to check',[...new Set(dp.map(x=>first(x[0].name)))].join(', ')+' · same amount recorded twice',openDupes])}
   try{const a=attention();const n=a.fresh.length+a.dups.length;if(n)out.push(['users',plural(n,'name')+' to review','New or duplicate names',()=>goSub('team','players')])}catch(e){}
   return out}
@@ -904,21 +936,29 @@ const intro=(h,p)=>`<div class="intro"><h1>${h}</h1><p>${p}</p></div>`;
 const kpis=list=>`<div class="kpis">${list.map(([l,v,hl])=>`<div class="kpi${hl?' hl':''}"><span>${l}</span><b>${v}</b></div>`).join('')}</div>`;
 const cardH=(icon,title,meta,strong)=>`<div class="card-h"><span class="ico">${ic(icon)}</span><h2>${title}</h2>${meta!=null?`<span class="meta${strong?' strong':''}">${meta}</span>`:''}</div>`;
 const viewOnly=what=>db&&!isOrg?`<div class="note">${ic('lock')}<p>You’re viewing. Only the organizer can ${what}.</p><button class="btn sm line" data-signin>Organizer</button></div>`:'';
-const PAGES={day:'Record a play day',polls:'Availability polls',pay:'Payouts',cup:'Tournaments',club:'Club & community',me:'My account',team:'Team & settings'};
+const PAGES={day:'Home',polls:'Availability polls',pay:'Payouts',cup:'Tournaments',club:'Club & community',me:'My account',team:'Team & settings'};
 function remDot(){
   const pb=document.querySelector('.tabbar [data-tab="pay"]');if(pb){const m=isOrg&&db?allPays().filter(x=>x.status==='claimed').length:0;pb.classList.toggle('has-due',m>0)}}
 function renderHeader(){try{remDot()}catch(e){}
   $('#gname').textContent=S.groupName||'Badminton Family';
   $('#pagename').textContent=PAGES[tab];
   $('#avatar').innerHTML=photo?`<img src="${photo}" alt="">`:ic('shuttle');const av=$('#avatar');av.style.cursor='pointer';av.title=canEdit()?'Change group photo':'Group photo';av.onclick=avatarTap;
-  const st=$('#status');st.hidden=!db;st.classList.toggle('org',isOrg);const bb=$('#brandbtn');if(bb)bb.onclick=openGroupName;
-  const mb=$('#mebtn');if(mb){const me=getMe();const ph=me&&photoOf(me);mb.innerHTML=ph?`<img src="${ph}" alt="">`:me?esc(initials(me)):ic('user');mb.classList.toggle('hasph',!!ph);try{const L=me?liveStories(me):[];mb.classList.toggle('ring',!!L.length)}catch(e){}mb.classList.toggle('on',tab==='pay'&&SUB.pay==='mine');mb.onclick=()=>{if(myName())openMe();else{ME.who='';go('me')}}}
+  const st=$('#status');st.hidden=!db||!isOrg;st.classList.toggle('org',isOrg);try{renderLiveNow()}catch(e){}const bb=$('#brandbtn');if(bb)bb.onclick=openGroupName;
+  const mb=$('#mebtn');if(mb){const me=getMe();const ph=me&&photoOf(me);mb.innerHTML=ph?`<img src="${ph}" alt="">`:me?esc(initials(me)):ic('user');mb.classList.toggle('hasph',!!ph);try{const L=me?liveStories(me):[];mb.classList.toggle('ring',!!L.length);mb.classList.toggle('online',!!me&&db)}catch(e){}mb.classList.toggle('on',tab==='pay'&&SUB.pay==='mine');mb.onclick=()=>{if(myName())openMe();else{ME.who='';go('me')}}}
   const tb=$('#todobtn');if(tb){let n=0;try{n=todoItems().length+pendingTasks().length+unreadActivity()}catch(e){}tb.hidden=!db;$('#todonb').textContent=n;$('#todonb').hidden=!n;tb.onclick=openTodo}
   st.title=isOrg?'Organizer':userEmail()?'Viewer':'Sign in';st.setAttribute('aria-label',st.title);
   st.innerHTML=isOrg?'<i class="dot"></i>Organizer':userEmail()?ic('users')+'Viewer':ic('lock')+'Sign in';
   const gm=$('#groupmiss');if(gm)gm.hidden=!GROUP_MISSING;
 }
 
+/* who is using the app right now: up to 4 photos + count, tap for the list */
+function renderLiveNow(){const el=$('#livenow');if(!el)return;if(!db||typeof PRES==='undefined'){el.hidden=true;return}const me=nkey(getMe()||''),L=allNames().filter(n=>onlineNow(n)&&nkey(n)!==me);
+  el.hidden=!L.length;if(!L.length)return;el.innerHTML=`<span class="lvav">${L.slice(0,4).map(n=>av(n)).join('')}</span>${L.length>4?`<b>+${L.length-4}</b>`:''}`;el.title=L.length+' here now';el.onclick=openLiveNow}
+function openLiveNow(){const all=allNames(),on=all.filter(onlineNow),seen=all.filter(n=>!onlineNow(n)&&presOf(n)&&presOf(n).at).sort((a,b)=>presOf(b).at-presOf(a).at).slice(0,12);
+  const row=n=>`<button class="prow" data-prof="${esc(n)}" style="width:100%;border:0;background:none;text-align:left">${ini(n)}<span class="nm">${esc(n)}<small>${esc(statusLine(n)||'')}${statusLine(n)?' · ':''}${esc(seenText(n))}</small></span></button>`;
+  const bg=sheetOpen(`<div class="sheet-h"><span class="ini">👀</span><div><b>${plural(on.length,'person')} in the app now</b><small>Updates every couple of minutes</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div>
+    ${on.map(row).join('')}${seen.length?`<span class="sublbl" style="margin:12px 16px 4px">Recently seen</span>${seen.map(row).join('')}`:''}`,'Online');
+  bg.querySelectorAll('[data-prof]').forEach(b=>b.onclick=()=>openProfile(b.dataset.prof))}
 function openGroupName(){const can=isOrg||!db||perm('name')!=='off',mode=isOrg||!db?'allow':perm('name');
   const bg=sheetOpen(`<div class="sheet-h"><span class="ini gph">${photo?`<img src="${photo}" alt="">`:ic('users')}</span><div><b>${esc(S.groupName||'Badminton Family')}</b><small>${plural(activeRoster().length,'player')}${isOrg?' · you’re an organizer':''}</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div>
     ${photo?`<div class="sub" style="padding-top:12px"><img src="${photo}" alt="Group photo" style="width:100%;border-radius:14px;display:block"></div>`:''}
@@ -933,18 +973,38 @@ function openGroupName(){const can=isOrg||!db||perm('name')!=='off',mode=isOrg||
 /* ================= TODAY ================= */
 let dayConfirmClear=false, guestPending='';
 function weekStart(ds){const d=new Date(ds+'T00:00');return shift(ds,-((d.getDay()+6)%7))}
+/* next game day: the nearest open poll date; it stays "Today" until that game's end time */
+function slotEnd(note){const t=String(note||''),m=t.match(/(\d{1,2})(?:[:.](\d{2}))?\s*(am|pm)?\s*(?:-|–|to)\s*(\d{1,2})(?:[:.](\d{2}))?\s*(am|pm)?/i);if(!m)return 24;
+  let b=+m[4]+(+m[5]||0)/60;const pm=(m[6]||'').toLowerCase()==='pm'||(!m[6]&&/pm/i.test(t)),am=(m[6]||'').toLowerCase()==='am';if(pm&&b<12)b+=12;if(!pm&&!am&&b<8)b+=12;return Math.min(24,b)}
+function nextGame(){const now=Date.now(),t=todayStr();let best=null;
+  (P.list||[]).filter(p=>!isArchived(p)).forEach(p=>(p.dates||[]).forEach(dt=>{if(!dt.date||dt.date<t)return;const end=new Date(dt.date+'T00:00').getTime()+slotEnd(dt.note)*3600e3;if(end<=now)return;
+    if(!best||end<best.end)best={p,dt,end}}));return best}
+function ensureVotes(pl){if(!db||!pl||VOTE_UNSUB[pl.id])return;try{VOTE_UNSUB[pl.id]=pollsCol().doc(pl.id).collection('votes').onSnapshot(q=>{VOTES_BY[pl.id]=q.docs.map(d=>({poll:pl.id,id:d.id,...d.data()}));
+  if(isOrg)orgChanged();else if(tab==='day'){const ns=$('#nextslot');if(ns){ns.innerHTML=nextGameCard();bindNextGame($('#view-day'))}refreshTasks()}},()=>{delete VOTE_UNSUB[pl.id]})}catch(e){}}
+let NG_OPEN='';
+function nextGameCard(){const g=nextGame();if(!g)return canEdit()&&db?`<section class="card nextgame"><div class="ng-h"><div><small>Next game day</small><b>No open poll</b><span>Create a poll so everyone can say if they’re in.</span></div></div><div class="card-f"><button class="btn sm primary" data-ngnew>${ic('plus')}New poll</button></div></section>`:'';
+  ensureVotes(g.p);const r=tally(g.p,VOTES_BY[g.p.id]||[]).res.find(x=>x.date===g.dt.date)||{yes:[],no:[]},done=new Set([...r.yes,...r.no].map(nkey)),wait=activeRoster().filter(n=>!done.has(nkey(n)));
+  const today=g.dt.date===todayStr(),d=new Date(g.dt.date+'T00:00'),hrs=boardHours(g.dt.date),me=myName(),myA=me?(r.yes.some(x=>nkey(x)===nkey(me))?'yes':r.no.some(x=>nkey(x)===nkey(me))?'no':''):'';
+  const G=[['yes','✅','Available',r.yes],['no','❌','Unavailable',r.no],['wait','⏳','Not confirmed',wait]];
+  return`<section class="card nextgame"><div class="ng-h"><div><small>Next game day</small><b>${today?'Today':esc(dlabel(g.dt.date,{weekday:'long'}))}${g.dt.note?` · ${esc(g.dt.note)}`:''}</b><span>${esc(g.p.title)}${hrs?` · ${fmtH(hrs)} h booked`:''}</span></div><span class="ng-date"><b>${d.getDate()}</b><small>${esc(d.toLocaleDateString('en-IN',{month:'short'}))}</small></span></div>
+    <div class="ngtiles">${G.map(([k,e,l,L])=>`<button type="button" class="ngt ${k}${NG_OPEN===k?' on':''}" data-ngt="${k}"><span class="l">${e} ${l}</span><b>${L.length}</b><span class="lvav">${L.slice(0,4).map(n=>av(n)).join('')}${L.length>4?`<i>+${L.length-4}</i>`:''}</span></button>`).join('')}</div>
+    ${NG_OPEN?(()=>{const g2=G.find(x=>x[0]===NG_OPEN);return`<div class="pad" style="padding-top:4px"><div class="vgrp ${g2[0]}"><span class="vlbl">${g2[1]} ${g2[2]} · ${g2[3].length}</span><div class="names">${g2[3].map(n=>`<span class="nm-chip ${g2[0]}" data-prof="${esc(n)}">${av(n)}${esc(n)}</span>`).join('')||'<small class="hint">Nobody yet</small>'}</div></div></div>`})():''}
+    <div class="card-f"><span class="hint" style="margin:0">${myA==='yes'?'You’re in ✅':myA==='no'?'You said you can’t make it':me?'You haven’t voted yet':''}</span><button class="btn sm ${myA?'line':'primary'}" data-ngvote="${esc(g.p.id)}" style="margin-left:auto">${myA?'Change vote':'Vote now'}</button></div></section>`}
+function bindNextGame(v){v.querySelectorAll('[data-ngt]').forEach(b=>b.onclick=()=>{NG_OPEN=NG_OPEN===b.dataset.ngt?'':b.dataset.ngt;const ns=$('#nextslot');ns.innerHTML=nextGameCard();bindNextGame(v)});
+  v.querySelectorAll('#nextslot [data-prof]').forEach(b=>b.onclick=()=>openProfile(b.dataset.prof));
+  v.querySelectorAll('[data-ngvote]').forEach(b=>b.onclick=()=>{location.hash='poll-'+b.dataset.ngvote});v.querySelectorAll('[data-ngnew]').forEach(b=>b.onclick=()=>{go('polls')})}
 function renderDay(){
   const v=$('#view-day'), d=getDay(curDate), ws=weekStart(curDate), t=todayStr();
   const days=[...Array(7)].map((_,i)=>shift(ws,i));
   v.innerHTML=`
-  ${canEdit()?intro('Today’s game','Tick who played and enter the costs. Everyone’s share is worked out as you go.'):intro('Today','Your to-do, and each game day’s costs and shares.')}
-  <div id="occslot">${occBanner()}</div>
-  <div id="taskslot"></div>
-  ${boardCard()}
-  <div id="daykpi"></div>
-  ${viewOnly('record game days')}
+  <div class="hello" data-card="hello"><h1>Welcome, ${esc(first(myName()||'')||'friend')}! 👋</h1><p>${esc(dlabel(t,{weekday:'long',day:'numeric',month:'long'}))}</p></div>
+  <div id="occslot" data-card="occ">${occBanner()}</div>
+  <div id="taskslot" data-card="tasks"></div>
+  <div id="nextslot" data-card="next">${nextGameCard()}</div>
+  <div data-card="courts" class="cardgrp">${boardCard()}</div>
   ${billTray()}
   ${canEdit()?'<div id="duealert"></div>':''}
+  <div data-card="adhoc" class="cardgrp"><div class="sect"><h2>⚡ Ready to play an ad-hoc game today?</h2><p>Pick the day to record who played and the costs${canEdit()?'':' (organizers fill this in)'}.</p></div>
   <section class="card">
     <div class="wk-h"><b>${esc(dlabel(curDate,{month:'long',year:'numeric'}))}</b>
       <button class="iconbtn" data-act="pw" aria-label="Previous week">${ic('left')}</button>
@@ -952,11 +1012,12 @@ function renderDay(){
       <label class="iconbtn" aria-label="Pick a date">${ic('cal')}<input type="date" id="date" value="${curDate}"></label></div>
     <div class="week">${days.map(k=>`<button class="day${k===curDate?' sel':''}${k===t?' today':''}${S.days[k]&&S.days[k].present&&S.days[k].present.length?' has':''}" data-act="pick" data-v="${k}"><small>${dlabel(k,{weekday:'short'}).slice(0,3)}</small><b>${new Date(k+'T00:00').getDate()}</b><i></i></button>`).join('')}</div>
   </section>
+  ${canEdit()?'':`<section class="card" id="whoplayed"></section>`}
   <section class="card" id="viewsum" ${canEdit()?'hidden':''}></section>
   <fieldset id="dayfs" ${canEdit()?'':'disabled hidden'}>
   <section class="card">
     ${cardH('users','Who played','<span id="pmeta"></span>')}
-    <div class="pad"><div id="pollnote"></div><div class="tiles" id="att"></div>
+    <div class="pad"><div id="pollnote"></div><div id="att"></div>
       <div class="inline"><input class="txt" id="guest" placeholder="Add guest or new player" autocomplete="off" enterkeyhint="done"><button type="button" class="btn sm primary" style="height:44px" data-act="addguest">${ic('plus')}Add</button></div>
       <p class="warn" id="guestwarn" hidden></p></div>
     <div class="card-f"><button type="button" class="lnk" data-act="all">Select all</button><button type="button" class="lnk" data-act="none">Clear</button><button type="button" class="lnk" data-act="frompoll" id="frompoll" style="margin-left:auto" hidden>Fill from poll</button></div>
@@ -986,14 +1047,14 @@ function renderDay(){
   </fieldset>
   <section class="card" id="splitcard"></section>
   ${canEdit()?'':'<div id="duealert"></div>'}
-  ${S.days[curDate]&&canEdit()?`<div style="text-align:center">${dayConfirmClear?`<span class="hint">Remove everything recorded for this day?</span> <button class="lnk" data-act="clear-no">Keep</button> · <button class="lnk danger" data-act="clear-yes">Clear day</button>`:`<button class="lnk danger" data-act="clear">Clear this day</button>`}</div>`:''}`;
-  refreshDay();refreshTasks();bindBoard(v);
+  ${S.days[curDate]&&canEdit()?`<div style="text-align:center" class="clearday">${dayConfirmClear?`<span class="hint">Remove everything recorded for this day?</span> <button class="lnk" data-act="clear-no">Keep</button> · <button class="lnk danger" data-act="clear-yes">Clear day</button>`:`<button class="lnk danger" data-act="clear">Clear this day</button>`}</div>`:''}</div>${arrangeLink('day')}`;
+  refreshDay();refreshTasks();bindBoard(v);bindNextGame(v);
   attachSuggest($('#guest'),()=>allNames(),n=>{$('#guestwarn').hidden=true;const c=canon(n);const k0=nkey(c);if(!S.roster.some(r=>nkey(r)===k0)){S.roster.push(c);S.since=S.since||{};S.since[k0]=Date.now();saveConfig()}if((S.inactive||[]).includes(k0)){S.inactive=S.inactive.filter(x=>x!==k0);if(S.autoOff)delete S.autoOff[k0];saveConfig()}editDay(d=>{if(!d.present.some(x=>nkey(x)===nkey(c)))d.present.push(c)});toast(c+' marked as played.')},'in the group');
 }
 function refreshDay(){
   if(!$('#att'))return;
   const d=getDay(curDate), c=calc(d);
-  $('#daykpi').innerHTML=kpis([['Players',c.n],['Hours',fmtH(d.hours)],['Total',inr(c.collected),true]]);
+  {const wp=$('#whoplayed');if(wp){const L=orderNames(d.present);wp.innerHTML=cardH('users','Who played',L.length?plural(L.length,'player'):'')+`<div class="pad">${L.length?`<div class="vgrp yes"><span class="vlbl">✅ Played · ${L.length}</span><div class="names">${L.map(n=>`<span class="nm-chip yes" data-prof="${esc(n)}">${av(n)}${esc(n)}</span>`).join('')}</div></div>`:'<small class="hint">Nobody recorded for this day yet.</small>'}</div>`;wp.querySelectorAll('[data-prof]').forEach(b=>b.onclick=()=>openProfile(b.dataset.prof))}}
   $('#pmeta').textContent=d.present.length+' of '+S.roster.length;
   const act=activeRoster(),extra=d.present.filter(p=>!act.some(r=>nkey(r)===nkey(p)));
   const names=[...act,...extra];
@@ -1002,7 +1063,7 @@ function refreshDay(){
     ${dueB.slice(0,6).map(x=>`<div class="prow">${ini(x.name)}<span class="nm">${esc(x.name)}<small>${x.since?'Due since '+esc(dlabel(x.since,{day:'numeric',month:'short'})):''}${x.claimed?' · '+inr(x.claimed)+' waiting confirmation':''}</small></span><span class="due-amt">${inr(x.due)}</span></div>`).join('')}
     ${dueB.length>6?`<div class="row"><small class="hint">and ${dueB.length-6} more</small></div>`:''}
     <div class="card-f"><a class="btn sm wa" href="${waHref(duesMsg(dueB))}" target="_blank" rel="noopener">${ic('chat')}Remind on WhatsApp</a><span class="hint" style="margin-left:auto">Red dot = owes money</span></div></section>`:'';
-  $('#att').innerHTML=names.length?names.map(p=>`<button type="button" class="tile ${d.present.includes(p)?'on':''}${dueSet.has(nkey(p))?' due':''}"${levelOf(p)?` style="box-shadow:inset 0 -3px 0 ${levelOf(p)[2]}" title="${levelOf(p)[1]}"`:''} data-act="toggle" data-v="${esc(p)}" aria-pressed="${d.present.includes(p)}"><span class="tav">${av(p)}<i>${ic('check')}</i></span><span>${esc(p)}</span></button>`).join(''):'<p class="hint">No players yet. Add names below.</p>';
+  $('#att').innerHTML=names.length?`<div class="names attn">${names.map(p=>`<button type="button" class="nm-chip ${d.present.includes(p)?'yes':'wait'}${dueSet.has(nkey(p))?' due':''}" data-act="toggle" data-v="${esc(p)}" aria-pressed="${d.present.includes(p)}" title="${levelOf(p)?esc(levelOf(p)[1]):''}">${av(p)}${esc(p)}${d.present.includes(p)?' ✓':''}</button>`).join('')}</div>`:'<p class="hint">No players yet. Add names below.</p>';
   $('#hval').textContent=fmtH(d.hours)+' h';
   $('#courtcalc').textContent=fmtH(d.hours)+' h × '+inr(d.rate)+' = '+inr(c.court);
   $('#costmeta').textContent=inr(c.actual);
@@ -1300,16 +1361,17 @@ function duesCards(){
   ${recent.length?`<section class="card">${cardH('wallet','Recent payments')}
     ${recent.map(x=>`<div class="prow">${ini(x.name)}<span class="nm">${esc(x.name)}<small>${whenD(x.confirmedAt||x.at)} · ${payWho(x)}${x.proof&&isOrg?` · <button class="lnk" data-proof="${esc(x.proof)}">📎</button>`:''}</small></span>${isOrg?(payDel===x.id?`<span class="acts"><button class="lnk" data-pkeep>Keep</button><button class="lnk danger" data-pdel="${esc(x.id)}">Undo</button></span>`:`<button class="am" style="color:var(--ok)" data-pask="${esc(x.id)}">${inr(x.amount)}</button>`):`<span class="am" style="color:var(--ok)">${inr(x.amount)}</span>`}</div>`).join('')}</section>`:''}`;
 }
+const PAYLEGEND=`<details class="legend"><summary>What do these mean?</summary><p><b>⏳ Awaiting OK</b>: players tapped “I’ve paid”, but the organizer hasn’t confirmed the money arrived yet.<br><b>🔴 Still to pay</b>: shares from game days that nobody has paid yet.<br><b>Received</b>: confirmed by the organizer.</p></details>`;
 function accountsCard(){const names=allNames(),orgV=isOrg||!db;
   let games=0,adj=0,rec=0,wait=0;names.forEach(n=>statement(n).rows.forEach(r=>{if(r.type==='game')games+=r.amt;else if(r.type==='adj')adj+=r.amt;else if(r.status==='confirmed')rec+=r.amt;else wait+=r.amt}));
   const pend=duesList().reduce((a,x)=>a+x.due,0);
   if(PRE()){const tw=names.reduce((a,n)=>a+wallet(n).bal,0);return`<section class="card">${cardH('wallet','Accounts','Prepaid wallets')}
-    <div class="acct" style="border-top:0"><div class="good"><span>Loaded</span><b>${inr(r2(rec))}</b></div><div><span>Used in games</span><b>${inr(r2(games+adj))}</b></div><div><span>Waiting to confirm</span><b>${inr(r2(wait))}</b></div><div class="${tw<0?'bad':'good'}"><span>Left in wallets</span><b>${sinr(r2(tw))}</b></div></div>
-    <div class="sub"><select class="txt" data-sview><option value="">View a player’s account…</option>${names.map(n=>{const w=wallet(n);return`<option value="${esc(n)}">${esc(n)} · wallet ${sinr(w.bal)}</option>`}).join('')}</select></div>
+    <div class="acct" style="border-top:0"><div class="good"><span>Loaded</span><b>${inr(r2(rec))}</b></div><div><span>Used in games</span><b>${inr(r2(games+adj))}</b></div><div><span>⏳ Awaiting OK</span><b>${inr(r2(wait))}</b></div><div class="${tw<0?'bad':'good'}"><span>Left in wallets</span><b>${sinr(r2(tw))}</b></div></div>${PAYLEGEND}
+    ${orgV?'':'<!--'}<div class="sub"><select class="txt" data-sview><option value="">View a player’s account…</option>${names.map(n=>{const w=wallet(n);return`<option value="${esc(n)}">${esc(n)} · wallet ${sinr(w.bal)}</option>`}).join('')}</select></div>${orgV?'':'-->'}
     ${orgV?`<div class="card-f"><button class="btn sm primary" id="xlsxbtn">${ic('copy')}Download Excel</button><span class="hint" style="margin-left:auto">Wallets, statements, payments, game days</span></div>`:''}</section>`}
   return`<section class="card">${cardH('wallet','Accounts','All time')}
-    <div class="acct" style="border-top:0"><div><span>Billed</span><b>${inr(r2(games+adj))}</b></div><div class="good"><span>Received</span><b>${inr(r2(rec))}</b></div><div><span>Waiting to confirm</span><b>${inr(r2(wait))}</b></div><div class="${pend?'bad':'good'}"><span>Pending</span><b>${inr(r2(pend))}</b></div></div>
-    <div class="sub"><select class="txt" data-sview><option value="">View a player’s statement…</option>${names.map(n=>{const d=ledger(n).due;return`<option value="${esc(n)}">${esc(n)}${d?' · owes '+inr(d):''}</option>`}).join('')}</select></div>
+    <div class="acct" style="border-top:0"><div><span>Billed</span><b>${inr(r2(games+adj))}</b></div><div class="good"><span>Received</span><b>${inr(r2(rec))}</b></div><div><span>⏳ Awaiting OK</span><b>${inr(r2(wait))}</b></div><div class="${pend?'bad':'good'}"><span>🔴 Still to pay</span><b>${inr(r2(pend))}</b></div></div>${PAYLEGEND}
+    ${orgV?`<div class="sub"><select class="txt" data-sview><option value="">View a player’s statement…</option>${names.map(n=>{const d=ledger(n).due;return`<option value="${esc(n)}">${esc(n)}${d?' · owes '+inr(d):''}</option>`}).join('')}</select></div>`:''}
     ${orgV?`<div class="card-f"><button class="btn sm primary" id="xlsxbtn">${ic('copy')}Download Excel</button><span class="hint" style="margin-left:auto">Dues, statements, payments, game days</span></div>`:`<div class="card-f"><p class="hint">Open to everyone for transparency. Only organizers can change records.</p></div>`}</section>`}
 /* ---------- tiny built-in .xlsx writer (no download needed, works offline) ---------- */
 const CRCT=(()=>{const t=new Uint32Array(256);for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[n]=c>>>0}return t})();
@@ -1358,6 +1420,19 @@ function excelSheets(){
   return[{name:'Dues summary',cols:[22,13,14,20,16,18,13,14],rows:sum,bold:[sum.length-1],filter:false},{name:'Statements',cols:[18,13,14,40,10,10,16,30],rows:stm,filter:true},
     {name:'Payments',cols:[13,18,10,14,18,12,16,30,12],rows:pays,filter:true},{name:'Game days',cols:[13,9,8,11,9,10,9,11,18,10,60],rows:days,filter:true}]}
 async function exportExcel(){return saveXlsx(excelSheets(),(S.groupName||'Badminton').replace(/[^\w]+/g,'-')+'-accounts-'+todayStr()+'.xlsx')}
+/* every match ever played (tournaments + challenges that count), a summary and one sheet per player */
+function matchRecords(){const out=[];CUP.list.slice().sort((a,b)=>(a.createdAt||0)-(b.createdAt||0)).forEach(T=>{const E={};(T.entries||[]).forEach(e=>E[e.id]=e);const d=ymd(new Date(T.createdAt||Date.now()));
+    (T.matches||[]).forEach(m=>{if(!m.w||m.bye||!E[m.a]||!E[m.b])return;const sc=gs(m);out.push({date:d,event:T.name,type:T.type==='doubles'?'Doubles':'Singles',round:m.r||'',A:E[m.a].players,B:E[m.b].players,sa:sc.map(g=>g[0]),sb:sc.map(g=>g[1]),win:m.w===m.a?'A':'B'})})});
+  CHAL.list.filter(c=>c.status==='done'&&c.winner).forEach(c=>out.push({date:c.date||ymd(new Date(c.doneAt||c.at||Date.now())),event:'Challenge'+(c.counts?'':' (friendly)'),type:c.type==='doubles'?'Doubles':'Singles',round:'',A:c.a||[],B:c.b||[],sa:(c.score||[]).map(g=>g.a),sb:(c.score||[]).map(g=>g.b),win:c.winner==='a'?'A':'B'}));
+  return out.sort((a,b)=>a.date.localeCompare(b.date))}
+function exportMatches(){const M=matchRecords(),ST=playerStats();if(!M.length)return toast('No finished matches yet.');
+  const all=[['Date','Event','Type','Round','Side A','Side B','Score','Winner']].concat(M.map(m=>[{d:m.date},m.event,m.type,m.round,m.A.join(' & '),m.B.join(' & '),m.sa.map((x,i)=>x+'-'+m.sb[i]).join(', '),(m.win==='A'?m.A:m.B).join(' & ')]));
+  const rows=Object.values(ST).filter(x=>x.m||x.att).sort((a,b)=>b.xp-a.xp);
+  const sum=[['Player','Level','XP','Game days','Matches','Won','Lost','Win %','Points for','Points against','Titles','Best streak','Avokudos received']].concat(rows.map(x=>[x.n,x.level||'',x.xp||0,x.att||0,x.m,x.w,x.l,x.m?Math.round(x.w*100/x.m):0,x.pf,x.pa,x.titles,x.best,avoRecv(x.n).reduce((a,g)=>a+(+g.amt||0),0)]));
+  const sheets=[{name:'Summary',cols:[18,14,7,10,9,7,7,8,11,13,7,11,16],rows:sum,filter:true},{name:'All matches',cols:[12,26,9,7,26,26,20,24],rows:all,filter:true}];
+  rows.filter(x=>x.m).forEach(x=>{const k=nkey(x.n),R2=[['Date','Event','Type','Partner','Opponents','Score','Result']];M.forEach(m=>{const inA=m.A.some(n=>nkey(n)===k),inB=m.B.some(n=>nkey(n)===k);if(!inA&&!inB)return;const me=inA?m.A:m.B,op=inA?m.B:m.A,sc=m.sa.map((a,i)=>inA?a+'-'+m.sb[i]:m.sb[i]+'-'+a).join(', ');
+    R2.push([{d:m.date},m.event,m.type,me.filter(n=>nkey(n)!==k).join(' & ')||'—',op.join(' & '),sc,(m.win==='A')===inA?'Won':'Lost'])});sheets.push({name:x.n.replace(/[\\/?*\[\]:]/g,' ').slice(0,31),cols:[12,26,9,16,26,20,8],rows:R2,filter:true})});
+  saveXlsx(sheets,'match-records-'+todayStr()+'.xlsx')}
 async function saveXlsx(sheets,fname){try{const blob=xlsxBlob(sheets);
   const file=new File([blob],fname,{type:blob.type});
   if(/Android|iPhone|iPad/i.test(navigator.userAgent)&&navigator.canShare&&navigator.canShare({files:[file]})){try{await navigator.share({files:[file],title:fname});return}catch(e){if(e&&e.name==='AbortError')return}}
@@ -1717,9 +1792,8 @@ const topTags=r=>Object.entries(r.tags).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([
 const avoRecv=n=>AVO.list.filter(g=>(g.toKey||nkey(g.to))===nkey(n));
 function avoCard(){const me=myName(),mo=todayStr().slice(0,7),B=avoBoard(mo).slice(0,3),H=AVO.list.filter(g=>g.msg&&isActiveP(g.to)).slice(0,3),bal=me?avoBalance(me):0;
   return`<section class="card avo">${cardH('chat','🥑 Avokudos',me?`<b style="color:var(--ok)">🥑 ${bal}</b> to give`:'')}
-    ${me&&perm('kudos')!=='off'?`<div class="pad" style="padding-bottom:4px"><button class="btn primary block" data-avo>🥑 Give Avokudos</button><p class="hint" style="margin:6px 0 0">Everyone gets 🥑 ${AVO_MONTHLY} on the 1st of each month to give. Unused ones carry forward.</p></div>`:''}
+    ${me?`<div class="pad" style="padding-bottom:0"><p class="hint" style="margin:0">Everyone gets 🥑 ${AVO_MONTHLY} on the 1st of each month to give. Unused ones carry forward.</p></div>`:''}
     ${B.length?`<span class="sublbl" style="margin:10px 16px 0">Top this month</span>${B.map((r,i)=>avoRow(r,i)).join('')}`:`<div class="empty" style="padding:14px">No Avokudos yet this month. Be the first to appreciate someone 🥑</div>`}
-    ${H.length?`<span class="sublbl" style="margin:6px 16px 0">Highlights</span>${H.map(avoQuote).join('')}`:''}
     <div class="card-f"><button class="lnk" data-avoboard>🏅 Full leaderboard ›</button></div></section>`}
 function feedItems(posts){startAvo();const L=posts.filter(x=>x.kind!=='tip').map(x=>({t:'p',at:x.at,x}));const lo=L.length?Math.min(...L.map(i=>i.at||0)):0;
   AVO.list.slice(0,40).forEach(g=>{if((g.at||0)>=lo||L.length<5)L.push({t:'a',at:g.at,x:g})});
@@ -1743,9 +1817,13 @@ const cupPost=(T,nb)=>{const ch=cupChampion(T),e=(T.entries||[]).find(x=>x.name=
   ${nb.length?`<div class="ptxt"><b style="font-size:13px">🏅 Achievements unlocked</b>${nb.slice(0,6).map(r=>`<div class="nbrow">${ini(r.n,'','sm')}<span><b>${esc(first(r.n))}</b> ${r.b.map(b=>{const B=BADGES.find(y=>y[0]===b);return B?`<span class="tagchip">${B[1]} ${esc(B[2])}</span>`:''}).join(' ')}</span></div>`).join('')}</div>`:''}</article>`};
 const monthPost=x=>`<article class="card post feedmini win" data-avoboard><div class="ph"><span class="ini">🥑</span><div style="flex:1;min-width:0"><b>${esc(dlabel(x.ym+'-01',{month:'long'}))}’s most appreciated</b><small>Avokudos winners · tap for the leaderboard</small></div><span class="tagchip">🏅 Winners</span></div>
   <div class="ptxt">${x.B.map((r,i)=>`<div class="nbrow">${ini(r.n,'','sm')}<span>${['🥇','🥈','🥉'][i]} <b>${esc(r.n)}</b> · 🥑 ${r.amt}${topTags(r).length?` · <small>${topTags(r).join(', ')}</small>`:''}</span></div>`).join('')}</div></article>`;
-const occPost=o=>`<article class="card post feedmini occ" data-occwish="${esc(o.n)}|${o.kind}|${esc(o.id||'')}"><div class="ph">${ini(o.n)}<div style="flex:1;min-width:0"><b>${o.emoji} It’s ${esc(first(o.n))}’s ${o.kind==='bday'?'birthday':o.kind==='anniv'?'anniversary':esc(o.title)} today!</b><small>Tap to send a wish · everyone gets a different line</small></div><span class="tagchip">🎉 Wish</span></div></article>`;
-const avoPost=g=>`<article class="card post feedmini" data-prof="${esc(g.to)}"><div class="ph"><span class="avs lg">${ini(g.from)}${ini(g.to)}</span><div style="flex:1;min-width:0"><b>${esc(first(g.from))} → ${esc(g.to)}</b><small>${timeAgo(g.at)}</small></div>${g.amt?`<span class="avochip" style="font-size:13px">🥑 ${g.amt}</span>`:'<span class="tagchip">💌 Wish</span>'}</div>
-  <div class="ptxt">${gTags(g).length?`<div style="margin-bottom:6px;display:flex;gap:5px;flex-wrap:wrap">${tagChips(g)}</div>`:''}<span data-trtext>${mtext(g.msg)}</span>${trLink('a',g.id,g.msg)}</div></article>`;
+const occPost=o=>`<article class="card post feedmini occ" data-occwish="${esc(o.n)}|${o.kind}|${esc(o.id||'')}"><div class="ph">${ini(o.n)}<div style="flex:1;min-width:0"><b>${o.emoji} It’s ${esc(first(o.n))}’s ${o.kind==='bday'?'birthday':o.kind==='anniv'?'anniversary':esc(o.title)} today!</b><small>Tap to send a wish · everyone gets a different line</small></div><span class="tagchip">🎉 Wish</span></div>${isOrg?`<div class="card-f" style="padding-top:0"><a class="btn sm wa" href="${waHref(occWA(o))}" target="_blank" rel="noopener" onclick="event.stopPropagation()">${ic('chat')}Send wishes on WhatsApp</a></div>`:''}</article>`;
+const avoPost=g=>{const cc=(CMT.list||[]).filter(c=>c.target==='avo:'+g.id).length,rp=(CLUB.list||[]).filter(y=>y.repost&&y.repost.id==='a:'+g.id).length,op=CLUBOPEN.has('a:'+g.id);
+  return`<article class="card post ig avop" id="avo-${esc(g.id)}"><div class="ph" data-prof="${esc(g.to)}" style="cursor:pointer"><span class="avs lg">${ini(g.from)}${ini(g.to)}</span><div style="flex:1;min-width:0"><b>${esc(first(g.from))} → ${esc(g.to)}</b><small>🥑 Avokudos</small></div>${g.amt?`<span class="avochip" style="font-size:13px">🥑 ${g.amt}</span>`:'<span class="tagchip">💌 Wish</span>'}</div>
+  <div class="ptxt avomsg">${gTags(g).length?`<div style="margin-bottom:8px;display:flex;gap:5px;flex-wrap:wrap">${tagChips(g)}</div>`:''}<span data-trtext>“${mtext(g.msg)}”</span>${trLink('a',g.id,g.msg)}</div>
+  ${igActions('a',g.id,g,cc,rp)}${likesLine(g)}
+  ${cc&&!op?`<button class="lnk igmore" data-acmts="${esc(g.id)}">View ${cc===1?'1 comment':'all '+cc+' comments'}</button>`:''}<div class="igtime">${igAgo(g.at)}</div>
+  ${op?`<div class="sub" style="border-top:1px solid var(--line2);padding-top:12px">${threadHTML('avo:'+g.id,'Add a comment…')}</div>`:''}</article>`};
 const chalPost=c=>{const W=(c.winner==='a'?c.a:c.b)||[];return`<article class="card post feedmini" data-chv="${esc(c.id)}"><div class="ph"><span class="avs lg">${(c.a||[]).concat(c.b||[]).slice(0,4).map(n=>ini(n)).join('')}</span><div style="flex:1;min-width:0"><b>⚔️ ${esc(chalTitle(c))}</b><small>${timeAgo(c.doneAt)} · ${(c.score||[]).map(g=>g.a+'–'+g.b).join(', ')}</small></div><span class="tagchip">🏆 ${esc(W.map(first).join(' & '))}</span></div>${c.prize==='free'?'<div class="ptxt">🏆 Winner plays free that day</div>':''}</article>`};
 const avoRow=(r,i)=>`<button class="prow" style="width:100%;text-align:left" data-prof="${esc(r.n)}"><span class="medwrap">${ini(r.n)}${i<3?`<i class="medal">${['🥇','🥈','🥉'][i]}</i>`:''}</span><span class="nm">${esc(r.n)}<small>${topTags(r).join(' · ')||plural(r.gifts,'gift')} · from ${r.from.size===1?'1 person':r.from.size+' people'}</small></span><span class="am">🥑 ${r.amt}</span></button>`;
 const avoQuote=g=>`<button class="prow quote" style="width:100%;text-align:left" data-prof="${esc(g.to)}">${ini(g.from)}<span class="nm"><b style="font-weight:700">${esc(first(g.from))} → ${esc(first(g.to))}</b> ${g.amt?`<span class="avochip">🥑 ${g.amt}</span>`:''}${tagChips(g)}<small style="color:var(--ink);font-size:13.5px">“${mtext(g.msg)}” · ${timeAgo(g.at)}</small></span></button>`;
@@ -1967,12 +2045,12 @@ const pushEmo=e=>{try{localStorage.setItem('ss-remo',JSON.stringify([e].concat(r
 let KB=null;
 function closeKB(){if(KB){KB.el.remove();KB=null}}
 /* o: {mode:'post', id} reacts / comments on a post · {mode:'input', input, target, thread} helps you write */
-function openKB(o){closeKB();const el=document.createElement('div');el.className='kbbg';el.innerHTML='<div class="kbp" role="dialog" aria-label="Emoji, GIFs and translate"></div>';document.body.appendChild(el);KB={el,o,tab:o.tab||'emo',cat:0,gt:'stk',q:''};
+function openKB(o){closeKB();if(o.mode==='post'&&String(o.id).startsWith('a:')){o.kind='a';o.id=o.id.slice(2)}const el=document.createElement('div');el.className='kbbg';el.innerHTML='<div class="kbp" role="dialog" aria-label="Emoji, GIFs and translate"></div>';document.body.appendChild(el);KB={el,o,tab:o.tab||'emo',cat:0,gt:'stk',q:''};
   el.onclick=e=>{if(e.target===el)closeKB()};drawKB()}
-async function kbSend(text){const o=KB.o,target=o.mode==='post'?'post:'+o.id:o.target;const ok=await addComment(target,text,o.mode==='input'&&o.thread?o.thread._parent||'':'');
-  if(ok){if(o.mode==='post'){CLUBOPEN.add(o.id)}closeKB();toast('Sent ✨');renderTab(false)}}
+async function kbSend(text){const o=KB.o,target=o.mode==='post'?(o.kind==='a'?'avo:':'post:')+o.id:o.target;const ok=await addComment(target,text,o.mode==='input'&&o.thread?o.thread._parent||'':'');
+  if(ok){if(o.mode==='post'){CLUBOPEN.add(o.kind==='a'?'a:'+o.id:o.id)}closeKB();toast('Sent ✨');renderTab(false)}}
 function drawKB(){if(!KB)return;const o=KB.o,p=KB.el.querySelector('.kbp'),L=myLang();
-  const srcText=o.mode==='post'?plainOf(trSource('p',o.id)):String(o.input&&o.input.value||'');
+  const srcText=o.mode==='post'?plainOf(trSource(o.kind||'p',o.id)):String(o.input&&o.input.value||'');
   const tabs=`<div class="kbtabs">${[['emo','😊 Emoji'],['gif','GIF'],['tr','🌐 Translate']].map(([k,l])=>`<button type="button" class="${KB.tab===k?'on':''}" data-kbt="${k}">${l}</button>`).join('')}<button type="button" class="iconbtn" data-kbx aria-label="Close" style="margin-left:auto">${ic('x')}</button></div>`;
   let body='';
   if(KB.tab==='emo'){const R=recentEmo(),cats=R.length?[['🕘','Recent',R.join(' ')]].concat(EMOJI_CATS):EMOJI_CATS;if(KB.cat>=cats.length)KB.cat=0;
@@ -1988,7 +2066,7 @@ function drawKB(){if(!KB)return;const o=KB.o,p=KB.el.querySelector('.kbp'),L=myL
   p.innerHTML=tabs+`<div class="kbbody">${body}</div>`;
   p.querySelector('[data-kbx]').onclick=closeKB;p.querySelectorAll('[data-kbt]').forEach(b=>b.onclick=()=>{KB.tab=b.dataset.kbt;drawKB()});
   p.querySelectorAll('[data-kbc]').forEach(b=>b.onclick=()=>{KB.cat=+b.dataset.kbc;drawKB()});
-  p.querySelectorAll('[data-kbe]').forEach(b=>b.onclick=()=>{const e=b.dataset.kbe;pushEmo(e);if(o.mode==='post'){const cur=myReact((CLUB.list||[]).find(x=>x.id===o.id)||{});setReact('p',o.id,e);closeKB();if(cur!==e)toast(e+' reacted')}
+  p.querySelectorAll('[data-kbe]').forEach(b=>b.onclick=()=>{const e=b.dataset.kbe;pushEmo(e);if(o.mode==='post'){const cur=myReact(((o.kind==='a'?AVO.list:CLUB.list)||[]).find(x=>x.id===o.id)||{});setReact(o.kind||'p',o.id,e);closeKB();if(cur!==e)toast(e+' reacted')}
     else{const i=o.input,s=i.selectionStart!=null?i.selectionStart:i.value.length,t=i.selectionEnd!=null?i.selectionEnd:s;i.value=(i.value.slice(0,s)+e+i.value.slice(t)).slice(0,+i.maxLength>0?+i.maxLength:2000);i.setSelectionRange&&i.setSelectionRange(s+e.length,s+e.length);i.dispatchEvent(new Event('input',{bubbles:true}))}});
   p.querySelectorAll('[data-kbg]').forEach(b=>b.onclick=()=>{KB.gt=b.dataset.kbg;drawKB()});
   p.querySelectorAll('[data-kbs]').forEach(b=>b.onclick=()=>kbSend('[stk]'+b.dataset.kbs));
@@ -2011,12 +2089,17 @@ const IGI={heart:'<svg viewBox="0 0 24 24" class="igi" aria-hidden="true"><path 
   repost:'<svg viewBox="0 0 24 24" class="igi" aria-hidden="true"><path d="M16.8 3.6 19.9 6.7l-3.1 3.1M19.6 6.7H9.2a4.3 4.3 0 0 0-4.3 4.3v1M7.2 20.4l-3.1-3.1 3.1-3.1M4.4 17.3h10.4a4.3 4.3 0 0 0 4.3-4.3v-1"/></svg>',
   send:'<svg viewBox="0 0 24 24" class="igi" aria-hidden="true"><path d="M21 3.2 10.3 13.6M21 3.2l-6.6 17.6-4.1-7.2-7.3-4.2Z"/></svg>',
   smile:'<svg viewBox="0 0 24 24" class="igi" aria-hidden="true"><path d="M20.2 10.6A8.6 8.6 0 1 1 13.4 3.5"/><path d="M8.4 14.2a4.4 4.4 0 0 0 7.2 0"/><circle cx="9" cy="9.8" r=".6" fill="currentColor"/><circle cx="15" cy="9.8" r=".6" fill="currentColor"/><path d="M18.6 2.6v5.2M16 5.2h5.2"/></svg>'};
-const myReact=o=>{const uid=auth&&auth.currentUser&&auth.currentUser.uid,v=uid&&o&&o.likes&&o.likes[uid];return v?(String(v).includes('|')?String(v).split('|')[0]:'🏸'):''};
-function likesLine(o){const R=reactsOf(o),all=Object.values(R).flat();if(!all.length)return'';const names=all.map(x=>first(x.n));const mine=myReact(o);
-  const lead=mine?'you':names[0],rest=all.length-1;const other=Object.entries(R).filter(([e])=>e!=='❤️').map(([e,l])=>e+l.length).join(' ');
-  return`<div class="iglikes">${R['❤️']?'❤️ ':''}Liked by <b>${esc(lead)}</b>${rest>0?` and <b>${rest===1?(mine?esc(names.find(n=>n!==first(myName()))||'1 other'):esc(names[1])):rest+' others'}</b>`:''}${other?` <span class="hint" style="margin:0">· ${other}</span>`:''}</div>`}
-const igBtn=(kind,id,o)=>{const m=myReact(o);return`<button class="igb like${m?' on':''}" data-heart="${kind}:${esc(id)}" aria-label="${m?'Unlike':'Like'}" aria-pressed="${!!m}">${m&&m!=='❤️'?`<span class="igemo">${m}</span>`:IGI.heart}</button>`};
-function heartMini(kind,c){const n=Object.keys(c.likes||{}).length,m=myReact(c);return`<button class="igmini${m?' on':''}" data-heart="${kind}:${esc(c.id)}" aria-label="Like">${m&&m!=='❤️'?m:IGI.heart}${n?`<span>${n}</span>`:''}</button>`}
+const myReact=o=>{if(!o||!o.likes)return'';const uid=auth&&auth.currentUser&&auth.currentUser.uid;let v=uid&&o.likes[uid];
+  if(!v){const me=myName();if(me){const k=nkey(me);v=Object.values(o.likes).find(x=>{const s2=String(x),i=s2.indexOf('|');return i>0&&nkey(s2.slice(i+1))===k})}}return v?(String(v).includes('|')?String(v).split('|')[0]:'🏸'):''};
+function likesLine(o){const R=reactsOf(o),all=Object.values(R).flat();if(!all.length)return'';const meK=nkey(myName()||''),mine=!!myReact(o);
+  const others=all.filter(x=>nkey(x.n)!==meK),lead=others[0]?first(others[0].n):'you',rest=all.length-1,dps=(others.length?others:all).slice(0,2).map(x=>x.n);if(mine&&dps.length<2&&others.length)dps.push(myName());
+  const emo=Object.entries(R).filter(([e])=>e!=='❤️').map(([e,l])=>e+(l.length>1?l.length:'')).join(' ');
+  return`<div class="iglikes"><span class="lvav">${dps.map(n=>av(n)).join('')}</span><span>Liked by <b>${esc(lead)}</b>${rest>0?` and <b>${rest===1&&others.length>1?esc(first(others[1].n)):rest===1&&mine&&others.length?'you':'others'}</b>`:''}${emo?` <span class="igemos">${emo}</span>`:''}</span></div>`}
+const igBtn=(kind,id,o)=>{const m=myReact(o),n=Object.keys(o&&o.likes||{}).length;return`<button class="igb like${m?' on':''}" data-heart="${kind}:${esc(id)}" aria-label="${m?'Unlike':'Like'}" aria-pressed="${!!m}">${IGI.heart}${n?`<small>${n}</small>`:''}</button>`};
+/* one Instagram action bar for posts ('p') and Avokudos ('a'): ♡ n · 💬 n · 🔁 n · ✈️ … ☺+ */
+const igAgo=at=>{const m=Math.round((Date.now()-(at||0))/60e3);return m<1?'Just now':m<60?m+(m===1?' minute':' minutes')+' ago':m<1440?Math.round(m/60)+(Math.round(m/60)===1?' hour':' hours')+' ago':timeAgo(at)};
+function igActions(k,id,o,cc,rp){return`<div class="igbar">${igBtn(k,id,o)}<button class="igb" data-${k==='a'?'acmts':'cmts'}="${esc(id)}" aria-label="Comment">${IGI.comment}${cc?`<small>${cc}</small>`:''}</button><button class="igb" data-repost="${k==='a'?'a:':''}${esc(id)}" aria-label="Reshare">${IGI.repost}${rp?`<small>${rp}</small>`:''}</button><button class="igb" data-${k==='a'?'ashare':'pshare'}="${esc(id)}" aria-label="Send">${IGI.send}</button><button class="igb igreact" data-preact="${k==='a'?'a:':''}${esc(id)}" aria-label="React, GIFs and translate">${IGI.smile}</button></div>`}
+function heartMini(kind,c){const n=Object.keys(c.likes||{}).length,m=myReact(c);return`<button class="igmini${m?' on':''}" data-heart="${kind}:${esc(c.id)}" aria-label="Like">${IGI.heart}${n?`<span>${n}</span>`:''}</button>`}
 /* tap = ❤️ on/off · hold = pick another reaction · double-tap a photo = ❤️ */
 (function(){let hold=null,held=false;
   document.addEventListener('pointerdown',e=>{const b=e.target.closest&&e.target.closest('[data-heart]');if(!b)return;held=false;clearTimeout(hold);hold=setTimeout(()=>{held=true;const[k,id]=b.dataset.heart.split(':');
@@ -2028,13 +2111,15 @@ function heartMini(kind,c){const n=Object.keys(c.likes||{}).length,m=myReact(c);
   let last={id:'',t:0};document.addEventListener('click',e=>{const im=e.target.closest&&e.target.closest('[data-dbl]');if(!im)return;const id=im.dataset.dbl,now=Date.now();
     if(last.id===id&&now-last.t<320){last={id:'',t:0};const x=(CLUB.list||[]).find(y=>y.id===id);if(x&&myReact(x)!=='❤️')setReact('p',id,'❤️');const h=document.createElement('i');h.className='bigheart';h.innerHTML=IGI.heart;im.appendChild(h);setTimeout(()=>h.remove(),900)}else last={id,t:now}})})();
 /* reshare a post to the Feed, with credit */
-function openRepost(id){const x=(CLUB.list||[]).find(y=>y.id===id);if(!x)return;const me=myName();if(!me){toast('Pick your name first (tap the person icon at the top).');return}if(perm('post')==='off')return toast('Posting is turned off by the admins.');
+function openRepost(id){const isA=String(id).startsWith('a:'),g0=isA?AVO.list.find(y=>y.id===id.slice(2)):null,x=isA?(g0?{id,name:g0.from,at:g0.at,text:'🥑 '+g0.from+' → '+g0.to+': “'+g0.msg+'”'}:null):(CLUB.list||[]).find(y=>y.id===id);if(!x)return;const me=myName();if(!me){toast('Pick your name first (tap the person icon at the top).');return}if(perm('post')==='off')return toast('Posting is turned off by the admins.');
   const bg=sheetOpen(`<div class="sheet-h"><span class="ini">${IGI.repost}</span><div><b>Reshare to the Feed</b><small>${esc(first(x.name))} gets the credit</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div>
     <div class="sub" style="padding-top:12px"><textarea class="txt" id="rptext" data-mention rows="2" maxlength="500" placeholder="Add a thought (optional)…"></textarea>${repostBox(x)}</div>
     <div class="card-f"><button class="btn primary block" id="rpsend">${IGI.repost} Reshare</button></div>`,'Reshare');
   $('#rpsend').onclick=async()=>{const t=norm($('#rptext').value);if(t&&!allOk(t))return;if(CLUB.list.some(y=>y.repost&&y.repost.id===id&&nkey(y.name)===nkey(me)&&Date.now()-(y.at||0)<60*60e3))return toast('✋ You already reshared this.');
     $('#rpsend').disabled=true;try{await ensureAnon();await col('posts').add({name:canon(me),uid:auth.currentUser.uid,text:t,at:Date.now(),kind:'note',likes:{},repost:{id,name:canon(x.name||''),at:x.at||0}});closeWho();toast('Reshared to the Feed 🔁')}catch(e){$('#rpsend').disabled=false;toast(e.code==='permission-denied'?'Ask the organizer to update the app rules.':'Couldn’t reshare ('+(e.code||'error')+').')}}}
-function repostBox(o){const x=o&&o.repost?((CLUB.list||[]).find(y=>y.id===o.repost.id)):o;if(!x)return`<div class="rpbox"><small class="hint" style="margin:0">The original post was removed.</small></div>`;
+function repostBox(o){if(o&&o.repost&&String(o.repost.id).startsWith('a:')){const g=AVO.list.find(y=>y.id===o.repost.id.slice(2));return g?`<div class="rpbox">${avoQuote(g)}</div>`:`<div class="rpbox"><small class="hint" style="margin:0">The original was removed.</small></div>`}
+  if(o&&o.id&&String(o.id).startsWith('a:')){const g=AVO.list.find(y=>y.id===o.id.slice(2));return g?`<div class="rpbox">${avoQuote(g)}</div>`:''}
+  const x=o&&o.repost?((CLUB.list||[]).find(y=>y.id===o.repost.id)):o;if(!x)return`<div class="rpbox"><small class="hint" style="margin:0">The original post was removed.</small></div>`;
   return`<div class="rpbox" data-goto="${esc(x.id)}"><div class="mix" style="gap:8px">${ini(x.name||'?','','sm')}<b>${esc(x.name||'')}</b><small class="hint" style="margin:0">${timeAgo(x.at)}</small></div>${x.img?`<img src="${x.img}" alt="" loading="lazy">`:''}${x.text?`<div class="ptxt" style="padding:6px 0 0">${mtext(String(x.text).slice(0,220))}</div>`:''}</div>`}
 document.addEventListener('click',e=>{const r=e.target.closest&&e.target.closest('[data-repost]');if(r){e.preventDefault();openRepost(r.dataset.repost);return}
   const g=e.target.closest&&e.target.closest('.post .rpbox[data-goto]');if(g){const el=document.getElementById('post-'+g.dataset.goto);if(el)el.scrollIntoView({behavior:'smooth',block:'start'})}});
@@ -2142,12 +2227,13 @@ async function applyAct(a,how){try{
   await col('actions').doc(a.id).update({status:how==='approve'?'approved':how==='decline'?'declined':how==='undo'?'undone':'kept'});renderHeader();renderTab(false);
   toast(how==='approve'?'Approved ✅':how==='decline'?'Declined':how==='undo'?'Change undone ↩️':'Kept 👍')}catch(e){toast('Couldn’t save ('+(e.code||'error')+').')}}
 const actOpen=()=>ACT.list.filter(a=>a.status==='pending'||a.status==='done');
+const occWA=o=>{const w=(WISHES[o.kind]||WISHES.custom)[hashS(o.n+todayStr())%((WISHES[o.kind]||WISHES.custom).length)].replace(/\{n\}/g,o.n).replace(/\{t\}/g,(o.title||'').toLowerCase());return o.emoji+' *'+(o.kind==='bday'?'Happy Birthday':o.kind==='anniv'?'Happy Anniversary':o.title)+', '+o.n+'!* '+o.emoji+'\n\n'+w+'\n\nWith love from all of us at '+(S.groupName||'Badminton Family')+' 💚🏸\nSend your wishes in the app 👉 '+location.href.split('#')[0]};
 function openActions(){const L=actOpen(),H=ACT.list.filter(a=>a.status!=='pending'&&a.status!=='done').slice(0,15);
   const row=(a,btns)=>`<div class="sub" style="border-top:1px solid var(--line2);padding:12px 16px"><div class="mix" style="gap:10px">${ini(a.name)}<div style="flex:1;min-width:0"><b>${esc(first(a.name))} ${a.kind==='poll'?'suggests':a.status==='pending'?'asks to change':'changed'} ${ACTK[a.kind]}</b><small class="hint" style="display:block;margin:2px 0 0">${a.kind==='photo'?'':esc(actLabel(a))}${a.prev&&a.kind!=='poll'&&a.kind!=='photo'?' · was '+esc(a.kind==='theme'&&SKINS[a.prev]?SKINS[a.prev].name:a.prev):''} · ${timeAgo(a.at)}</small></div></div>
     ${a.kind==='photo'?`<img src="${a.value}" alt="" style="width:100%;max-height:180px;object-fit:cover;border-radius:12px;margin-top:10px">`:''}<div class="grid2" style="margin-top:10px">${btns}</div></div>`;
-  const bg=sheetOpen(`<div class="sheet-h"><span class="ini">${ic('lock')}</span><div><b>Player changes</b><small>${L.length?plural(L.length,'item')+' to review':'Nothing to review'}</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div>
+  const PN=L.filter(a=>a.status==='pending').length;const bg=sheetOpen(`<div class="sheet-h"><span class="ini">${ic('lock')}</span><div><b>Player changes</b><small>${PN?plural(PN,'request')+' to approve':'Nothing to approve'} · allowed changes can be undone</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div>
     ${L.map(a=>row(a,a.status==='pending'?`<button class="btn sm primary" data-acth="approve:${esc(a.id)}">${ic('check')}${a.kind==='poll'?'Create poll':'Approve'}</button><button class="btn sm line" data-acth="decline:${esc(a.id)}">Decline</button>`
-      :`<button class="btn sm line" data-acth="keep:${esc(a.id)}">${ic('check')}Keep</button><button class="btn sm line" data-acth="undo:${esc(a.id)}"${a.kind==='photo'?' disabled':''}>↩️ Undo</button>`)).join('')||`<div class="empty">${ic('check')}All reviewed.</div>`}
+      :`<button class="btn sm line" data-acth="keep:${esc(a.id)}">${ic('check')}Fine, hide</button><button class="btn sm line" data-acth="undo:${esc(a.id)}"${a.kind==='photo'?' disabled':''}>↩️ Undo</button>`)).join('')||`<div class="empty">${ic('check')}Nothing new.</div>`}
     ${H.length?`<details class="sub"><summary class="sublbl" style="cursor:pointer">History · ${H.length}</summary>${H.map(a=>`<div class="mix" style="justify-content:space-between;padding:5px 0"><small>${esc(first(a.name))} · ${esc(ACTK[a.kind])}${a.kind==='photo'?'':' → '+esc(actLabel(a))}</small><small class="hint" style="margin:0">${esc(a.status)} · ${timeAgo(a.at)}</small></div>`).join('')}</details>`:''}
     <div class="card-f"><button class="lnk" data-gop>Player permissions ›</button></div>`,'Player changes');
   bg.querySelectorAll('[data-acth]').forEach(b=>b.onclick=async()=>{const[h,id]=b.dataset.acth.split(':');const a=ACT.list.find(x=>x.id===id);if(!a)return;b.disabled=true;await applyAct(a,h);if(h!=='approve'||a.kind!=='poll')setTimeout(openActions,300)});
@@ -2276,8 +2362,9 @@ function bindProfTop(root){root.querySelectorAll('.rkpill[data-avoboard]').forEa
 function contactsHTML(){startPrivate();const rows=activeRoster().concat(allNames().filter(n=>!activeRoster().some(a=>nkey(a)===nkey(n))&&(PROF.priv[nkey(n)]||profOf(n))));
   const filled=rows.filter(n=>{const v=PROF.priv[nkey(n)];return v&&v.phone}).length;
   return`${cardH('users','Player contacts',filled+' / '+rows.length+' with a number')}
-    ${rows.map(n=>{const v=PROF.priv[nkey(n)]||{},p=profOf(n)||{};return`<div class="prow">${ini(n)}<span class="nm">${esc(n)}${p.username?` <small style="display:inline">@${esc(p.username)}</small>`:''}<small>${v.phone?'📞 '+esc(v.phone):'No number yet'}${v.blood?' · 🩸 '+esc(v.blood):''}${v.email?' · '+esc(v.email):''}${v.dob?' · 🎂 '+esc(dlabel(v.dob,{day:'numeric',month:'short'})):''}</small></span>
-      <span class="acts">${v.phone?`<a class="iconbtn" href="tel:${esc(v.phone.replace(/[^\d+]/g,''))}" aria-label="Call ${esc(n)}" title="Call">📞</a><a class="wachip" target="_blank" rel="noopener" href="https://wa.me/${waNum(v.phone)}" aria-label="WhatsApp ${esc(n)}">${ic('chat')}WhatsApp</a>`:''}<button class="iconbtn" data-editprof="${esc(n)}" aria-label="Edit ${esc(n)}" title="Edit details">✏️</button>${p.uid?`<button class="iconbtn" data-preset="${esc(n)}" aria-label="Unlink phone for ${esc(n)}" title="Let ${esc(first(n))} edit from a new phone">${ic('lock')}</button>`:''}</span></div>`}).join('')}
+    <div class="ctgrid">${rows.map(n=>{const v=PROF.priv[nkey(n)]||{},p=profOf(n)||{},bd=v.dob||(p.bday?'2000-'+p.bday:'');return`<div class="ctc">${ini(n)}<div class="ctm"><b>${esc(n)}</b>
+      <div class="ctf">${v.phone?`<span>📞 ${esc(v.phone)}</span>`:'<span class="dim">📞 —</span>'}${bd?`<span>🎂 ${esc(dlabel(bd,{day:'numeric',month:'short'}))}</span>`:''}${v.blood?`<span>🩸 ${esc(v.blood)}</span>`:''}</div></div>
+      <div class="cta">${v.phone?`<a class="iconbtn" href="tel:${esc(v.phone.replace(/[^\d+]/g,''))}" aria-label="Call ${esc(n)}">📞</a><a class="iconbtn wa" target="_blank" rel="noopener" href="https://wa.me/${waNum(v.phone)}" aria-label="WhatsApp ${esc(n)}">${ic('chat')}</a>`:''}<button class="iconbtn" data-editprof="${esc(n)}" aria-label="Edit ${esc(n)}">✏️</button>${p.uid?`<button class="iconbtn" data-preset="${esc(n)}" aria-label="Unlink phone for ${esc(n)}">${ic('lock')}</button>`:''}</div></div>`}).join('')}</div>
     <div class="card-f"><button class="btn sm line" data-act="contactsxl">${ic('share')}Export to Excel</button><p class="hint" style="margin:0 0 0 auto;text-align:right">Players fill these in, or tap ✏️ to add what you know. 🔒 = let them edit from a new phone.</p></div>`}
 async function exportContacts(){const head=[['Name','Full name','Username','Contact number','Email','Date of birth','Blood group','Place','Interests']];
   allNames().forEach(n=>{const v=PROF.priv[nkey(n)]||{},p=profOf(n)||{};if(!v.phone&&!v.email&&!p.username&&!p.place)return;head.push([n,p.fullName||'',p.username?'@'+p.username:'',v.phone||'',v.email||'',v.dob?{d:v.dob}:'',v.blood||'',p.place||'',(p.interests||[]).join(', ')])});
@@ -2301,7 +2388,7 @@ function threadHTML(target,ph,o){o=o||{};return`<div class="thread${o.chat?' cha
     ${perm(isChatT(target)?'chat':'kudos')==='off'?`<p class="hint" style="margin:0">🔒 ${isChatT(target)?'Chat':'Comments'} turned off by the admins.</p></div>`:`<div class="inline"><button type="button" class="kbbtn" data-kb aria-label="Emoji, GIFs and translate">${IGI.smile}</button><input class="txt" data-cin placeholder="${esc(ph||'Write a comment… type @ to mention')}" maxlength="500" autocomplete="off"><button class="btn sm primary" data-csend style="height:44px">Send</button></div>
     <small class="hint" data-replying hidden></small></div>`}`}
 async function setReact(kind,id,emo){const me=allNames().find(n=>nkey(n)===nkey(getMe()));if(!me)return toast('Pick your name first (tap the person icon at the top).');
-  try{await ensureAnon();const uid=auth.currentUser.uid,F=firebase.firestore,c=kind==='c'?'comments':kind==='h'?'chat':kind==='s'?'stories':'posts',o=(kind==='c'?CMT.list:kind==='h'?CHAT.list:kind==='s'?STORY.list:CLUB.list).find(x=>x.id===id)||{},v0=o.likes&&o.likes[uid]?String(o.likes[uid]):'',cur=v0?(v0.includes('|')?v0.split('|')[0]:'🏸'):'';
+  try{await ensureAnon();const uid=auth.currentUser.uid,F=firebase.firestore,c=kind==='c'?'comments':kind==='h'?'chat':kind==='s'?'stories':kind==='a'?'avo':'posts',o=(kind==='c'?CMT.list:kind==='h'?CHAT.list:kind==='s'?STORY.list:kind==='a'?AVO.list:CLUB.list).find(x=>x.id===id)||{},v0=o.likes&&o.likes[uid]?String(o.likes[uid]):'',cur=v0?(v0.includes('|')?v0.split('|')[0]:'🏸'):'';
     await col(c).doc(id).update(new F.FieldPath('likes',uid),cur===emo?F.FieldValue.delete():emo+'|'+canon(me))}catch(e){toast(e.code==='permission-denied'?'Ask the organizer to update the app rules.':'Couldn’t save ('+(e.code||'error')+').')}}
 function bindReacts(root){
   root.querySelectorAll('[data-react]').forEach(b=>b.onclick=e=>{e.stopPropagation();const[k,id,em]=b.dataset.react.split(':');setReact(k,id,em)});
@@ -2381,7 +2468,7 @@ function refreshThreads(chatOnly){document.querySelectorAll('.thread').forEach(t
 const CUPOPEN=new Set(['stars']);let CUPINIT=false,CUPSTAR='xp';
 /* most games played since a date (all time when empty), for the Star players board */
 function attendTop(from){const m={};Object.keys(S.days).filter(k=>!from||k>=from).forEach(k=>uniq(S.days[k].present||[]).forEach(p=>{const c=canon(p);if(isActiveP(c))m[c]=(m[c]||0)+1}));return Object.entries(m).sort((a,b)=>b[1]-a[1]).slice(0,10)}
-const cupDet=(key,summary,body)=>`<details class="card" data-open="${key}"${CUPOPEN.has(key)?' open':''}><summary class="dsum">${summary}<span class="chev">${ic('right')}</span></summary>${body}</details>`;
+const cupDet=(key,summary,body)=>`<details class="card" data-open="${key}"${/^t:/.test(key)?'':` data-card="${key}"`}${CUPOPEN.has(key)?' open':''}><summary class="dsum">${summary}<span class="chev">${ic('right')}</span></summary>${body}</details>`;
 function renderCup(){
   const v=$('#view-cup');if(!db){v.innerHTML=intro('Cup','Tournaments, stars and achievements.')+`<section class="card"><div class="empty">${ic('trophy')}Tournaments need the shared database.</div></section>`;return}
   startCup();startComments();if(CUP.sel){CUPOPEN.add('t:'+CUP.sel);CUPOPEN.add('m:'+CUP.sel);CUP.sel=null}
@@ -2391,23 +2478,26 @@ function renderCup(){
   if(!CUPINIT&&CUP.list.length){CUPINIT=true;CUP.list.filter(t=>!cupChampion(t)).forEach(t=>{CUPOPEN.add('t:'+t.id);CUPOPEN.add('m:'+t.id)})}
   const prow=(x,i,extra)=>`<button class="prow" style="width:100%;text-align:left" data-prof="${esc(x.n)}"><span class="medwrap">${ini(x.n)}${i<3?`<i class="medal">${['🥇','🥈','🥉'][i]}</i>`:''}</span><span class="nm">${esc(x.n)}<small>${esc(x.level)} · ${x.w}W ${x.l}L${x.titles?' · 🏆'+x.titles:''} ${x.badges.map(b=>BADGES.find(y=>y[0]===b)[1]).join('')}</small></span><span class="am">${extra||x.xp+' XP'}</span></button>`;
   v.innerHTML=`${intro('Cup','Tournaments, star players, achievements and the road to the next level.')}
-    <div class="mix" style="flex-wrap:wrap;gap:8px">${me?(me.m||me.xp?`<button class="pchip" data-myplayer>🏸 ${esc(me.level)} · ${me.xp} XP · ${plural(me.badges.length,'badge')}${me.ready?' · 🚀 ready to level up':''} <span>›</span></button>`
+    <div class="pushrow" data-card="buttons"><button type="button" class="push" data-levels><span>🏸</span><b>Player levels</b><small>Bands & how to level up</small></button><button type="button" class="push" data-avoboard><span>🏅</span><b>Full leaderboard</b><small>Games, W/L, win %, 🥑</small></button><button type="button" class="push hot" data-chal=""><span>⚔️</span><b>Challenge</b><small>Call out a rival</small></button></div>
+    <div class="mix" data-card="me" style="flex-wrap:wrap;gap:8px">${me?(me.m||me.xp?`<button class="pchip" data-myplayer>🏸 ${esc(me.level)} · ${me.xp} XP · ${plural(me.badges.length,'badge')}${me.ready?' · 🚀 ready to level up':''} <span>›</span></button>`
       :`<button class="pchip dim" data-myplayer>New here? <b>Play a match to start earning XP</b> <span>›</span></button>`)
       :`<button class="pchip dim" data-pickme>Pick your name to track your progress <span>›</span></button>`}</div>
     ${canEdit()?`<button class="btn primary block" id="cupnew">${ic('plus')}New tournament</button>`:''}
+    <button class="btn line block" data-cupxl>📥 Export all match records to Excel</button>
     ${CUP.list.map(T=>cupDet('t:'+T.id,`<span class="dt"><b>${cupChampion(T)?'🏆 ':'🔴 '}${esc(T.name)}</b><small>${T.type==='doubles'?'Doubles':'Singles'} · ${fmtName(T.format)}${cupChampion(T)?' · 👑 '+esc(cupChampion(T)):' · '+(T.matches||[]).filter(m=>m.w&&!m.bye).length+'/'+(T.matches||[]).filter(m=>!m.bye).length+' played'}</small></span>`,cupBody(T))).join('')||`<section class="card"><div class="empty">${ic('trophy')}No tournaments yet.${canEdit()?' Start one above!':''}</div></section>`}
     ${cupDet('chal',`<span class="dt"><b>⚔️ Challenges</b><small>${(()=>{const me=myName(),n=CHAL.list.filter(c=>c.status==='open'&&inSide(c,'b',me)).length;return n?plural(n,'challenge')+' waiting for your reply':'Call out a rival · accept and play'})()}</small></span>`,chalHTML())}
     ${cupDet('stars',`<span class="dt"><b>⭐ Star players</b><small>${CUPSTAR==='xp'?'Ranked by XP from matches, wins, titles, attendance and kudos':CUPSTAR==='m30'?'Most games in the last 30 days':'Most games, all time'}</small></span>`,
       `<div class="seg" style="margin:4px 12px 8px">${[['xp','XP'],['m30','Games · 30d'],['all','All-time']].map(([k,l])=>`<button type="button" class="${CUPSTAR===k?'on':''}" data-cstar="${k}">${l}</button>`).join('')}</div>`+
       (CUPSTAR==='xp'?stars.map((x,i)=>prow(x,i)).join('')||`<div class="empty">Play a tournament to light up the board.</div>`
         :attendTop(CUPSTAR==='m30'?shift(todayStr(),-30):'').map(([n,c],i)=>{const x=ST[nkey(n)];return x?prow(x,i,plural(c,'game')):`<div class="prow"><span class="medwrap">${ini(n)}${i<3?`<i class="medal">${['🥇','🥈','🥉'][i]}</i>`:''}</span><span class="nm">${esc(n)}</span><span class="am">${plural(c,'game')}</span></div>`}).join('')||`<div class="empty">No games in this period.</div>`))}
-    <button class="btn line block" data-avoboard>🏅 Full leaderboard: games, W/L, win %, 🥑 and more</button>
     ${cupDet('ready',`<span class="dt"><b>🚀 Ready for the next level</b><small>${ready.length?plural(ready.length,'player')+' meet the bar':'Nobody yet. Keep playing!'}</small></span>`,ready.map(x=>prow(x,9,'→ '+x.next.to)).join('')+`<div class="card-f"><p class="hint">Beginner → Intermediate: 80 XP, 6 matches, 45% wins · Intermediate → Advanced: 180 XP, 10 matches, 55% · Advanced → Pro: 350 XP, 15 matches, 65% and a title. Organizers make the final call.</p></div>`)}
     ${cupDet('all',`<span class="dt"><b>👥 Player cards</b><small>Stats, badges and kudos for everyone</small></span>`,all.slice().sort((a,b)=>a.n.localeCompare(b.n)).map(x=>prow(x,9)).join(''))}
     ${done.length?cupDet('hof',`<span class="dt"><b>👑 Hall of fame</b><small>${plural(done.length,'champion')}</small></span>`,done.map(t=>`<div class="prow"><span class="medwrap"><span class="avs lg">${String(cupChampion(t)).split(/\s*&\s*/).slice(0,2).map(n=>ini(n)).join('')}</span><i class="medal">👑</i></span><span class="nm">${esc(cupChampion(t))}<small>${esc(t.name)} · ${esc(dlabel(ymd(new Date(t.createdAt)),{day:'numeric',month:'short'}))}</small></span></div>`).join('')):''}`;
+  v.insertAdjacentHTML('beforeend',arrangeLink('cup'));
   v.querySelectorAll('[data-cstar]').forEach(b=>b.onclick=e=>{e.preventDefault();CUPSTAR=b.dataset.cstar;renderCup()});
   v.querySelectorAll('details[data-open]').forEach(d=>d.addEventListener('toggle',()=>{d.open?CUPOPEN.add(d.dataset.open):CUPOPEN.delete(d.dataset.open)}));
   const nb=$('#cupnew');if(nb)nb.onclick=openNewCup;
+  v.querySelectorAll('[data-levels]').forEach(b=>b.onclick=openLevels);v.querySelectorAll('[data-cupxl]').forEach(b=>b.onclick=exportMatches);
   v.querySelectorAll('[data-myplayer]').forEach(b=>b.onclick=()=>openProfile(getMe()));
   v.querySelectorAll('[data-pickme]').forEach(b=>b.onclick=()=>{ME.who='';go('me')});
   v.querySelectorAll('[data-prof]').forEach(b=>b.onclick=e=>{e.preventDefault();e.stopPropagation();openProfile(b.dataset.prof)});
@@ -2502,17 +2592,18 @@ function boardHours(date){if(typeof S==='undefined'||!S.board)return 0;const d=b
 function boardCurrent(){const t=todayStr();return boardDays().filter(d=>d.date>=shift(t,-1))}
 function boardCard(){const days=boardCurrent(),B=S.board||{};
   if(!days.length)return canEdit()&&db?`<section class="card">${cardH('cal','Court bookings','Not set')}<div class="card-f"><p class="hint">Show everyone which courts are booked this week.</p><button class="btn sm primary" data-board style="margin-left:auto">${ic('plus')}Add</button></div></section>`:'';
-  return`<section class="card">${cardH('cal','Court bookings',esc(B.venue||'This week'))}
+  return`<section class="card courts">${'<div class="venue"><span class="vico">🏟️</span><div><small>Court bookings</small><b>'+esc(B.venue||'Our courts')+'</b></div><span class="vhrs">'+fmtH(days.reduce((a,d)=>a+boardHours(d.date),0))+' h</span></div>'}
     ${days.map(d=>`<div class="row" style="flex-direction:column;align-items:stretch;gap:6px"><div style="display:flex;justify-content:space-between"><b>${esc(dlabel(d.date,{weekday:'long',day:'numeric',month:'short'}))}</b><small class="hint" style="margin:0">${fmtH(boardHours(d.date))} court-hours</small></div>
       ${(d.slots||[]).map(x=>`<div class="mix" style="justify-content:space-between"><span>${esc(x.t)}</span><span class="badge solid">${plural(+x.c||0,'court')}</span></div>`).join('')}</div>`).join('')}
     ${B.note?`<div class="sub"><p class="hint" style="margin:0">📌 ${esc(B.note)}</p></div>`:''}
     ${canEdit()?`<div class="card-f"><span class="hint">Only organizers can change this</span><button class="btn sm line" data-board style="margin-left:auto">${ic('gear')}Edit</button></div>`:''}</section>`}
 function bindBoard(v){v.querySelectorAll('[data-board]').forEach(b=>b.onclick=openBoard)}
-function openBoard(){if(!canEdit())return;
-  const B=JSON.parse(JSON.stringify(S.board||{})),[sa,su]=nextWeekend(0);let days=boardCurrent().length?JSON.parse(JSON.stringify(boardCurrent())):[{date:sa,slots:[{t:'5-6 PM',c:1},{t:'6-7 PM',c:2}]},{date:su,slots:[{t:'9-10 AM',c:1},{t:'10-11 AM',c:2}]}];
+function openBoard(onDate,onNote){if(!canEdit())return;
+  const B=JSON.parse(JSON.stringify(S.board||{})),[sa,su]=nextWeekend(0);let days=boardCurrent().length?JSON.parse(JSON.stringify(boardCurrent())):onDate?[]:[{date:sa,slots:[{t:'5-6 PM',c:1},{t:'6-7 PM',c:2}]},{date:su,slots:[{t:'9-10 AM',c:1},{t:'10-11 AM',c:2}]}];
+  if(typeof onDate==='string'&&onDate&&!days.some(d=>d.date===onDate)){days.push({date:onDate,slots:[{t:onNote||'',c:1}]});days.sort((a,b)=>a.date.localeCompare(b.date))}
   let venue=B.venue||'',note=B.note||'';
-  const draw=()=>{const bg=sheetOpen(`<div class="sheet-h"><span class="ini">${ic('cal')}</span><div><b>Court bookings</b><small>Shown to everyone on Today and Polls</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div>
-    <div class="sub" style="padding-top:12px"><span class="sublbl">Venue (optional)</span><input class="txt" id="bvenue" value="${esc(venue)}" placeholder="e.g. Smash Arena, Court 3-4"></div>
+  const draw=()=>{const bg=sheetOpen(`<div class="sheet-h"><span class="ini">${ic('cal')}</span><div><b>Court bookings</b><small>Shown to everyone on Home and Polls</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div>
+    <div class="sub" style="padding-top:12px"><span class="sublbl">Venue (optional)</span><input class="txt" id="bvenue" value="${esc(venue)}" placeholder="e.g. GG Sports Arena, Courts 3-4"></div>
     ${days.map((d,i)=>`<div class="sub" style="border-top:1px solid var(--line2);padding-top:12px"><div class="inline"><input class="txt" type="date" data-bd="${i}" value="${d.date}"><button type="button" class="iconbtn" data-bdrm="${i}" aria-label="Remove day">${ic('trash')}</button></div>
       ${(d.slots||[]).map((x,j)=>`<div class="inline" style="margin-top:6px"><input class="txt" data-bt="${i}:${j}" value="${esc(x.t)}" placeholder="5-6 PM"><div class="stp"><button type="button" data-bc="${i}:${j}:-1" aria-label="Fewer courts">${ic('minus')}</button><output>${+x.c||0}</output><button type="button" data-bc="${i}:${j}:1" aria-label="More courts">${ic('plus')}</button></div><button type="button" class="iconbtn" data-bsrm="${i}:${j}" aria-label="Remove slot">${ic('x')}</button></div>`).join('')}
       <div class="mix" style="justify-content:space-between;margin-top:6px"><button type="button" class="lnk" data-bsadd="${i}">${ic('plus')} Add time slot</button><small class="hint" style="margin:0">${fmtH(r2((d.slots||[]).reduce((a,x)=>a+slotHours(x.t)*(+x.c||0),0)))} court-hours</small></div></div>`).join('')}
@@ -2562,24 +2653,26 @@ function renderClub(){
   const posts=CLUB.list,tips=posts.filter(x=>x.kind==='tip');
   const postHTML=x=>{const own=uid&&x.uid===uid,cc=(CMT.list||[]).filter(c=>c.target==='post:'+x.id).length,rp=CLUB.list.filter(y=>y.repost&&y.repost.id===x.id).length;
     const tag=x.kind==='announce'?`<span class="tagchip ann">📣 Announcement</span>`:x.tag?`<span class="tagchip">${esc(x.tag)}</span>`:x.kind==='photo'?'<span class="tagchip">📸 Memory</span>':x.kind==='idea'?'<span class="tagchip">💡 Idea</span>':x.kind==='update'?'<span class="tagchip">✅ Update</span>':x.repost?'<span class="tagchip">🔁 Reshared</span>':'';
-    return`<article class="card post ig${x.kind==='announce'?' annc':''}" id="post-${esc(x.id)}"><div class="ph">${ini(x.name||'?','',storyRing(x.name||'').trim())}<div style="flex:1;min-width:0"><b>${esc(x.name||'Someone')}</b><small>${timeAgo(x.at)}${x.day?' · game on '+esc(dlabel(x.day,{weekday:'short',day:'numeric',month:'short'})):''}${statusOf(x.name)?' · '+statusLine(x.name):''}</small></div>${tag}${own||isOrg?`<button class="iconbtn" data-pdelpost="${esc(x.id)}" aria-label="Delete">${ic('trash')}</button>`:''}</div>
+    return`<article class="card post ig${x.kind==='announce'?' annc':''}" id="post-${esc(x.id)}"><div class="ph">${ini(x.name||'?','',storyRing(x.name||'').trim())}<div style="flex:1;min-width:0"><b>${esc(x.name||'Someone')}</b><small>${x.day?'Game on '+esc(dlabel(x.day,{weekday:'short',day:'numeric',month:'short'})):''}${x.day&&statusOf(x.name)?' · ':''}${statusOf(x.name)?statusLine(x.name):''}</small></div>${tag}${own||isOrg?`<button class="iconbtn" data-pdelpost="${esc(x.id)}" aria-label="Delete">${ic('trash')}</button>`:''}</div>
       ${x.img?`<div class="pimgw" data-dbl="${esc(x.id)}"><img class="pimg" src="${x.img}" alt="Photo by ${esc(x.name||'')}" loading="lazy"></div>`:''}
       ${!x.img&&x.text?`<div class="ptxt">${mtext(x.text)}${trLink('p',x.id,x.text)}</div>`:''}${x.repost?`<div style="padding:0 14px 6px">${repostBox(x)}</div>`:''}
-      <div class="igbar">${igBtn('p',x.id,x)}<button class="igb" data-cmts="${esc(x.id)}" aria-label="Comment">${IGI.comment}</button><button class="igb" data-repost="${esc(x.id)}" aria-label="Reshare">${IGI.repost}${rp?`<small>${rp}</small>`:''}</button><button class="igb" data-pshare="${esc(x.id)}" aria-label="Send">${IGI.send}</button><button class="igb igreact" data-preact="${esc(x.id)}" aria-label="React, GIFs and translate">${IGI.smile}</button></div>
+      ${igActions('p',x.id,x,cc,rp)}
       ${likesLine(x)}${x.img&&x.text?`<div class="igcap"><b>${esc(first(x.name||''))}</b> ${mtext(x.text)}${trLink('p',x.id,x.text)}</div>`:''}
-      ${cc&&!CLUBOPEN.has(x.id)?`<button class="lnk igmore" data-cmts="${esc(x.id)}">View ${cc===1?'1 comment':'all '+cc+' comments'}</button>`:''}
+      ${cc&&!CLUBOPEN.has(x.id)?`<button class="lnk igmore" data-cmts="${esc(x.id)}">View ${cc===1?'1 comment':'all '+cc+' comments'}</button>`:''}<div class="igtime">${igAgo(x.at)}</div>
       ${CLUBOPEN.has(x.id)?`<div class="sub" style="border-top:1px solid var(--line2);padding-top:12px">${threadHTML('post:'+x.id,'Add a comment…')}</div>`:''}</article>`};
   const pins=posts.filter(x=>x.kind==='announce'&&(x.pin||0)>Date.now());
   v.innerHTML=`${intro('Club','Photos from our games, tips to play better and kudos for each other. Everyone can post.')}
   ${subnav('club',[['feed','Feed'],['tips','Tips']])}
   <div data-in="feed">
-    ${storiesStrip()}
-    <section class="card"><div class="pad" style="display:grid;gap:8px">${me?'':`<p class="hint" style="margin:0">Pick your name in Payouts → My wallet to post.</p>`}
-      ${perm('post')==='off'?`<p class="hint" style="margin:0">🔒 Posting is turned off by the admins.</p>`:`<div class="grid2"><button class="btn primary" data-compose="photo">${ic('camera')}Photo memory</button><button class="btn line" data-compose="tip">💡 Share a tip</button></div>${isOrg?`<button class="btn line block" data-announce>📣 Announcement</button>`:''}
+    <div data-card="stories">${storiesStrip()}</div>
+    <section class="card" data-card="compose"><div class="pad" style="display:grid;gap:8px">${me?'':`<p class="hint" style="margin:0">Pick your name in Payouts → My wallet to post.</p>`}
+      ${perm('post')==='off'?`<p class="hint" style="margin:0">🔒 Posting is turned off by the admins.</p>`:`<div class="grid2"><button class="btn primary" data-compose="photo">${ic('camera')}Photo memory</button><button class="btn line" data-compose="tip">💡 Share a tip</button></div>
+      <div class="${isOrg&&perm('kudos')!=='off'&&me?'grid2':''}">${isOrg?`<button class="btn line block" data-announce>📣 Announcement</button>`:''}${me&&perm('kudos')!=='off'?`<button class="btn line block avogive" data-avo>🥑 Give Avokudos <small>· ${avoBalance(me)} left</small></button>`:''}</div>
       `}${perm('post')==='off'||!me?'':`<div class="inline"><input class="txt" id="qnote" data-mention maxlength="500" placeholder="Say something to the group… type @ to mention" autocomplete="off"><button class="btn sm primary" id="qpost" style="height:44px">Post</button></div>`}</div></section>
-    ${avoCard()}
-    ${pins.map(postHTML).join('')}${feedItems(posts.filter(x=>!pins.includes(x))).map(it=>it.t==='p'?postHTML(it.x):it.t==='a'?avoPost(it.x):it.t==='t'?cupPost(it.x,it.nb):it.t==='m'?monthPost(it.x):it.t==='o'?occPost(it.x):chalPost(it.x)).join('')||`<section class="card"><div class="empty">${ic('camera')}No posts yet. Share a photo from the last game and make it a memory card!</div></section>`}
-    ${posts.length>=CLUB.limit?`<button class="btn line block" data-more>Show older posts</button>`:''}
+    <div data-card="avo" class="cardgrp">${avoCard()}</div>
+    <div data-card="feed" class="cardgrp">${pins.map(postHTML).join('')}${feedItems(posts.filter(x=>!pins.includes(x))).map(it=>it.t==='p'?postHTML(it.x):it.t==='a'?avoPost(it.x):it.t==='t'?cupPost(it.x,it.nb):it.t==='m'?monthPost(it.x):it.t==='o'?occPost(it.x):chalPost(it.x)).join('')||`<section class="card"><div class="empty">${ic('camera')}No posts yet. Share a photo from the last game and make it a memory card!</div></section>`}
+    ${posts.length>=CLUB.limit?`<button class="btn line block" data-more>Show older posts</button>`:''}</div>
+    ${arrangeLink('club')}
   </div>
   <div data-in="tips">
     <section class="card tipday"><div class="pad"><small>💡 TIP OF THE DAY · ${esc(tt.toUpperCase())}</small><br><b>${esc(tx)}</b></div></section>
@@ -2602,6 +2695,9 @@ function renderClub(){
     qp.onclick=go2;qi.onkeydown=e=>{if(e.key==='Enter'&&!MPOP){e.preventDefault();go2()}}}}
   v.querySelectorAll('[data-kprof]').forEach(b=>b.onclick=()=>openProfile(b.dataset.kprof,'kudos'));
   bindThread(v);v.querySelectorAll('[data-cmts]').forEach(b=>b.onclick=()=>{const id=b.dataset.cmts;CLUBOPEN.has(id)?CLUBOPEN.delete(id):CLUBOPEN.add(id);renderClub()});
+  v.querySelectorAll('[data-acmts]').forEach(b=>b.onclick=()=>{const id='a:'+b.dataset.acmts;CLUBOPEN.has(id)?CLUBOPEN.delete(id):CLUBOPEN.add(id);renderClub()});
+  v.querySelectorAll('[data-ashare]').forEach(b=>b.onclick=()=>{const g=AVO.list.find(y=>y.id===b.dataset.ashare);if(!g)return;const t='🥑 '+g.from+' → '+g.to+(g.amt?' ('+g.amt+' Avokudos)':'')+(gTags(g).length?' for '+gTags(g).join(', '):'')+'\n“'+g.msg+'”\n\n'+location.href.split('#')[0];
+    if(navigator.share)navigator.share({text:t}).catch(()=>{});else window.open(waHref(t),'_blank')});
   v.querySelectorAll('[data-pdelpost]').forEach(b=>b.onclick=async()=>{if(b.dataset.c!=='1'){b.dataset.c='1';b.style.color='var(--danger)';toast('Tap again to delete this post.');return}try{await col('posts').doc(b.dataset.pdelpost).delete();toast('Post deleted.')}catch(e){toast('Couldn’t delete ('+e.code+').')}});
   v.querySelectorAll('[data-pshare]').forEach(b=>b.onclick=()=>{const x=CLUB.list.find(y=>y.id===b.dataset.pshare);if(x)sharePostCard(x)});
   const mo=v.querySelector('[data-more]');if(mo)mo.onclick=()=>{CLUB.limit+=20;if(CLUB.unsub){CLUB.unsub();CLUB.unsub=null}startClub()};
@@ -2684,6 +2780,33 @@ function startRequests(){if(!db||!isOrg||REQ.unsub)return;REQ.unsub=col('request
 function appContext(){const ua=navigator.userAgent,dev=/iPhone|iPad/.test(ua)?'iPhone/iPad':/Android/.test(ua)?'Android':'Computer',inst=(window.matchMedia&&matchMedia('(display-mode: standalone)').matches)||navigator.standalone?'installed app':'browser';
   const page=(PAGES[tab]||tab)+(tab==='team'&&teamUI.page?' › '+teamUI.page:SUB[tab]?' › '+SUB[tab]:'');return{page,ver:APP_VERSION,dev:dev+' · '+inst,role:isOrg?'organizer':'player',group:GID||'main'}}
 const REQK={idea:['💡','Idea'],bug:['🐞','Problem'],q:['❓','Question']};
+/* where an idea or problem stands, with a kind word for the player */
+const STAGES={new:['📬','New','With the organizers'],awaiting:['⏳','Awaiting prioritisation','Thanks for raising this 🙏 We’re weighing it with other ideas and will prioritise it soon.'],backlog:['📋','Added to backlog','Love this 💚 It’s on our product backlog. We’ll let you know when it’s picked up.'],hold:['⏸️','On hold','Great thought! We’re pausing this for now and will revisit soon. Thanks for your patience 🙏'],done:['✅','Done','Done ✅ Thank you for making the app better for everyone!'],dropped:['🚫','Dropped','Thanks for raising it 🙏 It’s no longer needed, so we’re closing it. Please keep the ideas coming!']};
+const reqClosed=r=>r.status==='done'||r.status==='dropped';
+const stageOf=r=>STAGES[r.status]||STAGES.new;
+const stageChip=r=>{const S2=stageOf(r);return`<span class="stchip st-${esc(r.status||'new')}">${S2[0]} ${esc(S2[1])}</span>`};
+const fullWhen=at=>{const d=new Date(at||0);return d.toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short',year:'numeric'})+' at '+hm(at)};
+function openReqStage(r){let st=r.status&&r.status!=='new'?r.status:'awaiting',edited=false;const isIdea=r.kind==='idea';
+  const draw=()=>{const bg=sheetOpen(`<div class="sheet-h">${ini(r.name||'?')}<div><b>Update status</b><small>${(REQK[r.kind]||REQK.idea)[0]} from ${esc(r.name||'someone')} · ${timeAgo(r.at)}</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div>
+    <div class="sub" style="padding-top:12px"><p class="hint" style="margin:0 0 10px">“${esc(String(r.text).slice(0,200))}”</p><div class="stgrid">${Object.entries(STAGES).filter(([k])=>k!=='new').map(([k,v])=>`<button type="button" class="stopt st-${k}${st===k?' on':''}" data-st="${k}">${v[0]} ${v[1]}</button>`).join('')}</div></div>
+    <div class="sub"><span class="sublbl">Note to ${esc(first(r.name||'the player'))} (they see it with the status)</span><textarea class="txt" id="sttxt2" rows="3" maxlength="500">${esc(edited?$('#sttxt2').value:STAGES[st][2])}</textarea>
+      ${isIdea&&st==='done'?`<label class="chkrow"><input type="checkbox" class="chk" id="stfeed" checked><span>Celebrate it in the Feed</span></label>`:''}</div>
+    <div class="card-f"><button class="btn primary block" id="stsave2">${STAGES[st][0]} Save · ${esc(STAGES[st][1])}</button></div>`,'Status');
+    bg.querySelectorAll('[data-st]').forEach(b=>b.onclick=()=>{const cur=$('#sttxt2').value;edited=edited&&cur!==STAGES[st][2];st=b.dataset.st;if(!edited)draw();else{bg.querySelectorAll('[data-st]').forEach(x=>x.classList.toggle('on',x===b));$('#stsave2').textContent=STAGES[st][0]+' Save · '+STAGES[st][1]}});
+    $('#sttxt2').oninput=()=>{edited=true};
+    $('#stsave2').onclick=async()=>{const t=norm($('#sttxt2').value),by=canon(myName()||'Organizer'),now=Date.now();$('#stsave2').disabled=true;
+      const patch={status:st,stageAt:now,replies:[...(r.replies||[]),{by,text:t||STAGES[st][1],at:now,stage:st}]};if(st==='done')patch.doneAt=now;
+      try{await col('requests').doc(r.id).update(patch);const fe=$('#stfeed');closeWho();toast(STAGES[st][0]+' '+STAGES[st][1]+' · '+first(r.name||'the player')+' will see your note');
+        if(st==='done'&&isIdea&&fe&&fe.checked){try{await ensureAnon();await col('posts').add({name:by,uid:auth.currentUser.uid,text:('✅ Done: “'+r.text+'”'+(r.name?' (idea by @'+canon(r.name)+')':'')).slice(0,1000),at:now,kind:'update',likes:{}})}catch(e){}}}
+      catch(e){$('#stsave2').disabled=false;toast('Couldn’t update ('+(e.code||'error')+').')}}};draw()}
+function openMyReqDetail(id){const r=MYREQ.list.find(x=>x.id===id);if(!r)return;const k=REQK[r.kind]||['💬',''];
+  const bg=sheetOpen(`<div class="sheet-h"><span class="ini">${k[0]}</span><div><b>Your ${esc(k[1].toLowerCase()||'message')}</b><small>Raised ${esc(fullWhen(r.at))}</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div>
+    <div class="sub" style="padding-top:12px"><div class="mix" style="justify-content:space-between;gap:8px">${stageChip(r)}<small class="hint" style="margin:0">${r.stageAt?'updated '+timeAgo(r.stageAt):r.status==='new'||!r.status?'not reviewed yet':''}</small></div>
+      <p style="margin:12px 0 6px;font-size:16px;line-height:1.5;white-space:pre-wrap">${esc(r.text)}</p>${r.img?`<img src="${r.img}" alt="Screenshot" style="width:100%;border-radius:12px;border:1px solid var(--line)">`:''}
+      <small class="hint" style="margin:6px 0 0;display:block">${r.ctx&&r.ctx.page?'Sent from '+esc(r.ctx.page)+' · ':''}app v${esc((r.ctx||{}).ver||'')}</small></div>
+    <div class="sub"><span class="sublbl">Timeline</span><div class="tline"><div class="tl"><i>📬</i><span><b>You raised it</b><small>${esc(fullWhen(r.at))}</small></span></div>
+      ${(r.replies||[]).map(x=>`<div class="tl"><i>${x.stage?STAGES[x.stage]?STAGES[x.stage][0]:'💬':'💬'}</i><span><b>${esc(x.by)}${x.stage&&STAGES[x.stage]?' · '+esc(STAGES[x.stage][1]):' replied'}</b><small>${esc(fullWhen(x.at))}</small><em>${mtext(x.text)}</em></span></div>`).join('')}
+      ${AVO.list.filter(g=>g.ref===r.id).map(g=>`<div class="tl"><i>🥑</i><span><b>${esc(g.from)} rewarded you 🥑 ${g.amt}</b><small>${esc(fullWhen(g.at))}</small><em>${mtext(g.msg)}</em></span></div>`).join('')}</div></div>`,'Idea');}
 function openSuggest(){const me=allNames().find(n=>nkey(n)===nkey(getMe()));const ctx=appContext();let kind='idea',img='';closeWho();
   const draw=()=>{const bg=sheetOpen(`<div class="sheet-h"><span class="ini">${ic('chat')}</span><div><b>Suggest or report</b><small>Goes to the organizers${me?' · from '+esc(me):''}</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div>
     <div class="sub" style="padding-top:12px"><div class="seg" style="padding:0">${Object.entries(REQK).map(([k,[e,l]])=>`<button type="button" class="${kind===k?'on':''}" data-rk="${k}">${e} ${l}</button>`).join('')}</div></div>
@@ -2703,15 +2826,15 @@ function openSuggest(){const me=allNames().find(n=>nkey(n)===nkey(getMe()));cons
         closeWho();toast(kind==='idea'?'Thanks! Shared in the Feed and sent to the organizers 💡':'Thanks! Sent to the organizers 💚')}
       catch(e){b.disabled=false;toast(e.code==='permission-denied'?'Ask the organizer to publish the latest app rules.':'Couldn’t send ('+(e.code||'error')+').')}};
   };draw()}
-function requestsHTML(){startRequests();const F=REQ.filter,L=REQ.list.filter(r=>F==='all'||(F==='done'?r.status==='done':r.status!=='done'));const open=REQ.list.filter(r=>r.status!=='done');
+function requestsHTML(){startRequests();const F=REQ.filter,L=REQ.list.filter(r=>F==='all'||(F==='done'?reqClosed(r):!reqClosed(r)));const open=REQ.list.filter(r=>!reqClosed(r));
   return`${cardH('chat','Ideas & problems',open.length?open.length+' open':'All handled')}
-    <div class="sub" style="padding-top:10px"><div class="seg" style="padding:0">${[['new','Open'],['done','Done'],['all','All']].map(([k,l])=>`<button type="button" class="${F===k?'on':''}" data-rqf="${k}">${l}</button>`).join('')}</div></div>
+    <div class="sub" style="padding-top:10px"><div class="seg" style="padding:0">${[['new','Open'],['done','Closed'],['all','All']].map(([k,l])=>`<button type="button" class="${F===k?'on':''}" data-rqf="${k}">${l}</button>`).join('')}</div></div>
     ${open.length?`<div class="sub"><div class="grid2"><button class="btn sm primary" data-rq="copy:">${ic('copy')}Copy for Claude</button><button class="btn sm line" data-rq="share:">${ic('share')}Share</button></div><p class="hint" style="margin:6px 0 0">Copies every open item as one message, with page, version and phone. Paste it in your chat with Claude.</p></div>`:''}
-    ${L.map(r=>{const [e,l]=REQK[r.kind]||REQK.idea,c=r.ctx||{};return`<div class="row" style="flex-direction:column;align-items:stretch;gap:6px${r.status==='done'?';opacity:.6':''}"><div style="display:flex;justify-content:space-between;gap:8px"><b>${e} ${l} · ${esc(r.name||'')}</b><small class="hint" style="margin:0;white-space:nowrap">${timeAgo(r.at)} ${hm(r.at)}</small></div>
-      <div style="white-space:pre-wrap;line-height:1.4">${esc(r.text)}</div><small class="hint" style="margin:0">${esc(c.page||'')} · v${esc(c.ver||'')} · ${esc(c.dev||'')}${c.role?' · '+esc(c.role):''}</small>
+    ${L.map(r=>{const [e,l]=REQK[r.kind]||REQK.idea,c=r.ctx||{};return`<div class="rqc${reqClosed(r)?' closed':''}"><div class="rqh">${ini(r.name||'?','','sm')}<div><b>${esc(r.name||'Someone')}</b><small>${e} ${l} · ${esc(fullWhen(r.at))}</small></div>${stageChip(r)}</div>
+      <div class="rqt">${esc(r.text)}</div><small class="hint" style="margin:0">${esc(c.page||'')} · v${esc(c.ver||'')} · ${esc(c.dev||'')}${c.role?' · '+esc(c.role):''}</small>
       ${r.img?`<img src="${r.img}" alt="Screenshot" style="max-width:120px;border-radius:10px;border:1px solid var(--line);cursor:zoom-in" data-rq="img:${esc(r.id)}">`:''}
       ${reqExtras(r)}
-      <div class="mix" style="gap:14px;flex-wrap:wrap"><button class="lnk" data-rq="reply:${esc(r.id)}">💬 Reply</button>${r.name&&nkey(r.name)!==nkey(getMe())?`<button class="lnk" data-rq="reward:${esc(r.id)}">🥑 Reward</button>`:''}${r.status==='done'?`<button class="lnk" data-rq="reopen:${esc(r.id)}">Reopen</button>`:`<button class="lnk" data-rq="done:${esc(r.id)}">${ic('check')} Mark done</button>`}<button class="lnk" data-rq="copy:${esc(r.id)}">Copy</button><button class="lnk danger" data-rq="del:${esc(r.id)}">Delete</button></div></div>`}).join('')||`<div class="empty">${ic('check')}${F==='done'?'Nothing marked done yet.':'No open ideas or problems.'}</div>`}`}
+      <div class="rqbar"><button type="button" class="rqb main" data-rq="stage:${esc(r.id)}">📌 Status</button><button type="button" class="rqb" data-rq="reply:${esc(r.id)}">💬 Reply</button>${r.name&&nkey(r.name)!==nkey(getMe())?`<button type="button" class="rqb" data-rq="reward:${esc(r.id)}">🥑 Reward</button>`:''}<details class="rqmore"><summary class="rqb" aria-label="More">⋯</summary><div><button type="button" data-rq="copy:${esc(r.id)}">${ic('copy')} Copy for Claude</button>${reqClosed(r)?`<button type="button" data-rq="reopen:${esc(r.id)}">↩️ Reopen</button>`:''}<button type="button" class="danger" data-rq="del:${esc(r.id)}">${ic('trash')} Delete</button></div></details></div></div>`}).join('')||`<div class="empty">${ic('check')}${F==='done'?'Nothing marked done yet.':'No open ideas or problems.'}</div>`}`}
 function reqText(list){const L=['Shuttle Split feedback · '+(S.groupName||'Badminton Family')+' · '+list.length+' item'+(list.length===1?'':'s')+' (app v'+APP_VERSION+')',''];
   list.forEach((r,i)=>{const [e,l]=REQK[r.kind]||REQK.idea,c=r.ctx||{};L.push((i+1)+'. '+e+' '+l+' from '+(r.name||'someone')+' · '+dlabel(ymd(new Date(r.at)),{day:'numeric',month:'short'})+' '+hm(r.at));
     L.push('   "'+r.text.replace(/\n/g,' ')+'"');L.push('   Page: '+(c.page||'?')+' · v'+(c.ver||'?')+' · '+(c.dev||'?')+(c.role?' · '+c.role:'')+(r.img?' · screenshot in the app':''));L.push('')});return L.join('\n')}
@@ -2724,14 +2847,14 @@ function openMyRequests(){startMyReq();startAvo();const L=MYREQ.list,ideas=L.fil
   const bg=sheetOpen(`<div class="sheet-h" id="myreqs"><span class="ini">💡</span><div><b>My ideas & problems</b><small>Everything you sent from this phone, and what happened to it</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div>
     <div class="acct" style="grid-template-columns:repeat(2,minmax(0,1fr))"><div><span>💡 Ideas</span><b>${ideas.length}</b></div><div><span>🐞 Problems & questions</span><b>${L.length-ideas.length}</b></div><div class="good"><span>✅ Done</span><b>${done.length}</b></div><div class="good"><span>🥑 Rewards</span><b>${AVO.list.filter(g=>g.ref&&L.some(r=>r.id===g.ref)).reduce((a,g)=>a+(+g.amt||0),0)}</b></div></div>
     ${L.map(r=>{const k=REQK[r.kind]||['💬',''],p=postOf(r),rc=p?Object.keys(p.likes||{}).length:0,cc=p?(CMT.list||[]).filter(c=>c.target==='post:'+p.id).length:0;
-      return`<div class="sub" style="border-top:1px solid var(--line2);padding:12px 16px"><div class="mix" style="justify-content:space-between;gap:8px"><b>${k[0]} ${esc(k[1])}</b><span class="${r.status==='done'?'ok-chip':'wait-chip'}" style="font-size:12px">${r.status==='done'?'✅ Done'+(r.doneAt?' · '+esc(dlabel(ymd(new Date(r.doneAt)),{day:'numeric',month:'short'})):''):'📬 With the organizers'}</span></div>
-        <p style="margin:6px 0 4px">${esc(r.text)}</p><small class="hint" style="margin:0">Sent ${timeAgo(r.at)}${r.ctx&&r.ctx.page?' · from '+esc(r.ctx.page):''}${p?' · in the Feed'+(rc?' · '+rc+' reaction'+(rc>1?'s':''):'')+(cc?' · '+cc+' comment'+(cc>1?'s':''):''):''}</small>
+      return`<div class="sub myrq" style="border-top:1px solid var(--line2);padding:12px 16px" data-myrq="${esc(r.id)}"><div class="mix" style="justify-content:space-between;gap:8px"><b>${k[0]} ${esc(k[1])}</b>${stageChip(r)}</div>
+        <p style="margin:6px 0 4px">${esc(String(r.text).length>160?String(r.text).slice(0,160)+'…':r.text)}</p><small class="hint" style="margin:0">Raised ${esc(fullWhen(r.at))} · tap for details${r.ctx&&r.ctx.page?' · from '+esc(r.ctx.page):''}${p?' · in the Feed'+(rc?' · '+rc+' reaction'+(rc>1?'s':''):'')+(cc?' · '+cc+' comment'+(cc>1?'s':''):''):''}</small>
         ${reqExtras(r)}${p?`<button class="lnk" data-myreqpost="${esc(p.id)}" style="display:block;margin-top:4px">See it in the Feed ›</button>`:''}</div>`}).join('')||`<div class="empty">${ic('chat')}Nothing yet. Your ideas make the app better for everyone 💚</div>`}
     <div class="card-f"><button class="btn primary block" id="myreqnew">${ic('chat')}Suggest an idea or report a problem</button></div>`,'My ideas & problems');
-  $('#myreqnew').onclick=openSuggest;bg.querySelectorAll('[data-myreqpost]').forEach(b=>b.onclick=()=>{closeWho();CLUBOPEN.add(b.dataset.myreqpost);SUB.club='feed';go('club')})}
+  $('#myreqnew').onclick=openSuggest;bg.querySelectorAll('[data-myrq]').forEach(b=>b.onclick=e=>{if(e.target.closest('button,a'))return;openMyReqDetail(b.dataset.myrq)});bg.querySelectorAll('[data-myreqpost]').forEach(b=>b.onclick=()=>{closeWho();CLUBOPEN.add(b.dataset.myreqpost);SUB.club='feed';go('club')})}
 /* organizer comments and Avokudos rewards attached to an idea or problem */
 function reqExtras(r){const R=(r.replies||[]),G=AVO.list.filter(g=>g.ref===r.id);if(!R.length&&!G.length)return'';
-  return`<div class="reqx">${R.map(x=>`<div class="cmt">${ini(x.by,'','sm')}<div class="cb"><div><b>${esc(x.by)}</b> <span class="tagchip">Organizer</span> <small>${timeAgo(x.at)}</small></div><div class="ct">${mtext(x.text)}</div></div></div>`).join('')}
+  return`<div class="reqx">${R.map(x=>`<div class="cmt">${ini(x.by,'','sm')}<div class="cb"><div><b>${esc(x.by)}</b> ${x.stage&&STAGES[x.stage]?`<span class="stchip st-${x.stage}">${STAGES[x.stage][0]} ${esc(STAGES[x.stage][1])}</span>`:'<span class="tagchip">Organizer</span>'} <small>${timeAgo(x.at)}</small></div><div class="ct">${mtext(x.text)}</div></div></div>`).join('')}
     ${G.map(g=>`<div class="cmt">${ini(g.from,'','sm')}<div class="cb"><div><b>${esc(g.from)}</b> <span class="avochip">🥑 ${g.amt}</span> <small>${timeAgo(g.at)}</small></div><div class="ct">${mtext(g.msg)}</div></div></div>`).join('')}</div>`}
 function openReqReply(r){const bg=sheetOpen(`<div class="sheet-h"><span class="ini">💬</span><div><b>Reply to ${esc(first(r.name||'player'))}</b><small>They see it under “My ideas & problems” and in their bell</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div>
     <div class="sub" style="padding-top:12px"><p class="hint" style="margin:0 0 8px">${(REQK[r.kind]||REQK.idea)[0]} “${esc(String(r.text).slice(0,160))}”</p><textarea class="txt" id="rrtext" data-mention rows="3" maxlength="500" placeholder="Thanks! We’ll add this next week…"></textarea>
@@ -2742,8 +2865,8 @@ function openReqReply(r){const bg=sheetOpen(`<div class="sheet-h"><span class="i
       await col('requests').doc(r.id).update(patch);closeWho();toast('Reply sent to '+first(r.name||'the player')+' 💬');
       if(patch.status==='done'&&r.kind==='idea'){try{await ensureAnon();await col('posts').add({name:by,uid:auth.currentUser.uid,text:('✅ Done: “'+r.text+'”'+(r.name?' (idea by '+first(r.name)+')':'')).slice(0,1000),at:Date.now(),kind:'update',likes:{}})}catch(e){}}}
     catch(e){$('#rrsend').disabled=false;toast('Couldn’t send ('+(e.code||'error')+').')}}}
-async function reqAction(act,id,el){const r=REQ.list.find(x=>x.id===id),open=REQ.list.filter(x=>x.status!=='done').slice().reverse();
-  if(act==='reply'&&r)return openReqReply(r);
+async function reqAction(act,id,el){const r=REQ.list.find(x=>x.id===id),open=REQ.list.filter(x=>!reqClosed(x)).slice().reverse();
+  if(act==='reply'&&r)return openReqReply(r);if(act==='stage'&&r)return openReqStage(r);
   if(act==='reward'&&r)return openAvo({to:[r.name],msg:'Thanks for your '+(r.kind==='idea'?'idea':r.kind==='bug'?'report':'question')+' 💡 “'+String(r.text).slice(0,120)+'”',tag:'Ideas',amt:25,ref:r.id,title:'🥑 Reward '+first(r.name)});
   if(act==='copy')return copyText(reqText(r?[r]:open),'Copied. Paste it in your chat with Claude.');
   if(act==='share'){const t=reqText(open);if(navigator.share){try{await navigator.share({text:t})}catch(e){}}else copyText(t,'Copied.');return}
@@ -2770,6 +2893,9 @@ async function shareCupCard(T){const ch=cupChampion(T),body=T.format==='rr'||!ch
 const actSeen=()=>{try{return+localStorage.getItem('ss-actseen'+SUF)||0}catch(e){return 0}};
 function activityItems(){const me=nkey(getMe()),uid=auth&&auth.currentUser&&auth.currentUser.uid;if(!me)return[];const out=[];
   const mineP=x=>(uid&&x.uid===uid)||nkey(x.name||'')===me,ment=x=>{const m=mentionsIn(x.text);return m.has(me)||m.has('all')};
+  try{const t6=new Date(todayStr()+'T06:00').getTime();occasionsToday().forEach(o=>{if(nkey(o.n)===me)out.push({at:t6,ic:o.emoji,t:'Happy '+(o.kind==='bday'?'birthday':o.kind==='anniv'?'anniversary':o.title)+', '+first(o.n)+'! 🎉',s:'The whole club is celebrating you today',go:()=>openProfile(o.n)});
+    else out.push({at:t6,ic:o.emoji,t:'It’s '+first(o.n)+'’s '+(o.kind==='bday'?'birthday':o.kind==='anniv'?'anniversary':o.title)+' today!',s:'Tap to send a wish 💌',go:()=>openWish(o)})})}catch(e){}
+  if(isOrg)ACT.list.filter(a=>a.status==='done').slice(0,10).forEach(a=>out.push({at:a.at,ic:'✏️',t:first(a.name)+' changed '+ACTK[a.kind],s:(a.kind==='photo'?'New group photo':actLabel(a))+' · tap to undo if needed',go:openActions}));
   (CLUB.list||[]).forEach(x=>{if(mineP(x))return;if(ment(x)){out.push({at:x.at,ic:'📣',t:first(x.name)+' mentioned you in a post',s:x.text||'',go:()=>{SUB.club=x.kind==='tip'?'tips':'feed';CLUBOPEN.add(x.id);go('club')}});return}const what=x.kind==='photo'?'shared a photo memory 📸':x.kind==='tip'?'shared a tip 💡':x.kind==='note'?'posted in the Feed':x.kind==='idea'?'shared an idea 💡':x.kind==='update'?'posted an update ✅':x.kind==='announce'?'made an announcement 📣':'posted a shout-out 👏';
     const forMe=x.kind==='shout'&&nkey(String(x.text||'').replace(/^👏\s*/,'').split(':')[0])===me;
     out.push({at:x.at,ic:forMe?'👏':x.kind==='photo'?'📸':x.kind==='tip'?'💡':'👏',t:forMe?first(x.name)+' gave you a shout-out!':first(x.name)+' '+what,s:x.text||'',go:()=>{SUB.club=x.kind==='tip'?'tips':'feed';CLUBOPEN.add(x.id);go('club')}})});
@@ -2805,8 +2931,8 @@ const unreadActivity=()=>{const t=actSeen();return activityItems().filter(x=>(x.
 const ME={who:'',sec:'games'};
 function renderMe(){
   const v=$('#mewrap'),names=allNames(),mine=names.find(n=>nkey(n)===nkey(getMe()))||'';if(!v)return;
-  const who=names.find(n=>nkey(n)===nkey(ME.who))||mine;
-  const pick=`<select class="txt" id="mewho" aria-label="Whose account">${who?'':'<option value="">Choose your name…</option>'}${names.map(n=>`<option ${n===who?'selected':''}>${esc(n)}</option>`).join('')}</select>`;
+  const who=(isOrg||!db||!mine)?(names.find(n=>nkey(n)===nkey(ME.who))||mine):mine;
+  const pick=db&&!isOrg&&mine?`<div class="vme">${ini(mine,'','sm')}<span>Only you (and organizers) can see this wallet</span></div>`:`<select class="txt" id="mewho" aria-label="Whose account">${who?'':'<option value="">Choose your name…</option>'}${names.map(n=>`<option ${n===who?'selected':''}>${esc(n)}</option>`).join('')}</select>`;
   if(!who){v.innerHTML=`<section class="card">${cardH('users','My wallet')}<div class="pad">${pick}<p class="hint">Saved on this phone, so you only pick it once. You’ll see your balance, pay by UPI and tell the organizer when you’ve paid.</p></div></section>`;bindMe(v);return}
   const L=ledger(who),W=wallet(who),st=statement(who),k=nkey(who),pays=allPays();
   const games=[],spentL=[];Object.keys(S.days).sort().reverse().forEach(ds=>{const d=getDay(ds),c=calc(d),o=perOf(c,who),sp=spentOf(c,who);if(o)games.push({ds,d,o,c});if(sp)spentL.push({ds,sp})});
@@ -2826,9 +2952,9 @@ function renderMe(){
   ev.sort((a,b)=>b.at-a.at);
   if(ME.sec==='player')ME.sec='games';const tabs=[['games','Games'],['money','Payments'],['audit','History']];const PX=null;
   v.innerHTML=`<section class="card${(PRE()?W.low:L.due>0)?' due-card':''}">${cardH('wallet',nkey(who)===nkey(mine)?'My wallet':esc(first(who))+'’s wallet',sinrP(PRE()?W.bal:L.bal),!(PRE()?W.low:L.due>0))}<div class="pad" style="padding-bottom:8px">${pick}</div>
-    ${PRE()?`<div class="acct"><div class="good"><span>Loaded</span><b>${inr(W.paid)}</b></div><div><span>Used</span><b>${inr(W.charged)}</b></div><div><span>Waiting to confirm</span><b>${inr(W.claimed)}</b></div><div class="${W.low?'bad':'good'}"><span>Wallet balance</span><b>${sinrP(W.bal)}</b></div></div>
+    ${PRE()?`<div class="acct"><div class="good"><span>Loaded</span><b>${inr(W.paid)}</b></div><div><span>Used</span><b>${inr(W.charged)}</b></div><div><span>⏳ Awaiting OK</span><b>${inr(W.claimed)}</b></div><div class="${W.low?'bad':'good'}"><span>Wallet balance</span><b>${sinrP(W.bal)}</b></div></div>
       ${W.low?`<div class="sub"><p class="warn" style="margin:0">🔋 Below ${inr(S.low==null?200:S.low)}. Please load ${inr(W.need)}.</p></div>`:''}`
-    :`<div class="acct"><div><span>Games & charges</span><b>${inr(L.charged)}</b></div><div class="good"><span>Paid${L.spent?' & spent for group':''}</span><b>${inr(r2(L.paid+L.spent))}</b></div><div><span>Waiting to confirm</span><b>${inr(L.claimed)}</b></div><div class="${L.bal<0?'bad':'good'}"><span>Wallet balance</span><b>${sinrP(L.bal)}</b></div></div>
+    :`<div class="acct"><div><span>Games & charges</span><b>${inr(L.charged)}</b></div><div class="good"><span>Paid${L.spent?' & spent for group':''}</span><b>${inr(r2(L.paid+L.spent))}</b></div><div><span>⏳ Awaiting OK</span><b>${inr(L.claimed)}</b></div><div class="${L.bal<0?'bad':'good'}"><span>Wallet balance</span><b>${sinrP(L.bal)}</b></div></div>
       <div class="sub" style="padding-bottom:0"><p class="hint" style="margin:0">${L.bal<0?'<b style="color:var(--danger)">Minus</b>: owed for games played.':L.bal>0?'<b style="color:var(--ok)">Plus</b>: credit, used against the next games.':'All square.'}</p></div>`}
     <div class="acct" style="grid-template-columns:repeat(3,minmax(0,1fr))"><div><span>Games</span><b>${games.filter(g=>g.o.played).length}</b></div><div><span>Spent for group</span><b>${inr(L.spent)}</b></div><div><span>Paid for others</span><b>${inr(sum(byMe,x=>+x.amount||0))}</b></div></div>
     ${(()=>{const owe=PRE()?W.low:L.due>0,waiting=L.claimed>0&&(PRE()?L.claimed>=(W.need||0):L.claimed>=L.due);
@@ -2896,7 +3022,7 @@ function teamMenu(org,AD,att,act){const rev=org?att.fresh.length+att.dups.length
       menuItem('contacts','users','Player contacts','Phones, emails, birthdays and blood groups · organizers only',Object.values(PROF.priv).filter(v=>v.phone).length+' 📞')]]:null,
     ['Help & ideas',[menuItem('','chat','Suggest an idea or report a problem','Goes to the organizers with the page and phone details attached','','suggest'),
       menuItem('','check','My ideas & problems','What you sent and its status',(startMyReq(),MYREQ.list.length||''),'myreqs'),
-      org?menuItem('requests','bell','Ideas & problems inbox','From players · copy them for Claude in one tap',(()=>{const n=REQ.list.filter(r=>r.status!=='done').length;return n?`<i class="nb">${n}</i>`:''})()):'']],
+      org?menuItem('requests','bell','Ideas & problems inbox','From players · copy them for Claude in one tap',(()=>{const n=REQ.list.filter(r=>!reqClosed(r)).length;return n?`<i class="nb">${n}</i>`:''})()):'']],
     ['Account',[menuItem('access','lock',org?'Access, groups & account':'Account & groups',org?'Co-organizers, other groups, sign in/out':'Sign in, other groups',isOrg?'Organizer':userEmail()?'Viewer':'Player'),
       org?menuItem('reset','trash','Start fresh','Clear test data before going live',''):'']]].filter(Boolean);
   return groups.map(([t,items])=>`<span class="sublbl" style="margin:6px 4px -4px">${t}</span><section class="card menu">${items.join('')}</section>`).join('')}
@@ -2968,7 +3094,7 @@ function renderTeam(){
   const nDays=playedDays().length, org=canEdit(), act=activeRoster(), inact=S.roster.filter(n=>!act.includes(n));
   const att=org&&db?attention():{fresh:[],dups:[]}, AD=org&&db?adoption():null;
   if(org&&db)loadOrgData(false);
-  const pRow=p=>{const g=ledger(p),lv=levelOf(p);return`<div class="prow">${ini(p,lv?'box-shadow:0 0 0 2px '+lv[2]:'')}<span class="nm">${esc(p)}${statusOf(p)?` <small style="display:inline;color:var(--ink)">${statusLine(p)}</small>`:''}<small>${onlineNow(p)?'🟢 Active now · ':''}Played ${plural(played[nkey(p)]||0,'day')}${g.due?` · <b style="color:var(--danger)">owes ${inr(g.due)}</b>`:g.charged?' · all paid':''}</small></span>
+  const pRow=p=>{const g=ledger(p),lv=levelOf(p);return`<div class="prow">${ini(p,lv?'box-shadow:0 0 0 2px '+lv[2]:'')}<span class="nm">${esc(p)}${statusOf(p)?` <small style="display:inline;color:var(--ink)">${statusLine(p)}</small>`:''}<small>Played ${plural(played[nkey(p)]||0,'day')}${g.due?` · <b style="color:var(--danger)">owes ${inr(g.due)}</b>`:g.charged?' · all paid':''}</small></span>
     <span class="acts" style="align-items:center">${org?`<select class="lvl" data-lvl="${esc(p)}"${lv?` style="--lc:${lv[2]}"`:''} aria-label="Level for ${esc(p)}"><option value="">Level</option>${LEVELS.map(l=>`<option value="${l[0]}"${lv&&lv[0]===l[0]?' selected':''}>${l[1]}</option>`).join('')}</select><button type="button" class="iconbtn" data-manage="${esc(p)}" aria-label="Manage ${esc(p)}">${ic('gear')}</button>`:lv?`<span class="lvl" style="--lc:${lv[2]};display:inline-flex;align-items:center">${lv[1]}</span>`:''}</span></div>`};
   v.innerHTML=`
   ${intro('Team',org?'Players, access, adoption and settings. Changes apply to everyone in this group.':'Everyone in the group, their level and who’s settled up.')}
@@ -3060,8 +3186,8 @@ function renderTeam(){
     <label class="row"><input class="chk" type="checkbox" data-reset="pays" ${teamUI.reset.pays?'checked':''}><div class="l"><b>Payments & confirmations</b><small>${allPays().length} recorded</small></div></label>
     <label class="row"><input class="chk" type="checkbox" data-reset="days" ${teamUI.reset.days?'checked':''}><div class="l"><b>Game days & costs</b><small>${Object.keys(S.days).length} days · clears Payouts</small></div></label>
     <label class="row"><input class="chk" type="checkbox" data-reset="polls" ${teamUI.reset.polls?'checked':''}><div class="l"><b>Polls & votes</b><small>${P.list.length} polls</small></div></label>
-    <div class="sub" style="padding-top:12px;border-top:1px solid var(--line2)"><span class="sublbl">Type RESET to confirm</span><div class="inline"><input class="txt" id="resetin" autocomplete="off" autocapitalize="characters" placeholder="RESET"><button class="btn sm danger" style="height:44px" id="resetbtn" disabled>${teamUI.resetBusy?'Clearing…':'Clear'}</button></div></div>
-  </section>`:''}
+    ${db&&!isOwner()?`<div class="sub" style="padding-top:12px;border-top:1px solid var(--line2)"><p class="warn" style="margin:0">🔒 Only the owner (${esc(ownerEmail())}) can clear data. Co-organizers can still back up.</p></div>`:`<div class="sub" style="padding-top:12px;border-top:1px solid var(--line2)"><span class="sublbl">Type RESET to confirm · a backup is taken first</span><div class="inline"><input class="txt" id="resetin" autocomplete="off" autocapitalize="characters" placeholder="RESET"><button class="btn sm danger" style="height:44px" id="resetbtn" disabled>${teamUI.resetBusy?'Clearing…':'Clear'}</button></div></div>`}
+  </section>${backupsHTML()}`:''}
   <section data-g="access" class="card">
     ${cardH('users','Groups',GID?'Separate group':'Main group')}
     <div class="row"><div class="l"><b>${esc(S.groupName||'This group')}</b><small>${esc(HERE.replace(/^https?:\/\//,''))}</small></div><button class="btn sm line" data-act="copylink">${ic('copy')}Link</button></div>
@@ -3213,9 +3339,43 @@ function openManage(name){
   $('#actin').onchange=e=>{const k=nkey(name);S.inactive=(S.inactive||[]).filter(x=>x!==k);if(S.autoOff)delete S.autoOff[k];S.since=S.since||{};if(e.target.checked)S.since[k]=Date.now();else S.inactive.push(k);saveConfig();renderTab(true);toast(e.target.checked?name+' is active.':name+' is now inactive.')};
   const rb=$('#rmbtn');if(rb)rb.onclick=()=>{S.roster=S.roster.filter(r=>nkey(r)!==nkey(name));saveConfig();closeWho();renderTab(true);toast(name+' removed.')};
 }
+/* backups: the money and game records, saved before every reset and once a day; the owner restores by date */
+async function makeBackup(reason){if(!db||!isOrg)return null;const data={v:1,at:Date.now(),by:userEmail()||'',reason,days:[],payments:[],polls:[]};
+  (await col('days').get()).docs.forEach(d=>data.days.push({id:d.id,d:d.data()}));(await payCol().get()).docs.forEach(d=>data.payments.push({id:d.id,d:d.data()}));
+  for(const pd of (await pollsCol().get()).docs){const vs=await pd.ref.collection('votes').get();data.polls.push({id:pd.id,d:pd.data(),votes:vs.docs.map(v=>({id:v.id,d:v.data()}))})}
+  const json=JSON.stringify(data),CH=700000,parts=Math.ceil(json.length/CH)||1,ref=col('backups').doc();
+  for(let i=0;i<parts;i++)await ref.collection('parts').doc(String(i)).set({i,d:json.slice(i*CH,(i+1)*CH)});
+  await ref.set({at:data.at,by:data.by,reason,parts,counts:{days:data.days.length,payments:data.payments.length,polls:data.polls.length}});return ref.id}
+const BK={list:[],at:0};
+async function loadBackups(){if(!db||!isOrg)return[];try{const q=await col('backups').orderBy('at','desc').limit(30).get();BK.list=q.docs.map(d=>({id:d.id,...d.data()}));BK.at=Date.now()}catch(e){BK.list=[]}return BK.list}
+async function dailyBackup(){if(!db||!isOrg)return;try{const L=await loadBackups();if(!L.length||Date.now()-(L[0].at||0)>20*3600e3)await makeBackup('Daily')}catch(e){}}
+async function restoreBackup(id,what){if(!isOwner())return toast('Only the owner can restore.');const b=BK.list.find(x=>x.id===id);if(!b)return;
+  toast('Restoring… keep the app open');try{await makeBackup('Before restore');let json='';for(let i=0;i<(b.parts||1);i++){const d=await col('backups').doc(id).collection('parts').doc(String(i)).get();json+=(d.data()||{}).d||''}
+    const data=JSON.parse(json);
+    if(what.days){for(const d of (await col('days').get()).docs)await d.ref.delete();for(const x of data.days)await col('days').doc(x.id).set(x.d);S.days={};data.days.forEach(x=>S.days[x.id]=x.d)}
+    if(what.pays){for(const d of (await payCol().get()).docs)await d.ref.delete();for(const x of data.payments)await payCol().doc(x.id).set(x.d)}
+    if(what.polls){for(const pd of (await pollsCol().get()).docs){for(const v of (await pd.ref.collection('votes').get()).docs)await v.ref.delete();await pd.ref.delete()}
+      for(const x of data.polls){await pollsCol().doc(x.id).set(x.d);for(const v of x.votes)await pollsCol().doc(x.id).collection('votes').doc(v.id).set(v.d)}}
+    PDATA.at=0;renderTab(true);toast('Restored from '+fullWhen(b.at)+' ✅')}catch(e){toast('Restore stopped ('+(e.code||e.message||'error')+'). Your data before the restore was backed up.')}}
+function backupsHTML(){if(!isOrg||!db)return'';if(!BK.at)loadBackups().then(()=>{if(tab==='team'&&teamUI.page==='reset')renderTeam()});
+  return`<section data-g="reset" class="card">${cardH('copy','Backups & restore',BK.list.length?plural(BK.list.length,'backup'):'')}
+    <div class="pad" style="padding-bottom:6px"><p class="hint" style="margin:0">Payments, game days, polls and votes are backed up automatically once a day and before every reset or restore.${isOwner()?' Restore any of them by date.':' Only the owner can restore.'}</p></div>
+    ${BK.list.slice(0,12).map(b=>`<div class="row"><div class="l"><b>${esc(fullWhen(b.at))}</b><small>${esc(b.reason||'')} · ${(b.counts||{}).days||0} days · ${(b.counts||{}).payments||0} payments · ${(b.counts||{}).polls||0} polls</small></div>${isOwner()?`<button class="btn sm line" data-restore="${esc(b.id)}">Restore</button>`:''}</div>`).join('')||`<div class="empty">No backups yet. The first one is made automatically.</div>`}
+    <div class="card-f"><button class="btn sm line" data-backupnow>${ic('copy')}Back up now</button></div></section>`}
+function openRestore(id){const b=BK.list.find(x=>x.id===id);if(!b)return;const w={pays:true,days:true,polls:false};
+  const bg=sheetOpen(`<div class="sheet-h"><span class="ini">↩️</span><div><b>Restore backup</b><small>${esc(fullWhen(b.at))} · ${esc(b.reason||'')}</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div>
+    <div class="sub" style="padding-top:12px"><p class="hint" style="margin:0 0 8px">What’s ticked is replaced with this backup. Today’s data is backed up first, so you can undo this too.</p>
+    <label class="chkrow"><input type="checkbox" class="chk" data-rw="pays" checked><span>Payments (${(b.counts||{}).payments||0})</span></label><label class="chkrow"><input type="checkbox" class="chk" data-rw="days" checked><span>Game days & costs (${(b.counts||{}).days||0})</span></label><label class="chkrow"><input type="checkbox" class="chk" data-rw="polls"><span>Polls & votes (${(b.counts||{}).polls||0})</span></label></div>
+    <div class="sub"><span class="sublbl">Type RESTORE to confirm</span><div class="inline"><input class="txt" id="rsin" autocomplete="off" autocapitalize="characters" placeholder="RESTORE"><button class="btn sm danger" style="height:44px" id="rsgo" disabled>Restore</button></div></div>`,'Restore');
+  bg.querySelectorAll('[data-rw]').forEach(c=>c.onchange=()=>{w[c.dataset.rw]=c.checked});$('#rsin').oninput=e=>{$('#rsgo').disabled=e.target.value.trim().toUpperCase()!=='RESTORE'};
+  $('#rsgo').onclick=()=>{closeWho();restoreBackup(id,w)}}
+document.addEventListener('click',async e=>{const r=e.target.closest&&e.target.closest('[data-restore]');if(r){openRestore(r.dataset.restore);return}
+  const bn=e.target.closest&&e.target.closest('[data-backupnow]');if(bn){bn.disabled=true;try{await makeBackup('Manual');await loadBackups();toast('Backed up ✅');renderTeam()}catch(x){toast('Backup failed ('+(x.code||'error')+').')}bn.disabled=false}});
 async function resetData(){
   const o=teamUI.reset;if(!o.pays&&!o.days&&!o.polls)return toast('Tick what you want to clear.');
+  if(db&&!isOwner())return toast('Only the owner can clear data.');
   teamUI.resetBusy=true;renderTeam();let n=0;
+  if(db){try{await makeBackup('Before reset')}catch(e){teamUI.resetBusy=false;renderTeam();return toast('Couldn’t back up first, so nothing was cleared ('+(e.code||'error')+').')}}
   try{
     if(o.pays){if(db){for(const x of [...PAYS]){await payCol().doc(x.id).delete();n++}}else{n+=(S.payments||[]).length;S.payments=[]}}
     if(o.days){const ks=Object.keys(S.days);if(db){const q=await col('days').get();for(const d of q.docs){await d.ref.delete();n++}}else n+=ks.length;S.days={}}
@@ -3327,7 +3487,7 @@ function closeText(ms){const d=new Date(ms),ds=todayStr(),dd=ymd(d);const tm=d.t
   return(dd===ds?'today':dd===shift(ds,1)?'tomorrow':d.toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'short'}))+' at '+tm}
 function tally(poll,votes){
   const voters=latestByName(votes),per=Math.max(1,Math.min(4,+poll.perCourt||4));
-  const res=(poll.dates||[]).map(dt=>{const yes=[],maybe=[],no=[];voters.forEach(v=>{const a=(v.answers||{})[dt.date];const vn=canon(v.name);if(a==='yes')yes.push(vn);else if(a==='maybe'){}else if(a==='no')no.push(vn)});
+  const res=(poll.dates||[]).map(dt=>{const yes=[],maybe=[],no=[];voters.forEach(v=>{const a=(v.answers||{})[dt.date];const vn=canon(v.name);if((S.inactive||[]).includes(nkey(vn)))return;if(a==='yes')yes.push(vn);else if(a==='maybe'){}else if(a==='no')no.push(vn)});
     return{...dt,yes:orderNames(yes),maybe:orderNames(maybe),no:orderNames(no),courts:yes.length?Math.ceil(yes.length/per):0,courtsMax:(yes.length+maybe.length)?Math.ceil((yes.length+maybe.length)/per):0}});
   const replied=new Set(voters.map(v=>nkey(v.name)));
   return{voters,res,pending:activeRoster().filter(n=>!replied.has(nkey(n))),per};
@@ -3606,6 +3766,7 @@ function renderPollDetail(v){
   const mine=t.voters.find(x=>P.myName&&nkey(x.name)===nkey(P.myName));
   if(mine&&!Object.keys(P.myAns).length)P.myAns={...(mine.answers||{})};
   const names=orderNames(uniq([...activeRoster(),...Object.keys(S.autoOff||{}).map(k=>S.roster.find(r=>nkey(r)===k)).filter(Boolean),...t.voters.map(x=>canon(x.name))]));
+  if(myName()&&names.some(n=>nkey(n)===nkey(myName()))&&nkey(P.myName||'')!==nkey(myName())){P.myName=myName();P.myAns={}}
   const known=names.some(n=>nkey(n)===nkey(P.myName));
   const best=t.res.reduce((a,r)=>Math.max(a,r.courts),0);
   const prev=P.list.filter(x=>x.id!==p.id&&pollLast(x)<(p.dates&&p.dates[0]?p.dates[0].date:'9')).sort((a,b)=>pollLast(b).localeCompare(pollLast(a)))[0];
@@ -3615,24 +3776,23 @@ function renderPollDetail(v){
   v.innerHTML=`
   <button class="lnk" id="back" style="align-self:flex-start">‹ All polls</button>
   ${intro(esc(p.title),closed?'This poll is closed.':p.closesAt?'Voting closes '+esc(closeText(p.closesAt))+'.':'Voting is open.')}
-  ${kpis([['Voted',t.voters.length],['Waiting',t.pending.length],['Courts',best||'–',true]])}
-  ${isOrg?sendCardHTML:''}
+  ${(()=>{const bh=r2(p.dates.reduce((a,dt)=>a+boardHours(dt.date),0));return kpis([['Voted',t.voters.length],['Waiting',t.pending.length],['Booked',bh?fmtH(bh)+' h':'–',true]])})()}
   ${isClosed(p)&&isOrg?`<div class="note">${ic('wallet')}<p>Voting closed. “Who played” is pre-filled from the yes votes. Review it on Today before billing.</p><button class="btn sm line" data-gotoday="${esc((p.dates&&p.dates[0]||{}).date||'')}">Today</button></div>`:''}
-  ${closed?'':`<section class="card">${cardH('check','Your vote','<span id="vstat"></span>')}
-    <div class="pad"><select class="txt" id="vname" aria-label="Your name"><option value="">Choose your name…</option>${names.map(n=>`<option ${nkey(n)===nkey(P.myName)?'selected':''}>${esc(n)}</option>`).join('')}${S.openNames!==false?`<option value="__other" ${P.myName&&!known?'selected':''}>I’m not on the list…</option>`:''}</select>
+  ${closed?'':`<details class="card vcard" ${mine&&P.myName&&nkey(P.myName)===nkey(myName()||P.myName)?'':'open'}><summary>${cardH('check','Your vote',mine?'<span id="vstat">'+(p.dates.map(dt=>(mine.answers||{})[dt.date]==='yes'?'✅':'❌').join(' '))+' · tap to change</span>':'<span id="vstat"></span>')}</summary>
+    ${myName()&&known?`<div class="pad"><div class="vme">${ini(P.myName,'','sm')}<span>Voting as <b>${esc(P.myName)}</b></span></div><select id="vname" hidden><option selected>${esc(P.myName)}</option></select><input type="hidden" id="vother"><p class="warn" id="vwarn" hidden></p></div>`:`<div class="pad"><span class="sublbl">Who are you? (saved on this phone)</span><select class="txt" id="vname" aria-label="Your name"><option value="">Choose your name…</option>${names.map(n=>`<option ${nkey(n)===nkey(P.myName)?'selected':''}>${esc(n)}</option>`).join('')}${S.openNames!==false?`<option value="__other" ${P.myName&&!known?'selected':''}>I’m not on the list…</option>`:''}</select>
       ${S.openNames===false?'<p class="hint">Not on the list? Ask the organizer to add you.</p>':''}
       <input class="txt" type="text" id="vother" placeholder="Type your name" value="${P.myName&&!known?esc(P.myName):''}" ${P.myName&&!known?'':'hidden'}>
-      <p class="warn" id="vwarn" hidden></p></div>
+      <p class="warn" id="vwarn" hidden></p></div>`}
     ${p.dates.map(dt=>`<div class="row" style="flex-direction:column;align-items:stretch;gap:8px"><b>${esc(waOpt(dt))}</b><div class="vote">${['yes|Yes','no|No'].map(s=>{const[val,l]=s.split('|');return`<button type="button" class="${P.myAns[dt.date]===val?'on':''}" data-ans="${dt.date}|${val}">${l}</button>`}).join('')}</div>${dt.date>=shift(todayStr(),-1)?`<button type="button" class="lnk" data-room="chat:game:${dt.date}" style="align-self:flex-start">💬 Game chat${(()=>{const n=CHAT.list.filter(c=>c.target==='chat:game:'+dt.date).length;return n?' · '+n:''})()}</button>`:''}</div>`).join('')}
-    <div class="card-f" style="display:grid;gap:8px"><button type="button" class="btn line block" id="cantmake">Not available on any of these</button>${p.dates.some(dt=>P.myAns[dt.date]==='yes')?`<button type="button" class="btn line block" id="vcal">${ic('cal')}Add my games to calendar</button>`:''}</div></section>`}
-  ${isOrg?'':sendCardHTML}
+    <div class="card-f" style="display:grid;gap:8px"><button type="button" class="btn line block" id="cantmake">Not available on any of these</button>${p.dates.some(dt=>P.myAns[dt.date]==='yes')?`<button type="button" class="btn line block" id="vcal">${ic('cal')}Add my games to calendar</button>`:''}</div></details>`}
   <section class="card">${cardH('poll','Results',t.per+' per court')}
     ${t.res.map(r=>`<div class="row" style="flex-direction:column;align-items:stretch;gap:8px">
-      <div style="display:flex;justify-content:space-between;gap:8px;align-items:center"><b>${esc(waOpt(r))}</b><span class="badge solid">${r.courts?plural(r.courts,'court'):'No courts'}</span></div>
+      <div style="display:flex;justify-content:space-between;gap:8px;align-items:center"><b>${esc(waOpt(r))}</b>${(()=>{const h=boardHours(r.date);return isOrg?`<button type="button" class="badge ${h?'solid':'line'} hrsbtn" data-hrs="${esc(r.date)}|${esc(r.note||'')}">${h?'⏱ '+fmtH(h)+' h booked':'+ Add booked hours'}</button>`:`<span class="badge ${h?'solid':''}">${h?'⏱ '+fmtH(h)+' h booked':'Hours not booked yet'}</span>`})()}</div>
       ${(()=>{const done=new Set([...r.yes,...r.no].map(nkey)),wait=activeRoster().filter(n=>!done.has(nkey(n)));
         const grp=(cls,lbl,L)=>L.length?`<div class="vgrp ${cls}"><span class="vlbl">${lbl} · ${L.length}</span><div class="names">${L.map(n=>`<span class="nm-chip ${cls}">${av(n)}${esc(n)}</span>`).join('')}</div></div>`:'';
         return grp('yes','✅ Yes',r.yes)+grp('no','❌ No',r.no)+grp('wait','⏳ Not voted yet',wait)||'<small class="hint">No votes yet</small>'})()}</div>`).join('')}
     <div class="card-f" style="display:grid;grid-template-columns:${t.pending.length&&!closed?'1fr 1fr':'1fr'}">${t.pending.length&&!closed?`<a class="btn line" href="${waHref(msgReminder(p,t))}" target="_blank" rel="noopener">${ic('bell')}Remind</a>`:''}<a class="btn wa" href="${waHref(msgResults(p,t))}" target="_blank" rel="noopener">${ic('chat')}Post results</a></div>
+    <div class="card-f" style="padding-top:0"><a class="lnk" href="${waHref(msgPoll(p,isOrg?'startRule':''))}" target="_blank" rel="noopener"${isOrg?` data-sent="${esc(p.id)}|start"`:''}>📤 Share the poll on WhatsApp</a><button class="lnk" id="cplink" style="margin-left:auto">${ic('copy')}Copy</button>${isOrg?`<button class="lnk" id="cpopts" style="margin-left:12px">As WA poll</button>`:''}</div>
   </section>
   ${isOrg?orgGrid(p,t)+`<section class="card">${cardH('gear','Manage poll')}
     <div class="pad"><div class="grid2"><button class="btn line" id="toggleclose">${p.closed?'Reopen poll':'Close poll'}</button>${P.confirmDel?`<button class="btn danger" id="delok">Delete for good</button>`:`<button class="btn line" id="delpoll">${ic('trash')}Delete</button>`}</div>
@@ -3641,10 +3801,11 @@ function renderPollDetail(v){
   $('#back').onclick=leavePoll;
   bindReminders(v);
   v.querySelectorAll('[data-gotoday]').forEach(b=>b.onclick=()=>{if(b.dataset.gotoday)curDate=b.dataset.gotoday;go('day')});
+  v.querySelectorAll('[data-hrs]').forEach(b=>b.onclick=()=>{const[d,n]=b.dataset.hrs.split('|');openBoard(d,n)});
   $('#cplink').onclick=()=>copyText(msgPoll(p));
   const c2=$('#cplink2');if(c2)c2.onclick=()=>copyText(pollLink(p.id),'Link copied.');
   const co=$('#cpopts');if(co)co.onclick=()=>copyText(msgOptions(p),'Poll options copied. Paste them into a WhatsApp poll.');
-  bindOrgGrid(v,p,t);
+  bindOrgGrid(v,p,t);if(P.recOpen){const rd=[...v.querySelectorAll('details.vcard')].pop();if(rd)rd.open=true}
   const sel=$('#vname');
   if(sel){
     const setName=n=>{P.myName=n;P.myAns={};const m=t.voters.find(x=>nkey(x.name)===nkey(n));if(m)P.myAns={...(m.answers||{})};setMe(n)};
@@ -3671,11 +3832,11 @@ function orgGrid(p,t){
   const names=orderNames(uniq([...activeRoster(),...Object.keys(S.autoOff||{}).map(k=>S.roster.find(r=>nkey(r)===k)).filter(Boolean),...t.voters.map(x=>canon(x.name))]));
   const ans=n=>{const m=t.voters.find(x=>nkey(x.name)===nkey(n));return m?(m.answers||{}):{}};
   const out=n=>{const a=ans(n);return p.dates.length&&p.dates.every(dt=>a[dt.date]==='no')};
-  return`<section class="card">${cardH('check','Record votes','<span id="gstat"></span>')}
+  return`<details class="card vcard"><summary>${cardH('check','Record votes','<span id="gstat">for WhatsApp replies · tap to open</span>')}</summary>
     <div class="pad" style="padding-bottom:4px"><p class="hint">For replies in the chat or a WhatsApp poll: tap who picked each option. “Both” voters go under each date.</p></div>
     ${p.dates.map(dt=>`<div class="sub"><span class="sublbl">${esc(waOpt(dt))}</span><div class="tiles sm">${names.map(n=>`<button type="button" class="tile ${ans(n)[dt.date]==='yes'?'on':''}" data-g="${esc(n)}|${dt.date}">${ic('check')}<span>${esc(n)}</span></button>`).join('')}</div></div>`).join('')}
     <div class="sub"><span class="sublbl">Not available</span><div class="tiles sm">${names.map(n=>`<button type="button" class="tile ${out(n)?'on':''}" data-g="${esc(n)}|__out">${ic('check')}<span>${esc(n)}</span></button>`).join('')}</div></div>
-  </section>`;
+  </details>`;
 }
 const gTimers={};
 function bindOrgGrid(v,p,t){
@@ -3685,7 +3846,7 @@ function bindOrgGrid(v,p,t){
     if(k==='__out')p.dates.forEach(dt=>{if(on)a[dt.date]='no';else if(a[dt.date]==='no')delete a[dt.date]});
     else{if(on){a[k]='yes';p.dates.forEach(dt=>{if(a[dt.date]==='no')delete a[dt.date]})}else delete a[k]}
     const nv={name,answers:a,updatedAt:Date.now()};
-    P.votes=[...P.votes.filter(x=>nkey(x.name)!==nkey(name)),nv];renderPolls();
+    P.votes=[...P.votes.filter(x=>nkey(x.name)!==nkey(name)),nv];P.recOpen=true;renderPolls();
     const st=$('#gstat');if(st)st.textContent='Saving…';
     clearTimeout(gTimers[name]);gTimers[name]=setTimeout(async()=>{try{await pollsCol().doc(p.id).collection('votes').doc('n-'+slug(name)).set(nv);const s=$('#gstat');if(s)s.textContent='Saved'}catch(e){toast('Couldn’t save '+first(name)+'’s vote ('+e.code+').')}},400)});
 }
@@ -3712,6 +3873,39 @@ function go(t){if(t==='me'){SUB.pay='mine';t='pay'}closeWho();if(t!=='team'&&tea
 document.querySelectorAll('.tabbar [data-tab]').forEach(b=>b.onclick=()=>{if(b.dataset.tab==='pay'&&tab!=='pay'&&pay.range==='day'){pay.range='last';pay.off.clear()}go(b.dataset.tab)});
 function typingIn(id){const a=document.activeElement;return!!a&&(a.tagName==='INPUT'||a.tagName==='SELECT')&&$(id).contains(a)&&a.type!=='checkbox'&&a.type!=='file'}
 let STALE=false;
+/* admins arrange the cards on Home, Club and Cup for everyone */
+const LAYOUT_CARDS={day:[['hello','👋 Welcome'],['occ','🎂 Celebrations'],['tasks','✅ Tasks'],['next','📅 Next game day'],['courts','🏟️ Court bookings'],['adhoc','⚡ Ad-hoc game, who played & costs']],
+  club:[['stories','⭕ Status row'],['compose','✍️ Post, announce & give'],['avo','🥑 Avokudos leaders'],['feed','📰 Feed posts']],
+  cup:[['buttons','🎛️ Levels · Leaderboard · Challenge'],['me','🏸 My player chip'],['chal','⚔️ Challenges'],['stars','⭐ Star players'],['ready','🚀 Ready for the next level'],['all','👥 Player cards'],['hof','👑 Hall of fame']]};
+const arrangeLink=t=>isOrg&&db?`<button type="button" class="lnk arrange" data-arrange="${t}">⇅ Arrange this page for everyone</button>`:'';
+function applyLayout(t){const v=$('#view-'+t),L=(S.layout||{})[t];if(!v)return;v.querySelectorAll('[data-arrange]').forEach(b=>b.onclick=()=>openArrange(b.dataset.arrange));if(!L)return;
+  const order=L.order||[],hide=new Set(L.hide||[]),groups=new Map();v.querySelectorAll('[data-card]').forEach(el=>{const p=el.parentElement;if(!groups.has(p))groups.set(p,[]);groups.get(p).push(el)});
+  groups.forEach(els=>{const rank=k=>{const i=order.indexOf(k);return i<0?999+els.findIndex(e=>e.dataset.card===k):i};const sorted=els.slice().sort((a,b)=>rank(a.dataset.card)-rank(b.dataset.card));
+    const marks=els.map(e=>{const m=document.createComment('c');e.before(m);return m});sorted.forEach((e,i)=>marks[i].replaceWith(e))});
+  v.querySelectorAll('[data-card]').forEach(el=>{if(hide.has(el.dataset.card))el.style.display='none'})}
+function openArrange(t){if(!isOrg)return;const base=LAYOUT_CARDS[t]||[],L=(S.layout||{})[t]||{},hide=new Set(L.hide||[]);let order=(L.order||[]).filter(k=>base.some(b=>b[0]===k));base.forEach(b=>{if(!order.includes(b[0]))order.push(b[0])});
+  const draw=()=>{const bg=sheetOpen(`<div class="sheet-h"><span class="ini">⇅</span><div><b>Arrange ${t==='day'?'Home':t==='club'?'Club':'Cup'}</b><small>Move cards up or down, or hide them. Everyone sees the same layout.</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div>
+    <div class="arrl">${order.map((k,i)=>{const lb=(base.find(b=>b[0]===k)||[k,k])[1];return`<div class="arr${hide.has(k)?' off':''}"><span>${esc(lb)}</span><button type="button" class="iconbtn" data-up="${i}" ${i?'':'disabled'} aria-label="Move up">↑</button><button type="button" class="iconbtn" data-dn="${i}" ${i<order.length-1?'':'disabled'} aria-label="Move down">↓</button><button type="button" class="iconbtn" data-hd="${k}" aria-label="${hide.has(k)?'Show':'Hide'}">${hide.has(k)?'🙈':'👁️'}</button></div>`}).join('')}</div>
+    <div class="card-f" style="display:grid;grid-template-columns:1fr 2fr;gap:8px"><button class="btn line" id="arrreset">Default</button><button class="btn primary" id="arrsave">${ic('check')}Save for everyone</button></div>`,'Arrange');
+    bg.querySelectorAll('[data-up]').forEach(b=>b.onclick=()=>{const i=+b.dataset.up;[order[i-1],order[i]]=[order[i],order[i-1]];draw()});
+    bg.querySelectorAll('[data-dn]').forEach(b=>b.onclick=()=>{const i=+b.dataset.dn;[order[i+1],order[i]]=[order[i],order[i+1]];draw()});
+    bg.querySelectorAll('[data-hd]').forEach(b=>b.onclick=()=>{const k=b.dataset.hd;hide.has(k)?hide.delete(k):hide.add(k);draw()});
+    $('#arrreset').onclick=()=>{S.layout={...(S.layout||{})};delete S.layout[t];saveConfig();closeWho();renderTab(true);toast('Back to the default layout')};
+    $('#arrsave').onclick=()=>{S.layout={...(S.layout||{}),[t]:{order,hide:[...hide]}};saveConfig();closeWho();renderTab(true);toast('Layout saved for everyone ✅')}};draw()}
+renderDay=(f=>function(){const r=f.apply(this,arguments);try{applyLayout('day')}catch(e){}return r})(renderDay);
+renderClub=(f=>function(){const r=f.apply(this,arguments);try{applyLayout('club')}catch(e){}return r})(renderClub);
+renderCup=(f=>function(){const r=f.apply(this,arguments);try{applyLayout('cup')}catch(e){}return r})(renderCup);
+/* ---------- back gesture: phone back button or a swipe from the left edge closes what's open ---------- */
+function goBack(){const kb=document.querySelector('.kbbg');if(kb){closeKB();return true}
+  const pv=$('#phview');if(pv){pv.remove();return true}const sv=$('#storyview');if(sv){const x=sv.querySelector('.svx');if(x)x.click();else sv.remove();return true}
+  if($('#whosheet')){closeWho();return true}
+  if(tab==='team'&&teamUI&&teamUI.page){teamUI.page='';renderTeam();window.scrollTo(0,0);return true}
+  if(tab==='polls'&&P.mode&&P.mode!=='list'){leavePoll();return true}
+  if(tab!=='day'){go('day');return true}return false}
+try{history.pushState({g:1},'')}catch(e){}
+window.addEventListener('popstate',()=>{if(location.hash.startsWith('#poll-'))return;if(goBack()){try{history.pushState({g:1},'')}catch(e){}}});
+(function(){let sx=0,sy=0,on=false;document.addEventListener('touchstart',e=>{const t=e.touches[0];on=t.clientX<28;sx=t.clientX;sy=t.clientY},{passive:true});
+  document.addEventListener('touchend',e=>{if(!on)return;on=false;const t=e.changedTouches[0];if(t.clientX-sx>70&&Math.abs(t.clientY-sy)<70)goBack()},{passive:true})})();
 function renderTab(force){
   renderHeader();
   if(!force&&tab!=='day'&&tab!=='polls'&&typingIn('#view-'+tab)){STALE=true;return}
@@ -3748,7 +3942,7 @@ if('serviceWorker' in navigator)window.addEventListener('load',()=>{const had=!!
   auth.getRedirectResult().catch(e=>toast('Sign-in failed: '+(e.message||e.code)));
   auth.onAuthStateChanged(u=>{const changed=computeOrg();
     if(!authInit||changed){authInit=true;renderTab(true);if(isOrg&&cfgMissing){cfgMissing=false;saveConfig()}}else renderHeader();
-    if(isOrg){loadOrgData(true);startRequests();startPrivate();startActions()}setTimeout(startMyReq,0)});
+    if(isOrg){loadOrgData(true);startRequests();startPrivate();startActions();setTimeout(dailyBackup,9000)}setTimeout(startMyReq,0)});
   if(GID)db.doc(COLLECTION_PREFIX+'groups/'+GID).onSnapshot(s=>{
     if(!s.exists&&!s.metadata.fromCache){GROUP_MISSING=true;renderHeader();return}
     if(s.exists){GROUP=s.data();GROUP_MISSING=false;if(!S.groupName)S.groupName=GROUP.name||'';rememberGroup();if(computeOrg()){renderTab(true);if(isOrg)loadOrgData(true)}else renderHeader()}},()=>{});
@@ -3756,7 +3950,7 @@ if('serviceWorker' in navigator)window.addEventListener('load',()=>{const had=!!
     if(!s.metadata.fromCache)CFG_READY=true;
     if(!s.exists&&!s.metadata.fromCache){cfgMissing=true;if(isOrg){cfgMissing=false;saveConfig()}}
     if(s.exists&&!s.metadata.hasPendingWrites)CFG_CLOUD=JSON.parse(JSON.stringify(s.data()));
-    if(s.exists){const d=s.data();if(Array.isArray(d.roster))S.roster=[...d.roster];S.rate=+d.rate||300;S.groupName=d.groupName||'';S.upiId=d.upiId||'';S.upiName=d.upiName||'';S.levels=d.levels&&typeof d.levels==='object'?d.levels:{};S.admins=Array.isArray(d.admins)?d.admins:[];S.inactive=Array.isArray(d.inactive)?d.inactive:[];S.ignored=Array.isArray(d.ignored)?d.ignored:[];S.openNames=d.openNames!==false;S.idleWeeks=d.idleWeeks==null?4:+d.idleWeeks;S.since=d.since||{};S.autoOff=d.autoOff||{};S.billed=Array.isArray(d.billed)?d.billed:[];S.msg=d.msg||null;S.sent=d.sent||{};S.board=d.board&&typeof d.board==='object'?d.board:null;S.dupOk=Array.isArray(d.dupOk)?d.dupOk:[];S.model=d.model==='pre'?'pre':'post';S.load=+d.load||1000;S.low=d.low==null?200:+d.low;S.perms=d.perms&&typeof d.perms==='object'?d.perms:{};S.giphy=String(d.giphy||'').slice(0,80);setTimeout(autoInactive,0);S.skin=SKINS[d.skin]?d.skin:'court';applySkin();saveLocal();if(GID)rememberGroup();renderHeader();if(computeOrg()&&!typingIn('#view-'+tab)&&!$('#whosheet'))renderTab(true)}
+    if(s.exists){const d=s.data();if(Array.isArray(d.roster))S.roster=[...d.roster];S.rate=+d.rate||300;S.groupName=d.groupName||'';S.upiId=d.upiId||'';S.upiName=d.upiName||'';S.levels=d.levels&&typeof d.levels==='object'?d.levels:{};S.admins=Array.isArray(d.admins)?d.admins:[];S.inactive=Array.isArray(d.inactive)?d.inactive:[];S.ignored=Array.isArray(d.ignored)?d.ignored:[];S.openNames=d.openNames!==false;S.idleWeeks=d.idleWeeks==null?4:+d.idleWeeks;S.since=d.since||{};S.autoOff=d.autoOff||{};S.billed=Array.isArray(d.billed)?d.billed:[];S.msg=d.msg||null;S.sent=d.sent||{};S.board=d.board&&typeof d.board==='object'?d.board:null;S.layout=d.layout&&typeof d.layout==='object'?d.layout:{};S.dupOk=Array.isArray(d.dupOk)?d.dupOk:[];S.model=d.model==='pre'?'pre':'post';S.load=+d.load||1000;S.low=d.low==null?200:+d.low;S.perms=d.perms&&typeof d.perms==='object'?d.perms:{};S.giphy=String(d.giphy||'').slice(0,80);setTimeout(autoInactive,0);S.skin=SKINS[d.skin]?d.skin:'court';applySkin();saveLocal();if(GID)rememberGroup();renderHeader();if(computeOrg()&&!typingIn('#view-'+tab)&&!$('#whosheet'))renderTab(true)}
     renderTab(false)},e=>toast('Couldn’t load shared data ('+e.code+').'));
   fsDoc('config/photo').onSnapshot(s=>{if(busy('config/photo'))return;photo=s.exists?(s.data().data||''):'';try{photo?localStorage.setItem(LSP,photo):localStorage.removeItem(LSP)}catch(e){}renderHeader();if(tab==='team'&&!typingIn('#view-team'))renderTeam()},()=>{});
   col('days').onSnapshot(q=>{
