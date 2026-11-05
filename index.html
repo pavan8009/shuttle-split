@@ -601,7 +601,7 @@ const FIREBASE_CONFIG = {
 /* Collections get this prefix so they never clash with the league app's data */
 const COLLECTION_PREFIX = "shuttleSplit_";
 /* App version shown in Team → About */
-const APP_VERSION = "4.3.1", APP_BUILD = "5 Nov 2026";
+const APP_VERSION = "4.4.0", APP_BUILD = "5 Nov 2026";
 /* Owner of the main group (the link without ?g=) */
 const LEGACY_OWNER = "pavankaki.cool@gmail.com";
 /* Starting player list, used only until the first save */
@@ -2661,10 +2661,11 @@ function reactBar(kind,id,o){const uid=auth&&auth.currentUser&&auth.currentUser.
   return`<span class="rbar">${Object.entries(m).map(([e,l])=>`<button class="rchip${e===mine?' on':''}" data-react="${kind}:${esc(id)}:${e}" title="${esc(l.map(x=>x.n).join(', '))}">${e} ${l.length}</button>`).join('')}<button class="rchip add" data-rpick="${kind}:${esc(id)}" aria-label="React">😊＋</button></span>`}
 function threadListHTML(target,limit,chat){const L=(tList(target)||[]).filter(c=>c.target===target).sort((a,b)=>(a.at||0)-(b.at||0)),uid=auth&&auth.currentUser&&auth.currentUser.uid,rk=isChatT(target)?'h':'c';
   let top=L.filter(c=>!c.parent);const more=limit&&top.length>limit?top.length-limit:0;if(more)top=top.slice(-limit);
-  const del=c=>(uid&&c.uid===uid)||isOrg?`<button class="lnk" data-cdel="${esc(c.id)}" style="color:var(--muted)">Delete</button>`:'';
-  const one=c=>`<div class="cmt">${ini(c.name||'?','','sm')}<div class="cb"><div><b>${esc(c.name||'')}</b> <small>${timeAgo(c.at)}</small></div><div class="ct">${richText(c.text)}</div>
+  const del=c=>((uid&&c.uid===uid)?`<button class="lnk" data-cedit="${esc(c.id)}" style="color:var(--muted)">Edit</button>`:'')+((uid&&c.uid===uid)||isOrg?`<button class="lnk" data-cdel="${esc(c.id)}" style="color:var(--muted)">Delete</button>`:'');
+  const ed=c=>c.edited?' · edited':'';
+  const one=c=>`<div class="cmt">${ini(c.name||'?','','sm')}<div class="cb"><div><b>${esc(c.name||'')}</b> <small>${timeAgo(c.at)}${ed(c)}</small></div><div class="ct">${richText(c.text)}</div>
     <div class="ca"><button class="lnk" data-reply="${esc(c.id)}">Reply</button>${trLink(rk,c.id,c.text)}${del(c)}<span style="margin-left:auto">${heartMini(rk,c)}</span></div>
-    ${L.filter(r=>r.parent===c.id).map(r=>`<div class="cmt reply">${ini(r.name||'?','','sm')}<div class="cb"><div><b>${esc(r.name||'')}</b> <small>${timeAgo(r.at)}</small></div><div class="ct">${richText(r.text)}</div><div class="ca">${trLink(rk,r.id,r.text)}${del(r)}<span style="margin-left:auto">${heartMini(rk,r)}</span></div></div></div>`).join('')}</div></div>`;
+    ${L.filter(r=>r.parent===c.id).map(r=>`<div class="cmt reply">${ini(r.name||'?','','sm')}<div class="cb"><div><b>${esc(r.name||'')}</b> <small>${timeAgo(r.at)}${ed(r)}</small></div><div class="ct">${richText(r.text)}</div><div class="ca">${trLink(rk,r.id,r.text)}${del(r)}<span style="margin-left:auto">${heartMini(rk,r)}</span></div></div></div>`).join('')}</div></div>`;
   return(more?`<p class="hint" style="margin:0 0 8px">${plural(more,'earlier message')}</p>`:'')+(top.map(one).join('')||`<p class="hint" style="margin:0">${chat?'No messages yet. Say hi 👋':'Be the first to say something nice 💚'}</p>`)}
 function threadHTML(target,ph,o){o=o||{};return`<div class="thread${o.chat?' chat':''}" data-target="${esc(target)}" data-limit="${o.limit||0}" data-chat="${o.chat?1:0}"><div class="tlist">${threadListHTML(target,o.limit||0,o.chat)}</div>
     ${perm(isChatT(target)?'chat':'kudos')==='off'?`<p class="hint" style="margin:0">🔒 ${isChatT(target)?'Chat':'Comments'} turned off by the admins.</p></div>`:`<div class="inline"><button type="button" class="kbbtn" data-kb aria-label="Emoji, GIFs and translate">${IGI.smile}</button><input class="txt" data-cin placeholder="${esc(ph||'Write a comment… type @ to mention')}" maxlength="500" autocomplete="off"><button class="btn sm primary" data-csend style="height:44px">Send</button></div>
@@ -2672,12 +2673,20 @@ function threadHTML(target,ph,o){o=o||{};return`<div class="thread${o.chat?' cha
 async function setReact(kind,id,emo){const me=allNames().find(n=>nkey(n)===nkey(getMe()));if(!me)return toast('Pick your name first (tap the person icon at the top).');
   try{await ensureAnon();const uid=auth.currentUser.uid,F=firebase.firestore,c=kind==='c'?'comments':kind==='h'?'chat':kind==='s'?'stories':kind==='a'?'avo':'posts',o=(kind==='c'?CMT.list:kind==='h'?CHAT.list:kind==='s'?STORY.list:kind==='a'?AVO.list:CLUB.list).find(x=>x.id===id)||{},v0=o.likes&&o.likes[uid]?String(o.likes[uid]):'',cur=v0?(v0.includes('|')?v0.split('|')[0]:'🏸'):'';
     await col(c).doc(id).update(new F.FieldPath('likes',uid),cur===emo?F.FieldValue.delete():emo+'|'+canon(me))}catch(e){toast(e.code==='permission-denied'?'Ask the organizer to update the app rules.':'Couldn’t save ('+(e.code||'error')+').')}}
+function openEditText(title,text,max,save){const bg=sheetOpen(`<div class="sheet-h"><span class="ini">✏️</span><div><b>${esc(title)}</b><small>Everyone sees “edited” next to it</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div>
+  <div class="sub" style="padding-top:12px"><textarea class="txt" id="edtxt" maxlength="${max}" rows="4" style="width:100%;resize:vertical">${esc(text||'')}</textarea><small class="hint" id="edcnt" style="display:block;text-align:right"></small></div>
+  <div class="card-f grid2"><button class="btn line" id="edcancel">Cancel</button><button class="btn primary" id="edsave">${ic('check')}Save</button></div>`,title);
+  const ta=$('#edtxt'),cnt=()=>{$('#edcnt').textContent=ta.value.length+' / '+max};cnt();ta.oninput=cnt;setTimeout(()=>{ta.focus();ta.setSelectionRange(ta.value.length,ta.value.length)},60);
+  $('#edcancel').onclick=closeWho;
+  $('#edsave').onclick=async()=>{const v=ta.value.trim();if(!v)return toast('It can’t be empty. Use Delete instead.');if(v===String(text||'').trim()){closeWho();return}$('#edsave').disabled=true;
+    try{await ensureAnon();await save(v);closeWho();toast('✏️ Saved')}catch(e){$('#edsave').disabled=false;toast(e.code==='permission-denied'?'Only the person who wrote it can edit it.':'Couldn’t save ('+(e.code||'error')+').')}}}
 function bindReacts(root){
   root.querySelectorAll('[data-react]').forEach(b=>b.onclick=e=>{e.stopPropagation();const[k,id,em]=b.dataset.react.split(':');setReact(k,id,em)});
   root.querySelectorAll('[data-rpick]').forEach(b=>b.onclick=e=>{e.stopPropagation();const[k,id]=b.dataset.rpick.split(':');const pop=document.createElement('span');pop.className='rpop';pop.innerHTML=EMO.map(x=>`<button type="button">${x}</button>`).join('');
     b.replaceWith(pop);pop.querySelectorAll('button').forEach(x=>x.onclick=ev=>{ev.stopPropagation();setReact(k,id,x.textContent)})})}
 function bindList(t){bindReacts(t);const inp=t.querySelector('[data-cin]'),rp=t.querySelector('[data-replying]'),L=tList(t.dataset.target);
   t.querySelectorAll('[data-reply]').forEach(b=>b.onclick=()=>{if(!inp)return toast('Turned off by the admins.');t._parent=b.dataset.reply;const c=L.find(x=>x.id===t._parent);rp.hidden=false;rp.innerHTML='Replying to '+esc(c?c.name:'')+' · <button class="lnk" type="button">cancel</button>';rp.querySelector('button').onclick=()=>{t._parent='';rp.hidden=true};inp.focus()});
+  t.querySelectorAll('[data-cedit]').forEach(b=>b.onclick=()=>{const c=L.find(x=>x.id===b.dataset.cedit);if(!c)return;openEditText('Edit '+(isChatT(t.dataset.target)?'message':'comment'),c.text,500,async v=>{await col(tCol(t.dataset.target)).doc(c.id).update({text:v,edited:Date.now()})})});
   t.querySelectorAll('[data-cdel]').forEach(b=>b.onclick=async()=>{if(b.dataset.c!=='1'){b.dataset.c='1';b.textContent='Tap to delete';return}try{await col(tCol(t.dataset.target)).doc(b.dataset.cdel).delete()}catch(e){toast('Couldn’t delete.')}})}
 function bindThread(root){bindReacts(root);
   root.querySelectorAll('.thread').forEach(t=>{bindList(t);if(t.dataset.bound||!t.querySelector('[data-cin]'))return;t.dataset.bound='1';const inp=t.querySelector('[data-cin]'),rp=t.querySelector('[data-replying]'),target=t.dataset.target;
@@ -2939,7 +2948,7 @@ function renderClub(){
   const posts=CLUB.list,tips=posts.filter(x=>x.kind==='tip');
   const postHTML=x=>{const own=uid&&x.uid===uid,cc=(CMT.list||[]).filter(c=>c.target==='post:'+x.id).length,rp=CLUB.list.filter(y=>y.repost&&y.repost.id===x.id).length;
     const tag=x.kind==='ask'?`<span class="tagchip askt">🙋 Help needed</span>`:x.kind==='announce'?`<span class="tagchip ann">📣 Announcement</span>`:x.tag?`<span class="tagchip">${esc(x.tag)}</span>`:x.kind==='photo'?'<span class="tagchip">📸 Memory</span>':x.kind==='idea'?'<span class="tagchip">💡 Idea</span>':x.kind==='update'?'<span class="tagchip">✅ Update</span>':x.repost?'<span class="tagchip">🔁 Reshared</span>':'';
-    return`<article class="card post ig${x.kind==='announce'?' annc':''}" id="post-${esc(x.id)}"><div class="ph">${ini(x.name||'?','',storyRing(x.name||'').trim())}<div style="flex:1;min-width:0"><b>${esc(x.name||'Someone')}</b><small>${x.day?'Game on '+esc(dlabel(x.day,{weekday:'short',day:'numeric',month:'short'})):''}${x.day&&statusOf(x.name)?' · ':''}${statusOf(x.name)?statusLine(x.name):''}</small></div>${tag}${own||isOrg?`<button class="iconbtn" data-pdelpost="${esc(x.id)}" aria-label="Delete">${ic('trash')}</button>`:''}</div>
+    return`<article class="card post ig${x.kind==='announce'?' annc':''}" id="post-${esc(x.id)}"><div class="ph">${ini(x.name||'?','',storyRing(x.name||'').trim())}<div style="flex:1;min-width:0"><b>${esc(x.name||'Someone')}</b><small>${x.day?'Game on '+esc(dlabel(x.day,{weekday:'short',day:'numeric',month:'short'})):''}${x.day&&statusOf(x.name)?' · ':''}${statusOf(x.name)?statusLine(x.name):''}${x.edited?' · edited':''}</small></div>${tag}${own&&!x.repost?`<button class="iconbtn" data-pedit="${esc(x.id)}" aria-label="Edit">✏️</button>`:''}${own||isOrg?`<button class="iconbtn" data-pdelpost="${esc(x.id)}" aria-label="Delete">${ic('trash')}</button>`:''}</div>
       ${x.img?`<div class="pimgw" data-dbl="${esc(x.id)}"><img class="pimg" src="${x.img}" alt="Photo by ${esc(x.name||'')}" loading="lazy"></div>`:''}
       ${!x.img&&x.text?`<div class="ptxt">${mtext(x.text)}${trLink('p',x.id,x.text)}</div>`:''}${x.kind==='ask'?`<div class="askfeed">${askRow(x)}</div>`:''}${x.repost?`<div style="padding:0 14px 6px">${repostBox(x)}</div>`:''}
       ${igActions('p',x.id,x,cc,rp)}
@@ -2987,6 +2996,7 @@ function renderClub(){
   v.querySelectorAll('[data-acmts]').forEach(b=>b.onclick=()=>{const id='a:'+b.dataset.acmts;CLUBOPEN.has(id)?CLUBOPEN.delete(id):CLUBOPEN.add(id);renderClub()});
   v.querySelectorAll('[data-ashare]').forEach(b=>b.onclick=()=>{const g=AVO.list.find(y=>y.id===b.dataset.ashare);if(!g)return;const t='🥑 '+g.from+' → '+g.to+(g.amt?' ('+g.amt+' Avokudos)':'')+(gTags(g).length?' for '+gTags(g).join(', '):'')+'\n“'+g.msg+'”\n\n'+location.href.split('#')[0];
     if(navigator.share)navigator.share({text:t}).catch(()=>{});else window.open(waHref(t),'_blank')});
+  v.querySelectorAll('[data-pedit]').forEach(b=>b.onclick=()=>{const x=CLUB.list.find(y=>y.id===b.dataset.pedit);if(!x)return;openEditText(x.kind==='ask'?'Edit your request':'Edit your post',x.text,1000,async t=>{await col('posts').doc(x.id).update({text:t,edited:Date.now()})})});
   v.querySelectorAll('[data-pdelpost]').forEach(b=>b.onclick=async()=>{if(b.dataset.c!=='1'){b.dataset.c='1';b.style.color='var(--danger)';toast('Tap again to delete this post.');return}try{await col('posts').doc(b.dataset.pdelpost).delete();toast('Post deleted.')}catch(e){toast('Couldn’t delete ('+e.code+').')}});
   v.querySelectorAll('[data-pshare]').forEach(b=>b.onclick=()=>{const x=CLUB.list.find(y=>y.id===b.dataset.pshare);if(x)sharePostCard(x)});
   const mo=v.querySelector('[data-more]');if(mo)mo.onclick=()=>{CLUB.limit+=20;if(CLUB.unsub){CLUB.unsub();CLUB.unsub=null}startClub()};
