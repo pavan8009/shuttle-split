@@ -101,7 +101,7 @@ exports.onPoll = onDocumentCreated(P + 'polls/{id}', async e => {
 exports.onPayment = onDocumentCreated(P + 'payments/{id}', async e => {
   const x = e.data.data();
   if (x.status !== 'claimed') return;
-  await send(await organizers(), `💸 ${first(x.payer || x.name)} says they paid ${inr(x.amount)}`, 'Check your UPI app and confirm', '#payouts', '', 'pay');
+  await send(await organizers(), `💸 ${first(x.payer || x.name)} says they paid ${inr(x.amount)}`, 'Check your UPI app and confirm', '#confirm', '', 'pay');
 });
 exports.onPaymentConfirmed = onDocumentUpdated(P + 'payments/{id}', async e => {
   const a = e.data.before.data(), b = e.data.after.data();
@@ -112,7 +112,7 @@ exports.onPaymentConfirmed = onDocumentUpdated(P + 'payments/{id}', async e => {
 // Ideas & problems: organizers
 exports.onRequest = onDocumentCreated(P + 'requests/{id}', async e => {
   const r = e.data.data();
-  await send(await organizers(), `${r.kind === 'bug' ? '🐞 Problem' : r.kind === 'q' ? '❓ Question' : '💡 Idea'} from ${first(r.name)}`, String(r.text || '').slice(0, 120), '#team', '', 'idea');
+  await send(await organizers(), `${r.kind === 'bug' ? '🐞 Problem' : r.kind === 'q' ? '❓ Question' : '💡 Idea'} from ${first(r.name)}`, String(r.text || '').slice(0, 120), '#ideas', '', 'idea');
 });
 
 // Challenges: the people being challenged
@@ -127,7 +127,7 @@ exports.onProposal = onDocumentCreated(P + 'actions/{id}', async e => {
   const a = e.data.data();
   if (a.kind !== 'poll' || a.status !== 'pending') return;
   let x = {}; try { x = JSON.parse(a.value); } catch (err) {}
-  await send(await organizers(), `🗓 ${first(a.name)} proposes a game`, sched(x) + (x.msg ? ' · “' + String(x.msg).slice(0, 80) + '”' : ''), '', 'prop-' + e.params.id, 'proposal');
+  await send(await organizers(), `🗓 ${first(a.name)} proposes a game`, sched(x) + (x.msg ? ' · “' + String(x.msg).slice(0, 80) + '”' : ''), '#proposals', 'prop-' + e.params.id, 'proposal');
 });
 exports.onProposalAnswer = onDocumentUpdated(P + 'actions/{id}', async e => {
   const a = e.data.before.data(), b = e.data.after.data();
@@ -145,14 +145,14 @@ exports.morning = onSchedule({ schedule: '0 8 * * *', timeZone: 'Asia/Kolkata' }
   const profs = await db.collection(P + 'profiles').get();
   for (const d of profs.docs) {
     const p = d.data();
-    if (p.bday === md) await send(all, `🎂 It’s ${first(p.name)}’s birthday today!`, 'Send a wish in the app 💌', '', 'bday-' + d.id, 'occasion');
-    if (p.anniv === md) await send(all, `💍 Happy anniversary, ${first(p.name)}!`, 'Send your wishes in the app 💌', '', 'anniv-' + d.id, 'occasion');
+    if (p.bday === md) await send(all, `🎂 It’s ${first(p.name)}’s birthday today!`, 'Send a wish in the app 💌', '#club', 'bday-' + d.id, 'occasion');
+    if (p.anniv === md) await send(all, `💍 Happy anniversary, ${first(p.name)}!`, 'Send your wishes in the app 💌', '#club', 'anniv-' + d.id, 'occasion');
   }
   const occ = await db.collection(P + 'occasions').where('date', '==', ymd).get();
-  for (const d of occ.docs) { const o = d.data(); await send(all, `${o.emoji || '🎉'} ${first(o.who)}: ${o.title || 'a special day'}!`, 'Send your wishes in the app 💌', '', '', 'occasion'); }
+  for (const d of occ.docs) { const o = d.data(); await send(all, `${o.emoji || '🎉'} ${first(o.who)}: ${o.title || 'a special day'}!`, 'Send your wishes in the app 💌', '#club', '', 'occasion'); }
   const polls = await db.collection(P + 'polls').orderBy('createdAt', 'desc').limit(10).get();
   for (const d of polls.docs) {
     const p = d.data(), dt = (p.dates || []).find(x => x.date === ymd);
-    if (dt && !p.archived) await send(all, '🏸 Game day today' + (dt.note ? ' · ' + dt.note : ''), 'See who’s in and get directions', '', '', 'game');
+    if (dt && !p.archived) await send(all, '🏸 Game day today' + (dt.note ? ' · ' + dt.note : ''), 'See who’s in and get directions', '#home', '', 'game');
   }
 });

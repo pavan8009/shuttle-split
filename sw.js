@@ -1,6 +1,6 @@
 // Shuttle Split service worker: lets the app open offline and install as a phone app.
 // Bump VERSION whenever you upload a new index.html so phones pick up the update.
-const VERSION = 'shuttle-split-v56';
+const VERSION = 'shuttle-split-v57';
 const SHELL = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './apple-touch-icon.png'];
 
 self.addEventListener('install', e => {
@@ -60,7 +60,8 @@ self.addEventListener('notificationclick', e => {
   e.notification.close();
   const link = (e.notification.data && e.notification.data.link) || './';
   e.waitUntil(clients.matchAll({ type: 'window', includeUncontrolled: true }).then(list => {
-    for (const c of list) { if ('focus' in c) { c.navigate(link).catch(() => {}); return c.focus(); } }
+    // app already open: tell it where to go (works on iPhone, where navigate() doesn't), then bring it to the front
+    for (const c of list) { if ('focus' in c) { try { c.postMessage({ type: 'open', link }); } catch (err) {} return c.focus(); } }
     return clients.openWindow(link);
   }));
 });

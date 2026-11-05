@@ -215,7 +215,7 @@ label.row{cursor:pointer}
 .cta .btn{background:var(--accent-ink);color:var(--accent)}
 
 /* tab bar + toast */
-.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
+.kbopen .tabbar{display:none}.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:20;-webkit-transform:translate3d(0,0,0);transform:translate3d(0,0,0);background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
 .tabbar .wrap{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));justify-items:stretch}.tabbar button{width:100%}
 .tabbar button{display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 2px 8px;font-size:11px;font-weight:700;color:var(--muted)}
 .tabbar button .ic{width:23px;height:23px}
@@ -601,7 +601,7 @@ const FIREBASE_CONFIG = {
 /* Collections get this prefix so they never clash with the league app's data */
 const COLLECTION_PREFIX = "shuttleSplit_";
 /* App version shown in Team → About */
-const APP_VERSION = "4.3.0", APP_BUILD = "5 Nov 2026";
+const APP_VERSION = "4.3.1", APP_BUILD = "5 Nov 2026";
 /* Owner of the main group (the link without ?g=) */
 const LEGACY_OWNER = "pavankaki.cool@gmail.com";
 /* Starting player list, used only until the first save */
@@ -911,7 +911,7 @@ const menuItem=(key,icon,title,desc,meta,act)=>`<button class="mi" ${act?`data-a
 function myTasks(){if(!db)return[];const me=allNames().find(n=>nkey(n)===nkey(getMe())),out=[];
   if(!me)return[{ic:'user',t:'Pick your name',s:'So the app can show your votes, dues and tasks',go:()=>{SUB.pay='mine';go('pay')}}];
   P.list.filter(p=>!isArchived(p)&&!isClosed(p)).forEach(p=>{const v=(VOTES_BY[p.id]||[]).find(x=>nkey(x.name)===nkey(me));
-    out.push({ic:'poll',done:!!v,t:v?'Voted · '+p.title:'Cast your vote',s:v?'Thanks! You can still change it':p.title+(p.closesAt?' · closes '+fmtWhen(p.closesAt):''),go:()=>{location.hash='poll-'+p.id}})});
+    out.push({ic:'poll',done:!!v,t:v?'Voted · '+p.title:'Cast your vote',s:v?'Thanks! You can still change it':p.title+(p.closesAt?' · closes '+fmtWhen(p.closesAt):''),go:()=>{goPoll(p.id)}})});
   if(PRE()){const w=wallet(me);if(w.low)out.push({ic:'rupee',t:'Load '+inr(w.need)+' to your wallet',s:'Balance '+sinr(w.bal)+(w.claimed?' · '+inr(w.claimed)+' waiting to confirm':''),go:()=>openPay(me)})}
   else{const L=ledger(me);if(L.due>0)out.push(L.claimed>=L.due?{ic:'rupee',done:true,t:'Payment sent',s:inr(L.claimed)+' waiting for the organizer to confirm',go:()=>{ME.who='';ME.sec='money';go('me')}}
     :{ic:'rupee',t:'Pay '+inr(r2(L.due-L.claimed)),s:'Your share from the bill'+(L.since?' · since '+dlabel(L.since,{day:'numeric',month:'short'}):''),go:()=>openPay(me)})}
@@ -920,6 +920,7 @@ function myTasks(){if(!db)return[];const me=allNames().find(n=>nkey(n)===nkey(ge
   {const bal=avoBalance(me);if(bal>0&&perm('kudos')!=='off'&&!avoGiven(me,todayStr().slice(0,7)))out.push({ic:'chat',opt:true,t:'Share your 🥑 '+bal+' Avokudos',s:'Thank someone for their play, kindness or leadership',go:()=>openAvo()})}
   const last=playedDays()[0];if(last&&last>=shift(todayStr(),-2)&&getDay(last).present.some(x=>nkey(x)===nkey(me))&&!(CLUB.list||[]).some(x=>nkey(x.name)===nkey(me)&&x.at>new Date(last+'T00:00').getTime()))
     out.push({ic:'camera',opt:true,t:'Share a photo from '+dlabel(last,{weekday:'short',day:'numeric'}),s:'Optional · we’ll turn it into a memory card',go:()=>{go('club');setTimeout(()=>openCompose('photo'),150)}});
+  if(isOrg)ACT.list.filter(a=>a.kind==='poll'&&a.status==='pending').forEach(a=>out.unshift({ic:'cal',t:'Review '+first(a.name)+'’s game proposal',s:schedTxt(propX(a))+' · accept, change or decline',go:()=>openActions()}));
   return out}
 const pendingTasks=()=>myTasks().filter(x=>!x.done&&!x.opt);
 function tasksCard(){const t=myTasks();if(!t.length)return'';const pend=t.filter(x=>!x.opt&&!x.done).length;
@@ -1130,7 +1131,7 @@ document.addEventListener('click',e=>{if(e.target.closest&&e.target.closest('det
   if(e.target.closest&&e.target.closest('[data-tkclose]')){toggleToday(false);return}
   if(e.target.closest&&e.target.closest('[data-propmine]')){openSuggestDay();return}
   if(e.target.closest&&e.target.closest('[data-propadm]')){openActions();return}
-  if(e.target.closest&&e.target.closest('[data-pollgo]')){const id=e.target.closest('[data-pollgo]').dataset.pollgo;go('polls');setTimeout(()=>location.hash='poll-'+id,100);return}
+  if(e.target.closest&&e.target.closest('[data-pollgo]')){const id=e.target.closest('[data-pollgo]').dataset.pollgo;go('polls');setTimeout(()=>goPoll(id),100);return}
   if(e.target.closest&&e.target.closest('[data-propose]')){openSuggestDay();return}
   const o=e.target.closest&&e.target.closest('#todayslot [data-occwish]');if(o){const[n,k,id]=o.dataset.occwish.split('|'),x=occasionsToday().find(y=>y.n===n&&y.kind===k&&(y.id||'')===id);if(x)openWish(x)}});
 /* after voting yes: offer the calendar right away */
@@ -1166,7 +1167,7 @@ function nextGameCard(){const g=nextGame();if(!g)return canEdit()&&db?`<section 
     <div class="card-f"><span class="hint" style="margin:0">${myA==='yes'?'You’re in ✅':myA==='no'?'You said you can’t make it':me?'You haven’t voted yet':''}</span><button class="btn sm ${myA?'line':'primary'}" data-ngvote="${esc(g.p.id)}" style="margin-left:auto">${myA?'Change vote':'Vote now'}</button></div></section>`}
 function bindNextGame(v){v.querySelectorAll('[data-ngt]').forEach(b=>b.onclick=()=>{NG_OPEN=NG_OPEN===b.dataset.ngt?'':b.dataset.ngt;const ns=$('#nextslot');ns.innerHTML=nextGameCard();bindNextGame(v)});
   v.querySelectorAll('#nextslot [data-prof]').forEach(b=>b.onclick=()=>openProfile(b.dataset.prof));
-  v.querySelectorAll('[data-ngvote]').forEach(b=>b.onclick=()=>{location.hash='poll-'+b.dataset.ngvote});v.querySelectorAll('[data-ngnew]').forEach(b=>b.onclick=()=>{go('polls')})}
+  v.querySelectorAll('[data-ngvote]').forEach(b=>b.onclick=()=>{goPoll(b.dataset.ngvote)});v.querySelectorAll('[data-ngnew]').forEach(b=>b.onclick=()=>{go('polls')})}
 function renderDay(){
   const v=$('#view-day'), d=getDay(curDate), ws=weekStart(curDate), t=todayStr();
   const days=[...Array(7)].map((_,i)=>shift(ws,i));
@@ -1692,7 +1693,13 @@ function openWho(name,R){
   const wp=$('#whopay');if(wp)wp.onclick=()=>openPay(name);
   $('#whoclose').focus();
 }
-function closeWho(){const s=$('#whosheet');if(s){s.remove();document.body.style.overflow=''}}
+function closeWho(){const s=$('#whosheet');if(s){s.remove();document.body.style.overflow='';settleBar()}}
+function settleBar(){requestAnimationFrame(()=>{const y=window.scrollY;window.scrollTo(window.scrollX,y+1);window.scrollTo(window.scrollX,y)})}
+(function(){const typing=e=>{const t=e.target;return t&&(t.tagName==='INPUT'&&!/^(checkbox|radio|button|submit|range|color|file)$/.test(t.type)||t.tagName==='TEXTAREA'||t.tagName==='SELECT'||t.isContentEditable)};
+  document.addEventListener('focusin',e=>{if(typing(e))document.documentElement.classList.add('kbopen')});
+  document.addEventListener('focusout',e=>{if(typing(e))setTimeout(()=>{const a=document.activeElement;if(!(a&&typing({target:a}))){document.documentElement.classList.remove('kbopen');settleBar()}},120)});
+  if(window.visualViewport)window.visualViewport.addEventListener('resize',()=>{const kb=window.visualViewport.height<window.innerHeight*0.75;document.documentElement.classList.toggle('kbopen',kb);if(!kb)settleBar()});
+  window.addEventListener('orientationchange',()=>setTimeout(settleBar,300))})();
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeWho()});
 
 /* ---------- UPI payment ---------- */
@@ -2432,7 +2439,7 @@ async function applyAct(a,how){try{
   if(how==='approve'||how==='undo'){const v=how==='undo'?a.prev:a.value;
     if(a.kind==='name'){S.groupName=v;saveConfig()}else if(a.kind==='theme'){S.skin=v||'court';applySkin();saveConfig()}
     else if(a.kind==='photo'){if(how==='undo'){toast('Pick the photo to put back, or remove it in Team › Group.')}else{photo=v;try{localStorage.setItem(LSP,photo)}catch(x){}queueWrite('config/photo',{data:photo,updatedAt:Date.now()})}}
-    else if(a.kind==='poll'&&how==='approve'){const id=await publishProposal(a,propX(a),'accepted','');if(id){closeWho();renderHeader();go('polls');setTimeout(()=>location.hash='poll-'+id,100)}return}}
+    else if(a.kind==='poll'&&how==='approve'){const id=await publishProposal(a,propX(a),'accepted','');if(id){closeWho();renderHeader();go('polls');setTimeout(()=>goPoll(id),100)}return}}
   await col('actions').doc(a.id).update({status:how==='approve'?'approved':how==='decline'?'declined':how==='undo'?'undone':'kept'});renderHeader();renderTab(false);
   toast(how==='approve'?'Approved ✅':how==='decline'?'Declined':how==='undo'?'Change undone ↩️':'Kept 👍')}catch(e){toast('Couldn’t save ('+(e.code||'error')+').')}}
 const actOpen=()=>ACT.list.filter(a=>a.status==='pending'||a.status==='done');
@@ -2484,13 +2491,13 @@ function openSuggestDay(){let sa=nextWeekend(0)[0];for(let k=0;k<21&&gamesOn(sa)
   const val=()=>({date:$('#sdday').value,note:fmtSlot($('#sdfrom').value,$('#sdto').value),msg:norm($('#sdmsg').value)});
   const prev=()=>{const x=val(),G=x.date?gamesOn(x.date):[],dup=!isOrg&&x.date&&myProps().some(a=>a.status==='pending'&&propX(a).date===x.date);
     $('#sdsend').disabled=!!(G.length||dup);
-    if(G.length){$('#sdprev').innerHTML=`<b>🏸 A game is already on ${esc(dlabel(x.date,{weekday:'short',day:'numeric',month:'short'}))}${G[0].dt.note?' · '+esc(G[0].dt.note):''}.</b> No need for a new one. Vote in “${esc(G[0].p.title||'the poll')}” instead, or pick a day with no game. <button type="button" class="lnk" data-sdgo="${esc(G[0].p.id)}">Open that poll ›</button>`;const b=$('[data-sdgo]');if(b)b.onclick=()=>{closeWho();go('polls');setTimeout(()=>location.hash='poll-'+b.dataset.sdgo,100)};return}
+    if(G.length){$('#sdprev').innerHTML=`<b>🏸 A game is already on ${esc(dlabel(x.date,{weekday:'short',day:'numeric',month:'short'}))}${G[0].dt.note?' · '+esc(G[0].dt.note):''}.</b> No need for a new one. Vote in “${esc(G[0].p.title||'the poll')}” instead, or pick a day with no game. <button type="button" class="lnk" data-sdgo="${esc(G[0].p.id)}">Open that poll ›</button>`;const b=$('[data-sdgo]');if(b)b.onclick=()=>{closeWho();go('polls');setTimeout(()=>goPoll(b.dataset.sdgo),100)};return}
     if(dup){$('#sdprev').innerHTML=`<b>⏳ You already proposed ${esc(dlabel(x.date,{weekday:'short',day:'numeric',month:'short'}))}.</b> The admins will answer soon. Pick another day if you want to suggest more.`;return}
     $('#sdprev').innerHTML=`${isOrg?'Everyone gets the poll':'If accepted, everyone gets the poll'} <b>“${esc(pollQ(x.date))}”</b> for <b>${esc(schedTxt(x)||'—')}</b>.`};prev();
   bg.querySelectorAll('#sdday,#sdfrom,#sdto').forEach(e=>e.oninput=prev);
   $('#sdsend').onclick=async()=>{const x=val();if(!x.date)return toast('Pick a date.');if(gamesOn(x.date).length)return toast('🏸 A game is already on that day. Vote in that poll instead.');if(!x.note)return toast('Pick a start time.');if(slotEnd(x.note)<=slotStart(x.note))return toast('The end time must be after the start.');
     if(isOrg){const D=[{date:x.date,note:x.note}];if(pollClash(D).filter(p=>!isClosed(p)).length)return toast('A poll already covers that day. Pick another date or use the full editor.');
-      $('#sdsend').disabled=true;try{const c=defClose(x.date),ref=pollsCol().doc();await ref.set({title:pollQ(x.date),dates:D,perCourt:4,closed:false,closesAt:c?new Date(c).getTime():null,createdAt:Date.now()});closeWho();toast('🗳️ Poll published for '+schedTxt(x));go('polls');setTimeout(()=>location.hash='poll-'+ref.id,100)}catch(e){$('#sdsend').disabled=false;toast(e.code==='permission-denied'?'Sign in as an organizer first.':'Couldn’t publish ('+(e.code||'error')+').')}return}
+      $('#sdsend').disabled=true;try{const c=defClose(x.date),ref=pollsCol().doc();await ref.set({title:pollQ(x.date),dates:D,perCourt:4,closed:false,closesAt:c?new Date(c).getTime():null,createdAt:Date.now()});closeWho();toast('🗳️ Poll published for '+schedTxt(x));go('polls');setTimeout(()=>goPoll(ref.id),100)}catch(e){$('#sdsend').disabled=false;toast(e.code==='permission-denied'?'Sign in as an organizer first.':'Couldn’t publish ('+(e.code||'error')+').')}return}
     $('#sdsend').disabled=true;if(await playerAction('poll',JSON.stringify(x))){toast('🗓 Proposal sent. You’ll see the answer on Home.');const L=$('#myprops');if(L)L.innerHTML=myPropsHTML();startMyProps();$('#sdsend').disabled=false;const a=$('#askslot');if(a)a.innerHTML=asksCard()}else $('#sdsend').disabled=false}}
 /* admins: accept as is, change then publish, or decline with a reason */
 let confirmClash='';
@@ -2508,7 +2515,7 @@ function openPropDecide(a,mode){const x=propX(a);const quick=['Courts aren’t f
     <div class="card-f">${mode==='mod'?`<button class="btn primary block" id="pmgo">${ic('check')}Publish the changed poll</button>`:`<button class="btn block" id="pmgo" style="background:#B42318;color:#fff">Decline proposal</button>`}</div>`,'Proposal');
   bg.querySelectorAll('[data-pq]').forEach(b=>b.onclick=()=>{$('#pmmsg').value=b.dataset.pq});
   $('#pmgo').onclick=async()=>{const b=$('#pmgo');b.disabled=true;const msg=norm($('#pmmsg').value);
-    if(mode==='mod'){const y={date:$('#pmday').value,note:norm($('#pmnote').value)};if(!y.date){b.disabled=false;return toast('Pick a date.')}const id=await publishProposal(a,y,y.date===x.date&&y.note===(x.note||'')?'accepted':'modified',msg);if(id){closeWho();go('polls');setTimeout(()=>location.hash='poll-'+id,100)}else b.disabled=false}
+    if(mode==='mod'){const y={date:$('#pmday').value,note:norm($('#pmnote').value)};if(!y.date){b.disabled=false;return toast('Pick a date.')}const id=await publishProposal(a,y,y.date===x.date&&y.note===(x.note||'')?'accepted':'modified',msg);if(id){closeWho();go('polls');setTimeout(()=>goPoll(id),100)}else b.disabled=false}
     else{try{await col('actions').doc(a.id).update({status:'declined',reply:{how:'declined',msg,by:canon(myName()||'Organizer'),at:Date.now()}});closeWho();toast('Declined · '+first(a.name)+' sees your note');setTimeout(openActions,300)}catch(e){b.disabled=false;toast('Couldn’t save ('+(e.code||'error')+').')}}}}
 /* ================= PLAYER PROFILES ================= */
 /* public profile: everyone in the group sees it · private details: only the player and organizers */
@@ -3772,7 +3779,7 @@ function defClose(first){let c=shift(first,-1)+'T22:00';if(new Date(c).getTime()
 /* one live poll per game date: anything not archived that covers an upcoming date it shares */
 function pollClash(dates,except){const t=todayStr();return P.list.filter(p=>p.id!==except&&!isArchived(p)&&(p.dates||[]).some(d=>d.date>=t&&dates.some(x=>x.date===d.date)))}
 function startNewPoll(){if(!isOrg){signIn();return}const[sa,su]=nextWeekend(0);
-  {const c=pollClash([{date:sa},{date:su}]).filter(p=>!isClosed(p));if(c.length){toast('This weekend’s poll is already open. Opening it.');if(tab!=='polls')go('polls');location.hash='poll-'+c[0].id;return}}P.draft={title:'Who’s up for Badminton this weekend?',dates:[{date:sa,note:'5-7 PM'},{date:su,note:'9-11 AM'}],perCourt:4,closes:defClose(sa)};P.mode='new';SUB.polls='list';if(tab!=='polls')go('polls');renderPolls();window.scrollTo(0,0)}
+  {const c=pollClash([{date:sa},{date:su}]).filter(p=>!isClosed(p));if(c.length){toast('This weekend’s poll is already open. Opening it.');if(tab!=='polls')go('polls');goPoll(c[0].id);return}}P.draft={title:'Who’s up for Badminton this weekend?',dates:[{date:sa,note:'5-7 PM'},{date:su,note:'9-11 AM'}],perCourt:4,closes:defClose(sa)};P.mode='new';SUB.polls='list';if(tab!=='polls')go('polls');renderPolls();window.scrollTo(0,0)}
 function nextWeekend(w){const d=new Date(),sat=shift(todayStr(),((6-d.getDay()+7)%7)+7*w);return[sat,shift(sat,1)]}
 function latestByName(arr){const m={};arr.forEach(v=>{if(!v||!v.name)return;const k=nkey(v.name);if(!m[k]||(v.updatedAt||0)>(m[k].updatedAt||0))m[k]=v});return Object.values(m)}
 function waOpt(dt){const d=new Date(dt.date+'T00:00');return d.getDate()+'-'+d.toLocaleDateString('en-IN',{month:'short'})+' ('+d.toLocaleDateString('en-IN',{weekday:'long'})+')'+(dt.note?' | '+dt.note:'')}
@@ -3986,7 +3993,8 @@ function openPoll(id){if(!db)return;stopPoll();P.mode='detail';P.confirmDel=fals
   P.unsubVotes=ref.collection('votes').onSnapshot(q=>{P.votes=q.docs.map(d=>d.data());pollRender()},()=>{})}
 function stopPoll(){if(P.unsubPoll)P.unsubPoll();if(P.unsubVotes)P.unsubVotes();P.unsubPoll=P.unsubVotes=null}
 function pollRender(){if(tab!=='polls')return;const a=document.activeElement;if(a&&a.tagName==='INPUT'&&a.type==='text'&&$('#view-polls').contains(a))return;renderPolls()}
-function routeHash(){if(location.hash==='#payouts'){SUB.pay='mine';go('pay');return}if(location.hash==='#cup'){go('cup');return}{const m=location.hash.match(/^#cup-([A-Za-z0-9_-]+)$/);if(m){CUP.sel=m[1];go('cup');return}}if(location.hash==='#club'){go('club');return}if(location.hash==='#me'){go('me');return}if(location.hash==='#remind'){P.mode='list';P.scrollRem=true;go('polls');return}const m=location.hash.match(/^#poll-([A-Za-z0-9_-]+)$/);if(m){openPoll(m[1]);go('polls')}}
+const goPoll=id=>{const h='#poll-'+id;if(location.hash===h)routeHash();else location.hash=h};
+function routeHash(){if(location.hash==='#proposals'){go('day');setTimeout(()=>{if(isOrg)openActions()},300);return}if(location.hash==='#confirm'){SUB.pay='dues';go('pay');setTimeout(()=>{const c=$('#confirmcard');if(c)c.scrollIntoView({behavior:'smooth',block:'start'})},200);return}if(location.hash==='#team'||location.hash==='#ideas'){go('team');return}if(location.hash==='#home'){go('day');return}if(location.hash==='#payouts'){SUB.pay='mine';go('pay');return}if(location.hash==='#cup'){go('cup');return}{const m=location.hash.match(/^#cup-([A-Za-z0-9_-]+)$/);if(m){CUP.sel=m[1];go('cup');return}}if(location.hash==='#club'){go('club');return}if(location.hash==='#me'){go('me');return}if(location.hash==='#remind'){P.mode='list';P.scrollRem=true;go('polls');return}const m=location.hash.match(/^#poll-([A-Za-z0-9_-]+)$/);if(m){openPoll(m[1]);go('polls')}}
 function leavePoll(){stopPoll();P.mode='list';P.sel=null;P.justCreated=null;try{history.replaceState(null,'',location.pathname)}catch(e){}renderPolls()}
 function renderPolls(){
   const v=$('#view-polls');
@@ -3997,6 +4005,7 @@ function renderPolls(){
   const latestDone=live.filter(isClosed).sort((a,b)=>pollLast(b).localeCompare(pollLast(a)))[0];
   v.innerHTML=`
   ${intro('Polls','Ask who’s free before you book. Players vote from a WhatsApp link and you see how many courts you need.')}
+  ${(()=>{const Q=isOrg?ACT.list.filter(a=>a.kind==='poll'&&a.status==='pending'):[];return Q.length?`<section class="card due-card"><button type="button" class="propl" data-propadm style="border-top:0"><span class="tdi">🗓</span><span><b>${plural(Q.length,'game proposal')} to review</b><small>${Q.slice(0,2).map(a=>esc(first(a.name))+': '+esc(schedTxt(propX(a)))).join(' · ')}</small></span><span class="go">›</span></button></section>`:''})()}
   ${kpis([['Open polls',open.length],['Recent',live.length],['Next game',open.length&&open[0].dates&&open[0].dates[0]?esc(dlabel(open[0].dates[0].date,{weekday:'short',day:'numeric'})):'–',true]])}
   <div data-in="list">
   ${boardCard()}
@@ -4009,7 +4018,7 @@ function renderPolls(){
     ${arch.length?`<details class="inact"><summary>Archive · ${plural(arch.length,'poll')} older than 2 weeks</summary>${arch.map(p=>`<button class="row" style="width:100%;text-align:left" data-open="${esc(p.id)}"><div class="l"><b>${esc(p.title)}</b><small>${(p.dates||[]).map(dt=>esc(dlabel(dt.date))).join(' · ')}</small></div><span class="badge">Archived</span><span class="chev">${ic('right')}</span></button>`).join('')}</details>`:''}
   </section></div>`;
   v.querySelector('[data-act=newpoll]').onclick=startNewPoll;
-  v.querySelectorAll('[data-open]').forEach(el=>el.onclick=()=>{location.hash='poll-'+el.dataset.open});
+  v.querySelectorAll('[data-open]').forEach(el=>el.onclick=()=>{goPoll(el.dataset.open)});
   bindBoard(v);SUB.polls='list';applySub(v,'polls');
 }
 function renderNewPoll(v){
@@ -4045,7 +4054,7 @@ function renderNewPoll(v){
       const bg=sheetOpen(`<div class="sheet-h"><span class="ini">${ic('poll')}</span><div><b>A poll already covers ${esc(days)}</b><small>Only one poll per game day, so votes aren’t split</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div>
         <div class="row"><div class="l"><b>${esc(c.title)}</b><small>${isClosed(c)?'Closed':'Open'} · ${plural(new Set(latestByName(PDATA.votes.filter(v=>v.poll===c.id)).map(v=>nkey(v.name))).size,'vote')}</small></div></div>
         <div class="pad" style="display:grid;gap:8px"><button class="btn primary block" id="pc_open">${ic('poll')}Open that poll</button>${clash.length===1?`<button class="btn line block" id="pc_arch">Archive it and create mine</button><p class="hint" style="margin:0">Archiving hides the old poll and its votes. Players vote again in the new one.</p>`:''}</div>`,'Poll already exists');
-      $('#pc_open').onclick=()=>{closeWho();P.draft=null;location.hash='poll-'+c.id};
+      $('#pc_open').onclick=()=>{closeWho();P.draft=null;goPoll(c.id)};
       const pa=$('#pc_arch');if(pa)pa.onclick=async()=>{pa.disabled=true;try{await pollsCol().doc(c.id).update({archived:true,closed:true});closeWho();toast('Old poll archived. Tap Create poll again.')}catch(e){pa.disabled=false;toast('Couldn’t archive ('+e.code+').')}};
       return}
     const b=$('#createpoll');b.disabled=true;b.textContent='Creating…';
@@ -4171,7 +4180,7 @@ const PLAY=['polls','game','pay'];let PLAY_LAST='polls';
 function go(t){navMark();if(t==='me'){SUB.pay='mine';t='pay'}if(t==='play')t=PLAY_LAST;if(PLAY.includes(t))PLAY_LAST=t;closeWho();if(t!=='team'&&teamUI)teamUI.page='';tab=t;
   {const pb=$('#playbar');if(pb){pb.hidden=!PLAY.includes(t);pb.querySelectorAll('[data-play]').forEach(b=>{b.classList.toggle('on',b.dataset.play===t);b.setAttribute('aria-selected',String(b.dataset.play===t))})}}if((t==='team'||t==='day'||t==='game')&&isOrg)loadOrgData(false);document.querySelectorAll('.tabbar [data-tab]').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.tab===t||(b.dataset.tab==='play'&&PLAY.includes(t)))));
   ['day','game','polls','pay','cup','club','me','team'].forEach(k=>$('#view-'+k).hidden=k!==t);if(t==='club')clubSeen();renderTab(true);window.scrollTo(0,0)}
-document.querySelectorAll('.tabbar [data-tab]').forEach(b=>b.onclick=()=>{if(b.dataset.tab==='play'&&PLAY_LAST==='pay'&&tab!=='pay'&&pay.range==='day'){pay.range='last';pay.off.clear()}go(b.dataset.tab)});
+document.querySelectorAll('.tabbar [data-tab]').forEach(b=>b.onclick=()=>{if(b.dataset.tab==='play'&&PLAY_LAST==='pay'&&tab!=='pay'&&pay.range==='day'){pay.range='last';pay.off.clear()}if(b.dataset.tab==='play'&&P.mode==='detail'&&tab!=='polls'){P.mode='list';P.sel=null;if(location.hash.startsWith('#poll-'))try{history.replaceState(history.state,'',location.pathname+location.search)}catch(e){}}go(b.dataset.tab)});
 document.querySelectorAll('#playbar [data-play]').forEach(b=>b.onclick=()=>{const t=b.dataset.play;if(t==='pay'&&tab!=='pay'&&pay.range==='day'){pay.range='last';pay.off.clear()}if(t==='polls'&&P.mode&&P.mode!=='list')leavePoll();go(t)});
 function typingIn(id){const a=document.activeElement;return!!a&&(a.tagName==='INPUT'||a.tagName==='SELECT')&&$(id).contains(a)&&a.type!=='checkbox'&&a.type!=='file'}
 let STALE=false;
@@ -4239,6 +4248,7 @@ if(GID){try{const abs=u=>new URL(u,location.href).href;const m={share_target:{ac
   const l=document.querySelector('link[rel=manifest]');if(l)l.href=URL.createObjectURL(new Blob([JSON.stringify(m)],{type:'application/manifest+json'}))}catch(e){}}
 applySkin();bindDay();bindTeam();renderTab(true);
 if('serviceWorker' in navigator)window.addEventListener('load',()=>{const had=!!navigator.serviceWorker.controller;let done=false;
+  navigator.serviceWorker.addEventListener('message',e=>{const d=e.data||{};if(d.type==='open'&&d.link){const h=String(d.link).split('#')[1];if(h!=null){if(location.hash==='#'+h)routeHash();else location.hash=h}}});
   navigator.serviceWorker.register('sw.js').then(reg=>{document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')reg.update().catch(()=>{})});setInterval(()=>reg.update().catch(()=>{}),30*60e3)}).catch(()=>{});
   navigator.serviceWorker.addEventListener('controllerchange',()=>{if(!had||done)return;done=true;if(!document.querySelector('#whosheet')&&!document.activeElement.matches('input,textarea,select'))location.reload();else toast('A new version is ready. Close and reopen the app to update.')})});
 
