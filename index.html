@@ -601,7 +601,7 @@ const FIREBASE_CONFIG = {
 /* Collections get this prefix so they never clash with the league app's data */
 const COLLECTION_PREFIX = "shuttleSplit_";
 /* App version shown in Team → About */
-const APP_VERSION = "4.7.2", APP_BUILD = "5 Nov 2026";
+const APP_VERSION = "4.8.0", APP_BUILD = "5 Nov 2026";
 /* Owner of the main group (the link without ?g=) */
 const LEGACY_OWNER = "pavankaki.cool@gmail.com";
 /* Starting player list, used only until the first save */
@@ -1934,16 +1934,18 @@ function trophyHTML(n){const L=playerMedals(n);if(!L.length)return'';const c=k=>
   return`<div class="sub" style="border-top:1px solid var(--line2);padding-top:12px"><div style="display:flex;justify-content:space-between;align-items:baseline"><span class="sublbl" style="margin:0">🏆 Trophy cabinet</span><small class="hint" style="margin:0">🥇${c('g')} · 🥈${c('s')} · 🥉${c('b')}</small></div>
     <div class="trophies">${L.slice(0,12).map(x=>`<div class="trophy ${x.key}"><span class="tm">${x.e}</span><b>${esc(evName(x.T))}</b><small>${esc(x.T.champ?x.T.champ.name:x.T.name)}${x.with.length?' · with '+x.with.map(first).map(esc).join(' & '):''}</small></div>`).join('')}</div></div>`}
 /* event categories: admins tag each player once (Men's / Women's) for MS, WS, MD, WD and Mixed */
-function openCats(after){if(!isOrg)return toast('Only admins can set categories.');SWAP_KEY='';const act=activeRoster().slice().sort((a,b)=>a.localeCompare(b));const C=Object.assign({},S.cats||{});
-  const draw=()=>{const bg=sheetSwap(`<div class="sheet-h"><span class="ini">🏷️</span><div><b>Event categories</b><small>Used for Men’s, Women’s and Mixed events · only admins can change</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div>
+function openCats(after){if(!isOrg)return toast('Only admins can set categories.');SWAP_KEY='';const act=activeRoster().slice().sort((a,b)=>a.localeCompare(b));const C=Object.assign({},S.cats||{});act.forEach(n=>{const c=catOf(n);if(c)C[nkey(n)]=c;else delete C[nkey(n)]});
+  const draw=()=>{const bg=sheetSwap(`<div class="sheet-h"><span class="ini">🏷️</span><div><b>Event categories</b><small>Men’s = Male · Women’s = Female · kept in sync with each player’s profile</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div>
     <p class="hint" style="padding:10px 16px 0;margin:0">🧔 ${act.filter(n=>C[nkey(n)]==='M').length} men · 👩 ${act.filter(n=>C[nkey(n)]==='W').length} women · ${act.filter(n=>!C[nkey(n)]).length} not set (open events only)</p>
     ${act.map(n=>`<div class="catrow">${ini(n,'','sm')}<b>${esc(n)}</b><div class="seg catseg">${[['M','Men’s'],['W','Women’s'],['','–']].map(([k,l])=>`<button type="button" class="${(C[nkey(n)]||'')===k?'on':''}" data-catn="${esc(n)}" data-catv="${k}">${l}</button>`).join('')}</div></div>`).join('')}
     <div class="card-f"><button class="btn primary block" id="catsave">${ic('check')}Save categories</button></div>`,'Categories');
     bg.querySelectorAll('[data-catn]').forEach(b=>b.onclick=()=>{const k=nkey(b.dataset.catn);if(b.dataset.catv)C[k]=b.dataset.catv;else delete C[k];draw()});
-    $('#catsave').onclick=()=>{S.cats=C;saveConfig();closeWho();toast('🏷️ Categories saved');if(after)setTimeout(after,200);else renderTab(false)}};draw()}
+    $('#catsave').onclick=()=>{S.cats=C;saveConfig();act.forEach(n=>syncGender(n,C[nkey(n)]||''));closeWho();toast('🏷️ Categories saved');if(after)setTimeout(after,200);else renderTab(false)}};draw()}
 async function saveCup(T,patch){try{await col('tournaments').doc(T.id).update(JSON.parse(JSON.stringify(patch)));return true}catch(e){toast(e.code==='permission-denied'?'Only organizers can change tournaments. Publish the latest app rules if you are one.':'Couldn’t save ('+(e.code||'error')+').');return false}}
 const EVENTS={MS:['Men’s Singles','singles','M','🧔'],WS:['Women’s Singles','singles','W','👩'],MD:['Men’s Doubles','doubles','M','🧔🧔'],WD:['Women’s Doubles','doubles','W','👩👩'],XD:['Mixed Doubles','doubles','X','🧔👩'],OS:['Open Singles','singles','','🏸'],OD:['Open Doubles','doubles','','🏸🏸']};
-const catOf=n=>(S.cats||{})[nkey(n)]||'';
+const catOf=n=>{const p=(PROF.map||{})[nkey(n)];return p&&(p.gender==='M'||p.gender==='W')?p.gender:((S.cats||{})[nkey(n)]||'')};
+/* admins changing a category also update the player's profile, so both always match */
+async function syncGender(n,c){const k=nkey(n),p=(PROF.map||{})[k];if(!p||!db)return;if((p.gender||'')===(c||''))return;try{const d={...p,gender:c||'',at:Date.now()};await col('profiles').doc(k).set(d);PROF.map[k]=d}catch(e){}}
 const evName=T=>T.event&&EVENTS[T.event]?EVENTS[T.event][0]:(T.type==='doubles'?'Doubles':'Singles');
 function fmtName(f){return f==='ko'?'Knockout':f==='gk'?'Groups + knockout':f==='lp'?'League + playoffs':'Round robin'}
 function cupText(T){const L=['🏆 *'+T.name+'* · '+evName(T)+' · '+fmtName(T.format),''];const ch=cupChampion(T);if(ch)L.push('👑 Champion: *'+ch+'*','');
@@ -2645,7 +2647,8 @@ async function saveProfile(n,pub,priv){await ensureAnon();const k=nkey(n),uid=au
   if(cur&&cur.uid&&cur.uid!==uid&&!isOrg){const e=new Error('owner');e.code='not-owner';throw e}
   const own=nkey(n)===nkey(getMe()),owner=isOrg&&!own?((cur&&cur.uid)||''):(cur&&cur.uid&&isOrg&&cur.uid!==uid?cur.uid:uid),base=cur||{};
   const doc={name:canon(n),uid:owner,at:Date.now(),photo:pub.photo!=null?pub.photo:(base.photo||''),fullName:pub.fullName!=null?pub.fullName:(base.fullName||''),username:pub.username!=null?pub.username:(base.username||''),
-    place:pub.place!=null?pub.place:(base.place||''),bio:pub.bio!=null?pub.bio:(base.bio||''),interests:pub.interests||base.interests||[],bday:pub.bday!=null?pub.bday:(base.bday||''),anniv:pub.anniv!=null?pub.anniv:(base.anniv||'')};
+    place:pub.place!=null?pub.place:(base.place||''),bio:pub.bio!=null?pub.bio:(base.bio||''),interests:pub.interests||base.interests||[],bday:pub.bday!=null?pub.bday:(base.bday||''),anniv:pub.anniv!=null?pub.anniv:(base.anniv||''),gender:pub.gender!=null?pub.gender:(base.gender||'')};
+  if(isOrg&&pub.gender!=null){S.cats=Object.assign({},S.cats||{});if(pub.gender)S.cats[k]=pub.gender;else delete S.cats[k];saveConfig()}
   await col('profiles').doc(k).set(doc);PROF.map[k]=doc;
   if(priv){const pv={name:canon(n),uid:owner,at:Date.now(),phone:priv.phone||'',email:priv.email||'',dob:priv.dob||'',blood:priv.blood||''};await col('private').doc(k).set(pv);PROF.myPriv=pv;if(isOrg)PROF.priv[k]=pv}}
 const profErr=e=>toast(e.code==='not-owner'?'This profile is linked to another phone. Ask an organizer to reset it.':e.code==='permission-denied'?'Ask the organizer to update the app rules for profiles.':'Couldn’t save ('+(e.code||'error')+').');
@@ -2679,6 +2682,7 @@ async function openEditProfile(n){n=n||myName();if(!n)return;const k=nkey(n),p={
       <label class="fld"><span>Full name</span><input class="txt" id="epfull" maxlength="60" value="${esc(p.fullName||'')}" placeholder="${esc(n)}"></label>
       <label class="fld"><span>Username</span><input class="txt" id="epuser" maxlength="30" value="${esc(p.username||'')}" placeholder="e.g. smashking" autocapitalize="off"></label>
       <label class="fld"><span>Place</span><input class="txt" id="epplace" maxlength="60" value="${esc(p.place||'')}" placeholder="Area or city"></label>
+      <div class="fld"><span>Gender <small style="color:var(--muted);font-weight:600">· used for Men’s / Women’s / Mixed events in Cup</small></span><div class="seg" id="epgender" style="padding:0">${[['M','Male'],['W','Female'],['','Prefer not to say']].map(([k,l])=>`<button type="button" class="${catOf(n)===k?'on':''}" data-gen="${k}">${l}</button>`).join('')}</div></div>
       <label class="fld"><span>Bio</span><textarea class="txt" id="epbio" maxlength="200" rows="2" placeholder="A line about your game">${esc(p.bio||'')}</textarea></label>
       <span class="sublbl" style="margin-top:6px">Interests</span><div class="mix" style="flex-wrap:wrap;gap:6px" id="epints">${INTERESTS.map(x=>`<button type="button" class="chipbtn${ints.has(x)?' on':''}" data-int="${esc(x)}">${esc(x)}</button>`).join('')}</div></div>
     <div class="sub"><span class="sublbl">🔒 Only you and organizers see these</span>
@@ -2694,6 +2698,7 @@ async function openEditProfile(n){n=n||myName();if(!n)return;const k=nkey(n),p={
   $('#epphoto').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{photo=await squareAvatar(f);av()}catch(x){toast('Couldn’t read that photo.')}};
   const rm=$('#eprm');if(rm)rm.onclick=()=>{photo='';av();rm.remove()};
   bg.querySelectorAll('[data-int]').forEach(b=>b.onclick=()=>{const x=b.dataset.int;ints.has(x)?ints.delete(x):ints.add(x);b.classList.toggle('on')});
+  bg.querySelectorAll('[data-gen]').forEach(b=>b.onclick=()=>{bg.querySelectorAll('[data-gen]').forEach(x=>x.classList.toggle('on',x===b))});
   let busy=false;$('#epsave').onclick=async()=>{if(busy)return;const user=norm($('#epuser').value).replace(/^@/,'').toLowerCase(),email=norm($('#epemail').value),phone=norm($('#epphone').value),dob=$('#epdob').value;
     if(user&&!/^[a-z0-9_.]{3,30}$/.test(user))return toast('Username: 3–30 letters, numbers, _ or .');
     if(user&&Object.entries(PROF.map).some(([kk,x])=>kk!==k&&x.username===user))return toast('@'+user+' is taken. Try another.');
@@ -2701,7 +2706,7 @@ async function openEditProfile(n){n=n||myName();if(!n)return;const k=nkey(n),p={
     if(phone&&!/^[+\d][\d\s-]{6,19}$/.test(phone))return toast('That number doesn’t look right.');
     if($('#epbday').checked&&!dob)return toast('Add your date of birth to show your birthday.');
     busy=true;$('#epsave').disabled=true;
-    try{await saveProfile(n,{photo,fullName:norm($('#epfull').value),username:user,place:norm($('#epplace').value),bio:norm($('#epbio').value),interests:[...ints],bday:$('#epbday').checked&&dob?dob.slice(5):'',anniv:($('#epanniv').value||'').slice(5)},{phone,email,dob,blood:$('#epblood').value});
+    try{await saveProfile(n,{photo,fullName:norm($('#epfull').value),username:user,place:norm($('#epplace').value),bio:norm($('#epbio').value),interests:[...ints],bday:$('#epbday').checked&&dob?dob.slice(5):'',anniv:($('#epanniv').value||'').slice(5),gender:(($('#epgender .on')||{}).dataset||{}).gen||''},{phone,email,dob,blood:$('#epblood').value});
       closeWho();toast('Profile saved ✅');renderHeader();renderTab(false)}catch(e){busy=false;$('#epsave').disabled=false;profErr(e)}}}
 /* the public part of the player card */
 function profTop(n){const pres=(statusLine(n)||seenText(n))?`<div class="sub" style="padding-top:10px"><div class="mix" style="gap:10px;justify-content:space-between"><span>${statusLine(n)?`<b>${statusLine(n)}</b> `:''}<small class="hint" style="margin:0">${seenText(n)}</small></span>${liveStories(n).length?`<button class="btn sm line" data-story="${esc(n)}">👀 Status</button>`:''}</div></div>`:(liveStories(n).length?`<div class="sub" style="padding-top:10px"><button class="btn sm line" data-story="${esc(n)}">👀 View status</button></div>`:'');return pres+profTop0(n)}
@@ -2784,7 +2789,7 @@ function openImportReview(M){const act=activeRoster().slice().sort((a,b)=>a.loca
       for(const r of rows){let name=target(r);if(!name)continue;
         if(r.to==='__new__'){const ex=allNames().find(x=>nkey(x)===nkey(name));if(ex)name=ex;else{S.roster.push(name);S.since=S.since||{};S.since[nkey(name)]=Date.now();added++;cfg=true}
           if((S.inactive||[]).includes(nkey(name))){S.inactive=S.inactive.filter(x=>x!==nkey(name));cfg=true}}
-        const k=nkey(name);if(r.cat!==undefined&&(S.cats[k]||'')!==(r.cat||'')){if(r.cat)S.cats[k]=r.cat;else delete S.cats[k];cfg=true}
+        const k=nkey(name);if(r.cat!==undefined&&(catOf(name)||'')!==(r.cat||'')){if(r.cat)S.cats[k]=r.cat;else delete S.cats[k];cfg=true;syncGender(name,r.cat||'')}
         if(!(r.on||r.to==='__new__')||done.has(k))continue;done.add(k);const v=(PROF.priv||{})[k]||{};
         try{const pv={name:canon(name),uid:v.uid||'',at:Date.now(),phone:r.phone.slice(0,20),email:v.email||'',dob:v.dob||'',blood:v.blood||''};await col('private').doc(k).set(pv);PROF.priv[k]=pv;ok++}catch(e){}}
       if(cfg)saveConfig();closeWho();toast(ok||added?'📥 Saved '+plural(ok,'number')+(added?' · '+plural(added,'new player')+' added':''):'Nothing saved');renderTab(false)}};
