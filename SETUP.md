@@ -1,6 +1,6 @@
 # Phone alerts for Shuttle Split: one-time setup (about 20 minutes)
 
-You need a laptop or desktop with a web browser for step 3. Steps 1, 2 and 4 work on a phone.
+Everything works from an iPhone (Safari). Step 3 is easiest with push-setup.zip uploaded to your GitHub repo next to index.html, then fetched in Cloud Shell with curl.
 
 ## 1 · Switch Firebase to the Blaze plan
 1. Open https://console.firebase.google.com and pick **gg-dvg-badminton-league**.
