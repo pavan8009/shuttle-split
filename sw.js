@@ -1,6 +1,6 @@
 // Shuttle Split service worker: lets the app open offline and install as a phone app.
 // Bump VERSION whenever you upload a new index.html so phones pick up the update.
-const VERSION = 'shuttle-split-v51';
+const VERSION = 'shuttle-split-v52';
 const SHELL = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './apple-touch-icon.png'];
 
 self.addEventListener('install', e => {
@@ -44,4 +44,23 @@ self.addEventListener('fetch', e => {
       return res;
     }).catch(() => caches.match(req).then(r => r || caches.match('./index.html')))
   );
+});
+
+// Phone notifications (sent by the Firebase Cloud Function through FCM).
+self.addEventListener('push', e => {
+  let d = {};
+  try { d = e.data ? e.data.json() : {}; } catch (err) { d = { data: { title: 'Shuttle Split', body: e.data ? e.data.text() : '' } }; }
+  const n = d.notification || {}, x = d.data || {};
+  const title = n.title || x.title || 'Shuttle Split';
+  const body = n.body || x.body || '';
+  const link = x.link || (d.fcmOptions && d.fcmOptions.link) || './';
+  e.waitUntil(self.registration.showNotification(title, { body, icon: 'icon-192.png', badge: 'icon-192.png', data: { link }, tag: x.tag || undefined }));
+});
+self.addEventListener('notificationclick', e => {
+  e.notification.close();
+  const link = (e.notification.data && e.notification.data.link) || './';
+  e.waitUntil(clients.matchAll({ type: 'window', includeUncontrolled: true }).then(list => {
+    for (const c of list) { if ('focus' in c) { c.navigate(link).catch(() => {}); return c.focus(); } }
+    return clients.openWindow(link);
+  }));
 });

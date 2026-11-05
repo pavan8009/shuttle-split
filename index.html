@@ -504,6 +504,17 @@ details.legend{padding:4px 16px 10px}details.legend summary{font-size:12.5px;fon
 .vlink{color:#fff;font-size:18px;font-weight:800;text-decoration:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}.vlink span{font-size:12px;font-weight:800;background:rgba(255,255,255,.2);border-radius:999px;padding:2px 8px;margin-left:4px;vertical-align:2px}
 .vmap{display:flex;align-items:center;gap:12px;padding:12px 16px;text-decoration:none;color:var(--ink);border-bottom:1px solid var(--line2);background:var(--surface)}.vmap .ci{width:24px;height:24px;color:#D92D20;fill:#FEE4E2}.vmap>span:not(.go){flex:1;display:grid}.vmap b{font-size:15px}.vmap small{font-size:12.5px;color:var(--muted)}.vmap .go{font-size:22px;color:var(--muted)}.vmap:active{background:var(--field)}
 .ngmap{display:inline-flex;align-items:center;gap:5px;margin-top:6px;font-size:13px;font-weight:800;color:var(--accent);text-decoration:none;justify-self:start;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:4px 10px 4px 7px}.ngmap .ci{width:15px;height:15px;color:#D92D20;fill:#FEE4E2}
+.playbar{padding-top:12px;padding-bottom:0}.playbar .seg{margin:0}.playbar .seg button{font-weight:800}
+.todaycard .tdr{display:flex;align-items:center;gap:12px;padding:10px 16px;border-top:1px solid var(--line2);width:100%;background:none;border-left:0;border-right:0;border-bottom:0;font:inherit;text-align:left;color:var(--ink)}.todaycard .tdr:first-of-type{border-top:0}.tdr>span:not(.tdi):not(.go){flex:1;display:grid;min-width:0}.tdr b{font-size:14.5px}.tdr small{font-size:12.5px;color:var(--muted)}.tdi{width:34px;height:34px;border-radius:50%;background:var(--field);display:grid;place-items:center;font-size:18px;flex:none}.tdr.soft{opacity:.85}.tdr .go{color:var(--muted);font-size:20px}button.tdr{cursor:pointer}
+.cdown{padding:0 16px 4px;display:flex;align-items:center;gap:10px}.cdown>small{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--muted)}.cdrow{display:flex;gap:6px}.cdb{min-width:50px;background:var(--ink);color:var(--surface);border-radius:10px;padding:6px 4px;display:grid;justify-items:center;line-height:1.05}.cdb b{font-size:20px;font-variant-numeric:tabular-nums}.cdb small{font-size:9.5px;opacity:.75;text-transform:uppercase;letter-spacing:.4px}.cdlive{color:#067647;font-size:16px}
+.ngt{gap:8px}.ngt .l{display:flex;align-items:center;gap:6px;font-size:11.5px;white-space:nowrap}.ngt .l b{margin-left:auto;font-size:20px;line-height:1}.ngt.yes .l b{color:#067647}.ngt.no .l b{color:#B42318}.ngt .lvav .mav{width:22px;height:22px;margin-left:-7px}.ngt .lvav .mav:first-child{margin-left:0}
+@media(max-width:400px){.ngtiles{grid-template-columns:1fr}.ngt{grid-template-columns:auto 1fr;display:grid;align-items:center}.ngt .l{gap:8px}.ngt .lvav{justify-content:flex-end}}
+.askr{display:flex;align-items:center;gap:10px;padding:10px 16px;border-top:1px solid var(--line2)}.askm{flex:1;min-width:0;display:grid}.askm b{font-size:14px}.askm small{font-size:12px;color:var(--muted)}.askm .ok{color:#067647;font-weight:800}.askfeed .askr{border-top:0;padding:4px 14px 10px}.tagchip.askt{background:#FFF6ED;color:#B93815}
+.receipt{padding:22px 18px calc(18px + env(safe-area-inset-bottom));display:grid;justify-items:center}.rc-ic{font-size:40px}.rc-amt{font-size:34px;margin-top:4px}.rc-st{color:#B54708;font-weight:800;margin-bottom:12px}.rc-rows{width:100%;border:1px solid var(--line);border-radius:14px;overflow:hidden}.rc-rows>div{display:flex;justify-content:space-between;gap:10px;padding:10px 12px;font-size:14px}.rc-rows>div+div{border-top:1px dashed var(--line)}.rc-rows span{color:var(--muted)}
+.songcard{position:absolute;left:16px;right:16px;bottom:90px;z-index:3;display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.95);color:#101828;border-radius:14px;padding:10px 12px;text-decoration:none}.songcard .sgi{font-size:22px}.songcard>span:nth-child(2){flex:1;display:grid}.songcard small{color:#667085;font-size:12px}.songcard .go{width:34px;height:34px;border-radius:50%;background:#101828;color:#fff;display:grid;place-items:center;font-size:13px}
+.mkview{position:fixed;inset:0;z-index:99;background:#000;display:flex;flex-direction:column}.mkbar{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 12px;color:#fff;padding-top:calc(10px + env(safe-area-inset-top))}.mkbar:last-child{padding-bottom:calc(10px + env(safe-area-inset-bottom));padding-top:10px}.mkwrap{flex:1;display:grid;place-items:center;overflow:hidden;padding:8px}.mkwrap canvas{max-width:100%;max-height:100%;touch-action:none;border-radius:8px}
+.xplog{display:grid}.xplog>div{display:flex;gap:10px;padding:8px 0;border-top:1px solid var(--line2);font-size:13.5px}.xplog b{min-width:46px;color:#067647}.xplog span{flex:1}.xplog small{color:var(--muted);white-space:nowrap}
+.todaycard .tdr .ini{width:34px;height:34px;min-width:34px;flex:none;font-size:12px;overflow:hidden}.todaycard .tdr .ini img{width:100%;height:100%;object-fit:cover}
 </style>
 </head>
 <body>
@@ -551,6 +562,8 @@ details.legend{padding:4px 16px 10px}details.legend summary{font-size:12.5px;fon
 <main>
   <div class="wrap" id="groupmiss" hidden style="padding-top:16px"><div class="note">⚠️<p>This group link isn’t valid or the group was removed.</p><a class="btn sm line" href="./">Open main app</a></div></div>
   <div class="wrap view" id="view-day"></div>
+  <div class="wrap playbar" id="playbar" hidden><div class="seg" role="tablist"><button type="button" data-play="polls">🗳️ Polls</button><button type="button" data-play="game">🏸 Game</button><button type="button" data-play="pay">💸 Payouts</button></div></div>
+  <div class="wrap view" id="view-game" hidden></div>
   <div class="wrap view" id="view-polls" hidden></div>
   <div class="wrap view" id="view-pay" hidden></div>
   <div class="wrap view" id="view-cup" hidden></div>
@@ -562,11 +575,10 @@ details.legend{padding:4px 16px 10px}details.legend summary{font-size:12.5px;fon
 <nav class="tabbar" aria-label="Sections">
   <div class="wrap" role="tablist">
     <button role="tab" data-tab="day" aria-selected="true"><svg class="ic"><use href="#i-home"/></svg>Home</button>
-    <button role="tab" data-tab="polls" aria-selected="false"><svg class="ic"><use href="#i-poll"/></svg>Polls</button>
-    <button role="tab" data-tab="pay" aria-selected="false"><svg class="ic"><use href="#i-wallet"/></svg>Payouts</button>
+    <button role="tab" data-tab="play" aria-selected="false"><svg class="ic"><use href="#i-shuttle"/></svg>Play</button>
     <button role="tab" data-tab="club" aria-selected="false"><svg class="ic"><use href="#i-chat"/></svg>Club</button>
     <button role="tab" data-tab="cup" aria-selected="false"><svg class="ic"><use href="#i-trophy"/></svg>Cup</button>
-    <button role="tab" data-tab="team" aria-selected="false"><svg class="ic"><use href="#i-users"/></svg>Team</button>
+    <button role="tab" data-tab="team" aria-selected="false"><svg class="ic"><use href="#i-gear"/></svg>Manage</button>
   </div>
 </nav>
 <div class="toast" id="toast" role="status" hidden></div>
@@ -575,6 +587,7 @@ details.legend{padding:4px 16px 10px}details.legend summary{font-size:12.5px;fon
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js" defer></script>
 <script>
 /* ===== Firebase web config (Project settings → Your apps) ===== */
 const FIREBASE_CONFIG = {
@@ -588,7 +601,7 @@ const FIREBASE_CONFIG = {
 /* Collections get this prefix so they never clash with the league app's data */
 const COLLECTION_PREFIX = "shuttleSplit_";
 /* App version shown in Team → About */
-const APP_VERSION = "3.7.1", APP_BUILD = "5 Nov 2026";
+const APP_VERSION = "4.0.0", APP_BUILD = "5 Nov 2026";
 /* Owner of the main group (the link without ?g=) */
 const LEGACY_OWNER = "pavankaki.cool@gmail.com";
 /* Starting player list, used only until the first save */
@@ -669,7 +682,7 @@ async function flush(path){
 function syncUI(){const el=$('#sync');if(!el||!db)return;const n=Object.keys(pending).length+Object.values(inflight).filter(Boolean).length;
   const st=!navigator.onLine?'off':n?'save':'live';el.className='sync '+st;el.textContent=st==='off'?'Offline · will sync':st==='save'?'Saving…':'Live';el.hidden=false}
 window.addEventListener('online',()=>syncUI());window.addEventListener('offline',()=>syncUI());
-function saveConfig(){queueWrite('config/main',{roster:S.roster,rate:S.rate,courts:1,groupName:S.groupName||'',skin:S.skin||'court',upiId:S.upiId||'',upiName:S.upiName||'',levels:S.levels||{},admins:S.admins||[],inactive:S.inactive||[],ignored:S.ignored||[],openNames:S.openNames!==false,idleWeeks:S.idleWeeks==null?4:S.idleWeeks,since:S.since||{},autoOff:S.autoOff||{},billed:(S.billed||[]).slice(-200),msg:S.msg||null,sent:trimSent(S.sent),board:S.board||null,layout:S.layout||{},dupOk:(S.dupOk||[]).slice(-100),model:S.model||'post',load:+S.load||1000,low:S.low==null?200:+S.low,perms:S.perms||{},giphy:S.giphy||''})}
+function saveConfig(){queueWrite('config/main',{roster:S.roster,rate:S.rate,courts:1,groupName:S.groupName||'',skin:S.skin||'court',upiId:S.upiId||'',upiName:S.upiName||'',levels:S.levels||{},admins:S.admins||[],inactive:S.inactive||[],ignored:S.ignored||[],openNames:S.openNames!==false,idleWeeks:S.idleWeeks==null?4:S.idleWeeks,since:S.since||{},autoOff:S.autoOff||{},billed:(S.billed||[]).slice(-200),msg:S.msg||null,sent:trimSent(S.sent),board:S.board||null,layout:S.layout||{},dupOk:(S.dupOk||[]).slice(-100),model:S.model||'post',load:+S.load||1000,low:S.low==null?200:+S.low,perms:S.perms||{},giphy:S.giphy||'',vapid:S.vapid||''})}
 /* ---------- organizers ---------- */
 const userEmail=()=>{const u=auth&&auth.currentUser;return u&&!u.isAnonymous&&u.email?u.email.toLowerCase():''};
 const ownerEmail=()=>String((GID?(GROUP&&GROUP.owner):LEGACY_OWNER)||'').toLowerCase();
@@ -953,9 +966,9 @@ const intro=(h,p)=>`<div class="intro"><h1>${h}</h1><p>${p}</p></div>`;
 const kpis=list=>`<div class="kpis">${list.map(([l,v,hl])=>`<div class="kpi${hl?' hl':''}"><span>${l}</span><b>${v}</b></div>`).join('')}</div>`;
 const cardH=(icon,title,meta,strong)=>`<div class="card-h"><span class="ico">${ic(icon)}</span><h2>${title}</h2>${meta!=null?`<span class="meta${strong?' strong':''}">${meta}</span>`:''}</div>`;
 const viewOnly=what=>db&&!isOrg?`<div class="note">${ic('lock')}<p>You’re viewing. Only the organizer can ${what}.</p><button class="btn sm line" data-signin>Organizer</button></div>`:'';
-const PAGES={day:'Home',polls:'Availability polls',pay:'Payouts',cup:'Tournaments',club:'Club & community',me:'My account',team:'Team & settings'};
+const PAGES={day:'Home',polls:'Play · Polls',game:'Play · Game',pay:'Play · Payouts',cup:'Tournaments',club:'Club & community',me:'My account',team:'Manage'};
 function remDot(){
-  const pb=document.querySelector('.tabbar [data-tab="pay"]');if(pb){const m=isOrg&&db?allPays().filter(x=>x.status==='claimed').length:0;pb.classList.toggle('has-due',m>0)}}
+  const pb=document.querySelector('.tabbar [data-tab="play"]');if(pb){const m=isOrg&&db?allPays().filter(x=>x.status==='claimed').length:0;pb.classList.toggle('has-due',m>0)}}
 function renderHeader(){try{remDot()}catch(e){}
   $('#gname').textContent=S.groupName||'Badminton Family';
   $('#pagename').textContent=PAGES[tab];
@@ -990,6 +1003,83 @@ function openGroupName(){const can=isOrg||!db||perm('name')!=='off',mode=isOrg||
 /* ================= TODAY ================= */
 let dayConfirmClear=false, guestPending='';
 function weekStart(ds){const d=new Date(ds+'T00:00');return shift(ds,-((d.getDay()+6)%7))}
+/* ================= PHONE NOTIFICATIONS (Firebase Cloud Messaging) ================= */
+const pushOk=()=>'Notification' in window&&'serviceWorker' in navigator&&'PushManager' in window;
+const isStandaloneApp=()=>matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
+async function savePushToken(silent){if(!db||!S.vapid||!pushOk()||Notification.permission!=='granted'||!window.firebase||!firebase.messaging)return false;
+  try{await ensureAnon();const reg=await navigator.serviceWorker.ready,token=await firebase.messaging().getToken({vapidKey:S.vapid,serviceWorkerRegistration:reg});if(!token)return false;
+    await col('tokens').doc(auth.currentUser.uid).set({token,name:canon(myName()||''),org:!!isOrg,at:Date.now(),ua:(isIOS?'ios':/Android/.test(navigator.userAgent)?'android':'web')});try{localStorage.setItem('ss-pushat',String(Date.now()))}catch(e){}return true}
+  catch(e){if(!silent)toast('Couldn’t switch on alerts ('+(e.code||e.message||'error')+').');return false}}
+async function enablePush(){if(!S.vapid)return toast(isOrg?'Add the Web Push key in Manage › Phone alerts first.':'Phone alerts aren’t set up yet. Ask an organizer.');
+  if(!pushOk()){return toast(isIOS&&!isStandaloneApp()?'On iPhone: tap Share › Add to Home Screen, open the app from there, then turn on alerts (iOS 16.4+).':'This browser doesn’t support phone alerts.')}
+  const p=await Notification.requestPermission();if(p!=='granted')return toast('Alerts are blocked. Turn them on in your phone’s Settings › Notifications.');
+  if(await savePushToken(false)){toast('🔔 Phone alerts are on');renderTab(false)}}
+const pushState=()=>!S.vapid?'off':!pushOk()?'unsupported':Notification.permission==='granted'?'on':Notification.permission==='denied'?'blocked':'ask';
+function pushBanner(){const st=pushState();try{if(localStorage.getItem('ss-pushno'))return''}catch(e){}if(!db||st==='off'||st==='on')return'';
+  return`<section class="card pushcard"><div class="pad mix" style="gap:12px;align-items:center"><span style="font-size:26px">🔔</span><div style="flex:1;min-width:0"><b>Get phone alerts</b><small class="hint" style="display:block;margin:2px 0 0">${st==='unsupported'?(isIOS?'Add this app to your Home Screen first (Share › Add to Home Screen).':'This browser can’t show alerts.'):st==='blocked'?'Alerts are blocked. Allow them in your phone settings.':'New polls, help requests, kudos and payment updates, even when the app is closed.'}</small></div>${st==='ask'?'<button class="btn sm primary" data-pushon>Turn on</button>':''}<button class="iconbtn" data-pushno aria-label="Hide">${ic('x')}</button></div></section>`}
+document.addEventListener('click',e=>{if(e.target.closest&&e.target.closest('[data-pushon]')){enablePush();return}if(e.target.closest&&e.target.closest('[data-pushno]')){try{localStorage.setItem('ss-pushno','1')}catch(x){}const c=e.target.closest('.pushcard');if(c)c.remove()}});
+/* ================= HOME: countdown · today · weather · Karnataka calendar · help asks ================= */
+const KA_CAL={'2026-01-14':'🪁 Makara Sankranti','2026-01-26':'🇮🇳 Republic Day','2026-02-15':'🔱 Maha Shivaratri','2026-03-19':'🌿 Ugadi','2026-03-21':'🌙 Khutba-e-Ramzan','2026-03-31':'🙏 Mahaveer Jayanti','2026-04-03':'✝️ Good Friday','2026-04-14':'📘 Dr B R Ambedkar Jayanti','2026-04-20':'🙏 Basava Jayanti · Akshaya Tritiya','2026-05-01':'🛠️ May Day','2026-05-28':'🌙 Bakrid','2026-06-26':'🌙 Muharram','2026-08-15':'🇮🇳 Independence Day','2026-08-26':'🌙 Eid-e-Milad','2026-09-14':'🐘 Ganesha Chaturthi','2026-10-02':'🕊️ Gandhi Jayanti','2026-10-10':'🪔 Mahalaya Amavasya','2026-10-20':'🏹 Vijayadashami · Ayudha Puja','2026-10-26':'📜 Valmiki Jayanti','2026-11-01':'💛❤️ Kannada Rajyotsava','2026-11-08':'🪔 Naraka Chaturdashi','2026-11-09':'🪔 Deepavali','2026-11-27':'📜 Kanakadasa Jayanti','2026-12-25':'🎄 Christmas',
+  '2027-01-15':'🪁 Makara Sankranti','2027-01-26':'🇮🇳 Republic Day','2027-03-06':'🔱 Maha Shivaratri','2027-03-09':'🌙 Khutba-e-Ramzan','2027-03-26':'✝️ Good Friday','2027-04-07':'🌿 Ugadi','2027-04-14':'📘 Dr B R Ambedkar Jayanti','2027-04-18':'🙏 Mahaveer Jayanti','2027-05-01':'🛠️ May Day','2027-05-09':'🙏 Basava Jayanti','2027-05-17':'🌙 Bakrid','2027-06-16':'🌙 Muharram','2027-08-15':'🇮🇳 Independence Day','2027-09-04':'🐘 Ganesha Chaturthi','2027-09-27':'🪔 Mahalaya Amavasya','2027-10-02':'🕊️ Gandhi Jayanti','2027-10-09':'🏹 Vijayadashami · Ayudha Puja','2027-10-15':'📜 Valmiki Jayanti','2027-10-28':'🪔 Naraka Chaturdashi','2027-10-29':'🪔 Deepavali','2027-11-01':'💛❤️ Kannada Rajyotsava','2027-11-16':'📜 Kanakadasa Jayanti','2027-12-25':'🎄 Christmas'};
+const kaToday=()=>KA_CAL[todayStr()]||'';
+const kaNext=()=>{const t=todayStr();const k=Object.keys(KA_CAL).sort().find(d=>d>t);return k&&k<=shift(t,14)?{date:k,name:KA_CAL[k]}:null};
+/* start of a time slot like "5-7 PM" (hours, 24h) */
+function slotStart(note){const t=String(note||''),m=t.match(/(\d{1,2})(?:[:.](\d{2}))?\s*(am|pm)?\s*(?:-|–|to)\s*(\d{1,2})(?:[:.](\d{2}))?\s*(am|pm)?/i);if(!m){const s=t.match(/(\d{1,2})(?:[:.](\d{2}))?\s*(am|pm)/i);if(!s)return 0;let h=+s[1]+(+s[2]||0)/60;if(/pm/i.test(s[3])&&h<12)h+=12;return h}
+  let a=+m[1]+(+m[2]||0)/60;const ap=(m[3]||m[6]||'').toLowerCase();if(ap==='pm'&&a<12&&!(m[3]===undefined&&+m[1]>+m[4]))a+=12;if(!ap&&a<8)a+=12;return a}
+function cdText(start,end){const now=Date.now();if(now>=start&&now<end)return'<b class="cdlive">🏸 Game on now!</b>';if(now>=end)return'';let s=Math.max(0,Math.floor((start-now)/1000));const d=Math.floor(s/86400);s-=d*86400;const h=Math.floor(s/3600);s-=h*3600;const m=Math.floor(s/60);s-=m*60;
+  return[[d,'days'],[h,'hours'],[m,'mins'],[s,'secs']].map(([v,l])=>`<span class="cdb"><b>${String(v).padStart(2,'0')}</b><small>${l}</small></span>`).join('')}
+setInterval(()=>{document.querySelectorAll('[data-cd]').forEach(el=>{const h=cdText(+el.dataset.cd,+el.dataset.ce);if(el._h!==h){el.innerHTML=h;el._h=h}})},1000);
+/* weather at the venue: free Open-Meteo forecast, cached for an hour */
+const WX_LOC={name:'Davangere',lat:14.4644,lon:75.9218};
+const WX={data:null,at:0,busy:false};
+const wxCode=c=>c===0?['☀️','Clear']:c<=2?['🌤️','Partly cloudy']:c===3?['☁️','Cloudy']:c<=48?['🌫️','Foggy']:c<=57?['🌦️','Drizzle']:c<=67?['🌧️','Rain']:c<=77?['❄️','Snow']:c<=82?['🌦️','Showers']:['⛈️','Thunderstorm'];
+function loadWx(){const L=(S.board&&S.board.wx)||WX_LOC;if(WX.busy||Date.now()-WX.at<3600e3&&WX.data)return;try{const c=JSON.parse(localStorage.getItem('ss-wx')||'null');if(c&&Date.now()-c.at<3600e3&&c.k===L.lat+','+L.lon){WX.data=c.d;WX.at=c.at;return}}catch(e){}
+  WX.busy=true;fetch('https://api.open-meteo.com/v1/forecast?latitude='+L.lat+'&longitude='+L.lon+'&current=temperature_2m,weather_code&hourly=temperature_2m,precipitation_probability,weather_code&timezone=Asia%2FKolkata&forecast_days=7').then(r=>r.json()).then(d=>{WX.data=d;WX.at=Date.now();WX.busy=false;try{localStorage.setItem('ss-wx',JSON.stringify({at:WX.at,d,k:L.lat+','+L.lon}))}catch(e){}const t=$('#todayslot');if(t){t.innerHTML=todayCard()}}).catch(()=>{WX.busy=false})}
+function wxAt(date,hour){const d=WX.data;if(!d||!d.hourly)return null;const k=date+'T'+String(Math.floor(hour)).padStart(2,'0')+':00',i=d.hourly.time.indexOf(k);return i<0?null:{t:Math.round(d.hourly.temperature_2m[i]),p:d.hourly.precipitation_probability[i],c:d.hourly.weather_code[i]}}
+function todayCard(){loadWx();const t=todayStr(),fest=kaToday(),nx=kaNext(),occ=occasionsToday(),g=nextGame(),d=WX.data,cur=d&&d.current?{t:Math.round(d.current.temperature_2m),c:d.current.weather_code}:null,L=(S.board&&S.board.wx)||WX_LOC;
+  const gw=g?wxAt(g.dt.date,slotStart(g.dt.note)||18):null,games=(P.list||[]).filter(p=>!isArchived(p)).flatMap(p=>(p.dates||[]).filter(dt=>dt.date===t)),played=(S.days[t]&&S.days[t].present||[]).length;
+  const rows=[];
+  if(fest)rows.push(`<div class="tdr"><span class="tdi">${fest.split(' ')[0]}</span><span><b>${esc(fest.split(' ').slice(1).join(' '))}</b><small>Today in Karnataka</small></span></div>`);
+  occ.forEach(o=>rows.push(`<button type="button" class="tdr" data-occwish="${esc(o.n)}|${o.kind}|${esc(o.id||'')}">${ini(o.n,'','sm')}<span><b>${o.emoji} ${esc(first(o.n))}’s ${o.kind==='bday'?'birthday':o.kind==='anniv'?'anniversary':esc(o.title)}</b><small>Tap to send a wish 💌</small></span><span class="go">›</span></button>`));
+  if(games.length)rows.push(`<div class="tdr"><span class="tdi">🏸</span><span><b>Game today${games[0].note?' · '+esc(games[0].note):''}</b><small>${played?plural(played,'player')+' recorded':'See you on court!'}</small></span></div>`);
+  if(cur)rows.push(`<div class="tdr"><span class="tdi">${wxCode(cur.c)[0]}</span><span><b>${cur.t}° · ${wxCode(cur.c)[1]}</b><small>Now in ${esc(L.name)}${gw?` · ${g.dt.date===t?'at game time':esc(dlabel(g.dt.date,{weekday:'short'}))+' '+esc(g.dt.note||'')}: ${wxCode(gw.c)[0]} ${gw.t}°${gw.p!=null?' · '+gw.p+'% rain':''}`:''}</small></span></div>`);
+  if(!fest&&nx)rows.push(`<div class="tdr soft"><span class="tdi">${nx.name.split(' ')[0]}</span><span><b>${esc(nx.name.split(' ').slice(1).join(' '))}</b><small>Coming up ${esc(dlabel(nx.date,{weekday:'short',day:'numeric',month:'short'}))}</small></span></div>`);
+  if(!rows.length)return'';
+  return`<section class="card todaycard"><div class="card-h"><h2>📅 What’s happening today</h2><span class="meta">${esc(dlabel(t,{weekday:'short',day:'numeric',month:'short'}))}</span></div>${rows.join('')}</section>`}
+/* help & support: ask the group for something; others tap "I'll bring it" */
+const ASK_QUICK=[['🏸','A new shuttle barrel today'],['🎾','Can someone lend me a racket?'],['💧','Please bring water bottles'],['🩹','Need a first-aid kit / spray'],['🚗','Need a ride to the court'],['👕','Need a bib / extra T-shirt']];
+const liveAsks=()=>(CLUB.list||[]).filter(x=>x.kind==='ask'&&Date.now()-(x.at||0)<3*864e5);
+const helpers=x=>Object.values(x.likes||{}).map(v=>{const s2=String(v),i=s2.indexOf('|');return i>0&&s2.slice(0,i)==='🙋'?realName(s2.slice(i+1)):''}).filter(Boolean);
+function askRow(x){const H=uniq(helpers(x)),mine=myReact(x)==='🙋',own=auth&&auth.currentUser&&x.uid===auth.currentUser.uid;
+  return`<div class="askr">${ini(x.name||'?','','sm')}<div class="askm"><b>${esc(first(x.name||''))}: ${esc(x.text)}</b><small>${timeAgo(x.at)}${H.length?` · <span class="ok">🙋 ${esc(H.map(first).join(', '))} ${H.length>1?'are':'is'} on it</span>`:' · nobody yet'}</small></div>${own?'':`<button type="button" class="btn sm ${mine?'line':'primary'}" data-help="${esc(x.id)}">${mine?'✓ You’re on it':'🙋 I’ll bring it'}</button>`}</div>`}
+function asksCard(){startClub&&startClub();const A=liveAsks();return`<section class="card askcard">${cardH('users','🙋 Help & support',A.length?plural(A.length,'request'):'')}
+  ${A.slice(0,4).map(askRow).join('')||'<div class="pad" style="padding-bottom:4px"><small class="hint" style="margin:0">Need shuttles, a racket, water or a ride? Ask the group. Everyone gets an alert.</small></div>'}
+  <div class="card-f"><button class="btn sm line" data-ask>${ic('plus')}Ask for something</button>${perm('poll')!=='off'||isOrg?`<button class="btn sm line" data-propose style="margin-left:auto">🗓 Propose a game</button>`:''}</div></section>`}
+function openAsk(){const me=myName();if(!me)return toast('Pick your name first (tap your photo at the top).');let txt='';
+  const bg=sheetOpen(`<div class="sheet-h"><span class="ini">🙋</span><div><b>Ask the group</b><small>Posts in the Club feed · everyone gets an alert</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div>
+    <div class="sub" style="padding-top:12px"><span class="sublbl">Quick picks</span><div class="mix" style="gap:6px;flex-wrap:wrap">${ASK_QUICK.map(([e,t])=>`<button type="button" class="chipbtn" data-aq="${esc(e+' '+t)}">${e} ${esc(t)}</button>`).join('')}</div>
+      <textarea class="txt" id="asktext" rows="3" maxlength="300" placeholder="What do you need? e.g. Need a new shuttle barrel for Saturday" style="margin-top:10px"></textarea></div>
+    <div class="card-f"><button class="btn primary block" id="asksend">🙋 Ask everyone</button></div>`,'Ask');
+  bg.querySelectorAll('[data-aq]').forEach(b=>b.onclick=()=>{$('#asktext').value=b.dataset.aq;$('#asktext').focus()});
+  $('#asksend').onclick=async()=>{const t=norm($('#asktext').value);if(!t)return toast('Write what you need.');$('#asksend').disabled=true;
+    try{await ensureAnon();await col('posts').add({name:canon(me),uid:auth.currentUser.uid,text:t,at:Date.now(),kind:'ask',likes:{}});closeWho();toast('🙋 Asked the group. You’ll see who’s on it.')}catch(e){$('#asksend').disabled=false;toast(e.code==='permission-denied'?'Publish the latest app rules first.':'Couldn’t post ('+(e.code||'error')+').')}}}
+document.addEventListener('click',e=>{if(e.target.closest&&e.target.closest('details.xpd [data-metrics]')){e.preventDefault();openMetrics();return}const h=e.target.closest&&e.target.closest('[data-help]');if(h){e.preventDefault();setReact('p',h.dataset.help,'🙋');return}
+  if(e.target.closest&&e.target.closest('[data-ask]')){openAsk();return}
+  if(e.target.closest&&e.target.closest('[data-propose]')){isOrg?(go('polls'),setTimeout(()=>{const b=$('#newpoll')||document.querySelector('[data-newpoll]');if(b)b.click()},200)):openSuggestDay();return}
+  const o=e.target.closest&&e.target.closest('#todayslot [data-occwish]');if(o){const[n,k,id]=o.dataset.occwish.split('|'),x=occasionsToday().find(y=>y.n===n&&y.kind===k&&(y.id||'')===id);if(x)openWish(x)}});
+/* after voting yes: offer the calendar right away */
+function offerCalendar(p,name){try{const k='ss-calask-'+p.id;if(localStorage.getItem(k))return;localStorage.setItem(k,'1')}catch(e){}
+  const yes=(p.dates||[]).filter(dt=>P.myAns[dt.date]==='yes');if(!yes.length)return;
+  const bg=sheetOpen(`<div class="sheet-h"><span class="ini">📲</span><div><b>You’re in! 🏸</b><small>${esc(yes.map(dt=>dlabel(dt.date,{weekday:'short',day:'numeric',month:'short'})+(dt.note?' · '+dt.note:'')).join(' & '))}</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div>
+    <div class="pad"><p class="hint" style="margin:0 0 12px">Add it to your phone’s calendar so you get a reminder before the game.</p><div class="grid2"><button class="btn line" id="calno">Not now</button><button class="btn primary" id="calyes">${ic('cal')}Add to calendar</button></div></div>`,'Calendar');
+  $('#calno').onclick=closeWho;$('#calyes').onclick=()=>{closeWho();addGamesToCal(p,name)}}
+/* after "I've paid": a clear receipt */
+function openReceipt(rows,me,img){const tot=rows.reduce((a,r)=>a+(+r.amt||0),0),at=Date.now();
+  sheetOpen(`<div class="receipt"><div class="rc-ic">⏳</div><b class="rc-amt">${inr(tot)}</b><span class="rc-st">Sent to the organizer</span>
+    <div class="rc-rows">${rows.map(r=>`<div><span>${esc(r.name)}${nkey(r.name)===nkey(me)?' (you)':''}</span><b>${inr(r.amt)}</b></div>`).join('')}<div><span>When</span><b>${esc(fullWhen(at))}</b></div><div><span>Screenshot</span><b>${img?'Attached ✓':'Not attached'}</b></div><div><span>Status</span><b style="color:#B54708">Waiting for confirmation</b></div></div>
+    <p class="hint" style="margin:12px 0 0;text-align:center">The organizer checks their UPI app and confirms. You’ll get a ✅ alert in your bell when it’s done.</p>
+    <button class="btn primary block" id="rcok" style="margin-top:14px">Done</button></div>`,'Receipt');$('#rcok').onclick=closeWho}
+
 /* next game day: the nearest open poll date; it stays "Today" until that game's end time */
 function slotEnd(note){const t=String(note||''),m=t.match(/(\d{1,2})(?:[:.](\d{2}))?\s*(am|pm)?\s*(?:-|–|to)\s*(\d{1,2})(?:[:.](\d{2}))?\s*(am|pm)?/i);if(!m)return 24;
   let b=+m[4]+(+m[5]||0)/60;const pm=(m[6]||'').toLowerCase()==='pm'||(!m[6]&&/pm/i.test(t)),am=(m[6]||'').toLowerCase()==='am';if(pm&&b<12)b+=12;if(!pm&&!am&&b<8)b+=12;return Math.min(24,b)}
@@ -1003,8 +1093,9 @@ function nextGameCard(){const g=nextGame();if(!g)return canEdit()&&db?`<section 
   ensureVotes(g.p);const r=tally(g.p,VOTES_BY[g.p.id]||[]).res.find(x=>x.date===g.dt.date)||{yes:[],no:[]},done=new Set([...r.yes,...r.no].map(nkey)),wait=activeRoster().filter(n=>!done.has(nkey(n)));
   const today=g.dt.date===todayStr(),d=new Date(g.dt.date+'T00:00'),hrs=boardHours(g.dt.date),me=myName(),myA=me?(r.yes.some(x=>nkey(x)===nkey(me))?'yes':r.no.some(x=>nkey(x)===nkey(me))?'no':''):'';
   const G=[['yes',AVI.yes,'Available',r.yes],['no',AVI.no,'Unavailable',r.no],['wait',AVI.wait,'Not confirmed',wait]];
-  return`<section class="card nextgame"><div class="ng-h"><div><small>Next game day</small><b>${today?'Today':esc(dlabel(g.dt.date,{weekday:'long'}))}${g.dt.note?` · ${esc(g.dt.note)}`:''}</b><span>${esc(g.p.title)}${hrs?` · ${fmtH(hrs)} h booked`:''}</span>${venueMap(S.board)?`<a class="ngmap" href="${esc(venueMap(S.board))}" target="_blank" rel="noopener">${MAPPIN}${esc((S.board&&S.board.venue)||'Venue')} · Directions ›</a>`:''}</div><span class="ng-date"><b>${d.getDate()}</b><small>${esc(d.toLocaleDateString('en-IN',{month:'short'}))}</small></span></div>
-    <div class="ngtiles">${G.map(([k,e,l,L])=>`<button type="button" class="ngt ${k}${NG_OPEN===k?' on':''}" data-ngt="${k}"><span class="l">${e} ${l}</span><b>${L.length}</b><span class="lvav">${L.slice(0,4).map(n=>av(n)).join('')}${L.length>4?`<i>+${L.length-4}</i>`:''}</span></button>`).join('')}</div>
+  return`<section class="card nextgame"><div class="ng-h"><div><small>Next game day</small><b>${today?'Today':esc(dlabel(g.dt.date,{weekday:'long'}))}${g.dt.note?` · ${esc(g.dt.note)}`:''}</b><span>${esc(g.p.title)}${hrs?` · ${fmtH(hrs)} h booked`:''}</span></div><span class="ng-date"><b>${d.getDate()}</b><small>${esc(d.toLocaleDateString('en-IN',{month:'short'}))}</small></span></div>
+    ${(()=>{const st=new Date(g.dt.date+'T00:00').getTime()+(slotStart(g.dt.note)||17)*3600e3,h=cdText(st,g.end);return h?`<div class="cdown"><small>${Date.now()>=st?'':'Starts in'}</small><div class="cdrow" data-cd="${st}" data-ce="${g.end}">${h}</div></div>`:''})()}
+    <div class="ngtiles">${G.map(([k,e,l,L])=>`<button type="button" class="ngt ${k}${NG_OPEN===k?' on':''}" data-ngt="${k}"><span class="l">${e}${l}<b>${L.length}</b></span><span class="lvav">${L.slice(0,5).map(n=>av(n)).join('')}${L.length>5?`<i>+${L.length-5}</i>`:''}</span></button>`).join('')}</div>
     ${NG_OPEN?(()=>{const g2=G.find(x=>x[0]===NG_OPEN);return`<div class="pad" style="padding-top:4px"><div class="vgrp ${g2[0]}"><span class="vlbl">${g2[1]} ${g2[2]} · ${g2[3].length}</span><div class="names">${g2[3].map(n=>`<span class="nm-chip ${g2[0]}" data-prof="${esc(n)}">${av(n)}${esc(n)}</span>`).join('')||'<small class="hint">Nobody yet</small>'}</div></div></div>`})():''}
     <div class="card-f"><span class="hint" style="margin:0">${myA==='yes'?'You’re in ✅':myA==='no'?'You said you can’t make it':me?'You haven’t voted yet':''}</span><button class="btn sm ${myA?'line':'primary'}" data-ngvote="${esc(g.p.id)}" style="margin-left:auto">${myA?'Change vote':'Vote now'}</button></div></section>`}
 function bindNextGame(v){v.querySelectorAll('[data-ngt]').forEach(b=>b.onclick=()=>{NG_OPEN=NG_OPEN===b.dataset.ngt?'':b.dataset.ngt;const ns=$('#nextslot');ns.innerHTML=nextGameCard();bindNextGame(v)});
@@ -1015,12 +1106,16 @@ function renderDay(){
   const days=[...Array(7)].map((_,i)=>shift(ws,i));
   v.innerHTML=`
   <div class="hello" data-card="hello"><h1>Welcome, ${esc(first(myName()||'')||'friend')}! 👋</h1><p>${esc(dlabel(t,{weekday:'long',day:'numeric',month:'long'}))}</p></div>
-  <div id="occslot" data-card="occ">${occBanner()}</div>
+  <div data-card="stories">${db?storiesStrip():''}</div>
+  ${pushBanner()}
+  <div id="todayslot" data-card="today">${todayCard()}</div>
   <div id="taskslot" data-card="tasks"></div>
   <div id="nextslot" data-card="next">${nextGameCard()}</div>
   <div data-card="courts" class="cardgrp">${boardCard()}</div>
-  ${billTray()}
-  <div data-card="adhoc" class="cardgrp"><div class="sect"><h2>⚡ Ready to play an ad-hoc game today?</h2><p>Pick the day to record who played and the costs${canEdit()?'':' (organizers fill this in)'}.</p></div>
+  <div data-card="asks" class="cardgrp" id="askslot">${db?asksCard():''}</div>
+  ${billTray()}`;
+  $('#view-game').innerHTML=`
+  <div data-card="adhoc" class="cardgrp"><div class="sect"><h2>⚡ Ready to play a game today?</h2><p>Pick the day to record who played and the costs${canEdit()?'':' (organizers fill this in)'}.</p></div>
   <section class="card">
     <div class="wk-h"><b>${esc(dlabel(curDate,{month:'long',year:'numeric'}))}</b>
       <button class="iconbtn" data-act="pw" aria-label="Previous week">${ic('left')}</button>
@@ -1062,8 +1157,8 @@ function renderDay(){
   </section>
   </fieldset>
   <section class="card" id="splitcard"></section>
-  ${S.days[curDate]&&canEdit()?`<div style="text-align:center" class="clearday">${dayConfirmClear?`<span class="hint">Remove everything recorded for this day?</span> <button class="lnk" data-act="clear-no">Keep</button> · <button class="lnk danger" data-act="clear-yes">Clear day</button>`:`<button class="lnk danger" data-act="clear">Clear this day</button>`}</div>`:''}</div>${arrangeLink('day')}`;
-  refreshDay();refreshTasks();bindBoard(v);bindNextGame(v);
+  ${S.days[curDate]&&canEdit()?`<div style="text-align:center" class="clearday">${dayConfirmClear?`<span class="hint">Remove everything recorded for this day?</span> <button class="lnk" data-act="clear-no">Keep</button> · <button class="lnk danger" data-act="clear-yes">Clear day</button>`:`<button class="lnk danger" data-act="clear">Clear this day</button>`}</div>`:''}</div>`;
+  refreshDay();refreshTasks();bindBoard(v);bindNextGame(v);try{applyLayout('game')}catch(e){}
   attachSuggest($('#guest'),()=>allNames(),n=>{$('#guestwarn').hidden=true;const c=canon(n);const k0=nkey(c);if(!S.roster.some(r=>nkey(r)===k0)){S.roster.push(c);S.since=S.since||{};S.since[k0]=Date.now();saveConfig()}if((S.inactive||[]).includes(k0)){S.inactive=S.inactive.filter(x=>x!==k0);if(S.autoOff)delete S.autoOff[k0];saveConfig()}editDay(d=>{if(!d.present.some(x=>nkey(x)===nkey(c)))d.present.push(c)});toast(c+' marked as played.')},'in the group');
 }
 function refreshDay(){
@@ -1134,8 +1229,8 @@ function addGuest(force){
   if(chk&&chk.type==='near'&&!force){guestPending=n;w.hidden=false;w.innerHTML=`<span style="flex:1">Looks like <b>${esc(chk.name)}</b>. Same person?</span><button type="button" class="btn sm line" data-act="guest-same" data-v="${esc(chk.name)}">Yes</button><button type="button" class="btn sm primary" data-act="guest-new">No, add new</button>`;return}
   const nn=tcase(n);inp.value='';w.hidden=true;S.roster.push(nn);S.since=S.since||{};S.since[nkey(nn)]=Date.now();saveConfig();editDay(d=>{d.present.push(nn)});toast(nn+' added to the team and marked as played.');
 }
-function bindDay(){
-  const v=$('#view-day');
+function bindDay(){['#view-day','#view-game'].forEach(sel=>bindDay1($(sel)))}
+function bindDay1(v){
   v.addEventListener('click',e=>{
     if(e.target.closest('[data-signin]')){signIn();return}
     const b=e.target.closest('[data-act]');if(!b||b.disabled)return;
@@ -1348,6 +1443,7 @@ function openPaid(me,preset){
       let proof=null;if(img&&db){try{const ref=await proofCol().add({img,at:Date.now(),uid:auth.currentUser?auth.currentUser.uid:'',name:canon(me)});proof=ref.id}catch(e){toast('Screenshot couldn’t be saved, sending without it.')}}
       let ok=true;for(const r of go2){const ex={};if(nkey(r.name)!==nkey(me))ex.payer=canon(me);if(proof)ex.proof=proof;
         if(!await addPayment(r.name,r.amt,isOrg||!db?'confirmed':'claimed',isOrg||!db?(nkey(r.name)===nkey(me)?'self':'manual'):'upi',null,Object.keys(ex).length?ex:null)){ok=false;break}}
+      if(ok&&db&&!isOrg){closeWho();openReceipt(go2,me,img);return}
       if(ok){closeWho();toast(isOrg||!db?'Recorded: '+go2.map(r=>first(r.name)+' '+inr(r.amt)).join(', ')+(go2.length>1?' (paid by '+first(me)+')':'')+'.':go2.length>1?'Thanks! Payment for '+go2.map(r=>first(r.name)).join(', ')+' sent for confirmation.':'Thanks! Sent to the organizer for confirmation.')}else b.disabled=false};
   };draw();
 }
@@ -1750,21 +1846,23 @@ const BADGES=[['champ','🥇','Champion','Won a tournament',x=>x.titles>=1],['fi
   ['hat','🔥','Hat-trick','3 match wins in a row',x=>x.best>=3],['giant','⚡','Giant killer','Beat a higher-level opponent',x=>x.giant>=1],['iron','🛡️','Iron player','Played 10 tournament matches',x=>x.m>=10],
   ['dom','💥','Dominator','Won a game by 15+ points',x=>x.dom>=1],['reg','📅','Regular','Played 8 game days in 30 days',x=>x.att30>=8],['fan','💬','Crowd favourite','Got 5 kudos',x=>x.kudos>=5]];
 const NEXT={beginner:['intermediate',{xp:80,m:6,wr:45}],intermediate:['advanced',{xp:180,m:10,wr:55}],advanced:['pro',{xp:350,m:15,wr:65,titles:1}]};
-function playerStats(){const st={},get=n=>{const k=nkey(n);return st[k]=st[k]||{n:canon(n),m:0,w:0,l:0,pf:0,pa:0,titles:0,finals:0,giant:0,dom:0,cur:0,best:0,recent:[],att:0,att30:0,kudos:0}};
+function playerStats(){const st={},get=n=>{const k=nkey(n);return st[k]=st[k]||{n:canon(n),m:0,w:0,l:0,pf:0,pa:0,titles:0,finals:0,giant:0,dom:0,cur:0,best:0,recent:[],att:0,att30:0,kudos:0,log:[]}},LG=(x,d,xp,what)=>x.log.push({d,xp,what});
   allNames().forEach(get);
-  CUP.list.slice().sort((a,b)=>(a.createdAt||0)-(b.createdAt||0)).forEach(T=>{const E={};(T.entries||[]).forEach(e=>E[e.id]=e);const M=T.matches||[],R=M.length?Math.max(...M.map(m=>m.r)):0;
+  CUP.list.slice().sort((a,b)=>(a.createdAt||0)-(b.createdAt||0)).forEach(T=>{const E={};(T.entries||[]).forEach(e=>E[e.id]=e);const M=T.matches||[],R=M.length?Math.max(...M.map(m=>m.r)):0,TD=ymd(new Date(T.createdAt||Date.now()));
     const rank=e=>e?e.players.reduce((a,n)=>a+lvlRank(n),0)/e.players.length:0;
     M.forEach(m=>{if(!m.w||m.bye||!E[m.a]||!E[m.b])return;[[m.a,m.b,0],[m.b,m.a,1]].forEach(([me,op,side])=>{const won=m.w===me;E[me].players.forEach(n=>{const x=get(n);x.m++;won?x.w++:x.l++;
-      gs(m).forEach(g=>{const f=g[side],a2=g[1-side];x.pf+=f;x.pa+=a2;if(f-a2>=15)x.dom++});x.cur=won?x.cur+1:0;x.best=Math.max(x.best,x.cur);if(won&&[...E[op].players,...E[me].players].every(n=>levelOf(n))&&rank(E[op])>rank(E[me])+.4)x.giant++;
+      const sc=gs(m).map(g=>side?g[1]+'-'+g[0]:g.join('-')).join(', ');LG(x,TD,won?7:2,(won?'Won':'Played')+' vs '+E[op].name+' · '+T.name+(sc?' · '+sc:'')+(won?' (2 played + 5 win)':' (2 for playing)'));
+      gs(m).forEach(g=>{const f=g[side],a2=g[1-side];x.pf+=f;x.pa+=a2;if(f-a2>=15){x.dom++;LG(x,TD,2,'Dominant game '+f+'-'+a2+' vs '+E[op].name)}});x.cur=won?x.cur+1:0;x.best=Math.max(x.best,x.cur);if(won&&[...E[op].players,...E[me].players].every(n=>levelOf(n))&&rank(E[op])>rank(E[me])+.4){x.giant++;LG(x,TD,6,'Giant killer: beat a higher level · '+E[op].name)}
       x.recent.unshift({t:T.name,vs:E[op].name,won,score:gs(m).map(g=>side?g[1]+'-'+g[0]:g.join('-')).join(', ')})})})});
-    const ch=cupChampion(T);if(ch){const ce=(T.entries||[]).find(e=>e.name===ch);if(ce)ce.players.forEach(n=>get(n).titles++)}
-    {const K=koMs(T),KR=K.length?Math.max(...K.map(m=>m.r)):0,f=K.find(m=>m.r===KR);if(f&&f.a&&f.b)[f.a,f.b].forEach(id=>E[id]&&E[id].players.forEach(n=>get(n).finals++))}});
-  CHAL.list.filter(c=>c.status==='done'&&c.counts&&c.winner).slice().reverse().forEach(c=>{[['a','b',0],['b','a',1]].forEach(([me,op,side])=>{const won=c.winner===me;(c[me]||[]).forEach(n=>{const x=get(n);x.m++;won?x.w++:x.l++;
-    (c.score||[]).forEach(g=>{const f=side?g.b:g.a,a2=side?g.a:g.b;x.pf+=f;x.pa+=a2;if(f-a2>=15)x.dom++});x.cur=won?x.cur+1:0;x.best=Math.max(x.best,x.cur);x.recent.unshift({t:'Challenge',vs:(c[op]||[]).join(' & '),won,score:(c.score||[]).map(g=>side?g.b+'-'+g.a:g.a+'-'+g.b).join(', ')})})})});
+    const ch=cupChampion(T);if(ch){const ce=(T.entries||[]).find(e=>e.name===ch);if(ce)ce.players.forEach(n=>{const x=get(n);x.titles++;LG(x,TD,20,'🏆 Champion · '+T.name)})}
+    {const K=koMs(T),KR=K.length?Math.max(...K.map(m=>m.r)):0,f=K.find(m=>m.r===KR);if(f&&f.a&&f.b)[f.a,f.b].forEach(id=>E[id]&&E[id].players.forEach(n=>{const x=get(n);x.finals++;LG(x,TD,8,'Reached the final · '+T.name)}))}});
+  CHAL.list.filter(c=>c.status==='done'&&c.counts&&c.winner).slice().reverse().forEach(c=>{const CD=c.date||ymd(new Date(c.doneAt||c.at||Date.now()));[['a','b',0],['b','a',1]].forEach(([me,op,side])=>{const won=c.winner===me;(c[me]||[]).forEach(n=>{const x=get(n);x.m++;won?x.w++:x.l++;
+    LG(x,CD,won?7:2,(won?'Won':'Played')+' challenge vs '+(c[op]||[]).join(' & ')+(won?' (2 played + 5 win)':' (2 for playing)'));
+    (c.score||[]).forEach(g=>{const f=side?g.b:g.a,a2=side?g.a:g.b;x.pf+=f;x.pa+=a2;if(f-a2>=15){x.dom++;LG(x,CD,2,'Dominant game '+f+'-'+a2)}});x.cur=won?x.cur+1:0;x.best=Math.max(x.best,x.cur);x.recent.unshift({t:'Challenge',vs:(c[op]||[]).join(' & '),won,score:(c.score||[]).map(g=>side?g.b+'-'+g.a:g.a+'-'+g.b).join(', ')})})})});
   AVO.list.forEach(g=>{const x=st[g.toKey||nkey(g.to)];if(x&&nkey(g.from)!==nkey(g.to))x.kudos++});
-  const d30=shift(todayStr(),-30);Object.keys(S.days).forEach(k=>uniq(S.days[k].present||[]).forEach(n=>{const x=get(n);x.att++;if(k>=d30)x.att30++}));
+  const d30=shift(todayStr(),-30);Object.keys(S.days).sort().forEach(k=>uniq(S.days[k].present||[]).forEach(n=>{const x=get(n);x.att++;if(k>=d30)x.att30++;if(x.att<=60)LG(x,k,1,'Played on game day'+(x.att===60?' (attendance XP capped at 60)':''))}));
   (CMT.list||[]).forEach(c=>{if(c.target&&c.target.startsWith('player:')&&!c.parent){const x=st[c.target.slice(7)];if(x)x.kudos++}});
-  Object.values(st).forEach(x=>{x.wr=x.m?Math.round(x.w*100/x.m):0;x.xp=x.m*2+x.w*5+x.titles*20+x.finals*8+x.giant*6+x.dom*2+Math.min(x.att,60)+x.kudos*2;x.badges=BADGES.filter(b=>b[4](x)).map(b=>b[0]);
+  Object.values(st).forEach(x=>{x.wr=x.m?Math.round(x.w*100/x.m):0;x.xp=x.m*2+x.w*5+x.titles*20+x.finals*8+x.giant*6+x.dom*2+Math.min(x.att,60);x.log.sort((a,b)=>b.d.localeCompare(a.d));x.badges=BADGES.filter(b=>b[4](x)).map(b=>b[0]);
     const lv=levelOf(x.n),cur=lv?lv[0]:'beginner',nx=NEXT[cur];x.level=lv?lv[1]:'Level not set';
     if(nx){const [to,req]=nx,parts=[['XP',x.xp,req.xp],['Matches',x.m,req.m],['Win rate',x.wr,req.wr,'%']].concat(req.titles?[['Titles',x.titles,req.titles]]:[]);
       x.next={to:LEVELS.find(l=>l[0]===to)[1],parts,pct:Math.round(parts.reduce((a,p)=>a+Math.min(1,p[1]/p[2]),0)*100/parts.length)};x.ready=parts.every(p=>p[1]>=p[2])}});
@@ -1776,6 +1874,7 @@ function profileBody(x){const B=BADGES;return`${!x.m&&!x.xp?`<div class="sub" st
     <div class="mix" style="flex-wrap:wrap;gap:6px 14px">${x.next.parts.map(p=>`<small style="color:${p[1]>=p[2]?'var(--ok)':'var(--muted)'};font-weight:700">${p[1]>=p[2]?'✓':'○'} ${p[0]} ${p[1]}${p[3]||''}/${p[2]}${p[3]||''}</small>`).join('')}</div>
     ${x.ready&&canEdit()?`<button class="btn sm primary" data-promote="${esc(x.n)}" style="margin-top:10px">${ic('check')}Promote to ${esc(x.next.to)}</button>`:''}</div>`:!x.next?`<div class="sub" style="padding-top:12px"><b>🏆 Top level reached</b></div>`:''}
   <div class="acct" style="grid-template-columns:repeat(3,minmax(0,1fr))"><div><span>Matches</span><b>${x.m}</b></div><div class="good"><span>Wins</span><b>${x.w} · ${x.wr}%</b></div><div><span>Points +/−</span><b>${x.pf-x.pa>0?'+':''}${x.pf-x.pa}</b></div><div><span>Titles</span><b>${x.titles}</b></div><div><span>Game days</span><b>${x.att}</b></div><div><span>Kudos</span><b>${x.kudos}</b></div></div>
+  ${(x.log||[]).length?`<details class="sub xpd"><summary class="sublbl" style="cursor:pointer;margin:0">📈 XP history · ${x.xp} XP from ${plural(x.log.length,'credit')} <button type="button" class="lnk" data-metrics style="margin-left:6px">How it works</button></summary><div class="xplog">${x.log.slice(0,80).map(l=>`<div><b>+${l.xp}</b><span>${esc(l.what)}</span><small>${esc(dlabel(l.d,{day:'numeric',month:'short'}))}</small></div>`).join('')}${x.log.length>80?`<p class="hint">+${x.log.length-80} older</p>`:''}</div></details>`:''}
   <div class="sub"><span class="sublbl">Achievements · ${x.badges.length}/${B.length}</span><div class="mix" style="flex-wrap:wrap;gap:8px">${B.map(b=>`<span title="${esc(b[3])}" style="display:inline-flex;align-items:center;gap:5px;padding:5px 10px;border-radius:999px;font-size:12.5px;font-weight:800;${x.badges.includes(b[0])?'background:var(--soft);color:var(--accent)':'background:var(--field);color:var(--muted);opacity:.55'}">${b[1]} ${b[2]}</span>`).join('')}</div></div>
   ${x.recent.length?`<details class="sub"><summary class="sublbl" style="cursor:pointer">Recent matches · ${x.recent.length}</summary>${x.recent.slice(0,8).map(r=>`<div class="mix" style="justify-content:space-between;padding:4px 0"><small>${r.won?'✅':'❌'} vs ${esc(r.vs)} · ${esc(r.t)}</small><small class="hint" style="margin:0">${esc(r.score)}</small></div>`).join('')}</details>`:''}
   <div class="sub" style="border-top:1px solid var(--line2);padding-top:12px"><span class="sublbl">Kudos & feedback</span>${threadHTML('player:'+nkey(x.n),'Cheer '+first(x.n)+'…')}</div>`}
@@ -1859,10 +1958,14 @@ function lbRows(month){const ST=playerStats(),mo=todayStr().slice(0,7),inP=t=>!m
     const days=Object.keys(S.days).filter(d=>(!month||d.slice(0,7)===mo)&&uniq(S.days[d].present||[]).some(p=>nkey(p)===k)).length;
     const recv=AVO.list.filter(g=>(g.toKey||nkey(g.to))===k&&inP(g.at)),given=AVO.list.filter(g=>nkey(g.from)===k&&inP(g.at)).reduce((a,g)=>a+(+g.amt||0),0);
     return{n,days,m:x.m,w:x.w,l:x.l,wr:x.m?x.wr:-1,titles:x.titles||0,best:x.best||0,xp:x.xp||0,avo:recv.reduce((a,g)=>a+(+g.amt||0),0),fans:new Set(recv.map(g=>nkey(g.from))).size,given,form:(x.recent||[]).slice(0,5).map(r=>r.won?'W':'L'),lvl:levelOf(n)}})}
-const LBCOLS=[['days','Days','Game days attended'],['m','P','Matches played'],['w','W','Won'],['l','L','Lost'],['wr','Win%','Win rate'],['avo','🥑','Avokudos received']];
+const LBCOLS=[['days','Days','Game days attended'],['m','P','Matches played'],['w','W','Won'],['l','L','Lost'],['wr','Win%','Win rate'],['avo','🥑','Avokudos received (for info, not part of the ranking)']];
+const METRICS=[['XP','Experience points: the ranking. Earned only from playing: +1 per game day attended (up to 60), +2 per match played, +5 per win, +2 per dominant game (won by 15+), +6 giant-killer win (beating a higher level), +8 for reaching a final, +20 for winning a tournament.'],['Days','Game days you were recorded as playing.'],['P','Matches played in tournaments and in challenges that count for stats.'],['W / L','Matches won and lost.'],['Win%','Wins ÷ matches played.'],['Titles','Tournaments won.'],['Streak','Best run of wins in a row.'],['🥑','Avokudos received from teammates. Shown for appreciation only; it never changes your rank or XP.']];
+function openMetrics(){sheetOpen(`<div class="sheet-h"><span class="ini">📖</span><div><b>How scoring works</b><small>Ranking is by merit: games and results only</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div>
+  ${METRICS.map(([k,d])=>`<div class="row" style="align-items:flex-start"><b style="min-width:58px">${esc(k)}</b><span style="font-size:14px;line-height:1.45">${esc(d)}</span></div>`).join('')}
+  <div class="pad"><p class="hint" style="margin:0">Ties are broken by wins, then win %. Every XP credit is listed on each player’s card under “XP history”.</p></div>`,'Scoring')}
 /* where a player stands: #rank by XP among active players */
-function lbRank(n){const R=lbRows(false).sort((a,b)=>(b.xp-a.xp)||(b.avo-a.avo)||a.n.localeCompare(b.n)),i=R.findIndex(r=>nkey(r.n)===nkey(n));return i<0?null:{pos:i+1,of:R.length}}
-function openAvoBoard(){startAvo();startCup();startChal();const draw=()=>{const R=lbRows(AVOB==='month').sort((a,b)=>(b[LBS]-a[LBS])||(b.xp-a.xp)||(b.avo-a.avo)||a.n.localeCompare(b.n)),H=AVO.list.filter(g=>g.msg&&(AVOB!=='month'||ymd(new Date(g.at||0)).slice(0,7)===todayStr().slice(0,7))).slice(0,6);
+function lbRank(n){const R=lbRows(false).sort((a,b)=>(b.xp-a.xp)||(b.w-a.w)||(b.wr-a.wr)||a.n.localeCompare(b.n)),i=R.findIndex(r=>nkey(r.n)===nkey(n));return i<0?null:{pos:i+1,of:R.length}}
+function openAvoBoard(){startAvo();startCup();startChal();const draw=()=>{const R=lbRows(AVOB==='month').sort((a,b)=>(b[LBS]-a[LBS])||(b.xp-a.xp)||(b.w-a.w)||(b.wr-a.wr)||a.n.localeCompare(b.n)),H=AVO.list.filter(g=>g.msg&&(AVOB!=='month'||ymd(new Date(g.at||0)).slice(0,7)===todayStr().slice(0,7))).slice(0,6);
   const val=(r,k)=>k==='wr'?(r.wr<0?null:r.wr+'%'):r[k]||null,cell=(r,k)=>{const v=val(r,k);return v==null?'<span class="z">0</span>':k==='avo'?`<b class="avo">${v}</b>`:v};
   const sortL=LBS==='xp'?'XP':(LBCOLS.find(c=>c[0]===LBS)||[,'XP'])[1],metric=r=>LBS==='xp'?r.xp+' XP':LBS==='wr'?(r.wr<0?'–':r.wr+'%'):LBS==='avo'?'🥑 '+r.avo:(r[LBS]||0)+' '+sortL;
   const P=R.slice(0,3),pod=P.length===3?[P[1],P[0],P[2]]:P,med=['🥇','🥈','🥉'];
@@ -1872,9 +1975,9 @@ function openAvoBoard(){startAvo();startCup();startChal();const draw=()=>{const 
     ${P.length?`<div class="podium">${pod.map(r=>{const i=R.indexOf(r);return`<button type="button" class="pod p${i+1}" data-prof="${esc(r.n)}"><span class="pav">${ini(r.n,r.lvl?'box-shadow:0 0 0 2.5px '+r.lvl[2]:'',i===0?'xl':'lg')}<i>${med[i]}</i></span><b>${esc(first(r.n))}</b><small>${metric(r)}</small><span class="step">${i+1}</span></button>`}).join('')}</div>`:''}
     <div class="lbwrap"><table class="lboard"><thead><tr><th class="rk">#</th><th class="pl"><button type="button" data-lbs="xp" class="${LBS==='xp'?'on':''}">Player</button></th>${LBCOLS.map(([k,l,t])=>`<th><button type="button" data-lbs="${k}" title="${esc(t)}" class="${LBS===k?'on':''}">${l}</button></th>`).join('')}</tr></thead>
       <tbody>${R.map((r,i)=>`<tr class="${nkey(r.n)===nkey(getMe())?'me':''}" data-prof="${esc(r.n)}"><td class="rk">${i+1}</td><td class="pl"><span class="plw">${ini(r.n,r.lvl?'box-shadow:0 0 0 2px '+r.lvl[2]:'','sm')}<span><b>${esc(first(r.n))}</b><small>${esc(r.lvl?r.lvl[1]:'')}${r.lvl?' · ':''}${r.xp} XP</small></span></span></td>${LBCOLS.map(([k])=>`<td class="${LBS===k?'on':''}">${cell(r,k)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>
-    <p class="hint" style="margin:8px 16px 0">Tap a column to sort, tap a player for their card. ${AVOB==='month'?'This month: games and 🥑 are this month; matches and XP are all time.':'Matches include tournaments and challenges that count for stats.'}</p>
+    <p class="hint" style="margin:8px 16px 0"><button type="button" class="lnk" data-metrics style="font-weight:800">📖 How scoring works</button> · Ranked by XP from games only; 🥑 is for info. Tap a column to sort, tap a player for their card. ${AVOB==='month'?'This month: games and 🥑 are this month; matches and XP are all time.':'Matches include tournaments and challenges that count for stats.'}</p>
     ${H.length?`<span class="sublbl" style="margin:14px 16px 0">🥑 Latest appreciation</span>${H.map(avoQuote).join('')}`:''}`,'Leaderboard');
-  bg.querySelectorAll('[data-avob]').forEach(b=>b.onclick=()=>{AVOB=b.dataset.avob;draw()});bg.querySelectorAll('[data-lbs]').forEach(b=>b.onclick=e=>{e.stopPropagation();LBS=b.dataset.lbs;draw()});
+  bg.querySelectorAll('[data-avob]').forEach(b=>b.onclick=()=>{AVOB=b.dataset.avob;draw()});bg.querySelectorAll('[data-metrics]').forEach(b=>b.onclick=openMetrics);bg.querySelectorAll('[data-lbs]').forEach(b=>b.onclick=e=>{e.stopPropagation();LBS=b.dataset.lbs;draw()});
   bg.querySelectorAll('[data-prof]').forEach(b=>b.onclick=()=>openProfile(b.dataset.prof,'kudos'))};draw()}
 /* give to one or many, within your balance */
 function openAvo(pre){pre=pre||{};startAvo();const me=myName();if(!me){toast('Pick your name first (tap the person icon at the top).');ME.who='';go('me');return}
@@ -2117,22 +2220,22 @@ const IGI={heart:'<svg viewBox="0 0 24 24" class="igi" aria-hidden="true"><path 
 const myReact=o=>{if(!o||!o.likes)return'';const uid=auth&&auth.currentUser&&auth.currentUser.uid;let v=uid&&o.likes[uid];
   if(!v){const me=myName();if(me){const k=nkey(me);v=Object.values(o.likes).find(x=>{const s2=String(x),i=s2.indexOf('|');return i>0&&nkey(s2.slice(i+1))===k})}}return v?(String(v).includes('|')?String(v).split('|')[0]:'🏸'):''};
 const realName=n=>{const k=nkey(n||'');return k&&allNames().find(x=>nkey(x)===k)||''};
-function likesLine(o,k){const R=reactsOf(o),all=Object.values(R).flat();if(!all.length)return'';const meK=nkey(myName()||''),mine=!!myReact(o);
-  const named=all.map(x=>realName(x.n)).filter(Boolean),others=uniq(named.filter(n=>nkey(n)!==meK)),lead=others[0]||(mine?'':named[0]||''),rest=all.length-1,dps=uniq((others.length?others:named).slice(0,3));
+function likesLine(o,k){const R=reactsOf(o),all=[...(R['❤️']||[]),...Object.entries(R).filter(([e])=>e!=='❤️').flatMap(([,l])=>l)];if(!all.length)return'';const meK=nkey(myName()||''),mine=!!myReact(o);
+  const named=all.map(x=>realName(x.n)).filter(Boolean),others=uniq(named.filter(n=>nkey(n)!==meK)),lead=others[0]||(mine?'':named[0]||''),rest=all.length-1,dps=uniq([lead,...(others.length?others:named)].filter(Boolean)).slice(0,3);
   const emo=Object.entries(R).filter(([e])=>e!=='❤️').map(([e,l])=>e+(l.length>1?l.length:'')).join(' '),key=(k||'p')+':'+o.id;
   return`<div class="iglikes"><span class="lvav" data-likers="${esc(key)}">${dps.map(n=>av(n)).join('')}</span><span>Liked by ${lead?`<button type="button" class="lkn" data-prof="${esc(lead)}">${esc(first(lead))}</button>`:'<b>you</b>'}${rest>0?` and <button type="button" class="lkn" data-likers="${esc(key)}">${rest===1?(others[1]?esc(first(others[1])):mine&&lead?'you':'1 other'):rest+' others'}</button>`:''}${emo?` <span class="igemos">${emo}</span>`:''}</span></div>`}
 function openLikers(key){const[k,...r]=key.split(':'),id=r.join(':'),L=k==='a'?AVO.list:k==='c'?CMT.list:k==='s'?STORY.list:CLUB.list,o=(L||[]).find(x=>x.id===id);if(!o)return;
-  const rows=Object.entries(o.likes||{}).map(([u,v])=>{const s2=String(v),i=s2.indexOf('|');return{e:i>0?s2.slice(0,i):'❤️',n:realName(i>0?s2.slice(i+1):'')}}).filter(x=>x.n);
+  const rows=[];Object.entries(reactsOf(o)).forEach(([e,l])=>l.forEach(x=>{const n=realName(x.n);if(n&&!rows.some(r=>nkey(r.n)===nkey(n)))rows.push({e,n})}));
   const bg=sheetOpen(`<div class="sheet-h"><span class="ini">${IGI.heart}</span><div><b>Likes</b><small>${plural(rows.length,'person')}</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div>
     ${rows.map(x=>`<button class="prow" style="width:100%;border:0;background:none;text-align:left" data-prof="${esc(x.n)}">${ini(x.n)}<span class="nm">${esc(x.n)}<small>${esc(statusLine(x.n)||levelOf(x.n)?.[1]||'')}</small></span><span style="font-size:22px">${esc(x.e)}</span></button>`).join('')||'<div class="empty">No likes yet.</div>'}`,'Likes');
   bg.querySelectorAll('[data-prof]').forEach(b=>b.onclick=()=>openProfile(b.dataset.prof))}
 document.addEventListener('click',e=>{const l=e.target.closest&&e.target.closest('[data-likers]');if(l){e.preventDefault();e.stopPropagation();openLikers(l.dataset.likers);return}
   const n=e.target.closest&&e.target.closest('.iglikes [data-prof]');if(n){e.preventDefault();e.stopPropagation();openProfile(n.dataset.prof)}},true);
-const igBtn=(kind,id,o)=>{const m=myReact(o),n=Object.keys(o&&o.likes||{}).length;return`<button class="igb like${m?' on':''}" data-heart="${kind}:${esc(id)}" aria-label="${m?'Unlike':'Like'}" aria-pressed="${!!m}">${IGI.heart}${n?`<small>${n}</small>`:''}</button>`};
+const igBtn=(kind,id,o)=>{const m=myReact(o),n=likeCount(o||{});return`<button class="igb like${m?' on':''}" data-heart="${kind}:${esc(id)}" aria-label="${m?'Unlike':'Like'}" aria-pressed="${!!m}">${IGI.heart}${n?`<small>${n}</small>`:''}</button>`};
 /* one Instagram action bar for posts ('p') and Avokudos ('a'): ♡ n · 💬 n · 🔁 n · ✈️ … ☺+ */
 const igAgo=at=>{const m=Math.round((Date.now()-(at||0))/60e3);return m<1?'Just now':m<60?m+(m===1?' minute':' minutes')+' ago':m<1440?Math.round(m/60)+(Math.round(m/60)===1?' hour':' hours')+' ago':timeAgo(at)};
 function igActions(k,id,o,cc,rp){return`<div class="igbar">${igBtn(k,id,o)}<button class="igb" data-${k==='a'?'acmts':'cmts'}="${esc(id)}" aria-label="Comment">${IGI.comment}${cc?`<small>${cc}</small>`:''}</button><button class="igb" data-repost="${k==='a'?'a:':''}${esc(id)}" aria-label="Reshare">${IGI.repost}${rp?`<small>${rp}</small>`:''}</button><button class="igb" data-${k==='a'?'ashare':'pshare'}="${esc(id)}" aria-label="Send">${IGI.send}</button><button class="igb igreact" data-preact="${k==='a'?'a:':''}${esc(id)}" aria-label="React, GIFs and translate">${IGI.smile}</button></div>`}
-function heartMini(kind,c){const n=Object.keys(c.likes||{}).length,m=myReact(c);return`<button class="igmini${m?' on':''}" data-heart="${kind}:${esc(c.id)}" aria-label="Like">${IGI.heart}${n?`<span>${n}</span>`:''}</button>`}
+function heartMini(kind,c){const n=likeCount(c),m=myReact(c);return`<button class="igmini${m?' on':''}" data-heart="${kind}:${esc(c.id)}" aria-label="Like">${IGI.heart}${n?`<span>${n}</span>`:''}</button>`}
 /* tap = ❤️ on/off · hold = pick another reaction · double-tap a photo = ❤️ */
 (function(){let hold=null,held=false;
   document.addEventListener('pointerdown',e=>{const b=e.target.closest&&e.target.closest('[data-heart]');if(!b)return;held=false;clearTimeout(hold);hold=setTimeout(()=>{held=true;const[k,id]=b.dataset.heart.split(':');
@@ -2187,13 +2290,15 @@ function openStories(n){const L=liveStories(n);if(!L.length)return openStatus();
   const show=()=>{clearTimeout(tm);const s=L[i];if(!s)return close();markStory(s.id);const own=nkey(s.name)===nkey(getMe()),m=myReact(s),lc=Object.keys(s.likes||{}).length;
     ov.innerHTML=`<div class="svbars">${L.map((x,j)=>`<i class="${j<i?'done':j===i?'run':''}"></i>`).join('')}</div>
       <div class="svhead">${ini(s.name,'','sm')}<b>${esc(first(s.name))}</b><small>${timeAgo(s.at)}</small>${statusLine(s.name)?`<small>· ${statusLine(s.name)}</small>`:''}<button class="svx" aria-label="Close">${ic('x')}</button></div>
-      <div class="svbody" style="${s.img?'':'background:'+esc(s.bg||'#0B6E4F')}">${s.img?`<img src="${s.img}" alt="">`:''}${s.text?`<div class="svtext${s.img?' cap':''}">${mtext(s.text)}</div>`:''}<button class="svnav prev" aria-label="Previous"></button><button class="svnav next" aria-label="Next"></button></div>
+      <div class="svbody" style="${s.img?'':'background:'+esc(s.bg||'#0B6E4F')}">${s.img?`<img src="${s.img}" alt="">`:''}${s.text?`<div class="svtext${s.img?' cap':''}">${mtext(s.text)}</div>`:''}${s.song&&SONG_RE.test(s.song)?songCard(s.song):''}<button class="svnav prev" aria-label="Previous"></button><button class="svnav next" aria-label="Next"></button></div>
       <div class="svfoot">${own?`<span>❤️ ${lc} · ${plural(lc,'like')}</span><button class="svdel">${ic('trash')} Delete</button>`:`<button class="svlike${m?' on':''}" aria-label="Like">${IGI.heart}</button><span>${lc?lc+' ❤️':''}</span>`}</div>`;
     ov.querySelector('.svx').onclick=close;ov.querySelector('.prev').onclick=()=>{if(i>0){i--;show()}};ov.querySelector('.next').onclick=()=>{i++;show()};
     const lk=ov.querySelector('.svlike');if(lk)lk.onclick=async()=>{await setReact('s',s.id,'❤️');s.likes=s.likes||{};const uid=auth.currentUser.uid;if(s.likes[uid])delete s.likes[uid];else s.likes[uid]='❤️|'+canon(myName());show()};
     const dl=ov.querySelector('.svdel');if(dl)dl.onclick=async()=>{try{await col('stories').doc(s.id).delete();L.splice(i,1);toast('Status deleted.');L.length?show():close()}catch(e){toast('Couldn’t delete.')}};
     tm=setTimeout(()=>{i++;show()},s.img?6000:5000)};show()}
 /* set an availability status and/or post a 24-hour photo or text status */
+const SONG_RE=/^https:\/\/([a-z0-9-]+\.)*(spotify\.com|youtube\.com|youtu\.be|music\.youtube\.com|jiosaavn\.com|gaana\.com|wynk\.in|music\.apple\.com|soundcloud\.com)\/\S+$/i;
+const songCard=u=>{const src=/spotify/.test(u)?'Spotify':/youtu/.test(u)?'YouTube':/jiosaavn/.test(u)?'JioSaavn':/gaana/.test(u)?'Gaana':/wynk/.test(u)?'Wynk':/apple/.test(u)?'Apple Music':'SoundCloud';return`<a class="songcard" href="${esc(u)}" target="_blank" rel="noopener"><span class="sgi">🎵</span><span><b>Play the song</b><small>Opens in ${src}</small></span><span class="go">▶</span></a>`};
 function openStatus(){const me=myName();if(!me){toast('Pick your name first (tap the person icon at the top).');return}startPresence();startStories();const cur=statusOf(me)||{};let emo=cur.emo||'',img='',bg='#0B6E4F';
   const BGS=['#0B6E4F','#7A5AF8','#E04F5F','#F79009','#1570EF','#101828'];const mine=liveStories(me);
   const bg2=sheetOpen(`<div class="sheet-h">${ini(me)}<div><b>Your status</b><small>${seenText(me)||'Visible to everyone in the group'}</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div>
@@ -2204,6 +2309,7 @@ function openStatus(){const me=myName();if(!me){toast('Pick your name first (tap
       <div id="stprev" class="stprev" style="background:${bg}"><span class="hint" style="color:#fff;margin:0">Add a photo or type something</span></div>
       <div class="mix" style="gap:6px;margin:8px 0">${BGS.map(c=>`<button type="button" class="stbg" data-stbg="${c}" style="background:${c}" aria-label="Colour"></button>`).join('')}<label class="btn sm line" style="margin-left:auto">${ic('camera')}Photo<input type="file" accept="image/*" id="stimg" hidden></label></div>
       <textarea class="txt" id="sttxt" data-mention rows="2" maxlength="300" placeholder="Caption or message…"></textarea>
+      <input class="txt" id="stsong" inputmode="url" maxlength="300" placeholder="🎵 Add a song: paste a Spotify, YouTube Music, JioSaavn or Apple Music link" style="margin-top:8px" autocomplete="off">
       <button class="btn primary block" id="stpost" style="margin-top:8px">Share status</button>
       ${mine.length?`<button class="lnk" id="stview" style="margin-top:8px">View my ${mine.length===1?'status':mine.length+' statuses'} (${mine.reduce((a,s)=>a+Object.keys(s.likes||{}).length,0)} ❤️)</button>`:''}</div>`,'Your status');
   const prev=()=>{const p=$('#stprev'),t=norm($('#sttxt').value);p.style.background=img?'#000':bg;p.innerHTML=(img?`<img src="${img}" alt="">`:'')+(t?`<div class="svtext${img?' cap':''}">${esc(t)}</div>`:'')||'<span class="hint" style="color:#fff;margin:0">Add a photo or type something</span>'};
@@ -2214,7 +2320,7 @@ function openStatus(){const me=myName();if(!me){toast('Pick your name first (tap
   $('#stclear').onclick=async()=>{await pingPresence({emo:'',text:'',stAt:Date.now()});PRES.map[nkey(me)]=Object.assign(presOf(me)||{at:Date.now()},{st:null});closeWho();toast('Status cleared');renderTab(false)};
   const vw=$('#stview');if(vw)vw.onclick=()=>{closeWho();openStories(me)};
   let busy=false;$('#stpost').onclick=async()=>{const t=norm($('#sttxt').value);if(!img&&!t)return toast('Add a photo or some text.');if(t&&!allOk(t))return;if(perm('post')==='off')return toast('Posting is turned off by the admins.');if(busy)return;busy=true;$('#stpost').disabled=true;
-    try{await ensureAnon();const d={name:canon(me),uid:auth.currentUser.uid,text:t,bg,at:Date.now(),likes:{}};if(img)d.img=img;await col('stories').add(d);closeWho();toast('Status shared for 24 hours ✨')}catch(e){busy=false;$('#stpost').disabled=false;toast(e.code==='permission-denied'?'Ask the organizer to update the app rules.':'Couldn’t share ('+(e.code||'error')+').')}}}
+    try{await ensureAnon();const d={name:canon(me),uid:auth.currentUser.uid,text:t,bg,at:Date.now(),likes:{}};if(img)d.img=img;{const sg=norm($('#stsong').value);if(sg){if(!SONG_RE.test(sg)){busy=false;$('#stpost').disabled=false;return toast('Paste a song link from Spotify, YouTube, JioSaavn, Gaana, Wynk or Apple Music.')}d.song=sg.slice(0,300)}}await col('stories').add(d);closeWho();toast('Status shared for 24 hours ✨')}catch(e){busy=false;$('#stpost').disabled=false;toast(e.code==='permission-denied'?'Ask the organizer to update the app rules.':'Couldn’t share ('+(e.code||'error')+').')}}}
 document.addEventListener('click',e=>{const a=e.target.closest&&e.target.closest('[data-story]');if(a){e.preventDefault();openStories(a.dataset.story);return}
   const sp=e.target.closest&&e.target.closest('[data-stprof]');if(sp){e.preventDefault();openProfile(sp.dataset.stprof);return}
   const bp=e.target.closest&&e.target.closest('[data-bigph]');if(bp){e.preventDefault();e.stopPropagation();openBigPhoto(bp.dataset.bigph);return}
@@ -2274,6 +2380,7 @@ function openActions(){const L=actOpen(),H=ACT.list.filter(a=>a.status!=='pendin
 function permsHTML(){return`${cardH('lock','Player permissions')}<p class="hint" style="margin:0;padding:0 16px 8px">Admins and co-organizers can always do everything.</p>
   ${PERMS.map(([k,e,l,modes])=>`<div class="sub" style="border-top:1px solid var(--line2);padding:10px 16px"><b>${e} ${l}</b><div class="seg" style="padding:6px 0 0">${modes.map(m=>`<button type="button" class="${permOf(k)===m?'on':''}" data-perm="${k}:${m}">${PMODE[m]}</button>`).join('')}</div></div>`).join('')}
   <div class="sub" style="border-top:1px solid var(--line2);padding:10px 16px"><b>🎞️ GIPHY search in comments</b><p class="hint" style="margin:4px 0 8px">Free key: sign in at developers.giphy.com › Create an API key › choose “API”. Paste it here. Built-in stickers work without it.</p><div class="inline"><input class="txt" id="giphykey" maxlength="80" placeholder="Paste GIPHY API key" value="${esc(S.giphy||'')}" autocomplete="off"><button type="button" class="btn sm primary" data-giphysave style="height:44px">Save</button></div></div>
+  <div class="sub" style="border-top:1px solid var(--line2);padding:10px 16px"><b>🔔 Phone alerts (Web Push key)</b><p class="hint" style="margin:4px 0 8px">Firebase console › Project settings › Cloud Messaging › Web Push certificates › Generate key pair. Paste the key here. Then deploy the Cloud Function (see the setup guide).</p><div class="inline"><input class="txt" id="vapidkey" maxlength="200" placeholder="Paste the Web Push key pair" value="${esc(S.vapid||'')}" autocomplete="off"><button type="button" class="btn sm primary" data-vapidsave style="height:44px">Save</button></div>${S.vapid?`<button class="btn sm line" data-pushon style="margin-top:8px">🔔 Turn on alerts on this phone</button>`:''}</div>
   <div class="card-f"><p class="hint" style="margin:0">Allowed changes happen straight away and land in your bell with Undo. “Ask an admin” sends you a request to approve.</p>${ACT.list.length?`<button class="lnk" data-act="actions" style="margin-left:auto;white-space:nowrap">Changes & history</button>`:''}</div>`}
 /* players: suggest a game day (organizers turn it into a poll) */
 function openSuggestDay(){const [sa]=nextWeekend(0);const bg=sheetOpen(`<div class="sheet-h"><span class="ini">🗓️</span><div><b>Suggest a game day</b><small>The admins get it and can open a poll in one tap</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div>
@@ -2338,6 +2445,7 @@ function openMe(){startMyReq();startPresence();startStories();const me=myName();
       <button class="mi" data-mystatus><span class="mico">🟢</span><span class="mt"><b>My status</b><small>${statusLine(me)||'Ready to play? Injured? Share a photo or update for 24 h'}</small></span>${ic('right')}</button>
       <button class="mi" data-editprof><span class="mico">${ic('user')}</span><span class="mt"><b>Edit profile</b><small>Photo, bio, interests, birthday and contact details</small></span>${ic('right')}</button>
       <button class="mi" data-mego="card"><span class="mico">${ic('trophy')}</span><span class="mt"><b>My player card</b><small>Level, XP, badges and kudos</small></span>${ic('right')}</button>
+      ${S.vapid?`<button class="mi" data-pushon><span class="mico">🔔</span><span class="mt"><b>Phone alerts</b><small>${pushState()==='on'?'On for this phone':pushState()==='blocked'?'Blocked in phone settings':'Get alerts even when the app is closed'}</small></span><span class="mm">${pushState()==='on'?'On':'Off'}</span>${ic('right')}</button>`:''}
       <button class="mi" data-mego="lang"><span class="mico">🌐</span><span class="mt"><b>Language & keyboard</b><small>Translations, voice typing, తెలుగు · हिन्दी · ಕನ್ನಡ keyboards</small></span><span class="mm">${esc(langOf(myLang())[1])}</span>${ic('right')}</button>
       <button class="mi" data-mego="ideas"><span class="mico">💡</span><span class="mt"><b>My ideas & problems</b><small>What you suggested or reported, and its status</small></span>${MYREQ.list.length?`<span class="mm">${MYREQ.list.length}</span>`:''}${ic('right')}</button>
     </div>`,'My profile');
@@ -2417,7 +2525,8 @@ async function resetProfileLink(n){const k=nkey(n);try{const p=PROF.map[k];if(p)
 const CMT={list:[],unsub:null,redraw:null};const EMO=['👏','🔥','💪','🏸','❤️','😂','🎉','👍'];
 function startComments(){if(!db||CMT.unsub)return;CMT.unsub=col('comments').orderBy('at','desc').limit(200).onSnapshot(q=>{CMT.list=q.docs.map(d=>({id:d.id,...d.data()}));renderHeader();refreshThreads();
   if(CMT.redraw&&$('#whosheet')&&!typingIn('#whosheet'))CMT.redraw();else if(!$('#whosheet')){if(tab==='club'&&!typingIn('#view-club'))renderClub();if(tab==='cup'&&!typingIn('#view-cup'))renderCup()}},()=>{})}
-const reactsOf=o=>{const m={};Object.entries(o.likes||{}).forEach(([u,v])=>{const s2=String(v),i=s2.indexOf('|'),e=i>0?s2.slice(0,i):'🏸',n=i>0?s2.slice(i+1):s2;(m[e]=m[e]||[]).push({u,n})});return m};
+const reactsOf=o=>{const m={},seen=new Set();Object.entries(o.likes||{}).sort((a,b)=>String(a[1]).includes('|')?-1:1).forEach(([u,v])=>{const s2=String(v),i=s2.indexOf('|'),e=i>0?s2.slice(0,i):'🏸',n=i>0?s2.slice(i+1):s2,k=i>0?nkey(n):'u:'+u;if(seen.has(k))return;seen.add(k);(m[e]=m[e]||[]).push({u,n})});return m};
+const likeCount=o=>Object.values(reactsOf(o)).reduce((a,l)=>a+l.length,0);
 function reactBar(kind,id,o){const uid=auth&&auth.currentUser&&auth.currentUser.uid,m=reactsOf(o),mine=uid&&o.likes&&o.likes[uid]?(String(o.likes[uid]).includes('|')?String(o.likes[uid]).split('|')[0]:'🏸'):'';
   return`<span class="rbar">${Object.entries(m).map(([e,l])=>`<button class="rchip${e===mine?' on':''}" data-react="${kind}:${esc(id)}:${e}" title="${esc(l.map(x=>x.n).join(', '))}">${e} ${l.length}</button>`).join('')}<button class="rchip add" data-rpick="${kind}:${esc(id)}" aria-label="React">😊＋</button></span>`}
 function threadListHTML(target,limit,chat){const L=(tList(target)||[]).filter(c=>c.target===target).sort((a,b)=>(a.at||0)-(b.at||0)),uid=auth&&auth.currentUser&&auth.currentUser.uid,rk=isChatT(target)?'h':'c';
@@ -2687,7 +2796,7 @@ const TIPS=[['Footwork','Split step: a small hop just as your opponent hits gets
  ['Singles','Return to the centre of the court after every shot.']];
 const TIP_TAGS=['Footwork','Strokes','Doubles','Serve','Tactics','Fitness','Gear','Fun'];
 function startClub(){if(!db||CLUB.unsub)return;CLUB.unsub=col('posts').orderBy('at','desc').limit(CLUB.limit).onSnapshot(q=>{CLUB.list=q.docs.map(d=>({id:d.id,...d.data()}));
-  if(tab==='club'&&!typingIn('#view-club'))renderClub();clubDot();renderHeader();if(tab==='day')refreshTasks()},()=>{})}
+  if(tab==='club'&&!typingIn('#view-club'))renderClub();clubDot();renderHeader();if(tab==='day'){refreshTasks();const a=$('#askslot');if(a&&!a.contains(document.activeElement))a.innerHTML=asksCard()}},()=>{})}
 function clubSeen(){try{localStorage.setItem('ss-clubseen'+SUF,String(Date.now()))}catch(e){}clubDot()}
 function clubDot(){const b=document.querySelector('.tabbar [data-tab="club"]');if(!b)return;let seen=0;try{seen=+localStorage.getItem('ss-clubseen'+SUF)||0}catch(e){}
   b.classList.toggle('has-due',(tab!=='club'&&CLUB.list.some(x=>x.at>seen&&x.uid!==(auth&&auth.currentUser&&auth.currentUser.uid)))||(!(tab==='club'&&SUB.club==='chat')&&unreadChat()>0))}
@@ -2699,10 +2808,10 @@ function renderClub(){
   const [tt,tx]=tipOfDay();
   const posts=CLUB.list,tips=posts.filter(x=>x.kind==='tip');
   const postHTML=x=>{const own=uid&&x.uid===uid,cc=(CMT.list||[]).filter(c=>c.target==='post:'+x.id).length,rp=CLUB.list.filter(y=>y.repost&&y.repost.id===x.id).length;
-    const tag=x.kind==='announce'?`<span class="tagchip ann">📣 Announcement</span>`:x.tag?`<span class="tagchip">${esc(x.tag)}</span>`:x.kind==='photo'?'<span class="tagchip">📸 Memory</span>':x.kind==='idea'?'<span class="tagchip">💡 Idea</span>':x.kind==='update'?'<span class="tagchip">✅ Update</span>':x.repost?'<span class="tagchip">🔁 Reshared</span>':'';
+    const tag=x.kind==='ask'?`<span class="tagchip askt">🙋 Help needed</span>`:x.kind==='announce'?`<span class="tagchip ann">📣 Announcement</span>`:x.tag?`<span class="tagchip">${esc(x.tag)}</span>`:x.kind==='photo'?'<span class="tagchip">📸 Memory</span>':x.kind==='idea'?'<span class="tagchip">💡 Idea</span>':x.kind==='update'?'<span class="tagchip">✅ Update</span>':x.repost?'<span class="tagchip">🔁 Reshared</span>':'';
     return`<article class="card post ig${x.kind==='announce'?' annc':''}" id="post-${esc(x.id)}"><div class="ph">${ini(x.name||'?','',storyRing(x.name||'').trim())}<div style="flex:1;min-width:0"><b>${esc(x.name||'Someone')}</b><small>${x.day?'Game on '+esc(dlabel(x.day,{weekday:'short',day:'numeric',month:'short'})):''}${x.day&&statusOf(x.name)?' · ':''}${statusOf(x.name)?statusLine(x.name):''}</small></div>${tag}${own||isOrg?`<button class="iconbtn" data-pdelpost="${esc(x.id)}" aria-label="Delete">${ic('trash')}</button>`:''}</div>
       ${x.img?`<div class="pimgw" data-dbl="${esc(x.id)}"><img class="pimg" src="${x.img}" alt="Photo by ${esc(x.name||'')}" loading="lazy"></div>`:''}
-      ${!x.img&&x.text?`<div class="ptxt">${mtext(x.text)}${trLink('p',x.id,x.text)}</div>`:''}${x.repost?`<div style="padding:0 14px 6px">${repostBox(x)}</div>`:''}
+      ${!x.img&&x.text?`<div class="ptxt">${mtext(x.text)}${trLink('p',x.id,x.text)}</div>`:''}${x.kind==='ask'?`<div class="askfeed">${askRow(x)}</div>`:''}${x.repost?`<div style="padding:0 14px 6px">${repostBox(x)}</div>`:''}
       ${igActions('p',x.id,x,cc,rp)}
       ${likesLine(x,'p')}${x.img&&x.text?`<div class="igcap"><b>${esc(first(x.name||''))}</b> ${mtext(x.text)}${trLink('p',x.id,x.text)}</div>`:''}
       ${cc&&!CLUBOPEN.has(x.id)?`<button class="lnk igmore" data-cmts="${esc(x.id)}">View ${cc===1?'1 comment':'all '+cc+' comments'}</button>`:''}<div class="igtime">${igAgo(x.at)}</div>
@@ -2716,7 +2825,6 @@ function renderClub(){
       :`<div class="pbrow">${ini(me,'','sm')}<input class="txt" id="qnote" data-mention maxlength="500" placeholder="Share something with the club…" autocomplete="off"><button type="button" class="pbi" data-compose="photo" aria-label="Photo memory">${ic('camera')}</button><button type="button" class="pbi plus" data-plus aria-label="More: tip, announcement, Avokudos">${ic('plus')}</button><button class="btn sm primary" id="qpost">Post</button></div>`}</section>
     <div data-card="feed" class="cardgrp">${pins.map(postHTML).join('')}${(()=>{const seen=new Set();return feedItems(posts.filter(x=>!pins.includes(x))).map(it=>{if(it.t==='a'){const d=ymd(new Date(it.at||0));if(seen.has(d))return'';seen.add(d);return avoDigest(d)}return it.t==='p'?postHTML(it.x):it.t==='t'?cupPost(it.x,it.nb):it.t==='m'?monthPost(it.x):it.t==='o'?occPost(it.x):chalPost(it.x)}).join('')})()||`<section class="card"><div class="empty">${ic('camera')}No posts yet. Share a photo from the last game and make it a memory card!</div></section>`}
     ${posts.length>=CLUB.limit?`<button class="btn line block" data-more>Show older posts</button>`:''}</div>
-    ${arrangeLink('club')}
   </div>
   <div data-in="kudos">
     ${me&&perm('kudos')!=='off'?`<section class="card avohero" data-card="give"><div class="pad"><div class="mix" style="justify-content:space-between;gap:10px"><div><small>Your balance</small><b>🥑 ${avoBalance(me)}</b><small>+${AVO_MONTHLY} on the 1st · unused carry forward</small></div><button class="btn primary" data-avo>🥑 Give Avokudos</button></div></div></section>`:''}
@@ -2858,16 +2966,26 @@ function openMyReqDetail(id){const r=MYREQ.list.find(x=>x.id===id);if(!r)return;
     <div class="sub"><span class="sublbl">Timeline</span><div class="tline"><div class="tl"><i>📬</i><span><b>You raised it</b><small>${esc(fullWhen(r.at))}</small></span></div>
       ${(r.replies||[]).map(x=>`<div class="tl"><i>${x.stage?STAGES[x.stage]?STAGES[x.stage][0]:'💬':'💬'}</i><span><b>${esc(x.by)}${x.stage&&STAGES[x.stage]?' · '+esc(STAGES[x.stage][1]):' replied'}</b><small>${esc(fullWhen(x.at))}</small><em>${mtext(x.text)}</em></span></div>`).join('')}
       ${AVO.list.filter(g=>g.ref===r.id).map(g=>`<div class="tl"><i>🥑</i><span><b>${esc(g.from)} rewarded you 🥑 ${g.amt}</b><small>${esc(fullWhen(g.at))}</small><em>${mtext(g.msg)}</em></span></div>`).join('')}</div></div>`,'Idea');}
+/* draw on a screenshot to mark the spot */
+function openMarkup(src,done){const ov=document.createElement('div');ov.className='mkview';ov.innerHTML=`<div class="mkbar"><button type="button" class="btn sm line" data-mk="x">Cancel</button><b>Mark the spot</b><button type="button" class="btn sm primary" data-mk="ok">Done</button></div>
+  <div class="mkwrap"><canvas></canvas></div><div class="mkbar"><button type="button" class="btn sm line" data-mk="undo">↩️ Undo</button><span class="hint" style="margin:0;color:#ccc">Draw a circle or arrow with your finger</span><button type="button" class="btn sm line" data-mk="clr">Clear</button></div>`;document.body.appendChild(ov);
+  const cv=ov.querySelector('canvas'),cx=cv.getContext('2d'),im=new Image(),strokes=[];let cur=null;
+  const paint=()=>{cx.drawImage(im,0,0,cv.width,cv.height);cx.lineCap='round';cx.lineJoin='round';cx.strokeStyle='#FF2D2D';cx.lineWidth=Math.max(4,cv.width/110);strokes.forEach(st=>{cx.beginPath();st.forEach((p,i)=>i?cx.lineTo(p[0],p[1]):cx.moveTo(p[0],p[1]));cx.stroke()})};
+  im.onload=()=>{cv.width=im.naturalWidth;cv.height=im.naturalHeight;paint()};im.src=src;
+  const pt=e=>{const r=cv.getBoundingClientRect();return[(e.clientX-r.left)*cv.width/r.width,(e.clientY-r.top)*cv.height/r.height]};
+  cv.addEventListener('pointerdown',e=>{e.preventDefault();cv.setPointerCapture(e.pointerId);cur=[pt(e)];strokes.push(cur)});cv.addEventListener('pointermove',e=>{if(!cur)return;cur.push(pt(e));paint()});cv.addEventListener('pointerup',()=>{cur=null});
+  ov.addEventListener('click',e=>{const b=e.target.closest('[data-mk]');if(!b)return;const k=b.dataset.mk;if(k==='undo'){strokes.pop();paint()}else if(k==='clr'){strokes.length=0;paint()}else if(k==='x')ov.remove();else if(k==='ok'){let q=.85,u=cv.toDataURL('image/jpeg',q);while(u.length>850000&&q>.4){q-=.1;u=cv.toDataURL('image/jpeg',q)}ov.remove();done(u)}})}
 function openSuggest(){const me=allNames().find(n=>nkey(n)===nkey(getMe()));const ctx=appContext();let kind='idea',img='';closeWho();
   const draw=()=>{const bg=sheetOpen(`<div class="sheet-h"><span class="ini">${ic('chat')}</span><div><b>Suggest or report</b><small>Goes to the organizers${me?' · from '+esc(me):''}</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div>
     <div class="sub" style="padding-top:12px"><div class="seg" style="padding:0">${Object.entries(REQK).map(([k,[e,l]])=>`<button type="button" class="${kind===k?'on':''}" data-rk="${k}">${e} ${l}</button>`).join('')}</div></div>
     <div class="sub"><textarea class="txt" id="rqtext" rows="5" maxlength="1000" placeholder="${kind==='bug'?'What happened, and what did you expect? e.g. I tapped Save score and nothing happened.':kind==='q'?'What would you like to know?':'What would make the app better for you?'}">${esc(($('#rqtext')||{}).value||'')}</textarea></div>
-    <div class="sub">${img?`<div class="mix" style="gap:10px"><img src="${img}" alt="" style="width:64px;height:84px;object-fit:cover;border-radius:10px;border:1px solid var(--line)"><button class="lnk danger" id="rqimgx">Remove screenshot</button></div>`:`<label class="btn sm line" style="cursor:pointer">${ic('camera')}Add a screenshot (optional)<input type="file" accept="image/*" id="rqimg" hidden></label>`}</div>
+    <div class="sub">${img?`<div class="mix" style="gap:10px"><img src="${img}" alt="" style="width:64px;height:84px;object-fit:cover;border-radius:10px;border:1px solid var(--line)"><button class="lnk" id="rqmark">✏️ Mark the spot</button><button class="lnk danger" id="rqimgx">Remove</button></div>`:`<label class="btn sm line" style="cursor:pointer">${ic('camera')}Add a screenshot (optional)<input type="file" accept="image/*" id="rqimg" hidden></label>`}</div>
     <div class="sub"><small class="hint" style="margin:0">Attached automatically: page “${esc(ctx.page)}” · v${esc(ctx.ver)} · ${esc(ctx.dev)}</small></div>
     <div class="card-f" style="display:grid;gap:8px"><button class="btn primary block" id="rqsend">${ic('check')}Send</button>${MYREQ.list.length?`<button class="lnk" id="rqmine" type="button">See what I’ve sent (${MYREQ.list.length}) ›</button>`:''}</div>`,'Suggest or report');
     const rm=$('#rqmine');if(rm)rm.onclick=openMyRequests;
     bg.querySelectorAll('[data-rk]').forEach(b=>b.onclick=()=>{kind=b.dataset.rk;draw()});
-    const fi=$('#rqimg');if(fi)fi.onchange=async()=>{const f=fi.files[0];if(!f)return;try{img=await shrinkImage(f);draw()}catch(e){toast('Couldn’t read that image.')}};
+    const fi=$('#rqimg');if(fi)fi.onchange=async()=>{const f=fi.files[0];if(!f)return;try{img=await shrinkImage(f);draw();openMarkup(img,u=>{img=u;draw()})}catch(e){toast('Couldn’t read that image.')}};
+    const mk=$('#rqmark');if(mk)mk.onclick=()=>openMarkup(img,u=>{img=u;draw()});
     const ix=$('#rqimgx');if(ix)ix.onclick=()=>{img='';draw()};
     $('#rqsend').onclick=async()=>{const text=norm($('#rqtext').value);if(text.length<4)return toast('Write a few words first.');const b=$('#rqsend');
       const key='ss-lastreq'+SUF;let last='';try{last=localStorage.getItem(key)||''}catch(e){}if(last===text)return toast('✋ You already sent this one.');
@@ -2944,10 +3062,11 @@ async function shareCupCard(T){const ch=cupChampion(T),body=T.format==='rr'||!ch
 const actSeen=()=>{try{return+localStorage.getItem('ss-actseen'+SUF)||0}catch(e){return 0}};
 function activityItems(){const me=nkey(getMe()),uid=auth&&auth.currentUser&&auth.currentUser.uid;if(!me)return[];const out=[];
   const mineP=x=>(uid&&x.uid===uid)||nkey(x.name||'')===me,ment=x=>{const m=mentionsIn(x.text);return m.has(me)||m.has('all')};
+  allPays().filter(x=>x.status==='confirmed'&&x.confirmedAt&&x.method==='upi'&&(nkey(x.name)===me||nkey(x.payer||'')===me)).slice(0,10).forEach(x=>out.push({at:x.confirmedAt,ic:'✅',t:'Payment confirmed: '+inr(x.amount)+(nkey(x.name)!==me?' for '+first(x.name):''),s:'The organizer received it. Thank you! 💚',go:()=>{SUB.pay='mine';go('pay')}}));
   try{const t6=new Date(todayStr()+'T06:00').getTime();occasionsToday().forEach(o=>{if(nkey(o.n)===me)out.push({at:t6,ic:o.emoji,t:'Happy '+(o.kind==='bday'?'birthday':o.kind==='anniv'?'anniversary':o.title)+', '+first(o.n)+'! 🎉',s:'The whole club is celebrating you today',go:()=>openProfile(o.n)});
     else out.push({at:t6,ic:o.emoji,t:'It’s '+first(o.n)+'’s '+(o.kind==='bday'?'birthday':o.kind==='anniv'?'anniversary':o.title)+' today!',s:'Tap to send a wish 💌',go:()=>openWish(o)})})}catch(e){}
   if(isOrg)ACT.list.filter(a=>a.status==='done').slice(0,10).forEach(a=>out.push({at:a.at,ic:'✏️',t:first(a.name)+' changed '+ACTK[a.kind],s:(a.kind==='photo'?'New group photo':actLabel(a))+' · tap to undo if needed',go:openActions}));
-  (CLUB.list||[]).forEach(x=>{if(mineP(x))return;if(ment(x)){out.push({at:x.at,ic:'📣',t:first(x.name)+' mentioned you in a post',s:x.text||'',go:()=>{SUB.club=x.kind==='tip'?'tips':'feed';CLUBOPEN.add(x.id);go('club')}});return}const what=x.kind==='photo'?'shared a photo memory 📸':x.kind==='tip'?'shared a tip 💡':x.kind==='note'?'posted in the Feed':x.kind==='idea'?'shared an idea 💡':x.kind==='update'?'posted an update ✅':x.kind==='announce'?'made an announcement 📣':'posted a shout-out 👏';
+  (CLUB.list||[]).forEach(x=>{if(mineP(x))return;if(ment(x)){out.push({at:x.at,ic:'📣',t:first(x.name)+' mentioned you in a post',s:x.text||'',go:()=>{SUB.club=x.kind==='tip'?'tips':'feed';CLUBOPEN.add(x.id);go('club')}});return}const what=x.kind==='photo'?'shared a photo memory 📸':x.kind==='tip'?'shared a tip 💡':x.kind==='note'?'posted in the Feed':x.kind==='idea'?'shared an idea 💡':x.kind==='ask'?'needs help 🙋: '+String(x.text||'').slice(0,60):x.kind==='update'?'posted an update ✅':x.kind==='announce'?'made an announcement 📣':'posted a shout-out 👏';
     const forMe=x.kind==='shout'&&nkey(String(x.text||'').replace(/^👏\s*/,'').split(':')[0])===me;
     out.push({at:x.at,ic:forMe?'👏':x.kind==='photo'?'📸':x.kind==='tip'?'💡':'👏',t:forMe?first(x.name)+' gave you a shout-out!':first(x.name)+' '+what,s:x.text||'',go:()=>{SUB.club=x.kind==='tip'?'tips':'feed';CLUBOPEN.add(x.id);go('club')}})});
   (CMT.list||[]).forEach(c=>{if(mineP(c))return;const tgt=c.target||'';
@@ -3081,7 +3200,7 @@ let teamPending='', teamWarn={html:'',val:''}, teamUI={reset:{pays:true,days:tru
 /* ---------- organizer data: poll votes + who opened the app ---------- */
 const VOTE_UNSUB={},VOTES_BY={};let SEEN_UNSUB=null,orgTick=null;
 function orgChanged(){clearTimeout(orgTick);orgTick=setTimeout(()=>{PDATA.votes=Object.values(VOTES_BY).flat();PDATA.at=Date.now();autoInactive();autoBillFromPolls();
-  if(tab==='team'&&!typingIn('#view-team'))renderTeam();else if(tab==='day'){refreshDay();refreshTasks()}renderHeader()},150)}
+  if(tab==='team'&&!typingIn('#view-team'))renderTeam();else if(tab==='day'||tab==='game'){refreshDay();refreshTasks()}renderHeader()},150)}
 /* organizers get votes and app opens live, so every organizer sees the same numbers */
 async function loadOrgData(force){
   if(!db)return;
@@ -3148,7 +3267,7 @@ function renderTeam(){
   const pRow=p=>{const g=ledger(p),lv=levelOf(p);return`<div class="prow">${ini(p,lv?'box-shadow:0 0 0 2px '+lv[2]:'')}<span class="nm">${esc(p)}${statusOf(p)?` <small style="display:inline;color:var(--ink)">${statusLine(p)}</small>`:''}<small>Played ${plural(played[nkey(p)]||0,'day')}${g.due?` · <b style="color:var(--danger)">owes ${inr(g.due)}</b>`:g.charged?' · all paid':''}</small></span>
     <span class="acts" style="align-items:center">${org?`<select class="lvl" data-lvl="${esc(p)}"${lv?` style="--lc:${lv[2]}"`:''} aria-label="Level for ${esc(p)}"><option value="">Level</option>${LEVELS.map(l=>`<option value="${l[0]}"${lv&&lv[0]===l[0]?' selected':''}>${l[1]}</option>`).join('')}</select><button type="button" class="iconbtn" data-manage="${esc(p)}" aria-label="Manage ${esc(p)}">${ic('gear')}</button>`:lv?`<span class="lvl" style="--lc:${lv[2]};display:inline-flex;align-items:center">${lv[1]}</span>`:''}</span></div>`};
   v.innerHTML=`
-  ${intro('Team',org?'Players, access, adoption and settings. Changes apply to everyone in this group.':'Everyone in the group, their level and who’s settled up.')}
+  ${intro('Manage',org?'Everything you run as an organizer, then the team. Changes apply to everyone in this group.':'Everyone in the group, your profile, ideas and settings.')}
   ${kpis(org&&AD?[['Players',act.length],['On the app',AD.joined+'%'],[PRE()?'Low wallet':'Owing',duesList().length,true]]:[['Players',act.length],['Days played',nDays],[PRE()?'Low wallet':'Owing',duesList().length,true]])}
   ${org&&!teamUI.page?valueCard():''}
   ${viewOnly('edit the team')}
@@ -3297,8 +3416,8 @@ function renderRecords(v){
     const ok=st.startsWith('adj')?await addPayment(n,(st==='adj+'?1:-1)*a,'confirmed','adjust',at,{kind:'adjust',note:nt}):await addPayment(n,a,st,'manual',at,nt?{note:nt}:null);
     if(ok){toast(inr(a)+' recorded for '+first(n)+'.');renderTeam()}else add.disabled=false};
   v.querySelectorAll('[data-editpay]').forEach(b=>b.onclick=()=>editPay(b.dataset.editpay));
-  const ro=$('#rd_open');if(ro)ro.onclick=()=>{const d=$('#rd_date').value;if(!d)return;teamUI.page='';curDate=d;go('day')};
-  v.querySelectorAll('[data-openday]').forEach(b=>b.onclick=()=>{teamUI.page='';curDate=b.dataset.openday;go('day')});
+  const ro=$('#rd_open');if(ro)ro.onclick=()=>{const d=$('#rd_date').value;if(!d)return;teamUI.page='';curDate=d;go('game')};
+  v.querySelectorAll('[data-openday]').forEach(b=>b.onclick=()=>{teamUI.page='';curDate=b.dataset.openday;go('game')});
   v.querySelectorAll('[data-delday]').forEach(b=>b.onclick=()=>{teamUI.del='d|'+b.dataset.delday;renderTeam()});
   v.querySelectorAll('[data-keep]').forEach(b=>b.onclick=()=>{teamUI.del=null;renderTeam()});
   v.querySelectorAll('[data-deldayok]').forEach(b=>b.onclick=()=>{const k=b.dataset.deldayok;delete S.days[k];queueWrite('days/'+k,null);S.billed=(S.billed||[]).concat(P.list.filter(x=>(x.dates||[]).some(dt=>dt.date===k)).map(x=>x.id+'|'+k));saveConfig();teamUI.del=null;renderTeam();toast('Game day deleted.')});
@@ -3453,6 +3572,7 @@ function bindTeam(){
   v.addEventListener('click',async e=>{
     if(e.target.closest('[data-signin]')){userEmail()?auth.signOut():signIn();return}
     const ep=e.target.closest('[data-editprof]');if(ep){openEditProfile(ep.dataset.editprof);return}
+    if(e.target.closest('[data-vapidsave]')){if(!isOrg)return;S.vapid=norm($('#vapidkey').value);saveConfig();toast(S.vapid?'🔔 Saved. Turn on alerts on each phone.':'Phone alerts switched off');renderTeam();return}
     if(e.target.closest('[data-giphysave]')){if(!isOrg)return;S.giphy=norm($('#giphykey').value);saveConfig();toast(S.giphy?'🎞️ GIPHY search is on':'GIPHY search turned off');return}
     const pm=e.target.closest('[data-perm]');if(pm){if(!isOrg)return;const[k,m]=pm.dataset.perm.split(':');S.perms={...(S.perms||{}),[k]:m};saveConfig();renderTeam();toast(PERMS.find(x=>x[0]===k)[2]+': '+PMODE[m]);return}
     const sw=e.target.closest('[data-skin]');if(sw&&!sw.disabled){if(db&&!isOrg){const k=sw.dataset.skin;if(k===S.skin)return;if(await playerAction('theme',k)&&perm('theme')==='allow'){S.skin=k;applySkin();renderTeam()}return}S.skin=sw.dataset.skin;applySkin();saveConfig();renderTeam();return}
@@ -3851,7 +3971,7 @@ function renderPollDetail(v){
   ${prev?recapHTML(prev,'Previous poll'):''}`;
   $('#back').onclick=leavePoll;
   bindReminders(v);
-  v.querySelectorAll('[data-gotoday]').forEach(b=>b.onclick=()=>{if(b.dataset.gotoday)curDate=b.dataset.gotoday;go('day')});
+  v.querySelectorAll('[data-gotoday]').forEach(b=>b.onclick=()=>{if(b.dataset.gotoday)curDate=b.dataset.gotoday;go('game')});
   v.querySelectorAll('[data-hrs]').forEach(b=>b.onclick=()=>{const[d,n]=b.dataset.hrs.split('|');openBoard(d,n)});
   $('#cplink').onclick=()=>copyText(msgPoll(p));
   const c2=$('#cplink2');if(c2)c2.onclick=()=>copyText(pollLink(p.id),'Link copied.');
@@ -3905,7 +4025,7 @@ async function saveVote(){
   const p=P.sel;if(!p||!p.id)return;const name=canon(tcase(P.myName));
   try{if(!auth.currentUser)await auth.signInAnonymously();const id=auth.currentUser.isAnonymous?auth.currentUser.uid:'n-'+slug(name);
     await pollsCol().doc(p.id).collection('votes').doc(id).set(Object.assign({name,answers:{...P.myAns},updatedAt:Date.now()},auth.currentUser.isAnonymous?{}:{self:true}));
-    const s=$('#vstat');if(s)s.textContent='Saved. Thanks, '+first(name)+'!'}
+    const s=$('#vstat');if(s)s.textContent='Saved. Thanks, '+first(name)+'!';if(Object.values(P.myAns).includes('yes'))setTimeout(()=>offerCalendar(p,name),400)}
   catch(e){const s=$('#vstat');if(s)s.textContent='';
     toast(e.code==='permission-denied'?(isClosed(p)?'This poll is closed.':'Couldn’t save your vote. Ask the organizer to check the poll rules.'):(e.code==='auth/admin-restricted-operation'||e.code==='auth/operation-not-allowed')?'Voting isn’t switched on yet. Ask the organizer to enable Anonymous sign-in in Firebase.':'Couldn’t save ('+(e.code||'error')+').')}
 }
@@ -3924,13 +4044,16 @@ const navState=()=>({tab,sub:JSON.stringify(SUB),tp:(typeof teamUI!=='undefined'
 function navMark(){if(NAV_RESTORE)return;const st=navState(),l=NAV[NAV.length-1];if(l&&l.tab===st.tab&&l.sub===st.sub&&l.tp===st.tp)return;NAV.push(st);if(NAV.length>40)NAV.shift()}
 function navBack(){while(NAV.length){const st=NAV.pop(),cur=navState();if(st.tab===cur.tab&&st.sub===cur.sub&&st.tp===cur.tp)continue;NAV_RESTORE=true;
     try{Object.assign(SUB,JSON.parse(st.sub));go(st.tab);if(st.tab==='team'){teamUI.page=st.tp;renderTeam()}}finally{NAV_RESTORE=false}window.scrollTo(0,0);return true}return false}
-function go(t){navMark();if(t==='me'){SUB.pay='mine';t='pay'}closeWho();if(t!=='team'&&teamUI)teamUI.page='';tab=t;if((t==='team'||t==='day')&&isOrg)loadOrgData(false);document.querySelectorAll('.tabbar [data-tab]').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.tab===t)));
-  ['day','polls','pay','cup','club','me','team'].forEach(k=>$('#view-'+k).hidden=k!==t);if(t==='club')clubSeen();renderTab(true);window.scrollTo(0,0)}
-document.querySelectorAll('.tabbar [data-tab]').forEach(b=>b.onclick=()=>{if(b.dataset.tab==='pay'&&tab!=='pay'&&pay.range==='day'){pay.range='last';pay.off.clear()}go(b.dataset.tab)});
+const PLAY=['polls','game','pay'];let PLAY_LAST='polls';
+function go(t){navMark();if(t==='me'){SUB.pay='mine';t='pay'}if(t==='play')t=PLAY_LAST;if(PLAY.includes(t))PLAY_LAST=t;closeWho();if(t!=='team'&&teamUI)teamUI.page='';tab=t;
+  {const pb=$('#playbar');if(pb){pb.hidden=!PLAY.includes(t);pb.querySelectorAll('[data-play]').forEach(b=>{b.classList.toggle('on',b.dataset.play===t);b.setAttribute('aria-selected',String(b.dataset.play===t))})}}if((t==='team'||t==='day'||t==='game')&&isOrg)loadOrgData(false);document.querySelectorAll('.tabbar [data-tab]').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.tab===t||(b.dataset.tab==='play'&&PLAY.includes(t)))));
+  ['day','game','polls','pay','cup','club','me','team'].forEach(k=>$('#view-'+k).hidden=k!==t);if(t==='club')clubSeen();renderTab(true);window.scrollTo(0,0)}
+document.querySelectorAll('.tabbar [data-tab]').forEach(b=>b.onclick=()=>{if(b.dataset.tab==='play'&&PLAY_LAST==='pay'&&tab!=='pay'&&pay.range==='day'){pay.range='last';pay.off.clear()}go(b.dataset.tab)});
+document.querySelectorAll('#playbar [data-play]').forEach(b=>b.onclick=()=>{const t=b.dataset.play;if(t==='pay'&&tab!=='pay'&&pay.range==='day'){pay.range='last';pay.off.clear()}if(t==='polls'&&P.mode&&P.mode!=='list')leavePoll();go(t)});
 function typingIn(id){const a=document.activeElement;return!!a&&(a.tagName==='INPUT'||a.tagName==='SELECT')&&$(id).contains(a)&&a.type!=='checkbox'&&a.type!=='file'}
 let STALE=false;
 /* admins arrange the cards on Home, Club and Cup for everyone */
-const LAYOUT_CARDS={day:[['hello','👋 Welcome'],['occ','🎂 Celebrations'],['tasks','✅ Tasks'],['next','📅 Next game day'],['courts','🏟️ Court bookings'],['adhoc','⚡ Ad-hoc game, who played & costs']],
+const LAYOUT_CARDS={day:[['hello','👋 Welcome'],['stories','⭕ Status row'],['today','📅 What’s happening today'],['tasks','✅ Tasks'],['next','⏱ Next game & countdown'],['courts','🏟️ Court bookings'],['asks','🙋 Help & support']],
   club:[['stories','⭕ Status row'],['compose','✍️ Post, announce & give'],['avo','🥑 Avokudos leaders'],['feed','📰 Feed posts']],
   cup:[['buttons','🎛️ Levels · Leaderboard · Challenge'],['me','🏸 My player chip'],['chal','⚔️ Challenges'],['stars','⭐ Star players'],['ready','🚀 Ready for the next level'],['all','👥 Player cards'],['hof','👑 Hall of fame']]};
 const arrangeLink=t=>isOrg&&db?`<button type="button" class="lnk arrange" data-arrange="${t}">⇅ Arrange this page for everyone</button>`:'';
@@ -3972,8 +4095,8 @@ window.addEventListener('popstate',()=>{if(location.hash.startsWith('#poll-'))re
   document.addEventListener('touchend',e=>{if(!on)return;on=false;const t=e.changedTouches[0];if(t.clientX-sx>70&&Math.abs(t.clientY-sy)<70)goBack()},{passive:true})})();
 function renderTab(force){
   renderHeader();
-  if(!force&&tab!=='day'&&tab!=='polls'&&typingIn('#view-'+tab)){STALE=true;return}
-  if(tab==='day'){if(force||!typingIn('#view-day'))renderDay();else{refreshDay();STALE=true}}
+  if(!force&&tab!=='day'&&tab!=='game'&&tab!=='polls'&&typingIn('#view-'+tab)){STALE=true;return}
+  if(tab==='day'||tab==='game'){if(force||(!typingIn('#view-day')&&!typingIn('#view-game')))renderDay();else{refreshDay();STALE=true}}
   else if(tab==='polls')pollRender();
   else if(tab==='pay')renderPay();
   else if(tab==='me')renderMe();
@@ -4006,7 +4129,8 @@ if('serviceWorker' in navigator)window.addEventListener('load',()=>{const had=!!
   auth.getRedirectResult().catch(e=>toast('Sign-in failed: '+(e.message||e.code)));
   auth.onAuthStateChanged(u=>{const changed=computeOrg();
     if(!authInit||changed){authInit=true;renderTab(true);if(isOrg&&cfgMissing){cfgMissing=false;saveConfig()}}else renderHeader();
-    if(isOrg){loadOrgData(true);startRequests();startPrivate();startActions();setTimeout(dailyBackup,9000)}setTimeout(startMyReq,0)});
+    if(isOrg){loadOrgData(true);startRequests();startPrivate();startActions();setTimeout(dailyBackup,9000)}
+      setTimeout(()=>{try{if(Date.now()-(+localStorage.getItem('ss-pushat')||0)>864e5)savePushToken(true)}catch(e){}},6000);setTimeout(startMyReq,0)});
   if(GID)db.doc(COLLECTION_PREFIX+'groups/'+GID).onSnapshot(s=>{
     if(!s.exists&&!s.metadata.fromCache){GROUP_MISSING=true;renderHeader();return}
     if(s.exists){GROUP=s.data();GROUP_MISSING=false;if(!S.groupName)S.groupName=GROUP.name||'';rememberGroup();if(computeOrg()){renderTab(true);if(isOrg)loadOrgData(true)}else renderHeader()}},()=>{});
@@ -4014,7 +4138,7 @@ if('serviceWorker' in navigator)window.addEventListener('load',()=>{const had=!!
     if(!s.metadata.fromCache)CFG_READY=true;
     if(!s.exists&&!s.metadata.fromCache){cfgMissing=true;if(isOrg){cfgMissing=false;saveConfig()}}
     if(s.exists&&!s.metadata.hasPendingWrites)CFG_CLOUD=JSON.parse(JSON.stringify(s.data()));
-    if(s.exists){const d=s.data();if(Array.isArray(d.roster))S.roster=[...d.roster];S.rate=+d.rate||300;S.groupName=d.groupName||'';S.upiId=d.upiId||'';S.upiName=d.upiName||'';S.levels=d.levels&&typeof d.levels==='object'?d.levels:{};S.admins=Array.isArray(d.admins)?d.admins:[];S.inactive=Array.isArray(d.inactive)?d.inactive:[];S.ignored=Array.isArray(d.ignored)?d.ignored:[];S.openNames=d.openNames!==false;S.idleWeeks=d.idleWeeks==null?4:+d.idleWeeks;S.since=d.since||{};S.autoOff=d.autoOff||{};S.billed=Array.isArray(d.billed)?d.billed:[];S.msg=d.msg||null;S.sent=d.sent||{};S.board=d.board&&typeof d.board==='object'?d.board:null;S.layout=d.layout&&typeof d.layout==='object'?d.layout:{};S.dupOk=Array.isArray(d.dupOk)?d.dupOk:[];S.model=d.model==='pre'?'pre':'post';S.load=+d.load||1000;S.low=d.low==null?200:+d.low;S.perms=d.perms&&typeof d.perms==='object'?d.perms:{};S.giphy=String(d.giphy||'').slice(0,80);setTimeout(autoInactive,0);S.skin=SKINS[d.skin]?d.skin:'court';applySkin();saveLocal();if(GID)rememberGroup();renderHeader();if(computeOrg()&&!typingIn('#view-'+tab)&&!$('#whosheet'))renderTab(true)}
+    if(s.exists){const d=s.data();if(Array.isArray(d.roster))S.roster=[...d.roster];S.rate=+d.rate||300;S.groupName=d.groupName||'';S.upiId=d.upiId||'';S.upiName=d.upiName||'';S.levels=d.levels&&typeof d.levels==='object'?d.levels:{};S.admins=Array.isArray(d.admins)?d.admins:[];S.inactive=Array.isArray(d.inactive)?d.inactive:[];S.ignored=Array.isArray(d.ignored)?d.ignored:[];S.openNames=d.openNames!==false;S.idleWeeks=d.idleWeeks==null?4:+d.idleWeeks;S.since=d.since||{};S.autoOff=d.autoOff||{};S.billed=Array.isArray(d.billed)?d.billed:[];S.msg=d.msg||null;S.sent=d.sent||{};S.board=d.board&&typeof d.board==='object'?d.board:null;S.layout=d.layout&&typeof d.layout==='object'?d.layout:{};S.dupOk=Array.isArray(d.dupOk)?d.dupOk:[];S.model=d.model==='pre'?'pre':'post';S.load=+d.load||1000;S.low=d.low==null?200:+d.low;S.perms=d.perms&&typeof d.perms==='object'?d.perms:{};S.giphy=String(d.giphy||'').slice(0,80);S.vapid=String(d.vapid||'').slice(0,200);setTimeout(autoInactive,0);S.skin=SKINS[d.skin]?d.skin:'court';applySkin();saveLocal();if(GID)rememberGroup();renderHeader();if(computeOrg()&&!typingIn('#view-'+tab)&&!$('#whosheet'))renderTab(true)}
     renderTab(false)},e=>toast('Couldn’t load shared data ('+e.code+').'));
   fsDoc('config/photo').onSnapshot(s=>{if(busy('config/photo'))return;photo=s.exists?(s.data().data||''):'';try{photo?localStorage.setItem(LSP,photo):localStorage.removeItem(LSP)}catch(e){}renderHeader();if(tab==='team'&&!typingIn('#view-team'))renderTeam()},()=>{});
   col('days').onSnapshot(q=>{
