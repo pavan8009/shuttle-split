@@ -525,6 +525,14 @@ details.legend{padding:4px 16px 10px}details.legend summary{font-size:12.5px;fon
 .crframe.round{border-radius:50%}.crimg{position:absolute;left:0;top:0;max-width:none;pointer-events:none}
 .crbar{padding:10px 16px calc(env(safe-area-inset-bottom) + 14px);display:grid;gap:10px}.crhint{text-align:center;font-size:12.5px;opacity:.75}.crzoom{width:100%;accent-color:#25D366}
 .crrow{display:flex;justify-content:space-between;align-items:center;gap:8px}.crasp{display:flex;gap:6px;flex-wrap:wrap}.crasp button{background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:6px 11px;font:inherit;font-size:12.5px;font-weight:700}.crasp button.on{background:#fff;color:#000}
+.crstage.fc{position:relative;display:block;touch-action:none}.crstage.fc .crimg{position:absolute;left:0;top:0;transform-origin:0 0}
+.fcbox{position:absolute;box-shadow:0 0 0 9999px rgba(0,0,0,.6);outline:1.5px solid #fff;cursor:move;touch-action:none}
+.fcbox i{position:absolute;background:rgba(255,255,255,.35);pointer-events:none}.fcbox .g1,.fcbox .g2{top:0;bottom:0;width:1px}.fcbox .g1{left:33.33%}.fcbox .g2{left:66.66%}.fcbox .g3,.fcbox .g4{left:0;right:0;height:1px}.fcbox .g3{top:33.33%}.fcbox .g4{top:66.66%}
+.fch{position:absolute;width:30px;height:30px;touch-action:none}.fch::after{content:'';position:absolute;width:18px;height:18px;border:4px solid #fff}
+.fch.nw{left:-12px;top:-12px}.fch.nw::after{left:8px;top:8px;border-right:0;border-bottom:0}.fch.ne{right:-12px;top:-12px}.fch.ne::after{right:8px;top:8px;border-left:0;border-bottom:0}
+.fch.sw{left:-12px;bottom:-12px}.fch.sw::after{left:8px;bottom:8px;border-right:0;border-top:0}.fch.se{right:-12px;bottom:-12px}.fch.se::after{right:8px;bottom:8px;border-left:0;border-top:0}
+.stplus.more{left:-2px;right:auto;bottom:-2px;z-index:3}
+.upnext{margin:8px 12px 4px;padding:10px 12px;border-radius:14px;background:var(--soft);border:1.5px solid var(--accent);display:grid;gap:6px}.upnext>b{font-size:14px}.upnext>small{color:var(--muted);font-size:12px;margin-top:-4px}.upl{font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-top:4px}
 .gtag{font-style:normal;font-size:10.5px;font-weight:800;background:#FEF0C7;color:#93370D;border-radius:999px;padding:1px 7px;vertical-align:1px}.gsec summary small{display:block;font-weight:600;color:var(--muted);font-size:12px}.btable tr.grow2 td{font-size:12.5px;color:var(--muted);background:var(--field)}.tplg{border-top:8px solid var(--line2)}.tplgh{display:flex;align-items:center;gap:10px;padding:14px 16px 4px}.tplgh>div{flex:1;display:grid}.tplgh b{font-size:16px}.tplgh small{color:var(--muted);font-size:12.5px}.tplgi{width:36px;height:36px;border-radius:10px;background:var(--field);display:grid;place-items:center;font-size:18px}.tplgn{font-size:12px;color:var(--muted);font-weight:700}
 .tpll{display:grid;gap:8px;padding:0 16px 14px}.tplc{border:1px solid var(--line);border-radius:12px;background:var(--surface)}.tplc>summary{list-style:none;display:flex;align-items:center;gap:8px;padding:11px 12px;cursor:pointer}.tplc>summary::-webkit-details-marker{display:none}.tplc>summary .ic{width:16px;height:16px;color:var(--muted);transition:transform .2s}.tplc[open]>summary .ic{transform:rotate(90deg)}
 .tplt{flex:1;display:grid;min-width:0}.tplt b{font-size:14px}.tplt small{font-size:12px;color:var(--muted)}.tpled{font-style:normal;font-size:11px;font-weight:800;color:#B54708;background:#FFFAEB;border-radius:999px;padding:2px 8px}.tplb{padding:0 12px 12px}
@@ -622,7 +630,7 @@ const FIREBASE_CONFIG = {
 /* Collections get this prefix so they never clash with the league app's data */
 const COLLECTION_PREFIX = "shuttleSplit_";
 /* App version shown in Team → About */
-const APP_VERSION = "4.11.1", APP_BUILD = "6 Nov 2026";
+const APP_VERSION = "4.11.3", APP_BUILD = "6 Nov 2026";
 /* Owner of the main group (the link without ?g=) */
 const LEGACY_OWNER = "pavankaki.cool@gmail.com";
 /* Starting player list, used only until the first save */
@@ -1955,7 +1963,7 @@ function makeFixtures(T){const ids=T.entries.map(e=>e.id);let k=0;const M=[];
     T.adv=g>=4?1:2;M.push(...koSkeleton(g*T.adv,'k','k').M);return M}
   const sk=koSkeleton(ids.length,'r');M.push(...sk.M);fillKO(T,M,ids);return M}
 function advance(T,M,m){if(!isKO(T,m)||!m.w)return;const nx=M.find(x=>isKO(T,x)&&x.r===m.r+1&&x.i===Math.floor(m.i/2));if(!nx)return;if(m.i%2===0)nx.a=m.w;else nx.b=m.w}
-function koRoundName(r,R){return r===R?'Final':r===R-1?'Semi-finals':r===R-2?'Quarter-finals':'Round '+r}
+function koRoundName(r,R){return r===R?'Final':r===R-1?'Semi-finals':r===R-2?'Quarter-finals':r===R-3?'Pre-quarter-finals':'Round of '+2**(R-r+1)}
 function standings(T,grp){const t={};(T.entries||[]).filter(e=>!grp||e.grp===grp).forEach(e=>t[e.id]={id:e.id,name:e.name,p:0,w:0,l:0,gd:0,pd:0});
   (T.matches||[]).forEach(m=>{if(!m.w||m.bye||isKO(T,m))return;const A=t[m.a],B=t[m.b];if(!A||!B)return;A.p++;B.p++;if(m.w===m.a){A.w++;B.l++}else{B.w++;A.l++}
     gs(m).forEach(([x,y])=>{A.pd+=x-y;B.pd+=y-x;if(x>y){A.gd++;B.gd--}else if(y>x){B.gd++;A.gd--}})});
@@ -1993,7 +2001,7 @@ function cupText(T){const L=['🏆 *'+T.name+'* · '+evName(T)+' · '+fmtName(T.
   if(T.format==='rr')standings(T).forEach((x,i)=>L.push((i+1)+'. '+x.name+' – '+x.w+'W '+x.l+'L ('+(x.pd>=0?'+':'')+x.pd+')'));
   else(T.matches||[]).filter(m=>m.w&&!m.bye).forEach(m=>L.push((m.grp?'['+m.grp+'] ':'')+ename(T,m.a)+' vs '+ename(T,m.b)+': '+gs(m).map(g=>g.join('-')).join(', ')+' → '+ename(T,m.w)));
   L.push('','📲 Full draw & scores: '+appLink('cup-'+T.id));return L.join('\n')}
-function matchCount(n,f){if(n<2)return 0;if(f==='rr')return n*(n-1)/2;if(f==='ko')return n-1;if(f==='lp')return n*(n-1)/2+lpAdv(n)-1;const g=Math.max(2,Math.ceil(n/4)),adv=g>=4?1:2;let gm=0;for(let i=0;i<g;i++){const s=Math.floor(n/g)+(i<n%g?1:0);gm+=s*(s-1)/2}return gm+g*adv-1}
+function matchCount(n,f){if(n<2)return 0;if((f==='gk'||f==='lp')&&n<4)f='rr';if(f==='rr')return n*(n-1)/2;if(f==='ko')return n-1;if(f==='lp')return n*(n-1)/2+lpAdv(n)-1;const g=Math.max(2,Math.ceil(n/4)),adv=g>=4?1:2;let gm=0;for(let i=0;i<g;i++){const s=Math.floor(n/g)+(i<n%g?1:0);gm+=s*(s-1)/2}return gm+g*adv-1}
 /* a finished badminton game: winner reaches the target and leads by 2, or hits the cap */
 function gameCheck(x,y,pts){const hi=Math.max(x,y),lo=Math.min(x,y),cap=pts===21?30:pts===15?21:15;
   if(hi===cap&&lo===cap-1)return'';if(hi<pts)return'the winner needs '+pts+' points';if(hi>cap)return'the most is '+cap;if(hi-lo<2&&hi<cap)return'at '+(pts-1)+'-all you need to win by 2 (up to '+cap+')';if(hi>pts&&hi-lo>2)return'over '+pts+' the winning margin is exactly 2';return''}
@@ -2444,7 +2452,7 @@ function storiesStrip(){startStories();startPresence();const me=myName(),sn=stor
   const rest=activeRoster().filter(n=>nkey(n)!==nkey(me)&&!withStory.some(x=>nkey(x)===nkey(n))).sort((a,b)=>((statusOf(b)?2:0)+(onlineNow(b)?1:0))-((statusOf(a)?2:0)+(onlineNow(a)?1:0))||((presOf(b)||{}).at||0)-((presOf(a)||{}).at||0));
   const mine=me?liveStories(me):[],badge=n=>{const st=statusOf(n);return st&&st.emo?`<i class="stemo" title="${esc(st.text||'')}">${esc(st.emo)}</i>`:''};
   const item=(n,story)=>`<button class="st" ${story?`data-story="${esc(n)}"`:`data-stprof="${esc(n)}"`} title="${esc(statusLine(n)||seenText(n)||n)}"><span class="stav${story?(unseen(n)?' ring':' ring seen'):''}">${ini(n,'','lg')}${badge(n)}</span><small>${esc(first(n))}</small></button>`;
-  return`<div class="stories">${me?`<button class="st" data-mystatus><span class="stav${mine.length?(mine.some(s=>!sn[s.id])?' ring':' ring seen'):''}">${ini(me,'','lg')}${mine.length?badge(me):'<i class="stplus">+</i>'}</span>${(()=>{const n=REPLY.list.filter(r=>(r.at||0)>replySeenAt()).length;return n?`<i class="strep">💬${n}</i>`:''})()}<small>Your story</small></button>`:''}
+  return`<div class="stories">${me?`<button class="st" data-mystatus><span class="stav${mine.length?(mine.some(s=>!sn[s.id])?' ring':' ring seen'):''}">${ini(me,'','lg')}${mine.length?badge(me):''}<i class="stplus${mine.length?' more':''}" data-staddnew role="button" aria-label="Add a status">+</i></span>${(()=>{const n=REPLY.list.filter(r=>(r.at||0)>replySeenAt()).length;return n?`<i class="strep">💬${n}</i>`:''})()}<small>Your story</small></button>`:''}
     ${withStory.map(n=>item(n,true)).join('')}${rest.map(n=>item(n,false)).join('')}</div>`}
 /* who saw my status, quick reactions and private replies */
 const ST_EMO=['❤️','😍','🔥','👏','😂','😮','🏸'];
@@ -2487,7 +2495,8 @@ function openStories(n){const L=liveStories(n);if(!L.length)return openStatus();
     const dl=ov.querySelector('.svdel');if(dl)dl.onclick=async()=>{try{await col('stories').doc(s.id).delete();L.splice(i,1);toast('Status deleted.');L.length?show():close()}catch(e){toast('Couldn’t delete.')}};
     tm=setTimeout(()=>{i++;show()},s.img?6000:5000)};show()}
 /* set an availability status and/or post a 24-hour photo or text status */
-const SONG_RE=/^https:\/\/([a-z0-9-]+\.)*(spotify\.com|youtube\.com|youtu\.be|music\.youtube\.com|jiosaavn\.com|gaana\.com|wynk\.in|music\.apple\.com|soundcloud\.com)\/\S+$/i;
+const SONG_RE=/^https:\/\/([a-z0-9-]+\.)*(spotify\.com|spotify\.link|spoti\.fi|youtube\.com|youtu\.be|music\.youtube\.com|jiosaavn\.com|saavn\.com|gaana\.com|wynk\.in|music\.apple\.com|apple\.co|soundcloud\.com|amazon\.in|music\.amazon\.[a-z.]+|hungama\.com|resso\.com)\/\S*$/i;
+const songLink=v=>{const m=String(v||'').match(/https?:\/\/\S+/i);return m?m[0].replace(/^http:/i,'https:').replace(/[)\].,!]+$/,''):''};
 const songCard=u=>{const src=/spotify/.test(u)?'Spotify':/youtu/.test(u)?'YouTube':/jiosaavn/.test(u)?'JioSaavn':/gaana/.test(u)?'Gaana':/wynk/.test(u)?'Wynk':/apple/.test(u)?'Apple Music':'SoundCloud';return`<a class="songcard" href="${esc(u)}" target="_blank" rel="noopener"><span class="sgi">🎵</span><span><b>Play the song</b><small>Opens in ${src}</small></span><span class="go">▶</span></a>`};
 function openStatus(){const me=myName();if(!me){toast('Pick your name first (tap the person icon at the top).');return}startPresence();startStories();const cur=statusOf(me)||{};let emo=cur.emo||'',img='',bg='#0B6E4F';
   const BGS=['#0B6E4F','#7A5AF8','#E04F5F','#F79009','#1570EF','#101828'];const mine=liveStories(me);
@@ -2505,15 +2514,16 @@ function openStatus(){const me=myName();if(!me){toast('Pick your name first (tap
   const prev=()=>{const p=$('#stprev'),t=norm($('#sttxt').value);p.style.background=img?'#000':bg;p.innerHTML=(img?`<img src="${img}" alt="">`:'')+(t?`<div class="svtext${img?' cap':''}">${esc(t)}</div>`:'')||'<span class="hint" style="color:#fff;margin:0">Add a photo or type something</span>'};
   bg2.querySelectorAll('[data-st]').forEach(b=>b.onclick=()=>{const[e,t]=b.dataset.st.split('|');$('#stemo').value=e;$('#sttext').value=t;bg2.querySelectorAll('[data-st]').forEach(x=>x.classList.toggle('on',x===b))});
   bg2.querySelectorAll('[data-stbg]').forEach(b=>b.onclick=()=>{bg=b.dataset.stbg;prev()});$('#sttxt').addEventListener('input',prev);
-  $('#stimg').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;try{const u=await openCropper(f,{aspects:[['Original','orig'],['9:16',9/16],['4:5',.8],['1:1',1]],maxW:1280,limit:460000,title:'Status photo'});if(u){img=u;prev()}}catch(x){toast('Couldn’t read that photo.')}};
+  $('#stimg').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;try{const u=await openFreeCrop(f,{maxW:1280,limit:460000,title:'Status photo'});if(u){img=u;prev()}}catch(x){toast('Couldn’t read that photo.')}};
   $('#stsave').onclick=async()=>{const e=norm($('#stemo').value),t=norm($('#sttext').value);await pingPresence({emo:e,text:t,stAt:Date.now()});PRES.map[nkey(me)]=Object.assign(presOf(me)||{at:Date.now()},{st:{emo:e,text:t,at:Date.now()}});closeWho();toast(t||e?'Status updated '+e:'Status cleared');renderTab(false)};
   $('#stclear').onclick=async()=>{await pingPresence({emo:'',text:'',stAt:Date.now()});PRES.map[nkey(me)]=Object.assign(presOf(me)||{at:Date.now()},{st:null});closeWho();toast('Status cleared');renderTab(false)};
   const vw=$('#stview');if(vw)vw.onclick=()=>{closeWho();openStories(me)};
   let busy=false;$('#stpost').onclick=async()=>{const t=norm($('#sttxt').value);if(!img&&!t)return toast('Add a photo or some text.');if(t&&!allOk(t))return;if(perm('post')==='off')return toast('Posting is turned off by the admins.');if(busy)return;busy=true;$('#stpost').disabled=true;
-    try{await ensureAnon();const d={name:canon(me),uid:auth.currentUser.uid,text:t,bg,at:Date.now(),likes:{}};if(img)d.img=img;{const sg=norm($('#stsong').value);if(sg){if(!SONG_RE.test(sg)){busy=false;$('#stpost').disabled=false;return toast('Paste a song link from Spotify, YouTube, JioSaavn, Gaana, Wynk or Apple Music.')}d.song=sg.slice(0,300)}}await col('stories').add(d);closeWho();toast('Status shared for 24 hours ✨')}catch(e){busy=false;$('#stpost').disabled=false;toast(e.code==='permission-denied'?'Ask the organizer to update the app rules.':'Couldn’t share ('+(e.code||'error')+').')}}}
+    try{await ensureAnon();const d={name:canon(me),uid:auth.currentUser.uid,text:t,bg,at:Date.now(),likes:{}};if(img)d.img=img;{const raw=norm($('#stsong').value),sg=songLink(raw);if(raw){if(!sg||!SONG_RE.test(sg)){busy=false;$('#stpost').disabled=false;return toast('Paste a song link from Spotify, YouTube, JioSaavn, Gaana, Wynk or Apple Music.')}d.song=sg.slice(0,300)}}await col('stories').add(d);closeWho();toast('Status shared for 24 hours ✨')}catch(e){busy=false;$('#stpost').disabled=false;toast(e.code==='permission-denied'?'Ask the organizer to update the app rules.':'Couldn’t share ('+(e.code||'error')+').')}}}
 document.addEventListener('click',e=>{const a=e.target.closest&&e.target.closest('[data-story]');if(a){e.preventDefault();openStories(a.dataset.story);return}
   const sp=e.target.closest&&e.target.closest('[data-stprof]');if(sp){e.preventDefault();openProfile(sp.dataset.stprof);return}
   const bp=e.target.closest&&e.target.closest('[data-bigph]');if(bp){e.preventDefault();e.stopPropagation();openBigPhoto(bp.dataset.bigph);return}
+  const an=e.target.closest&&e.target.closest('[data-staddnew]');if(an){e.preventDefault();e.stopPropagation();openStatus();return}
   const m=e.target.closest&&e.target.closest('[data-mystatus]');if(m){e.preventDefault();liveStories(myName()).length?openMyStatusMenu():openStatus()}});
 function openBigPhoto(n){const ph=photoOf(n),st=statusLine(n),rk=lbRank(n),lv=levelOf(n);const ov=document.createElement('div');ov.className='phview';ov.id='phview';
   ov.innerHTML=`<button class="svx" aria-label="Close">${ic('x')}</button><div class="phbox">${ph?`<img src="${ph}" alt="${esc(n)}">`:`<span class="phini">${esc(initials(n))}</span>`}</div>
@@ -2715,6 +2725,53 @@ function openCropper(file,o){o=Object.assign({aspects:[['1:1',1]],round:false,ma
       if(k==='ok'){const sx=-tx/s,sy=-ty/s,sw=fw/s,sh=fh/s,W=Math.round(Math.min(o.maxW,sw)),H=Math.round(W*sh/sw),c=document.createElement('canvas');c.width=W;c.height=H;const g=c.getContext('2d');g.imageSmoothingQuality='high';g.drawImage(src,sx,sy,sw,sh,0,0,W,H);
         let q=.88,u=c.toDataURL('image/jpeg',q);while(u.length>o.limit&&q>.45){q-=.07;u=c.toDataURL('image/jpeg',q)}
         if(u.length>o.limit){const c2=document.createElement('canvas'),k2=Math.sqrt(o.limit/u.length)*.95;c2.width=Math.round(W*k2);c2.height=Math.round(H*k2);c2.getContext('2d').drawImage(c,0,0,c2.width,c2.height);u=c2.toDataURL('image/jpeg',.7)}
+        close(u)}});
+    requestAnimationFrame(layout)};im.src=url})}
+/* WhatsApp-style free crop for status photos: drag the corners to resize the box, drag inside it to move it,
+   pinch (or slide) to zoom the photo, rotate, or lock a shape. Resolves to a JPEG data URL, or null if cancelled. */
+function openFreeCrop(file,o){o=Object.assign({maxW:1280,limit:460000,title:'Crop photo'},o||{});
+  return new Promise(resolve=>{const url=URL.createObjectURL(file),im=new Image();im.onerror=()=>{URL.revokeObjectURL(url);toast('Couldn’t read that photo.');resolve(null)};
+  im.onload=()=>{URL.revokeObjectURL(url);let src=document.createElement('canvas');{const k=Math.min(1,2400/Math.max(im.naturalWidth,im.naturalHeight));src.width=Math.round(im.naturalWidth*k);src.height=Math.round(im.naturalHeight*k);const g=src.getContext('2d');g.imageSmoothingQuality='high';g.drawImage(im,0,0,src.width,src.height)}
+    const AS=[['Free',0],['Original','orig'],['9:16',9/16],['4:5',.8],['1:1',1]];let ai=0,z=1,zMin=1,ix=0,iy=0,B={x:0,y:0,w:0,h:0},W=0,H=0;
+    const ov=document.createElement('div');ov.className='cropov';
+    ov.innerHTML=`<div class="crtop"><button type="button" class="crbtn" data-cr="x">Cancel</button><b>${esc(o.title)}</b><button type="button" class="crbtn ok" data-cr="ok">Done</button></div>
+      <div class="crstage fc"><canvas class="crimg"></canvas><div class="fcbox"><i class="g1"></i><i class="g2"></i><i class="g3"></i><i class="g4"></i>${['nw','ne','sw','se'].map(h=>`<b class="fch ${h}" data-h="${h}"></b>`).join('')}</div></div>
+      <div class="crbar"><span class="crhint">Drag the corners to crop · drag inside to move · pinch to zoom</span><input type="range" class="crzoom" min="0" max="100" value="0" aria-label="Zoom">
+        <div class="crrow"><div class="crasp">${AS.map(([l],i)=>`<button type="button" data-asp="${i}">${l}</button>`).join('')}</div><button type="button" class="crbtn" data-cr="rot">⟳</button></div></div>`;
+    document.body.appendChild(ov);document.body.style.overflow='hidden';
+    const st=ov.querySelector('.crstage'),cv=ov.querySelector('.crimg'),bx=ov.querySelector('.fcbox'),zr=ov.querySelector('.crzoom'),MINB=56;
+    const ratio=()=>{const a=AS[ai][1];return a==='orig'?src.width/src.height:a||0};
+    const imgR=()=>({x:ix,y:iy,w:src.width*z,h:src.height*z});
+    const fitBox=()=>{const r=ratio(),I=imgR(),vx=Math.max(I.x,8),vy=Math.max(I.y,8),vw=Math.min(I.x+I.w,W-8)-vx,vh=Math.min(I.y+I.h,H-8)-vy;let w=vw,h=vh;if(r){if(w/h>r)w=h*r;else h=w/r}B={x:vx+(vw-w)/2,y:vy+(vh-h)/2,w,h}};
+    const keepImg=()=>{zMin=Math.max(B.w/src.width,B.h/src.height);if(z<zMin)z=zMin;const I=imgR();ix=Math.min(B.x,Math.max(B.x+B.w-I.w,ix));iy=Math.min(B.y,Math.max(B.y+B.h-I.h,iy))};
+    const paint=()=>{keepImg();cv.style.width=src.width*z+'px';cv.style.height=src.height*z+'px';cv.style.transform=`translate(${ix}px,${iy}px)`;
+      bx.style.left=B.x+'px';bx.style.top=B.y+'px';bx.style.width=B.w+'px';bx.style.height=B.h+'px';zr.value=Math.round(Math.log(z/z0)/Math.log(6)*100);
+      ov.querySelectorAll('[data-asp]').forEach(b=>b.classList.toggle('on',+b.dataset.asp===ai))};
+    let z0=1;const layout=()=>{W=st.clientWidth;H=st.clientHeight;cv.width=src.width;cv.height=src.height;cv.getContext('2d').drawImage(src,0,0);z0=Math.min((W-32)/src.width,(H-32)/src.height);z=z0;ix=(W-src.width*z)/2;iy=(H-src.height*z)/2;fitBox();paint()};
+    const zoomAt=(nz,cx,cy)=>{nz=Math.max(Math.max(B.w/src.width,B.h/src.height),Math.min(z0*6,nz));const k=nz/z;ix=cx-(cx-ix)*k;iy=cy-(cy-iy)*k;z=nz;paint()};
+    const P=new Map();let mode='',hd='',last=null,start=null;
+    const pt=e=>{const r=st.getBoundingClientRect();return[e.clientX-r.left,e.clientY-r.top]};
+    st.addEventListener('pointerdown',e=>{st.setPointerCapture(e.pointerId);P.set(e.pointerId,pt(e));last=null;
+      if(P.size===1){const h=e.target.closest('[data-h]'),[x,y]=pt(e);if(h){mode='rs';hd=h.dataset.h}else if(x>B.x&&x<B.x+B.w&&y>B.y&&y<B.y+B.h)mode='mv';else mode='pan';start={B:{...B}}}else mode='pinch'});
+    st.addEventListener('pointermove',e=>{if(!P.has(e.pointerId))return;const prev=P.get(e.pointerId),cur=pt(e);P.set(e.pointerId,cur);const dx=cur[0]-prev[0],dy=cur[1]-prev[1];
+      if(P.size>=2){const [a,b]=[...P.values()],d=Math.hypot(a[0]-b[0],a[1]-b[1]);if(last)zoomAt(z*d/last,(a[0]+b[0])/2,(a[1]+b[1])/2);last=d;return}
+      const I=imgR();
+      if(mode==='pan'){ix+=dx;iy+=dy;paint()}
+      else if(mode==='mv'){B.x=Math.max(I.x,Math.min(I.x+I.w-B.w,B.x+dx));B.y=Math.max(I.y,Math.min(I.y+I.h-B.h,B.y+dy));paint()}
+      else if(mode==='rs'){let {x,y,w,h}=B;const r=ratio(),L=Math.max(I.x,0),T=Math.max(I.y,0),Rr=Math.min(I.x+I.w,W),Bt=Math.min(I.y+I.h,H);
+        let x2=x+w,y2=y+h;if(hd.includes('w'))x=Math.min(x2-MINB,Math.max(L,x+dx));else x2=Math.max(x+MINB,Math.min(Rr,x2+dx));if(hd.includes('n'))y=Math.min(y2-MINB,Math.max(T,y+dy));else y2=Math.max(y+MINB,Math.min(Bt,y2+dy));
+        w=x2-x;h=y2-y;if(r){if(Math.abs(dx)>=Math.abs(dy)){h=w/r}else{w=h*r}if(hd.includes('w'))x=x2-w;if(hd.includes('n'))y=y2-h;if(x<L||y<T||x+w>Rr||y+h>Bt)return}
+        B={x,y,w,h};paint()}});
+    const up=e=>{P.delete(e.pointerId);last=null;if(!P.size)mode=''};st.addEventListener('pointerup',up);st.addEventListener('pointercancel',up);
+    st.addEventListener('wheel',e=>{e.preventDefault();const [x,y]=pt(e);zoomAt(z*(e.deltaY<0?1.08:1/1.08),x,y)},{passive:false});
+    zr.oninput=()=>zoomAt(z0*Math.pow(6,zr.value/100),B.x+B.w/2,B.y+B.h/2);
+    const close=v=>{ov.remove();document.body.style.overflow='';window.removeEventListener('resize',layout);resolve(v)};window.addEventListener('resize',layout);
+    ov.addEventListener('click',e=>{const a=e.target.closest('[data-asp]');if(a){ai=+a.dataset.asp;fitBox();paint();return}const b=e.target.closest('[data-cr]');if(!b)return;const k=b.dataset.cr;
+      if(k==='x')return close(null);
+      if(k==='rot'){const r=document.createElement('canvas');r.width=src.height;r.height=src.width;const g=r.getContext('2d');g.translate(r.width,0);g.rotate(Math.PI/2);g.drawImage(src,0,0);src=r;layout();return}
+      if(k==='ok'){const sx=(B.x-ix)/z,sy=(B.y-iy)/z,sw=B.w/z,sh=B.h/z,k2=Math.min(1,o.maxW/Math.max(sw,sh)),Wo=Math.max(1,Math.round(sw*k2)),Ho=Math.max(1,Math.round(sh*k2)),c=document.createElement('canvas');c.width=Wo;c.height=Ho;const g=c.getContext('2d');g.imageSmoothingQuality='high';g.drawImage(src,sx,sy,sw,sh,0,0,Wo,Ho);
+        let q=.88,u=c.toDataURL('image/jpeg',q);while(u.length>o.limit&&q>.45){q-=.07;u=c.toDataURL('image/jpeg',q)}
+        if(u.length>o.limit){const c2=document.createElement('canvas'),k3=Math.sqrt(o.limit/u.length)*.95;c2.width=Math.round(Wo*k3);c2.height=Math.round(Ho*k3);c2.getContext('2d').drawImage(c,0,0,c2.width,c2.height);u=c2.toDataURL('image/jpeg',.7)}
         close(u)}});
     requestAnimationFrame(layout)};im.src=url})}
 function squareAvatar(file){return new Promise((res,rej)=>{const fr=new FileReader();fr.onerror=rej;fr.onload=()=>{const i=new Image();i.onerror=rej;i.onload=()=>{
@@ -2987,14 +3044,19 @@ const CUPOPEN=new Set(['stars']);let CUPINIT=false,CUPSTAR='xp';
 /* most games played since a date (all time when empty), for the Star players board */
 function attendTop(from){const m={};Object.keys(S.days).filter(k=>!from||k>=from).forEach(k=>uniq(S.days[k].present||[]).forEach(p=>{const c=canon(p);if(isActiveP(c))m[c]=(m[c]||0)+1}));return Object.entries(m).sort((a,b)=>b[1]-a[1]).slice(0,10)}
 const cupDet=(key,summary,body)=>`<details class="card" data-open="${key}"${/^t:/.test(key)?'':` data-card="${key}"`}${CUPOPEN.has(key)?' open':''}><summary class="dsum">${summary}<span class="chev">${ic('right')}</span></summary>${body}</details>`;
-const cupItem=T=>cupDet('t:'+T.id,`<span class="dt"><b>${cupChampion(T)?'🏆 ':'🔴 '}${esc(T.champ?evName(T):T.name)}</b><small>${T.champ?'':esc(evName(T))+' · '}${fmtName(T.format)}${cupChampion(T)?' · 👑 '+esc(cupChampion(T)):' · '+(T.matches||[]).filter(m=>m.w&&!m.bye).length+'/'+(T.matches||[]).filter(m=>!m.bye).length+' played'}</small></span>`,cupBody(T));
+/* a tournament moves to Past only the day after it finishes, so today's winners stay on top */
+const cupPast=T=>!!cupChampion(T)&&ymd(new Date(T.doneAt||T.createdAt||0))<todayStr();
+const cupTotal=T=>matchCount((T.entries||[]).length,T.format);
+const cupItem=T=>cupDet('t:'+T.id,`<span class="dt"><b>${cupChampion(T)?'🏆 ':'🔴 '}${esc(T.champ?evName(T):T.name)}</b><small>${T.champ?'':esc(evName(T))+' · '}${fmtName(T.format)}${cupChampion(T)?' · 👑 '+esc(cupChampion(T)):' · '+(T.matches||[]).filter(m=>m.w&&!m.bye).length+'/'+cupTotal(T)+' played'}</small></span>`,cupBody(T));
 function champCard(c,EV){const done=EV.filter(t=>medalsOf(t)).length,tally={};EV.forEach(t=>{const md=medalsOf(t);if(!md)return;['g','s','b'].forEach(k=>md[k].forEach(id=>entNames(t,id).forEach(p=>{const r=tally[nkey(p)]=tally[nkey(p)]||{n:p,g:0,s:0,b:0};r[k]++})))});
   const top=Object.values(tally).sort((a,b)=>b.g-a.g||b.s-a.s||b.b-a.b).slice(0,5);
   return`<section class="card champcard"><div class="champhead"><span class="cht">🏆</span><div><b>${esc(c.name)}</b><small>${plural(EV.length,'event')} · ${done===EV.length?'all events decided 🎉':done+' of '+EV.length+' decided'}</small></div></div>
     <div class="tablewrap"><table class="btable std medtab"><thead><tr><th>Event</th><th>🥇 Gold</th><th>🥈 Silver</th><th>🥉 Bronze</th></tr></thead><tbody>${EV.map(t=>{const md=medalsOf(t),nm=k=>md&&md[k].length?md[k].map(id=>esc(ename(t,id))).join('<br>'):'<span style="color:var(--muted)">–</span>';return`<tr><td><b>${esc(evName(t))}</b></td><td>${nm('g')}</td><td>${nm('s')}</td><td>${nm('b')}</td></tr>`}).join('')}</tbody></table></div>
     ${top.length?`<div class="pad" style="padding-top:6px"><span class="sublbl">Medal table</span>${top.map((r,i)=>`<div class="medrow">${ini(r.n,'','sm')}<b>${esc(r.n)}</b><span>${r.g?'🥇'+r.g+' ':''}${r.s?'🥈'+r.s+' ':''}${r.b?'🥉'+r.b:''}</span></div>`).join('')}</div>`:''}</section>`}
 function renderCup(){
-  const v=$('#view-cup');if(!db){v.innerHTML=intro('Cup','Tournaments, stars and achievements.')+`<section class="card"><div class="empty">${ic('trophy')}Tournaments need the shared database.</div></section>`;return}
+  const v=$('#view-cup');const ANC=(()=>{try{const L=[...v.querySelectorAll('[data-anc]')],vh=innerHeight;const a=L.find(x=>{const r=x.getBoundingClientRect();return r.bottom>70&&r.top<vh});return a?{k:a.dataset.anc,top:a.getBoundingClientRect().top}:null}catch(e){return null}})();
+  setTimeout(()=>{if(!ANC)return;const a=v.querySelector(`[data-anc="${ANC.k}"]`);if(a){const d=a.getBoundingClientRect().top-ANC.top;if(Math.abs(d)>2)window.scrollBy(0,d)}},0);
+  if(!db){v.innerHTML=intro('Cup','Tournaments, stars and achievements.')+`<section class="card"><div class="empty">${ic('trophy')}Tournaments need the shared database.</div></section>`;return}
   startCup();startComments();if(CUP.sel){CUPOPEN.add('t:'+CUP.sel);CUPOPEN.add('m:'+CUP.sel);CUP.sel=null}
   startChal();if(CHAL.list.some(c=>c.status==='open'&&inSide(c,'b',myName()))||CHAL.list.some(c=>c.status==='accepted'&&(inSide(c,'a',myName())||inSide(c,'b',myName()))))CUPOPEN.add('chal');
   const ST=playerStats(),ACTK2=new Set(activeRoster().map(nkey)),all=Object.values(ST).filter(x=>ACTK2.has(nkey(x.n))||nkey(x.n)===nkey(getMe())),stars=all.filter(x=>x.m>0).sort((a,b)=>(b.wr-a.wr)||(b.w-a.w)||(b.m-a.m)||a.n.localeCompare(b.n)).slice(0,10),ready=all.filter(x=>x.ready),me=ST[nkey(getMe())];
@@ -3008,7 +3070,7 @@ function renderCup(){
       :`<button class="pchip dim" data-pickme>Pick your name to track your progress <span>›</span></button>`}</div>
     ${canEdit()?`<div class="grid2" style="grid-template-columns:2fr 1fr"><button class="btn primary" id="cupnew">${ic('plus')}New tournament</button>${isOrg?`<button class="btn line" data-cupcats>🏷️ Categories</button>`:''}</div>`:''}
     <button class="btn line block" data-cupxl>📥 Export all match records to Excel</button>
-    ${(()=>{const seen=new Set(),U=[];CUP.list.forEach(T=>{if(!T.champ){U.push({done:!!cupChampion(T),h:cupItem(T)});return}if(seen.has(T.champ.id))return;seen.add(T.champ.id);const EV=CUP.list.filter(x=>x.champ&&x.champ.id===T.champ.id).sort((a,b)=>(a.createdAt||0)-(b.createdAt||0));U.push({done:EV.every(t=>cupChampion(t)),h:champCard(T.champ,EV)+EV.map(cupItem).join('')})});
+    ${(()=>{const seen=new Set(),U=[];CUP.list.forEach(T=>{if(!T.champ){U.push({done:cupPast(T),h:cupItem(T)});return}if(seen.has(T.champ.id))return;seen.add(T.champ.id);const EV=CUP.list.filter(x=>x.champ&&x.champ.id===T.champ.id).sort((a,b)=>(a.createdAt||0)-(b.createdAt||0));U.push({done:EV.every(t=>cupPast(t)),h:champCard(T.champ,EV)+EV.map(cupItem).join('')})});
       const A=U.filter(u=>!u.done),D=U.filter(u=>u.done);return A.map(u=>u.h).join('')+(D.length?`<details class="card pastcup" data-open="past"${CUPOPEN.has('past')?' open':''}><summary class="dsum"><span class="dt"><b>📚 Past tournaments</b><small>${plural(D.length,'finished event','finished events')} · results, XP and medals are kept forever</small></span><span class="chev">${ic('right')}</span></summary><div class="pastin">${D.map(u=>u.h).join('')}</div></details>`:'')})()||`<section class="card"><div class="empty">${ic('trophy')}No tournaments yet.${canEdit()?' Start one above!':''}</div></section>`}
     ${cupDet('chal',`<span class="dt"><b>⚔️ Challenges</b><small>${(()=>{const me=myName(),n=CHAL.list.filter(c=>c.status==='open'&&inSide(c,'b',me)).length;return n?plural(n,'challenge')+' waiting for your reply':'Call out a rival · accept and play'})()}</small></span>`,chalHTML())}
     ${cupDet('stars',`<span class="dt"><b>⭐ Star players</b><small>${CUPSTAR==='xp'?'Ranked by win rate · ties by wins, then matches':CUPSTAR==='m30'?'Most games in the last 30 days':'Most games, all time'}</small></span>`,
@@ -3034,14 +3096,14 @@ function renderCup(){
 }
 function cupBody(T){const M=T.matches||[],ch=cupChampion(T),K=koMs(T),KR=K.length?Math.max(...K.map(m=>m.r)):0;
   /* style A: clear labels. WON ▸ SEMI · OUT · DIRECT TO SEMI · CHAMPION · RUNNER-UP */
-  const short=r=>{const n=koRoundName(r,KR);return n==='Final'?'FINAL':n==='Semi-finals'?'SEMI':n==='Quarter-finals'?'QF':'ROUND '+r};
+  const short=r=>{const n=koRoundName(r,KR);return n==='Final'?'FINAL':n==='Semi-finals'?'SEMI':n==='Quarter-finals'?'QF':n==='Pre-quarter-finals'?'PRE-QF':n.toUpperCase()};
   const mcard=m=>{const g=gs(m),can=canEdit()&&m.a&&m.b&&!m.bye,ko=isKO(T,m),final=ko&&m.r===KR;
     const side=(id,i)=>{if(m.bye&&!id)return`<div class="ms" style="color:var(--muted)"><span>— no opponent</span><span></span></div>`;
       if(!id)return`<div class="ms" style="color:var(--muted)"><span>⏳ Awaiting winner</span><span></span></div>`;
       const won=m.w&&m.w===id,lost=m.w&&!m.bye&&m.w!==id;
       const pill=won?(m.bye?`<i class="pill pq">DIRECT TO ${short(m.r+1)}</i>`:final?`<i class="pill pc">CHAMPION</i>`:ko?`<i class="pill pw">WON ▸ ${short(m.r+1)}</i>`:`<i class="pill pw">WON</i>`):lost&&ko?`<i class="pill po">${final?'RUNNER-UP':'OUT'}</i>`:'';
       return`<div class="ms${won?' w':''}"${lost?' style="color:var(--muted)"':''}><span class="mn">${who(ename(T,id),entNames(T,id))}</span><span class="mr">${pill}<b>${g.map(x=>x[i]).join(' · ')||(i===1&&can?'<small style="color:var(--accent);font-weight:700">Add score</small>':'')}</b></span></div>`};
-    return`<div class="mwrap"><button class="mcard" ${can?`data-score="${m.id}" data-t="${esc(T.id)}"`:'disabled'}>${side(m.a,0)}${side(m.b,1)}</button>${can&&!m.w?`<button type="button" class="mlive" data-live="${m.id}" data-t="${esc(T.id)}">🎯 Live score</button>`:''}</div>`};
+    return`<div class="mwrap" data-anc="${esc(T.id)}:${m.id}"><button class="mcard" ${can?`data-score="${m.id}" data-t="${esc(T.id)}"`:'disabled'}>${side(m.a,0)}${side(m.b,1)}</button>${can&&!m.w?`<button type="button" class="mlive" data-live="${m.id}" data-t="${esc(T.id)}">🎯 Live score</button>`:''}</div>`};
   const sub=(k,t,body)=>`<details class="sub2" data-open="${k}"${CUPOPEN.has(k)?' open':''}><summary>${t}</summary>${body}</details>`;
   const lbl=t=>`<b style="font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px">${t}</b>`;
   const table=(rows,q)=>`<div class="tablewrap"><table class="btable std"><thead><tr><th>#</th><th>${T.type==='doubles'?'Pair':'Player'}</th><th>P</th><th>W</th><th>L</th><th>+/−</th></tr></thead><tbody>${rows.map((x,i)=>`<tr${q&&i<q?' style="background:var(--soft)"':''}><td>${i+1}</td><td><b>${who(x.name,entNames(T,x.id))}</b>${q&&i<q?' ✓':''}</td><td>${x.p}</td><td>${x.w}</td><td>${x.l}</td><td>${x.pd>0?'+':''}${x.pd}</td></tr>`).join('')}</tbody></table></div>`;
@@ -3053,6 +3115,8 @@ function cupBody(T){const M=T.matches||[],ch=cupChampion(T),K=koMs(T),KR=K.lengt
   else if(T.format==='ko'){const rs=[...new Set(K.map(m=>m.r))].sort((a,b)=>a-b);matches=rs.map(r=>lbl(koRoundName(r,KR))+K.filter(m=>m.r===r&&!m.bye).map(mcard).join('')).join('');table2=bracket()}
   else{const rs=[...new Set(M.map(m=>m.r))].sort((a,b)=>a-b);matches=rs.map(r=>lbl('Round '+r)+M.filter(m=>m.r===r).map(mcard).join('')).join('');table2=table(standings(T))}
   return`${ch?`<div class="champ" style="padding:12px 16px;text-align:center;font-weight:800">🏆 Champion${T.type==='doubles'?'s':''}: ${esc(ch)}</div>`:''}<p class="hint" style="padding:8px 16px 4px;margin:0">${fmtName(T.format)} · games to ${T.pts||21}${T.bo===3?' · best of 3':''}${T.out&&T.out.length?' · sitting out: '+T.out.map(esc).join(', '):''}${canEdit()?' · tap a match to enter the score':''}</p>${T.format!=='rr'&&koMs(T).some(m=>m.bye)?`<p class="hint" style="padding:0 16px 4px;margin:0"><i class="pill pq">DIRECT TO …</i> When numbers don’t fill the bracket, some ${T.type==='doubles'?'pairs':'players'} go straight to the next round without playing.</p>`:''}
+    ${!ch?(()=>{const ready=M.filter(m=>m.a&&m.b&&!m.w&&!m.bye&&(!stg(T)||m.stage==='g'||groupsDone(T,M))).sort((a,b)=>(isKO(T,a)-isKO(T,b))||(a.r-b.r)||((a.i||0)-(b.i||0)));const left=cupTotal(T)-M.filter(m=>m.w&&!m.bye).length;
+      return ready.length?`<div class="upnext"><b>▶ Up next${ready.length>2?' · '+ready.length+' ready':''}</b><small>${plural(left,'match','matches')} to go${K.length?' · then '+koRoundName(Math.min(...K.filter(m=>!m.w).map(m=>m.r).concat([KR])),KR).toLowerCase():''}</small>${ready.slice(0,2).map(m=>`<span class="upl">${isKO(T,m)?koRoundName(m.r,KR):m.stage==='g'&&T.format!=='lp'?'Group '+m.grp:'Round '+m.r}</span>`+mcard(m).replace('data-anc="','data-anc="u:')).join('')}</div>`:''})():''}
     ${sub('m:'+T.id,'Matches',`<div class="pad" style="display:grid;gap:8px">${matches}</div>`)}
     ${sub('x:'+T.id,T.format==='ko'?'Bracket':T.format==='gk'?'Groups & bracket':T.format==='lp'?'League table & playoffs':'Table',table2)}
     ${sub('p:'+T.id,T.type==='doubles'?'Pairs':'Players',(T.entries||[]).map(e=>`<div class="prow">${ini(e.players[0])}<span class="nm">${e.players.map(n=>`<button class="lnk" data-prof="${esc(n)}">${esc(n)}</button>`).join(' & ')}<small>${e.grp?'Group '+e.grp+' · ':''}${e.players.map(n=>levelOf(n)?levelOf(n)[1]:'Level not set').join(' + ')}</small></span></div>`).join(''))}
@@ -3142,7 +3206,7 @@ function openNewCup(){if(!canEdit())return;SWAP_KEY='';const DAY=cupDay(),allAct
     return{entries:sh(pairs).map((p,i)=>({id:'e'+(i+1),name:p.map(first).join(' & '),players:p})),out}};
   const QP=(()=>{const out=[],A=new Set(act.map(nkey)),keep=L=>L.filter(n=>A.has(nkey(n))).map(n=>act.find(x=>nkey(x)===nkey(n)));try{const g=nextGame();if(g){const r=tally(g.p,VOTES_BY[g.p.id]||[]).res.find(x=>x.date===g.dt.date);const Y=r?keep(r.yes):[];if(Y.length)out.push(['yes','🗳️ Voted yes · '+(g.dt.date===todayStr()?'today':dlabel(g.dt.date,{weekday:'short',day:'numeric'})),Y])}}catch(e){}
     try{const d=getDay(todayStr());if(d&&d.present&&d.present.length)out.push(['today','🏸 Playing today',keep(d.present)])}catch(e){}try{const last=playedDays()[0];if(last&&last!==todayStr()){const P2=keep(getDay(last).present||[]);if(P2.length)out.push(['last','🕒 Last game · '+dlabel(last,{weekday:'short',day:'numeric'}),P2])}}catch(e){}return out})();
-  const draw=()=>{const pl=[...picked],E=[...evs],multi=mode==='champ',P0=E.map(e=>[e,plan(e,pl)]),ent=P0.length?Math.max(...P0.map(x=>x[1].n)):0,fmt=format||(ent>6?'gk':'rr');
+  const draw=()=>{const pl=[...picked],E=[...evs],multi=mode==='champ',P0=E.map(e=>[e,plan(e,pl)]),ent=P0.length?Math.max(...P0.map(x=>x[1].n)):0,fmt=format||(ent<=3?'rr':ent<=8?'lp':'gk');
     const oneD=!multi&&EVENTS[E[0]]&&EVENTS[E[0]][1]==='doubles'&&EVENTS[E[0]][2]!=='X',dP=oneD?pl.filter(n=>!EVENTS[E[0]][2]||catOf(n)===EVENTS[E[0]][2]):[],odd=oneD&&dP.length%2===1;
     const untagged=pl.filter(n=>!catOf(n)).length,needCat=E.some(e=>EVENTS[e][2]);
     const total=P0.reduce((a,[e,p])=>a+(p.n>1?matchCount(p.n,fmt):0),0);
@@ -3155,7 +3219,9 @@ function openNewCup(){if(!canEdit())return;SWAP_KEY='';const DAY=cupDay(),allAct
       <div class="tiles sm">${act.map(n=>{const g=DAY&&DAY.guests.includes(n),c=catOf(n);return`<button type="button" class="tile ${g?'gtile ':''}${picked.has(n)?'on':''}" data-cpk="${esc(n)}" title="${g?'Guest · ':''}${c==='M'?'Men’s':c==='W'?'Women’s':'Category not set'}">${ic('check')}<span>${esc(guestBase(n))}</span><i class="cattag ${c||'U'}">${c||'?'}</i></button>`}).join('')}</div>
       ${QP.length?'':''}${odd?`<p class="warn" style="margin:8px 0 6px">Doubles needs an even number. With ${dP.length} players, one sits out.</p><select class="txt" id="csit"><option value="">Pick at random who sits out</option>${dP.map(n=>`<option ${n===sit?'selected':''}>${esc(n)}</option>`).join('')}</select>`:''}
       ${picked.size&&E.length?`<div class="evplan">${P0.map(([e,p])=>p.n>1?`<span>✅ ${EVENTS[e][3]} ${esc(EVENTS[e][0])}: ${plural(p.n,EVENTS[e][1]==='singles'?'player':'pair')} · ${matchCount(p.n,fmt)} matches</span>`:`<span class="bad">👉 ${esc(EVENTS[e][0])} needs ${EVENTS[e][2]==='X'?'at least 2 men and 2 women':EVENTS[e][1]==='singles'?'at least 2 '+(EVENTS[e][2]==='M'?'men':EVENTS[e][2]==='W'?'women':'players'):'at least 4 '+(EVENTS[e][2]==='M'?'men':EVENTS[e][2]==='W'?'women':'players')}${p.why?' · you picked '+esc(p.why):''}. Pick more players${EVENTS[e][2]?' (or set their category)':''}.</span>`).join('')}</div>`:''}</div>
-    <div class="sub"><span class="sublbl">Format</span>${[['gk','Groups + knockout','Small groups play each other first, then the top players go into a knockout. Fewer matches, still fair.'],['lp','League + playoffs','Everyone plays everyone in a league, then the top 4 play semi-finals and a final (top 8: quarter-finals first). Like the pros.'],['rr','Round robin','Everyone plays everyone once. Most matches.'],['ko','Knockout','One match per round. Winners move to the next round; losers are out. Quickest, real-tournament feel.']].map(([k,l,d])=>`<button type="button" class="row" data-cf="${k}" style="width:100%;text-align:left;border:1px solid ${fmt===k?'var(--accent)':'var(--line)'};border-radius:12px;margin-bottom:6px;background:${fmt===k?'var(--soft)':'var(--surface)'}"><div class="l"><b>${l}</b><small>${d}</small></div></button>`).join('')}</div>
+    <div class="sub"><span class="sublbl">Format</span>${(()=>{const u=T2=>EVENTS[E[0]]&&EVENTS[E[0]][1]==='singles'?'player':'pair',minPer=(k,n)=>{if(n<2)return 0;if((k==='gk'||k==='lp')&&n<4)k='rr';if(k==='rr'||k==='lp')return n-1;if(k==='ko')return 1;const g=Math.max(2,Math.ceil(n/4));return Math.floor(n/g)-1};
+      return[['lp','League + playoffs','Everyone plays everyone, then the top 4 play semi-finals and a final (top 8: quarter-finals first). Like our league. Best for 4–8.'],['gk','Groups + knockout','Small groups play each other first, then the top go into a knockout (pre-quarters, quarters, semis, final). Best for 9+.'],['rr','Round robin','Everyone plays everyone once. Most matches, no knockout.'],['ko','Knockout','One match per round. Winners move on, losers are out. Quickest.']].map(([k,l,d])=>{const n=ent,mc=matchCount(n,k),mp=minPer(k,n),fb=(k==='gk'||k==='lp')&&n>1&&n<4;
+        return`<button type="button" class="row" data-cf="${k}" style="width:100%;text-align:left;border:1px solid ${fmt===k?'var(--accent)':'var(--line)'};border-radius:12px;margin-bottom:6px;background:${fmt===k?'var(--soft)':'var(--surface)'}"><div class="l"><b>${l}${k===(ent<=3?'rr':ent<=8?'lp':'gk')?' <i class="pill pw" style="font-size:10px">BEST FIT</i>':''}</b><small>${d}</small>${n>1?`<small style="color:var(--ink);font-weight:700;margin-top:3px">${fb?'Needs 4+ · runs as a round robin: ':''}${plural(mc,'match','matches')} · every ${u()} plays ${mp>=2?'at least '+mp:mp===1&&k==='ko'?'1 (more if they win)':mp}</small>`:''}</div></button>`}).join('')})()}</div>
     <div class="sub"><span class="sublbl">Scoring</span><div class="grid2"><select class="txt" id="cpts">${[21,15,11].map(x=>`<option value="${x}" ${pts===x?'selected':''}>Games to ${x}</option>`).join('')}</select><select class="txt" id="cbo"><option value="1" ${bo===1?'selected':''}>1 game</option><option value="3" ${bo===3?'selected':''}>Best of 3</option></select></div><p class="hint">Official: best of 3 games to 21 (win by 2, capped at 30). Quicker day: games to 15 or 11.</p></div>
     ${E.some(e=>EVENTS[e][1]==='doubles')?`<div class="sub"><span class="sublbl">Pairs</span><div class="seg" style="padding:0"><button type="button" class="${pairing==='balanced'?'on':''}" data-cp="balanced">Balanced by level</button><button type="button" class="${pairing==='random'?'on':''}" data-cp="random">Random</button></div></div>`:''}
     <div class="card-f"><button class="btn primary block" id="ccreate" ${ready&&(!multi||E.length>1)?'':'disabled'}>${ic('trophy')}${!picked.size?'Pick players':bad.length?'Pick more players':multi&&E.length<2?'Pick 2+ events':(multi?'Create championship · '+plural(E.length,'event'):'Create')+' · '+total+' matches'}</button></div>`,'New tournament');
