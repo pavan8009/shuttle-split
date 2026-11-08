@@ -641,7 +641,7 @@ const FIREBASE_CONFIG = {
 /* Collections get this prefix so they never clash with the league app's data */
 const COLLECTION_PREFIX = "shuttleSplit_";
 /* App version shown in Team → About */
-const APP_VERSION = "4.12.0", APP_BUILD = "6 Nov 2026";
+const APP_VERSION = "4.12.1", APP_BUILD = "6 Nov 2026";
 /* Owner of the main group (the link without ?g=) */
 const LEGACY_OWNER = "pavankaki.cool@gmail.com";
 /* Starting player list, used only until the first save */
@@ -1125,7 +1125,7 @@ const KA_CAL={'2026-01-14':'🪁 Makara Sankranti','2026-01-26':'🇮🇳 Republ
 const kaToday=()=>KA_CAL[todayStr()]||'';
 const kaNext=()=>{const t=todayStr();const k=Object.keys(KA_CAL).sort().find(d=>d>t);return k&&k<=shift(t,14)?{date:k,name:KA_CAL[k]}:null};
 /* start of a time slot like "5-7 PM" (hours, 24h) */
-function slotStart(note){const t=String(note||''),m=t.match(/(\d{1,2})(?:[:.](\d{2}))?\s*(am|pm)?\s*(?:-|–|to)\s*(\d{1,2})(?:[:.](\d{2}))?\s*(am|pm)?/i);if(!m){const s=t.match(/(\d{1,2})(?:[:.](\d{2}))?\s*(am|pm)/i);if(!s)return 0;let h=+s[1]+(+s[2]||0)/60;if(/pm/i.test(s[3])&&h<12)h+=12;return h}
+function slotHour(note){const t=String(note||''),m=t.match(/(\d{1,2})(?:[:.](\d{2}))?\s*(am|pm)?\s*(?:-|–|to)\s*(\d{1,2})(?:[:.](\d{2}))?\s*(am|pm)?/i);if(!m){const s=t.match(/(\d{1,2})(?:[:.](\d{2}))?\s*(am|pm)/i);if(!s)return 0;let h=+s[1]+(+s[2]||0)/60;if(/pm/i.test(s[3])&&h<12)h+=12;return h}
   let a=+m[1]+(+m[2]||0)/60;const ap=(m[3]||m[6]||'').toLowerCase();if(ap==='pm'&&a<12&&!(m[3]===undefined&&+m[1]>+m[4]))a+=12;if(!ap&&a<8)a+=12;return a}
 function cdText(start,end){const now=Date.now();if(now>=start&&now<end)return'<b class="cdlive">🏸 Game on now!</b>';if(now>=end)return'';let s=Math.max(0,Math.floor((start-now)/1000));const d=Math.floor(s/86400);s-=d*86400;const h=Math.floor(s/3600);s-=h*3600;const m=Math.floor(s/60);s-=m*60;
   return[[d,'days'],[h,'hours'],[m,'mins'],[s,'secs']].map(([v,l])=>`<span class="cdb"><b>${String(v).padStart(2,'0')}</b><small>${l}</small></span>`).join('')}
@@ -1138,7 +1138,7 @@ function loadWx(){const L=(S.board&&S.board.wx)||WX_LOC;if(WX.busy||Date.now()-W
   WX.busy=true;fetch('https://api.open-meteo.com/v1/forecast?latitude='+L.lat+'&longitude='+L.lon+'&current=temperature_2m,weather_code&hourly=temperature_2m,precipitation_probability,weather_code&timezone=Asia%2FKolkata&forecast_days=7').then(r=>r.json()).then(d=>{WX.data=d;WX.at=Date.now();WX.busy=false;try{localStorage.setItem('ss-wx',JSON.stringify({at:WX.at,d,k:L.lat+','+L.lon}))}catch(e){}const t=$('#todayslot');if(t){t.innerHTML=todayCard()}const k=$('#ticker');if(k)k.outerHTML=tickerHTML()}).catch(()=>{WX.busy=false})}
 function wxAt(date,hour){const d=WX.data;if(!d||!d.hourly)return null;const k=date+'T'+String(Math.floor(hour)).padStart(2,'0')+':00',i=d.hourly.time.indexOf(k);return i<0?null:{t:Math.round(d.hourly.temperature_2m[i]),p:d.hourly.precipitation_probability[i],c:d.hourly.weather_code[i]}}
 function todayCard(){loadWx();const t=todayStr(),fest=kaToday(),nx=kaNext(),occ=occasionsToday(),g=nextGame(),d=WX.data,cur=d&&d.current?{t:Math.round(d.current.temperature_2m),c:d.current.weather_code}:null,L=(S.board&&S.board.wx)||WX_LOC;
-  const gw=g?wxAt(g.dt.date,slotStart(g.dt.note)||18):null,games=(P.list||[]).filter(p=>!isArchived(p)).flatMap(p=>(p.dates||[]).filter(dt=>dt.date===t)),played=(S.days[t]&&S.days[t].present||[]).length;
+  const gw=g?wxAt(g.dt.date,slotHour(g.dt.note)||18):null,games=(P.list||[]).filter(p=>!isArchived(p)).flatMap(p=>(p.dates||[]).filter(dt=>dt.date===t)),played=(S.days[t]&&S.days[t].present||[]).length;
   const rows=[];
   if(fest)rows.push(`<div class="tdr"><span class="tdi">${fest.split(' ')[0]}</span><span><b>${esc(fest.split(' ').slice(1).join(' '))}</b><small>Today in Karnataka</small></span></div>`);
   occ.forEach(o=>rows.push(`<button type="button" class="tdr" data-occwish="${esc(o.n)}|${o.kind}|${esc(o.id||'')}">${ini(o.n,'','sm')}<span><b>${o.emoji} ${esc(first(o.n))}’s ${o.kind==='bday'?'birthday':o.kind==='anniv'?'anniversary':esc(o.title)}</b><small>Tap to send a wish 💌</small></span><span class="go">›</span></button>`));
@@ -1217,6 +1217,7 @@ function slotEnd(note){const t=String(note||''),m=t.match(/(\d{1,2})(?:[:.](\d{2
   let b=+m[4]+(+m[5]||0)/60;const pm=(m[6]||'').toLowerCase()==='pm'||(!m[6]&&/pm/i.test(t)),am=(m[6]||'').toLowerCase()==='am';if(pm&&b<12)b+=12;if(!pm&&!am&&b<8)b+=12;return Math.min(24,b)}
 function nextGame(){const now=Date.now(),t=todayStr();let best=null;
   (P.list||[]).filter(p=>!isArchived(p)).forEach(p=>(p.dates||[]).forEach(dt=>{if(!dt.date||dt.date<t)return;const end=new Date(dt.date+'T00:00').getTime()+slotEnd(dt.note)*3600e3;if(end<=now)return;
+    const V=VOTES_BY[p.id];if(V){const st=new Date(dt.date+'T00:00').getTime()+(slotHour(dt.note)||17)*3600e3,yes=V.filter(v=>(v.answers||{})[dt.date]==='yes').length;if(!yes&&(isClosed(p)||now>=st))return}
     if(!best||end<best.end)best={p,dt,end}}));return best}
 function ensureVotes(pl){if(!db||!pl||VOTE_UNSUB[pl.id])return;try{VOTE_UNSUB[pl.id]=pollsCol().doc(pl.id).collection('votes').onSnapshot(q=>{VOTES_BY[pl.id]=q.docs.map(d=>({poll:pl.id,id:d.id,...d.data()}));
   if(isOrg)orgChanged();else if(tab==='day'){const ns=$('#nextslot');if(ns){ns.innerHTML=nextGameCard();bindNextGame($('#view-day'))}refreshTasks()}},()=>{delete VOTE_UNSUB[pl.id]})}catch(e){}}
@@ -1226,10 +1227,10 @@ function nextGameCard(){const g=nextGame();if(!g)return canEdit()&&db?`<section 
   const today=g.dt.date===todayStr(),d=new Date(g.dt.date+'T00:00'),hrs=boardHours(g.dt.date),me=myName(),myA=me?(r.yes.some(x=>nkey(x)===nkey(me))?'yes':r.no.some(x=>nkey(x)===nkey(me))?'no':''):'';
   const G=[['yes',AVI.yes,'Available',r.yes],['no',AVI.no,'Unavailable',r.no],['wait',AVI.wait,'Not confirmed',wait]];
   return`<section class="card nextgame"><div class="ng-h"><div><small>Next game day</small><b>${today?'Today':esc(dlabel(g.dt.date,{weekday:'long'}))}${g.dt.note?` · ${esc(g.dt.note)}`:''}</b><span>${esc(g.p.title)}${hrs?` · ${fmtH(hrs)} h booked`:''}</span></div><span class="ng-date"><b>${d.getDate()}</b><small>${esc(d.toLocaleDateString('en-IN',{month:'short'}))}</small></span></div>
-    ${(()=>{const st=new Date(g.dt.date+'T00:00').getTime()+(slotStart(g.dt.note)||17)*3600e3,h=cdText(st,g.end);return h?`<div class="cdown"><small>${Date.now()>=st?'':'Starts in'}</small><div class="cdrow" data-cd="${st}" data-ce="${g.end}">${h}</div></div>`:''})()}
+    ${(()=>{const st=new Date(g.dt.date+'T00:00').getTime()+(slotHour(g.dt.note)||17)*3600e3,h=cdText(st,g.end);return h?`<div class="cdown"><small>${Date.now()>=st?'':'Starts in'}</small><div class="cdrow" data-cd="${st}" data-ce="${g.end}">${h}</div></div>`:''})()}
     <div class="ngtiles">${G.map(([k,e,l,L])=>`<button type="button" class="ngt ${k}${NG_OPEN===k?' on':''}" data-ngt="${k}"><span class="l">${e}<b>${L.length}</b></span><span class="lt">${l}</span><span class="lvav">${L.slice(0,L.length>3?2:3).map(n=>av(n)).join('')}${L.length>3?`<i class="lvmore">+${L.length-2}</i>`:''}</span></button>`).join('')}</div>
     ${NG_OPEN?(()=>{const g2=G.find(x=>x[0]===NG_OPEN);return`<div class="pad" style="padding-top:4px"><div class="vgrp ${g2[0]}"><span class="vlbl">${g2[1]} ${g2[2]} · ${g2[3].length}</span><div class="names">${g2[3].map(n=>`<span class="nm-chip ${g2[0]}" data-prof="${esc(n)}">${av(n)}${esc(n)}</span>`).join('')||'<small class="hint">Nobody yet</small>'}</div></div></div>`})():''}
-    <div class="card-f"><span class="hint" style="margin:0">${myA==='yes'?'You’re in ✅':myA==='no'?'You said you can’t make it':me?'You haven’t voted yet':''}</span><button class="btn sm ${myA?'line':'primary'}" data-ngvote="${esc(g.p.id)}" style="margin-left:auto">${myA?'Change vote':'Vote now'}</button></div></section>`}
+    <div class="card-f">${(()=>{const cl=isClosed(g.p);return`<span class="hint" style="margin:0">${myA==='yes'?'You’re in ✅':myA==='no'?'You said you can’t make it':cl?'Voting has closed':me?'You haven’t voted yet':''}</span><button class="btn sm ${myA||cl?'line':'primary'}" data-ngvote="${esc(g.p.id)}" style="margin-left:auto">${cl?'View':myA?'Change vote':'Vote now'}</button>`})()}</div></section>`}
 function bindNextGame(v){v.querySelectorAll('[data-ngt]').forEach(b=>b.onclick=()=>{NG_OPEN=NG_OPEN===b.dataset.ngt?'':b.dataset.ngt;const ns=$('#nextslot');ns.innerHTML=nextGameCard();bindNextGame(v)});
   v.querySelectorAll('#nextslot [data-prof]').forEach(b=>b.onclick=()=>openProfile(b.dataset.prof));
   v.querySelectorAll('[data-ngvote]').forEach(b=>b.onclick=()=>{goPoll(b.dataset.ngvote)});v.querySelectorAll('[data-ngnew]').forEach(b=>b.onclick=()=>{go('polls')})}
@@ -2653,7 +2654,7 @@ function openSuggestDay(){let sa=nextWeekend(0)[0];for(let k=0;k<21&&gamesOn(sa)
     if(dup){$('#sdprev').innerHTML=`<b>⏳ You already proposed ${esc(dlabel(x.date,{weekday:'short',day:'numeric',month:'short'}))}.</b> The admins will answer soon. Pick another day if you want to suggest more.`;return}
     $('#sdprev').innerHTML=`${isOrg?'Everyone gets the poll':'If accepted, everyone gets the poll'} <b>“${esc(pollQ(x.date))}”</b> for <b>${esc(schedTxt(x)||'—')}</b>.`};prev();
   bg.querySelectorAll('#sdday,#sdfrom,#sdto').forEach(e=>e.oninput=prev);
-  $('#sdsend').onclick=async()=>{const x=val();if(!x.date)return toast('Pick a date.');if(gamesOn(x.date).length)return toast('🏸 A game is already on that day. Vote in that poll instead.');if(!x.note)return toast('Pick a start time.');if(slotEnd(x.note)<=slotStart(x.note))return toast('The end time must be after the start.');
+  $('#sdsend').onclick=async()=>{const x=val();if(!x.date)return toast('Pick a date.');if(gamesOn(x.date).length)return toast('🏸 A game is already on that day. Vote in that poll instead.');if(!x.note)return toast('Pick a start time.');if(slotEnd(x.note)<=slotHour(x.note))return toast('The end time must be after the start.');
     if(isOrg){const D=[{date:x.date,note:x.note}];if(pollClash(D).filter(p=>!isClosed(p)).length)return toast('A poll already covers that day. Pick another date or use the full editor.');
       $('#sdsend').disabled=true;try{const c=defClose(x.date),ref=pollsCol().doc();await ref.set({title:pollQ(x.date),dates:D,perCourt:4,closed:false,closesAt:c?new Date(c).getTime():null,createdAt:Date.now()});closeWho();toast('🗳️ Poll published for '+schedTxt(x));go('polls');setTimeout(()=>goPoll(ref.id),100)}catch(e){$('#sdsend').disabled=false;toast(e.code==='permission-denied'?'Sign in as an organizer first.':'Couldn’t publish ('+(e.code||'error')+').')}return}
     $('#sdsend').disabled=true;if(await playerAction('poll',JSON.stringify(x))){toast('🗓 Proposal sent. You’ll see the answer on Home.');const L=$('#myprops');if(L)L.innerHTML=myPropsHTML();startMyProps();$('#sdsend').disabled=false;const a=$('#askslot');if(a)a.innerHTML=asksCard()}else $('#sdsend').disabled=false}}
@@ -3297,10 +3298,11 @@ function passGroupMsg(p,date,P0){const v=P0.valid.filter(x=>!x.guestOf),g=P0.val
 async function markPasses(p,date,L){const cur=Object.assign({},((p.passes||{})[date])||{}),now=Date.now();L.forEach(x=>{cur[x.key]={n:x.n,st:x.st==='cancel'?'cancel':'valid',at:now,...(x.guestOf?{g:x.guestOf}:{})}});
   try{await pollsCol().doc(p.id).update(new firebase.firestore.FieldPath('passes',date),cur);p.passes=Object.assign({},p.passes,{[date]:cur})}catch(e){toast('Couldn’t record the passes ('+(e.code||'error')+').')}}
 /* admin card on a poll */
+function thanksVars(p,date,P0){const N=P0.valid.concat(P0.list.filter(x=>x.st==='used')).map(x=>first(x.n));return{date:dlabel(date,{weekday:'long',day:'numeric',month:'short'}),time:fmtTime(P0.start)+'–'+fmtTime(P0.to),venue:venueName(),names:N.length?N.join(', '):'everyone',count:N.length,link:appLink('payouts')}}
 function passCard(p){if(!isOrg||!db||!S.passOn)return'';const today=todayStr(),D=(p.dates||[]).filter(d=>d.date>=today);if(!D.length)return'';
   return`<section class="card" id="passcard">${cardH('cal','Entry passes',venueName())}${D.map(dt=>{const P0=passesFor(p,P.votes,dt.date),ns=P0.valid.filter(x=>!x.sent).length,nc=P0.cancel.filter(x=>!x.sent).length;
     return`<div class="pad" style="border-top:1px solid var(--line2)"><b>${esc(passWhen(dt.date,P0))}</b><small class="hint" style="display:block;margin:2px 0 8px">✅ ${plural(P0.valid.length,'valid pass','valid passes')}${ns?' · '+ns+' not sent yet':''}${P0.cancel.length?' · ❌ '+P0.cancel.length+' cancelled'+(nc?' ('+nc+' to tell)':''):''} · valid ${fmtTime(P0.from)}–${fmtTime(P0.to)}</small>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><a class="btn wa" data-passall="${dt.date}" href="${waHref(passGroupMsg(p,dt.date,P0))}" target="_blank" rel="noopener">${ic('chat')}Send all passes</a><button type="button" class="btn line" data-passeach="${dt.date}">📲 One by one${ns+nc?' ('+(ns+nc)+')':''}</button></div>
+      ${Date.now()>P0.to?`<a class="btn wa block" href="${waHref(fillTpl(tplOf('passThanks'),thanksVars(p,dt.date,P0)))}" target="_blank" rel="noopener">💚 Send thank-you to the group</a>`:`<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><a class="btn wa" data-passall="${dt.date}" href="${waHref(passGroupMsg(p,dt.date,P0))}" target="_blank" rel="noopener">${ic('chat')}Send all passes</a><button type="button" class="btn line" data-passeach="${dt.date}">📲 One by one${ns+nc?' ('+(ns+nc)+')':''}</button></div>`}
       <button type="button" class="lnk" data-passview="${dt.date}" style="margin-top:6px">🎟️ See all passes</button></div>`}).join('')}
     <div class="card-f"><small class="hint" style="margin:0">“Send all” posts every pass to your WhatsApp group in one tap. “One by one” opens each player’s own chat. Passes are valid from ${PASS_LEAD()} min before the slot until it ends.</small></div></section>`}
 function bindPassCard(p){document.querySelectorAll('[data-passall]').forEach(a=>a.addEventListener('click',()=>{const d=a.dataset.passall,P0=passesFor(p,P.votes,d);markPasses(p,d,P0.list.filter(x=>x.st!=='used'));toast('🎟️ '+plural(P0.valid.length,'pass','passes')+' posted'+(P0.cancel.length?' · '+P0.cancel.length+' cancelled':''))}));
@@ -3328,7 +3330,7 @@ function passTicket(p,date,P0,x){const now=Date.now(),st=x.st==='cancel'?'cancel
     <div class="ptk-cut"></div>
     <div class="ptk-g"><div><small>PASS NO.</small><b class="mono">${esc(x.code)}</b></div><div><small>VALID</small><b>${fmtTime(P0.from)}–${fmtTime(P0.to)}</b></div></div>
     <div class="ptk-bar" aria-hidden="true">${[...x.code.replace(/-/g,'')].map((c,i)=>`<i style="width:${1+(c.charCodeAt(0)+i)%4}px"></i>`).join('<i class="gap"></i>')}</div>
-    <div class="ptk-st">${st==='cancel'?`❌ CANCELLED${x.at?' · '+esc(whenD(x.at)):''}<small>${esc(x.reason||'')}</small>`:st==='used'?'✔ USED · game over':st==='live'?'🟢 VALID NOW · show at the venue':'✅ VALID · from '+fmtTime(P0.from)+', '+esc(dlabel(date))}</div></div>`}
+    <div class="ptk-st">${st==='cancel'?`❌ CANCELLED${x.at?' · '+esc(whenD(x.at)):''}<small>${esc(x.reason||'')} · You’ll miss the fun. Hope to see you at the next game 💚</small>`:st==='used'?'💚 USED · thanks for playing!<small>Hope you had fun. See you at the next game 🏸</small>':st==='live'?'🟢 VALID NOW · show at the venue<small>Enjoy the game! 🏸</small>':'✅ VALID · from '+fmtTime(P0.from)+', '+esc(dlabel(date))+'<small>Great, see you on court! 🙌</small>'}</div></div>`}
 async function openPass(pid,date,key){const D=await passData(pid,date);if(!D)return toast('That pass isn’t available.');const x=D.P0.list.find(y=>y.key===key);
   if(!x)return openPassList(pid,date);const mp=venueMap(S.board||{});
   const bg=sheetSwap(`<div class="sheet-h"><span class="ini">🎟️</span><div><b>Entry pass</b><small>${esc(passWhen(date,D.P0))}</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div>
@@ -4342,8 +4344,6 @@ function msgResults(p,t){return fillTpl(tplOf('results'),Object.assign({},pollVa
 function msgOptions(p){const o=p.dates.map((dt,i)=>(i+1)+'. '+waOpt(dt));if(p.dates.length===2)o.push('3. Both 1&2');o.push((o.length+1)+'. Not available');return['🏸 '+p.title,'',...o].join('\n')}
 
 /* "5-7 PM" → 2, "6:30-8:30" → 2, "11-1" → 2 */
-function slotHours(note){const m=String(note||'').match(/(\d{1,2})(?:[:.](\d{2}))?\s*(?:am|pm)?\s*(?:-|–|to)\s*(\d{1,2})(?:[:.](\d{2}))?/i);if(!m)return 0;
-  const a=+m[1]+(+m[2]||0)/60,b=+m[3]+(+m[4]||0)/60;let d=(b-a+12)%12;if(d<=0||d>8)return 0;return Math.round(d*2)/2}
 const pollLast=p=>(p.dates||[]).reduce((a,dt)=>dt.date>a?dt.date:a,'');
 /* polls drop into the archive 2 weeks after their last game date */
 const isArchived=p=>!!p.archived||(!!pollLast(p)&&pollLast(p)<shift(todayStr(),-14));
@@ -4408,13 +4408,14 @@ const TPL_DEFAULT={
   bill:"🏸 *{group} — Payouts*\n{dates}\n\nThank you all for turning up and making it a great game! 🙌\nYour share is in the poster above. Whenever it suits you, please settle up. It keeps the courts booked and the shuttles flying for all of us. 💚\n\n{upi_line}\n📊 Full charges & your dues: {payouts_link}\n✅ Once paid, open the app → Payouts → My wallet → tap “I’ve paid” so it can be confirmed. Thank you!",
   billPre:"🏸 *{group}*\n{dates}\n\nThanks for a great game! 🙌 The amounts in the poster have been deducted from your wallets.\n\n👛 Check your balance & history: {me_link}\n🔋 Wallet below {low}? Please load {load}{upi_via} and tap “I’ve paid” in the app. 💚",
   passGroup:"🎟️ *Entry passes · {venue}*\n📅 {date} · ⏰ {time}\n✅ Valid {valid}\n\n{list}\n\n{cancel_line}\n\nOpen your pass 👉 {link}\n📍 {map}\nShow it at the venue. Can’t make it? Change your vote and your pass is cancelled automatically.",
-  pass:"🎟️ *Your entry pass · {venue}*\nHi {name}! You’re in 🏸\n\n📅 {date}\n⏰ {time} (valid {valid})\n🔖 Pass {code}\n\nOpen your pass 👉 {link}\n📍 {map}\n\nCan’t make it? Change your vote in the app and your pass is cancelled automatically.",
-  passCancel:"❌ *Pass cancelled · {venue}*\nHi {name}, your pass {code} for {date} ({time}) is cancelled: {reason}.\n\nChanged your mind? Vote Yes again in the app while voting is open 👉 {link}",
+  pass:"🎟️ *Your entry pass · {venue}*\nHi {name}! Great, you’re in 🙌 See you on court! 🏸\n\n📅 {date}\n⏰ {time} (valid {valid})\n🔖 Pass {code}\n\nOpen your pass 👉 {link}\n📍 {map}\n\nPlans changed? No worries, just change your vote in the app and we’ll free up your spot for someone else 💚",
+  passCancel:"💔 *We’ll miss you this time · {venue}*\nHi {name}, your pass {code} for {date} ({time}) is now cancelled ({reason}).\n\nYou’ll miss the fun, but we’re looking forward to having you at the next game 🏸💚\nIf plans change again, just vote Yes in the app while voting is open 👉 {link}",
+  passThanks:"💚 *Thank you for playing! · {venue}*\n📅 {date} · ⏰ {time}\n\nWhat a game! Thank you {names} for turning up and making it fun 🙌\n\nRest up, stretch, and see you on court next time 🏸\nScores, photos & your share 👉 {link}",
   dues:"🔔 *{group}: gentle reminder*\n\n{dues_lines}\n\n📲 UPI: {upi}\n👉 Details & pay: {payouts_link}\n\n✅ *Already paid?* Open the app → Payouts → My wallet → tap “I’ve paid”. It takes 5 seconds and keeps the books straight for everyone 🙏\n\nThank you! 💚"};
 /* message templates, grouped by the event that sends them */
 const TPL_VARS={name:'Player’s first name',full:'Full name',venue:'Venue name',code:'Pass number',valid:'Pass valid from–to',list:'Every pass, one per line',count:'Number of valid passes',cancel_line:'“❌ Cancelled: …” line',map:'Venue map link',reason:'Why it was cancelled',guest_of:'Who invited the guest',title:'Poll title',dates:'Game dates',slots:'Each date and time, one per line',link:'Link to the poll',closes:'When voting closes',group:'Group name',
   status:'Yes count per date + how many more are needed',pending:'Names who haven’t voted',pending_count:'How many haven’t voted',threshold:'Players needed per slot',
-  results:'Result block for each date (players, guests, courts)',no_vote_line:'“No vote: …” line',guest_close:'When the guest window closes',guest_status:'Free spots per date',
+  results:'Result block for each date (players, guests, courts)',no_vote_line:'“No vote: …” line',guest_close:'When the guest window closes',names:'Everyone who played',guest_status:'Free spots per date',
   date:'Game date',time:'Start time',lead:'Hours before the game',players:'Who’s playing',count:'How many are playing',guest_line:'“👥 Guests (2): …” line',guests:'Guest names',guest_count:'Number of guests',courts:'Courts booked',
   dues_lines:'One line per player with dues',upi:'Your UPI ID',upi_line:'“📲 UPI: …” line',upi_via:'“ via UPI: …”',payouts_link:'Link to Payouts',me_link:'Link to My wallet',low:'Low-balance limit',load:'Suggested top-up'};
 const TPL_GROUPS=[
@@ -4429,7 +4430,8 @@ const TPL_GROUPS=[
   ['pass','🎟️','Entry passes','When you send passes from a poll (admin only)',[
     ['passGroup','All passes (group post)','When you tap “Send all passes”',['title','date','time','venue','valid','list','count','cancel_line','link','map']],
     ['pass','Pass to one player','“One by one”, for each Yes voter',['name','full','date','time','venue','code','valid','link','map','guest_of']],
-    ['passCancel','Pass cancelled','“One by one”, for anyone who changed to No',['name','date','time','venue','code','reason','link']]]],
+    ['passCancel','Pass cancelled','“One by one”, for anyone who changed to No',['name','date','time','venue','code','reason','link']],
+    ['passThanks','Thank you after the game (group post)','When you tap “Send thank-you” after the slot ends',['date','time','venue','names','count','link']]]],
   ['game','🏸','Game day','Before each game',[
     ['game','Game-day reminder','The set hours before the game starts',['date','time','lead','players','count','guest_line','guests','guest_count','courts','group']]]],
   ['pay','💸','Payments','After a game is billed, and for dues',[
@@ -4545,6 +4547,7 @@ function exportICS(){
 /* sample fill-ins for the live preview of each template */
 function tplSample(k){try{
   const p=P.list.find(x=>!isArchived(x)&&!isClosed(x))||P.list[0];
+  if(k==='passThanks'){const p=P.list.find(x=>!isArchived(x))||P.list[0];if(!p||!(p.dates||[])[0])return null;const d=p.dates[0].date,P0=passesFor(p,VOTES_BY[p.id]||[],d);return thanksVars(p,d,P0)}
   if(['pass','passCancel','passGroup'].includes(k)){if(!p||!(p.dates||[])[0])return null;const d=p.dates[0].date,P0=passesFor(p,VOTES_BY[p.id]||[],d),x=P0.valid[0]||{n:getMe()||'Ravi',code:passCode(p.id,d,'x'),link:passLink(p.id,d,'x'),reason:'Changed vote to No'};
     return k==='passGroup'?{title:p.title,date:dlabel(d,{weekday:'long',day:'numeric',month:'short'}),time:fmtTime(P0.start)+'–'+fmtTime(P0.to),venue:venueName(),valid:fmtTime(P0.from)+'–'+fmtTime(P0.to),list:'1. Manju · '+x.code+'\n2. Ram · …',count:P0.valid.length,cancel_line:'❌ Cancelled: Kiran · …',link:passLink(p.id,d,''),map:venueMap(S.board||{})}:Object.assign(passVars(p,d,P0,x),{reason:x.reason||'Changed vote to No'})}
   if(['start','startRule','remind','last','results','guests'].includes(k)){if(!p)return null;const {t,v}=pollVars(p);return k==='results'?Object.assign({},v,{results:resultsBlock(t),no_vote_line:t.pending.length?'No vote: '+t.pending.join(', '):''}):v}
@@ -4618,7 +4621,7 @@ function renderPolls(){
   v.innerHTML=`
   ${intro('Polls','Ask who’s free before you book. Players vote from a WhatsApp link and you see how many courts you need.')}
   ${(()=>{const Q=isOrg?ACT.list.filter(a=>a.kind==='poll'&&a.status==='pending'):[];return Q.length?`<section class="card due-card"><button type="button" class="propl" data-propadm style="border-top:0"><span class="tdi">🗓</span><span><b>${plural(Q.length,'game proposal')} to review</b><small>${Q.slice(0,2).map(a=>esc(first(a.name))+': '+esc(schedTxt(propX(a)))).join(' · ')}</small></span><span class="go">›</span></button></section>`:''})()}
-  ${kpis([['Open polls',open.length],['Recent',live.length],['Next game',open.length&&open[0].dates&&open[0].dates[0]?esc(dlabel(open[0].dates[0].date,{weekday:'short',day:'numeric'})):'–',true]])}
+  ${kpis([['Open polls',open.length],['Recent',live.length],['Next game',(()=>{const g=nextGame();return g?(g.dt.date===todayStr()?'Today':esc(dlabel(g.dt.date,{weekday:'short',day:'numeric'}))):'–'})(),true]])}
   <div data-in="list">
   ${boardCard()}
   ${(startChat(),gameChatsCard())}
