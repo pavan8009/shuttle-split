@@ -644,7 +644,7 @@ const FIREBASE_CONFIG = {
 /* Collections get this prefix so they never clash with the league app's data */
 const COLLECTION_PREFIX = "shuttleSplit_";
 /* App version shown in Team → About */
-const APP_VERSION = "4.14.1", APP_BUILD = "6 Nov 2026";
+const APP_VERSION = "4.14.2", APP_BUILD = "6 Nov 2026";
 /* Owner of the main group (the link without ?g=) */
 const LEGACY_OWNER = "pavankaki.cool@gmail.com";
 /* Starting player list, used only until the first save */
@@ -3386,7 +3386,8 @@ function slotHours(t){const m=String(t||'').match(/(\d{1,2})(?:[:.](\d{2}))?\s*(
   if(!m[3]&&(m[6]||'').toLowerCase()==='pm'&&a<12&&a+12<=b)a+=12;let d=b-a;while(d<=0)d+=12;while(d>12)d-=12;return r2(d)}
 function boardDays(){const B=S.board;if(!B||!Array.isArray(B.days))return[];return B.days.filter(d=>d&&d.date).sort((a,b)=>a.date.localeCompare(b.date))}
 function boardHours(date){if(typeof S==='undefined'||!S.board)return 0;const d=boardDays().find(x=>x.date===date);return d?r2((d.slots||[]).reduce((a,x)=>a+slotHours(x.t)*(+x.c||0),0)):0}
-function boardCurrent(){const t=todayStr();return boardDays().filter(d=>d.date>=shift(t,-1))}
+/* only today and later, in step with the polls (past bookings stay in the bills) */
+function boardCurrent(){const t=todayStr();return boardDays().filter(d=>d.date>=t)}
 /* venue map link: the organizer's link, or GG Sports by default */
 const MAPPIN='<svg class="ci" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21Z"/><circle cx="12" cy="9.5" r="2.5"/></svg>';
 const GG_MAP='https://maps.app.goo.gl/8LitvJW5ozHjpuwW8';
@@ -3408,7 +3409,7 @@ function boardCard(){const days=boardCurrent(),B=S.board||{},PD=pendingCourts();
       <div class="mix" style="justify-content:space-between"><span>${esc(x.note||'Time to be set')}</span><span class="badge pend">⏳ To be booked</span></div>
       <small class="hint" style="margin:0">${x.yes==null?'Counting votes…':x.yes?`🗳️ ${plural(x.yes,'player')} said Yes so far → about ${plural(x.courts,'court')}${x.closed?' · voting closed':''}`:'🗳️ No Yes votes yet. Courts are booked once players vote.'}</small>
       ${canEdit()&&x.yes?`<button type="button" class="btn sm primary" data-bookp="${x.date}" style="align-self:flex-start">🏟️ Mark ${plural(x.courts,'court')} booked</button>`:''}</div>`).join('')}
-    ${B.note?`<div class="sub"><p class="hint" style="margin:0">📌 ${esc(B.note)}</p></div>`:''}
+    ${B.note&&days.length?`<div class="sub"><p class="hint" style="margin:0">📌 ${esc(B.note)}</p></div>`:''}
     ${canEdit()?`<div class="card-f"><span class="hint">Only organizers can change this</span><button class="btn sm line" data-board style="margin-left:auto">${ic('gear')}Edit</button></div>`:''}</section>`}
 document.addEventListener('click',e=>{const t=e.target.closest&&e.target.closest('[data-carry],[data-cuse]');if(!t)return;if(t.dataset.cuse)carryUse(t.dataset.cuse,curDate);else openCarry()});
 function bindBoard(v){v.querySelectorAll('[data-board]').forEach(b=>b.onclick=openBoard)}
