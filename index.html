@@ -548,6 +548,17 @@ details.legend{padding:4px 16px 10px}details.legend summary{font-size:12.5px;fon
 .carryw{background:#FFFAEB;border-radius:12px;margin:0 12px 8px}
 .orgout{position:fixed;left:12px;right:12px;bottom:calc(76px + env(safe-area-inset-bottom));z-index:40;display:flex;align-items:center;gap:8px;background:#101828;color:#fff;border-radius:14px;padding:10px 12px;font-size:13px;box-shadow:0 8px 24px rgba(0,0,0,.25)}.orgout span{flex:1}.orgout .iconbtn{background:transparent;color:#fff}
 .cancelled-day{border:1.5px solid #FDA29B;background:#FEF3F2}.cancelled-day b{color:#B42318}
+.drow{display:flex;gap:10px;align-items:center;border-top:1px solid var(--line2);padding:9px 0}.drow .hi{font-size:18px;width:26px;text-align:center}.drow .dt{flex:1;font-size:13px}.drow .btn{flex:none}
+.hok>summary{cursor:pointer;font-size:13px;color:var(--muted);font-weight:700;padding:9px 0;border-top:1px solid var(--line2)}
+.dsec{padding:12px 16px;border-top:8px solid var(--line2)}.dsec>.sublbl{display:block;margin:0 0 8px}.dsec.ns{border-top:0;background:linear-gradient(180deg,var(--soft),transparent)}
+.nsrow{display:flex;align-items:baseline;gap:10px}.nsv{font-size:44px;line-height:1;font-weight:800}.nsd{font-size:13px;font-weight:700;color:var(--muted)}.nsd.up{color:#027A48}.nsd.dn{color:#B42318}
+.nsbars{display:grid;grid-template-columns:repeat(8,1fr);gap:6px;height:90px;align-items:end;margin:10px 0 6px}.nsb{height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:2px}.nsb i{display:block;width:100%;min-height:3px;border-radius:6px 6px 2px 2px;background:var(--line)}.nsb.cur i{background:var(--accent)}.nsb small{font-size:10.5px;color:var(--muted);font-weight:700}
+.dkg{display:grid;grid-template-columns:1fr 1fr;gap:8px}.dk{border:1px solid var(--line);border-radius:12px;padding:10px;display:grid;gap:2px}.dk span{font-size:11.5px;color:var(--muted);font-weight:600}.dk b{font-size:20px}.dk small{font-size:11.5px;color:var(--muted)}
+.dlist{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;align-items:center}.dlist small{width:100%;font-size:11.5px;color:var(--muted);font-weight:700}.dlist span{font-size:12.5px;background:var(--field);border-radius:999px;padding:3px 9px}
+.dbar{display:grid;grid-template-columns:96px 1fr 40px;gap:8px;align-items:center;font-size:12.5px;margin:4px 0}.dbar i{height:8px;border-radius:99px;background:var(--line2);overflow:hidden}.dbar i b{display:block;height:100%;background:var(--accent)}.dbar em{font-style:normal;font-weight:700;text-align:right}
+.hrow{display:flex;gap:10px;align-items:center;width:100%;text-align:left;background:none;border:0;border-top:1px solid var(--line2);padding:9px 0;font:inherit;color:inherit}.hrow:disabled{opacity:1}.hrow .hi{font-size:18px;width:26px;text-align:center}.hrow .ht{flex:1;display:grid;min-width:0}.hrow .ht b{font-size:13.5px}.hrow .ht small{font-size:12px;color:var(--muted);overflow-wrap:anywhere}.hrow.ok .ht b{color:var(--muted);font-weight:600}
+.hn{font-style:normal;font-size:11px;font-weight:800;border-radius:99px;padding:1px 7px;margin-left:4px;background:#FEF0C7;color:#B54708}.hrow.bad .hn{background:#FEE4E2;color:#B42318}.hrow.info .hn{background:var(--field);color:var(--muted)}
+.erow{border-top:1px solid var(--line2);padding:7px 0;display:grid}.erow b{font-size:12.5px;font-family:ui-monospace,Menlo,monospace;overflow-wrap:anywhere}.erow small{font-size:11.5px;color:var(--muted)}
 .gtag{font-style:normal;font-size:10.5px;font-weight:800;background:#FEF0C7;color:#93370D;border-radius:999px;padding:1px 7px;vertical-align:1px}.gsec summary small{display:block;font-weight:600;color:var(--muted);font-size:12px}.btable tr.grow2 td{font-size:12.5px;color:var(--muted);background:var(--field)}.tplg{border-top:8px solid var(--line2)}.tplgh{display:flex;align-items:center;gap:10px;padding:14px 16px 4px}.tplgh>div{flex:1;display:grid}.tplgh b{font-size:16px}.tplgh small{color:var(--muted);font-size:12.5px}.tplgi{width:36px;height:36px;border-radius:10px;background:var(--field);display:grid;place-items:center;font-size:18px}.tplgn{font-size:12px;color:var(--muted);font-weight:700}
 .tpll{display:grid;gap:8px;padding:0 16px 14px}.tplc{border:1px solid var(--line);border-radius:12px;background:var(--surface)}.tplc>summary{list-style:none;display:flex;align-items:center;gap:8px;padding:11px 12px;cursor:pointer}.tplc>summary::-webkit-details-marker{display:none}.tplc>summary .ic{width:16px;height:16px;color:var(--muted);transition:transform .2s}.tplc[open]>summary .ic{transform:rotate(90deg)}
 .tplt{flex:1;display:grid;min-width:0}.tplt b{font-size:14px}.tplt small{font-size:12px;color:var(--muted)}.tpled{font-style:normal;font-size:11px;font-weight:800;color:#B54708;background:#FFFAEB;border-radius:999px;padding:2px 8px}.tplb{padding:0 12px 12px}
@@ -645,7 +656,7 @@ const FIREBASE_CONFIG = {
 /* Collections get this prefix so they never clash with the league app's data */
 const COLLECTION_PREFIX = "shuttleSplit_";
 /* App version shown in Team → About */
-const APP_VERSION = "4.15.0", APP_BUILD = "6 Nov 2026";
+const APP_VERSION = "4.16.0", APP_BUILD = "6 Nov 2026";
 /* Owner of the main group (the link without ?g=) */
 const LEGACY_OWNER = "pavankaki.cool@gmail.com";
 /* Starting player list, used only until the first save */
@@ -820,7 +831,7 @@ function useTick(){const now=Date.now();if(USE.from&&document.visibilityState===
 async function flushUse(final){useTick();const m=Math.floor(USE.ms/60e3);if(!db||!getMe()||(m<1&&!final))return;if(m<1)return;USE.ms-=m*60e3;
   const k='ss-use'+SUF;let st={};try{st=JSON.parse(localStorage.getItem(k)||'{}')}catch(e){}const d=todayStr();st.mins=st.mins||{};st.mins[d]=(st.mins[d]||0)+m;
   Object.keys(st.mins).sort().slice(0,-35).forEach(x=>delete st.mins[x]);try{localStorage.setItem(k,JSON.stringify(st))}catch(e){}
-  try{const u=await ensureAnon();if(u)await col('seen').doc(u.uid).set({name:getMe(),at:Date.now(),mins:st.mins,opens:st.opens||{},alerts:alertSt()},{merge:true})}catch(e){}}
+  try{const u=await ensureAnon();if(u)await col('seen').doc(u.uid).set({name:getMe(),at:Date.now(),mins:st.mins,opens:st.opens||{},alerts:alertSt(),v:APP_VERSION},{merge:true})}catch(e){}}
 function startUse(){if(USE.timer)return;USE.from=document.visibilityState==='visible'?Date.now():0;
   const k='ss-use'+SUF;try{const st=JSON.parse(localStorage.getItem(k)||'{}'),d=todayStr();st.opens=st.opens||{};st.opens[d]=(st.opens[d]||0)+1;Object.keys(st.opens).sort().slice(0,-35).forEach(x=>delete st.opens[x]);localStorage.setItem(k,JSON.stringify(st))}catch(e){}
   USE.timer=setInterval(()=>flushUse(false),120e3);document.addEventListener('visibilitychange',()=>{useTick();if(document.visibilityState==='hidden')flushUse(true)});window.addEventListener('pagehide',()=>flushUse(true))}
@@ -3912,6 +3923,7 @@ function valueCard(){const from=shift(todayStr(),-29),inMo=t=>ymd(new Date(t||0)
     <div class="card-f"><p class="hint" style="margin:0">${sent?plural(sent,'reminder')+' sent from the app. ':''}Every payment is matched to who played, with no sheet to keep.</p></div></section>`}
 function teamMenu(org,AD,att,act){const rev=org?att.fresh.length+att.dups.length:0;
   const groups=[
+    org?['Insights',[menuItem('','poll','📊 Dashboard & app health','North Star, games, attendance, money, ideas & problems, health checks',(()=>{try{const n=healthChecks().filter(h=>h.sev!=='info'&&h.n).length;return n?`<i class="nb">${n}</i>`:'All good'}catch(e){return''}})(),'dash')]]:null,
     ['Group',[menuItem('players','users','Players & levels','Roster, levels, rename, merge or pause',act.length+(rev?` · <i class="nb">${rev}</i>`:'')),
       org&&AD?menuItem('adoption','poll','App adoption',S.vapid?'Who’s on the app, who gets alerts, nudges':'Who’s using the app, nudges, auto-inactive',AD.joined+'%'+(S.vapid?' · 🔔'+alertPct()+'%':'')):'',
       menuItem('group','palette',org?'Name, photo & theme':'Group name, photo & theme',org?'How the app and posters look':(perm('name')==='allow'?'You can rename the group':perm('name')==='ask'?'Suggest a new name':''),esc(SKINS[S.skin]?SKINS[S.skin].name:'')),
@@ -4345,6 +4357,7 @@ function bindTeam(){
     else if(a==='records'){teamUI.page='records';teamUI.rec=teamUI.rec||'pays';renderTeam();window.scrollTo(0,0);if(isOrg)loadOrgData(true)}
     else if(a==='msgset2')openMsgSettings();
     else if(a==='autopilot')openAutopilot();
+    else if(a==='dash')openDash();
     else if(a==='suggest')openSuggest();
     else if(a==='myreqs')openMyRequests();
     else if(a==='contactsxl')exportContacts();
@@ -4653,6 +4666,100 @@ function tplSample(k){try{
   if(k==='bill'||k==='billPre'){const d=playedDays()[0];return billVars({days:d?[{date:d}]:[]})}
   if(k==='dues'||k==='wallet'){const list=duesList();return{low:inr(S.low==null?200:S.low),load:inr(S.load||1000),group:S.groupName||'Badminton Family',dues_lines:list.length?list.map(unpaidLine).join('\n'):'• Ram – ₹300 (example)',upi:S.upiId||'ask the organizer',payouts_link:appLink('payouts')}}
 }catch(e){}return null}
+/* ---------- app health: catch errors on any phone so organizers can see them ---------- */
+let ERRS=[],ERR_UNSUB=null;
+(function(){let n=0;const seen=new Set();const log=(msg,src,line)=>{try{msg=String(msg||'');if(!db||n>=5||!msg||/^Script error\.?$|ResizeObserver|Load failed|NetworkError|Failed to fetch/i.test(msg))return;const k=msg.slice(0,120);if(seen.has(k))return;seen.add(k);n++;
+  ensureAnon().then(u=>{if(u)col('errors').add({msg:msg.slice(0,400),src:String(src||'').slice(-120),line:+line||0,v:APP_VERSION,tab:String(typeof tab!=='undefined'?tab:''),name:String(getMe()||'').slice(0,60),uid:u.uid,at:Date.now(),ua:navigator.userAgent.slice(0,140)})}).catch(()=>{})}catch(e){}};
+  window.addEventListener('error',e=>log(e.message,e.filename,e.lineno));window.addEventListener('unhandledrejection',e=>log('Promise: '+((e.reason&&e.reason.message)||e.reason),'',0))})();
+function startErrs(){if(!isOrg||!db||ERR_UNSUB)return;ERR_UNSUB=col('errors').orderBy('at','desc').limit(60).onSnapshot(q=>{ERRS=q.docs.map(d=>({id:d.id,...d.data()}));if($('#dashsheet'))openDash(true)},()=>{ERR_UNSUB=null})}
+/* data checks that catch mistakes like a court slot counted twice */
+function healthChecks(){const t=todayStr(),H=[],add=(sev,ic,title,detail,n,go)=>H.push({sev,ic,title,detail,n,go});
+  const slotH=x=>slotHours(x.t)||0,bh=d=>(d.slots||[]).reduce((a,x)=>a+slotH(x)*(+x.c||0),0);
+  // 1 · court slots starting together (e.g. 5–7 PM × 2 and 5–6 PM × 1 = 5 court-hours, often meant as 3)
+  const ov=boardDays().filter(d=>d.date>=t).filter(d=>{const st=(d.slots||[]).map(x=>slotHour(x.t));return st.length>1&&new Set(st).size<st.length});
+  add('warn','🏟️','Court slots that start at the same time',ov.map(d=>dlabel(d.date)+': '+(d.slots||[]).map(x=>x.t+' × '+x.c).join(' + ')+' = '+fmtH(bh(d))+' court-hours').join(' · ')||'None',ov.length,()=>{closeWho();go('day')});
+  // 2 · bill hours differ from the booking
+  const mm=Object.keys(S.days).filter(k=>k>=shift(t,-21)&&k<=t).map(k=>getDay(k)).filter(d=>!d.cancelled&&d.present.length).map(d=>{const b=boardDays().find(x=>x.date===d.date);return b&&Math.abs(bh(b)-(+d.hours||0))>=.5?{d,b:bh(b)}:null}).filter(Boolean);
+  add('warn','⏱️','Bill hours differ from court bookings',mm.map(x=>dlabel(x.d.date)+': bill '+fmtH(x.d.hours)+' h, booked '+fmtH(x.b)+' h').join(' · ')||'None',mm.length,()=>{closeWho();if(mm[0]){curDate=mm[0].d.date;go('game')}});
+  // 3 · game days with players but no cost
+  const zc=Object.keys(S.days).filter(k=>k>=shift(t,-45)&&k<=t).map(k=>getDay(k)).filter(d=>!d.cancelled&&d.present.length&&(!(+d.hours)||!(+d.rate)));
+  add('bad','💸','Game days with players but no court cost',zc.map(d=>dlabel(d.date)).join(', ')||'None',zc.length,()=>{closeWho();if(zc[0]){curDate=zc[0].date;go('game')}});
+  // 4 · polls still open after all their dates
+  const po=P.list.filter(p=>!isArchived(p)&&!isClosed(p)&&(p.dates||[]).length&&(p.dates||[]).every(d=>d.date<t));
+  add('warn','🗳️','Polls still open after their dates',po.map(p=>p.title).join(', ')||'None',po.length,()=>{closeWho();go('play')});
+  // 5 · bills not sent
+  const bq=billQueue().filter(k=>k<shift(t,-1));add('warn','🧾','Bills waiting to be sent for 2+ days',bq.map(k=>dlabel(k)).join(', ')||'None',bq.length,()=>{closeWho();go('play')});
+  // 6 · “I've paid” waiting
+  const cl=claimGroups(allPays().filter(x=>x.status==='claimed'&&x.kind!=='adjust')).filter(g=>Date.now()-(g[g.length-1].at||0)>3*864e5);
+  add('warn','✅','“I’ve paid” waiting 3+ days',cl.map(g=>g[0].name).join(', ')||'None',cl.length,()=>{closeWho();go('play')});
+  // 7 · guests waiting close to the game
+  let gp=0;try{P.list.filter(p=>!isArchived(p)).forEach(p=>{const V=VOTES_BY[p.id];if(V)tally(p,V).res.forEach(r=>{if(r.date>=t&&r.date<=shift(t,2))gp+=(r.guests||[]).filter(g=>g.st==='fits'||g.st==='wait').length})})}catch(e){}
+  add('warn','👥','Guests waiting for approval (game within 2 days)',gp?plural(gp,'guest'):'None',gp,()=>{closeWho();go('play')});
+  // 8 · ideas & problems open for 14+ days
+  const ot=(REQ.list||[]).filter(r=>!reqClosed(r)&&Date.now()-(r.at||0)>14*864e5);add('info','💡','Ideas & problems open 14+ days',ot.map(r=>r.code||r.kind).join(', ')||'None',ot.length,()=>{closeWho();goSub&&goSub('team','requests')});
+  // 9 · long-unpaid
+  const lu=PRE()?[]:duesList().filter(x=>(x.days||[]).some(d=>d.date<shift(t,-30))&&!allPays().some(p=>nkey(p.name)===nkey(x.name)&&p.status==='confirmed'&&Date.now()-(p.at||0)<30*864e5));
+  add('warn','⏳','Dues older than 30 days with no payment since',lu.map(x=>x.name+' '+inr(x.due)).join(', ')||'None',lu.length,()=>{closeWho();go('play')});
+  // 10 · duplicate names
+  const by={};(S.roster||[]).forEach(n=>{const k=nkey(n).replace(/[^a-z]/g,'');(by[k]=by[k]||[]).push(n)});const dup=Object.values(by).filter(L=>L.length>1);
+  add('bad','👯','Players listed twice (spelling or spaces)',dup.map(L=>L.join(' / ')).join(' · ')||'None',dup.length,()=>{closeWho();goSub&&goSub('team','players')});
+  // 11 · app errors on phones
+  const e7=ERRS.filter(x=>Date.now()-(x.at||0)<7*864e5);add('bad','🐞','App errors on players’ phones (7 days)',e7.length?uniq(e7.map(x=>x.msg.slice(0,60))).slice(0,3).join(' · '):'None',e7.length,()=>{const el=document.querySelector('#errlog');if(el)el.scrollIntoView({behavior:'smooth'})});
+  // 12 · phones on an old version
+  const s7=(SEEN||[]).filter(x=>x.name&&Date.now()-(x.at||0)<7*864e5),old=s7.filter(x=>x.v&&x.v!==APP_VERSION);
+  add('info','📲','Phones on an older app version (7 days)',old.length?uniq(old.map(x=>first(x.name)+' '+x.v)).join(', ')+' · ask them to pull down to refresh':'None',old.length,null);
+  // 13 · no phone number
+  const np=activeRoster().filter(n=>!Object.values(PROF.priv||{}).some(v=>v.phone&&nkey(v.name||'')===nkey(n)));
+  add('info','📞','Active players without a phone number',np.length?np.slice(0,8).join(', ')+(np.length>8?' +'+(np.length-8):''):'None',np.length,()=>{closeWho();goSub&&goSub('team','contacts')});
+  return H}
+/* ---------- dashboard: North Star + key numbers ---------- */
+function dashData(){const t=todayStr(),days=Object.keys(S.days).filter(k=>k<=t).map(k=>getDay(k)),played=days.filter(d=>!d.cancelled&&d.present.length);
+  const isG=n=>/ \(guest\)$/.test(n)||!!(S.guestList||{})[nkey(n)];
+  const weeks=[...Array(8)].map((_,i)=>{const ws=shift(weekStart(t),-7*(7-i)),we=shift(ws,6),D=played.filter(d=>d.date>=ws&&d.date<=we);return{ws,n:uniq(D.flatMap(d=>d.present.filter(x=>!isG(x))).map(nkey)).length,g:D.length}});
+  const from=shift(t,-29),P30=played.filter(d=>d.date>=from),C30=days.filter(d=>d.cancelled&&d.date>=from);
+  const pg=P30.reduce((a,d)=>a+d.present.length,0),ch=P30.reduce((a,d)=>a+(+d.hours||0),0),cost=P30.reduce((a,d)=>a+(+d.hours||0)*(+d.rate||0),0);
+  const att={};P30.forEach(d=>d.present.forEach(n=>{if(!isG(n)){const k=canon(n);att[k]=(att[k]||0)+1}}));const top=Object.entries(att).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  const act=activeRoster(),played30=new Set(Object.keys(att).map(nkey)),idle=act.filter(n=>!played30.has(nkey(n)));
+  let yes=0,show=0;const noshow={};P.list.filter(p=>!isArchived(p)).forEach(p=>{const V=VOTES_BY[p.id];if(!V)return;(p.dates||[]).forEach(dt=>{if(dt.date<from||dt.date>t)return;const d=S.days[dt.date];if(!d||d.cancelled||!(d.present||[]).length)return;const pr=new Set((d.present||[]).map(nkey));V.filter(v=>(v.answers||{})[dt.date]==='yes').forEach(v=>{yes++;if(pr.has(nkey(v.name)))show++;else noshow[canon(v.name)]=(noshow[canon(v.name)]||0)+1})})});
+  const polls=P.list.filter(p=>VOTES_BY[p.id]).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0)).slice(0,4).map(p=>({t:p.title,d:(p.dates||[])[0],r:act.length?Math.round(Math.min(1,VOTES_BY[p.id].length/act.length)*100):0}));
+  const R=REQ.list||[],R30=R.filter(r=>(r.at||0)>=Date.now()-30*864e5),done=R.filter(r=>r.status==='done'||r.status==='prod'),closeDays=done.map(r=>((r.updatedAt||r.at)-(r.at||0))/864e5).filter(x=>x>=0);
+  const conf=allPays().filter(x=>x.kind!=='adjust'&&x.status==='confirmed'&&(x.at||0)>=Date.now()-30*864e5),got=conf.reduce((a,x)=>a+(+x.amount||0),0),owed=duesList().reduce((a,x)=>a+(+x.due||0),0);
+  const s7=(SEEN||[]).filter(x=>x.name&&Date.now()-(x.at||0)<7*864e5);
+  return{weeks,P30,C30,pg,ch,cost,top,act,idle,yes,show,noshow:Object.entries(noshow).sort((a,b)=>b[1]-a[1]).slice(0,5),polls,R,R30,done,closeDays,got,owed,billed:cost+P30.reduce((a,d)=>a+(+d.shuttle||0)+(+d.drinks||0),0),users7:uniq(s7.map(x=>nkey(x.name))).length,alerts:alertPct()}}
+function openDash(keep){if(!isOrg)return;startErrs();startRequests&&startRequests();const D=dashData(),H=healthChecks(),bad=H.filter(h=>h.n&&h.sev!=='info');
+  const W=D.weeks,mx=Math.max(1,...W.map(w=>w.n)),cur=W[7].n,prev=W[6].n,ch=prev?Math.round((cur-prev)*100/prev):0;
+  const kpi=(l,v,s2)=>`<div class="dk"><span>${l}</span><b>${v}</b>${s2?`<small>${s2}</small>`:''}</div>`;
+  const html=`<div id="dashsheet"></div><div class="sheet-h"><span class="ini">📊</span><div><b>Dashboard & app health</b><small>Organizers only · updates live</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div>
+    <section class="dsec ns"><span class="sublbl">⭐ North Star · players on court each week</span><div class="nsrow"><b class="nsv">${cur}</b><span class="nsd ${ch>0?'up':ch<0?'dn':''}">${prev?(ch>0?'▲ ':ch<0?'▼ ':'')+Math.abs(ch)+'% vs last week':'first week'}</span></div>
+      <div class="nsbars">${W.map((w,i)=>`<div class="nsb${i===7?' cur':''}" title="${esc(dlabel(w.ws))}: ${w.n} players · ${plural(w.g,'game')}"><i style="height:${Math.round(w.n/mx*100)}%"></i><small>${w.n||''}</small></div>`).join('')}</div><small class="hint" style="margin:0">Different members who played, week by week (last 8 weeks, guests not counted). More people playing regularly = a healthy group.</small></section>
+    ${(()=>{const I=[],wa=(t)=>`<a class="btn sm wa" href="${waHref(t)}" target="_blank" rel="noopener">${ic('chat')}WhatsApp</a>`;
+      if(prev&&ch<=-15)I.push(['📉',`Fewer players this week (${cur} vs ${prev}). Worth a friendly nudge.`,wa('🏸 Missing you on court! We had '+cur+' players this week. Vote for the next game in the app 👉 '+appLink('polls'))]);
+      if(D.yes>=6&&D.show/D.yes<.85)I.push(['🙋',`Only ${Math.round(D.show*100/D.yes)}% of Yes voters actually played. Remind people to switch to No if plans change.`,wa('🙏 Quick request: if your plans change after voting Yes, please switch to No in the app so we book the right number of courts 💚 '+appLink('polls'))]);
+      if(D.idle.length)I.push(['💤',`${plural(D.idle.length,'active player')} haven’t played in 30 days: ${D.idle.slice(0,5).map(first).join(', ')}${D.idle.length>5?'…':''}.`,wa('🏸 Hey '+D.idle.slice(0,8).map(first).join(', ')+', we miss you on court! Join us this weekend 👉 '+appLink('polls'))]);
+      const op=P.list.find(p=>!isArchived(p)&&!isClosed(p));if(op&&VOTES_BY[op.id]){const v=tplSample('remind');const pend=(pollVars(op).t.pending||[]).length;if(pend)I.push(['🗳️',`${plural(pend,'player')} haven’t voted on the open poll yet.`,v?wa(fillTpl(tplOf('remind'),v)):''])}
+      if(D.owed>0){const v=tplSample('dues');I.push(['💸',`${inr(Math.round(D.owed))} outstanding across ${plural(duesList().length,'player')}.`,v?wa(fillTpl(tplOf(PRE()?'wallet':'dues'),v)):''])}
+      const nc=claimGroups(allPays().filter(x=>x.status==='claimed'&&x.kind!=='adjust')).length;if(nc)I.push(['✅',`${plural(nc,'“I’ve paid”')} waiting for you to confirm.`,`<button type="button" class="btn sm primary" data-dgo="pay">Review</button>`]);
+      const oi=(REQ.list||[]).filter(r=>!reqClosed(r)).length;if(oi)I.push(['💡',`${plural(oi,'idea or problem','ideas & problems')} open.`,`<button type="button" class="btn sm line" data-dgo="requests">Open inbox</button>`]);
+      return I.length?`<section class="dsec"><span class="sublbl">⚡ Do this now</span>${I.map(([e,t,a])=>`<div class="drow"><span class="hi">${e}</span><span class="dt">${t}</span>${a||''}</div>`).join('')}</section>`:`<section class="dsec"><span class="sublbl">⚡ Do this now</span><small class="hint">Nothing needs you right now 🎉</small></section>`})()}
+    <section class="dsec"><span class="sublbl">🩺 Health checks ${bad.length?`· <b style="color:#B42318">${plural(bad.length,'thing')} to look at</b>`:'· <b style="color:#027A48">all good</b>'}</span>
+      ${(()=>{const row=(h,i)=>`<button type="button" class="hrow ${h.n?h.sev:'ok'}" data-hc="${i}" ${h.go?'':'disabled'}><span class="hi">${h.n?h.ic:'✅'}</span><span class="ht"><b>${esc(h.title)}${h.n?` <i class="hn">${h.n}</i>`:''}</b><small>${esc(h.detail)}</small></span>${h.go&&h.n?ic('right'):''}</button>`,I=H.map((h,i)=>[h,i]),sv={bad:0,warn:1,info:2};
+        const F=I.filter(([h])=>h.n).sort((a,b)=>sv[a[0].sev]-sv[b[0].sev]),OK=I.filter(([h])=>!h.n);
+        return F.map(([h,i])=>row(h,i)).join('')+(OK.length?`<details class="hok"><summary>✅ ${plural(OK.length,'check')} passing</summary>${OK.map(([h,i])=>row(h,i)).join('')}</details>`:'')})()}</section>
+    <section class="dsec"><span class="sublbl">🏸 Games · last 30 days</span><div class="dkg">${kpi('Game days',D.P30.length,D.C30.length?D.C30.length+' cancelled':'')}${kpi('Players per game',D.P30.length?(D.pg/D.P30.length).toFixed(1):'–')}${kpi('Court-hours',fmtH(D.ch))}${kpi('Court cost per player',D.pg?inr(Math.round(D.cost/D.pg)):'–','per game')}</div></section>
+    <section class="dsec"><span class="sublbl">🙋 Attendance · last 30 days</span><div class="dkg">${kpi('Active players who played',(D.act.length-D.idle.length)+' / '+D.act.length)}${kpi('Showed up after voting Yes',D.yes?Math.round(D.show*100/D.yes)+'%':'–',D.yes?D.show+' of '+D.yes:'')}</div>
+      ${D.top.length?`<div class="dlist"><small>Most games</small>${D.top.map(([n,c],i)=>`<span>${['🥇','🥈','🥉'][i]||'·'} ${esc(first(n))} <b>${c}</b></span>`).join('')}</div>`:''}
+      ${D.noshow.length?`<div class="dlist"><small>Said Yes but didn’t play</small>${D.noshow.map(([n,c])=>`<span>${esc(first(n))} <b>${c}</b></span>`).join('')}</div>`:''}
+      ${D.idle.length?`<div class="dlist"><small>Haven’t played in 30 days</small>${D.idle.slice(0,10).map(n=>`<span>${esc(first(n))}</span>`).join('')}${D.idle.length>10?`<span>+${D.idle.length-10}</span>`:''}</div>`:''}</section>
+    <section class="dsec"><span class="sublbl">🗳️ Polls · who votes</span>${D.polls.length?D.polls.map(x=>`<div class="dbar"><span>${esc(x.d?dlabel(x.d.date):x.t)}</span><i><b style="width:${x.r}%"></b></i><em>${x.r}%</em></div>`).join(''):'<small class="hint">No polls yet</small>'}<small class="hint" style="margin:0">Share of active players who voted.</small></section>
+    <section class="dsec"><span class="sublbl">💸 Money · last 30 days</span><div class="dkg">${kpi('Billed',inr(Math.round(D.billed)))}${kpi('Collected',inr(Math.round(D.got)))}${kpi(PRE()?'To load':'Outstanding',inr(Math.round(D.owed)))}${kpi('“I’ve paid” waiting',claimGroups(allPays().filter(x=>x.status==='claimed'&&x.kind!=='adjust')).length)}</div></section>
+    <section class="dsec"><span class="sublbl">💡 Ideas & problems</span><div class="dkg">${kpi('Open',D.R.filter(r=>!reqClosed(r)).length,D.R.filter(r=>!reqClosed(r)&&r.kind==='bug').length+' problems')}${kpi('Raised · 30 days',D.R30.length)}${kpi('Implemented',D.done.length,D.R.length?Math.round(D.done.length*100/D.R.length)+'% of all':'')}${kpi('Avg days to close',D.closeDays.length?(D.closeDays.reduce((a,b)=>a+b,0)/D.closeDays.length).toFixed(1):'–')}</div>
+      <div class="dlist"><small>By status</small>${Object.entries(D.R.reduce((m,r)=>{const k=r.status||'new';m[k]=(m[k]||0)+1;return m},{})).map(([k,c])=>`<span>${(SG(k,'')||STAGES.new)[0]} ${esc((SG(k,'')||STAGES.new)[1])} <b>${c}</b></span>`).join('')||'<span>None yet</span>'}</div></section>
+    <section class="dsec"><span class="sublbl">📲 App use</span><div class="dkg">${kpi('People who opened the app · 7 days',D.users7+' / '+D.act.length)}${kpi('Phone alerts on',D.alerts+'%')}</div></section>
+    <section class="dsec" id="errlog"><span class="sublbl">🐞 Error log · from players’ phones</span>${ERRS.length?ERRS.slice(0,15).map(x=>`<div class="erow"><b>${esc(x.msg)}</b><small>${esc(first(x.name||'someone'))} · v${esc(x.v||'?')} · ${esc(x.tab||'')} · ${whenD(x.at)} ${hm(x.at)}${/iPhone|iPad/.test(x.ua||'')?' · iPhone':/Android/.test(x.ua||'')?' · Android':''}</small></div>`).join('')+`<button type="button" class="lnk" data-errclear>Clear the log</button>`:'<small class="hint">No errors reported 🎉</small>'}</section>`;
+  const bg=keep&&$('#dashsheet')?sheetSwap(html,'Dashboard'):(SWAP_KEY='',sheetOpen(html,'Dashboard'));
+  $('#whoclose').onclick=closeWho;bg.querySelectorAll('[data-hc]').forEach(b=>b.onclick=()=>{const h=H[+b.dataset.hc];if(h&&h.go&&h.n)h.go()});
+  bg.querySelectorAll('[data-dgo]').forEach(b=>b.onclick=()=>{closeWho();const g=b.dataset.dgo;if(g==='requests')goSub('team','requests');else go(g)});
+  const ec=bg.querySelector('[data-errclear]');if(ec)ec.onclick=async()=>{for(const x of ERRS)try{await col('errors').doc(x.id).delete()}catch(e){}toast('Error log cleared')}}
 function openAutopilot(){if(!isOrg)return;const A=AUTO(),W=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
   const J=[['poll','🗳️','Create next week’s poll','Copies last week’s dates and times and opens voting on the day below','☁️'],['remind','🔔','Voting reminders','Phone alert to players who haven’t voted, on your reminder days','☁️'],['last','⏰','Last call','Alert 1 hour before voting closes, to anyone who hasn’t voted','☁️'],
     ['courts','🏟️','Fill in courts when voting closes','Uses the Yes votes, then reminds you to confirm with the venue','📱'],['guests','👥','Approve guests who fit','2 days before the game, guests who fit the courts are approved; waitlisted guests move up','📱'],
