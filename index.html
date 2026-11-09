@@ -657,7 +657,7 @@ const FIREBASE_CONFIG = {
 /* Collections get this prefix so they never clash with the league app's data */
 const COLLECTION_PREFIX = "shuttleSplit_";
 /* App version shown in Team → About */
-const APP_VERSION = "4.17.1", APP_BUILD = "9 Nov 2026";
+const APP_VERSION = "4.18.0", APP_BUILD = "9 Nov 2026";
 /* Owner of the main group (the link without ?g=) */
 const LEGACY_OWNER = "pavankaki.cool@gmail.com";
 /* Starting player list, used only until the first save */
@@ -759,24 +759,26 @@ const CARRY=()=>Array.isArray(S.carry)?S.carry:[];
 const AUTO_DEF={on:true,poll:{on:true,dow:1,at:'20:00'},remind:true,last:true,pass:true,game:true,thanks:true,dues:true,courts:true,guests:true,carry:true,house:true};
 const AUTO=()=>{const a=Object.assign({},AUTO_DEF,S.auto||{});a.poll=Object.assign({},AUTO_DEF.poll,(S.auto||{}).poll||{});return a};
 const autoOn=k=>{const a=AUTO();return a.on!==false&&!!a[k]};
-function carryAdd(it){S.carry=[...CARRY(),{id:'c'+Date.now().toString(36),what:norm(it.what)||'Drinks',amt:+it.amt||0,by:it.by||'',from:it.from||todayStr(),at:Date.now()}];saveConfig()}
+function carryAdd(it){S.carry=[...CARRY(),{id:'c'+Date.now().toString(36),what:norm(it.what)||'Drinks',amt:+it.amt||0,by:it.by||'',from:it.from||todayStr(),at:Date.now(),...(it.wd&&S.days[it.wd]?{wd:it.wd,who:whoOfDay(it.wd)}:{})}];saveConfig()}
+const carryItem=c=>({what:c.what+' (from '+dlabel(c.from)+')',amt:c.amt,by:c.by,...(c.wd&&Array.isArray(c.who)&&c.who.length?{wd:c.wd,who:[...c.who]}:{})});
 function carryUse(id,date){const c=CARRY().find(x=>x.id===id);if(!c)return;S.carry=CARRY().filter(x=>x.id!==id);saveConfig();curDate=date||curDate;
-  editDay(d=>{d.drinksOn=true;d.items=[...(d.items||[]).filter(i=>i.what||i.amt),{what:c.what+' (from '+dlabel(c.from)+')',amt:c.amt,by:c.by}];d.drinks=(d.items||[]).reduce((a,i)=>a+(+i.amt||0),0)});toast('Added '+inr(c.amt)+' '+c.what.toLowerCase()+' to this game day.');renderTab(false)}
-function openCarry(){if(!canEdit())return;let it={what:'Drinks',amt:'',by:''};const draw=()=>{const bg=sheetSwap(`<div class="sheet-h"><span class="ini">⏭</span><div><b>Carry an expense to the next game</b><small>Paid now, shared by everyone at the next game day</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div>
+  editDay(d=>{d.drinksOn=true;d.items=[...(d.items||[]).filter(i=>i.what||i.amt),carryItem(c)];d.drinks=(d.items||[]).reduce((a,i)=>a+(+i.amt||0),0)});toast('Added '+inr(c.amt)+' '+c.what.toLowerCase()+' to this game day.');renderTab(false)}
+function openCarry(){if(!canEdit())return;const D0=pastGameDays('9999',''),t0=todayStr();let it={what:'Drinks',amt:'',by:'',wd:D0.find(x=>x<=t0&&x>=ymd(new Date(Date.now()-3*864e5)))||''};const draw=()=>{const bg=sheetSwap(`<div class="sheet-h"><span class="ini">⏭</span><div><b>Carry an expense to the next game</b><small>Paid now, shared by everyone at the next game day</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div>
     <div class="pad"><span class="sublbl">What</span><input class="txt" id="cwhat" value="${esc(it.what)}" placeholder="Drinks"><span class="sublbl" style="margin-top:10px">Amount</span><input class="txt" id="camt" type="number" inputmode="decimal" min="0" value="${esc(it.amt)}" placeholder="220">
       <span class="sublbl" style="margin-top:10px">Paid by (they get it back)</span><select class="txt" id="cby">${payerOpts(it.by,1)}</select>
+      <span class="sublbl" style="margin-top:10px">Shared by</span><select class="txt" id="cwd"><option value="">Everyone at the next game</option>${D0.map(x=>`<option value="${x}" ${it.wd===x?'selected':''}>Only who played ${esc(dlabel(x))} (${(S.days[x].present||[]).length})</option>`).join('')}</select>
       <p class="hint">It waits under <b>Drinks & others</b> and shows on the next game day for you to add with one tap. Nothing is charged until then.</p></div>
-    ${CARRY().length?`<div class="sub"><span class="sublbl">Waiting</span>${CARRY().map(c=>`<div class="mix" style="justify-content:space-between;padding:6px 0"><span>${esc(c.what)} · <b>${inr(c.amt)}</b>${c.by?' · paid by '+esc(c.by):''} <small class="hint">from ${esc(dlabel(c.from))}</small></span><button type="button" class="lnk" data-cdel="${c.id}">Remove</button></div>`).join('')}</div>`:''}
+    ${CARRY().length?`<div class="sub"><span class="sublbl">Waiting</span>${CARRY().map(c=>`<div class="mix" style="justify-content:space-between;padding:6px 0"><span>${esc(c.what)} · <b>${inr(c.amt)}</b>${c.by?' · paid by '+esc(c.by):''} <small class="hint">from ${esc(dlabel(c.from))}${c.wd?' · shared by who played '+esc(dlabel(c.wd)):''}</small></span><button type="button" class="lnk" data-cdel="${c.id}">Remove</button></div>`).join('')}</div>`:''}
     <div class="card-f"><button class="btn primary block" id="csave">⏭ Save for next game</button></div>`,'Carry');
     $('#whoclose').onclick=closeWho;bg.querySelectorAll('[data-cdel]').forEach(b=>b.onclick=()=>{S.carry=CARRY().filter(x=>x.id!==b.dataset.cdel);saveConfig();draw()});
-    $('#csave').onclick=()=>{it={what:$('#cwhat').value,amt:+$('#camt').value||0,by:$('#cby').value};if(!it.amt)return toast('Enter the amount.');carryAdd(it);closeWho();renderTab(false);toast('⏭ '+inr(it.amt)+' '+(norm(it.what)||'drinks').toLowerCase()+' saved for the next game day.')}};SWAP_KEY='';draw()}
+    $('#csave').onclick=()=>{it={what:$('#cwhat').value,amt:+$('#camt').value||0,by:$('#cby').value,wd:$('#cwd').value};if(!it.amt)return toast('Enter the amount.');carryAdd(it);closeWho();renderTab(false);toast('⏭ '+inr(it.amt)+' '+(norm(it.what)||'drinks').toLowerCase()+' saved for the next game day.')}};SWAP_KEY='';draw()}
 function blankDay(date){return{date,present:[],hours:boardHours(date)||3,rate:S.rate,courts:1,shuttle:0,shuttleSkip:[],shuttleAll:true,drinksOn:false,drinks:0,drinksSkip:[],items:[],paidBy:{}}}
 function normDay(d,date){
   const x=Object.assign(blankDay(date),d||{});
   if(d&&d.shuttleAll===undefined)x.shuttleAll=!(+d.shuttle>0); /* older days with shuttles keep the old players-only split */
   x.present=[...(x.present||[])];x.shuttleSkip=[...(x.shuttleSkip||[])];x.drinksSkip=[...(x.drinksSkip||[])];
   x.hours=+x.hours||0;x.rate=+x.rate||0;x.shuttle=+x.shuttle||0;x.drinks=+x.drinks||0;x.drinksOn=!!x.drinksOn;
-  x.items=(Array.isArray(x.items)?x.items:[]).map(i=>({what:String(i.what||''),amt:+i.amt||0,by:String(i.by||'')}));x.paidBy=Object.assign({},x.paidBy||{});
+  x.items=(Array.isArray(x.items)?x.items:[]).map(i=>({what:String(i.what||''),amt:+i.amt||0,by:String(i.by||''),...(Array.isArray(i.who)&&i.who.length?{who:i.who.map(String),wd:String(i.wd||'')}:{})}));x.paidBy=Object.assign({},x.paidBy||{});
   if(x.items.length)x.drinks=r2(x.items.reduce((a,i)=>a+i.amt,0));
   if(+x.courts>1)x.hours=r2(x.hours*(+x.courts)); /* older days: fold courts into total hours */
   x.courts=1;return x;
@@ -798,9 +800,12 @@ function calc(d){
   const shS=pool.filter(p=>!d.shuttleSkip.some(x=>nkey(x)===nkey(p))&&!isFree(p));
   const drS=d.drinksOn?d.present.filter(p=>!d.drinksSkip.includes(p)&&!isFree(p)):[];
   const shuttle=+d.shuttle||0, drinks=d.drinksOn?(+d.drinks||0):0;
-  const cEach=payN?Math.ceil(court/payN):0, sEach=shS.length&&shuttle?Math.ceil(shuttle/shS.length):0, dEach=drS.length&&drinks?Math.ceil(drinks/drS.length):0;
+  const own=d.drinksOn&&d.items&&d.items.length?d.items.filter(i=>Array.isArray(i.who)&&i.who.length&&+i.amt>0):[],gen=own.length?Math.max(0,drinks-own.reduce((a,i)=>a+(+i.amt||0),0)):drinks;
+  const cEach=payN?Math.ceil(court/payN):0, sEach=shS.length&&shuttle?Math.ceil(shuttle/shS.length):0, dEach=drS.length&&gen?Math.ceil(gen/drS.length):0;
   const per={};d.present.forEach(p=>{const fr=isFree(p),o={court:fr?0:cEach,shuttle:shS.includes(p)?sEach:0,drinks:drS.includes(p)?dEach:0,played:true,free:fr};o.total=o.court+o.shuttle+o.drinks;per[p]=o});
   if(sEach)shS.forEach(p=>{if(!d.present.some(x=>nkey(x)===nkey(p)))per[p]={court:0,shuttle:sEach,drinks:0,total:sEach,played:false}});
+  own.forEach(i=>{const W=i.who.map(canon),each=Math.ceil((+i.amt||0)/W.length),note=(i.what||'Item')+' '+inr(+i.amt)+' ÷ '+W.length+(i.wd?' who played '+dlabel(i.wd,{day:'numeric',month:'short'}):'');
+    W.forEach(n=>{let k=Object.keys(per).find(x=>nkey(x)===nkey(n));if(!k){k=n;per[k]={court:0,shuttle:0,drinks:0,total:0,played:false}}per[k].drinks+=each;per[k].total+=each;if(!(per[k].dNote||[]).includes(note))per[k].dNote=[...(per[k].dNote||[]),note]})});
   Object.entries(d.cover||{}).forEach(([g,h])=>{const gk=Object.keys(per).find(x=>nkey(x)===nkey(g));if(!gk||!h)return;const t=per[gk].total;if(!t)return;let hk=Object.keys(per).find(x=>nkey(x)===nkey(h));if(!hk){hk=canon(h);per[hk]={court:0,shuttle:0,drinks:0,total:0,played:false}}per[hk].total+=t;per[hk].covers=(per[hk].covers||0)+t;per[hk].coverFor=[...(per[hk].coverFor||[]),gk];per[hk].coverAmt=Object.assign({},per[hk].coverAmt,{[gk]:t});per[gk]={...per[gk],total:0,coveredBy:hk}});
   const actual=court+shuttle+drinks, collected=Object.values(per).reduce((a,b)=>a+b.total,0);
   /* money players paid out of pocket for this day (court, shuttles, drinks & others) */
@@ -904,7 +909,7 @@ function statementText(name){const st=statement(name),L=ledger(name),out=['🏸 
 function statementHTML(name){const st=statement(name);if(!st.rows.length)return'';
   return`<div class="sub" style="padding-top:12px;border-top:1px solid var(--line2)"><span class="sublbl">Statement · every game and payment</span></div>
   <div class="tablewrap"><table class="btable"><thead><tr><th>Date</th><th>Item</th><th>Amount</th><th>Balance</th></tr></thead><tbody>
-  ${st.rows.map(r=>r.type==='game'?`<tr><td>${esc(dlabel(r.date,{day:'numeric',month:'short'}))}</td><td>${r.played?'Game · '+fmtH(r.hours)+' h':'Shuttle share'}<small>${r.played?'Court '+inr(r.court):'Group shuttles · didn’t play'}${r.shuttle?' · Shuttle '+inr(r.shuttle):''}${r.drinks?' · Others '+inr(r.drinks):''}${r.gAmt?' · 👥 '+esc(r.gList.join(', ')):''}</small></td><td>${inr(r.amt)}</td><td>${inr(r.bal)}</td></tr>`
+  ${st.rows.map(r=>r.type==='game'?`<tr><td>${esc(dlabel(r.date,{day:'numeric',month:'short'}))}</td><td>${r.played?'Game · '+fmtH(r.hours)+' h':r.shuttle?'Shuttle share':'Shared expense'}<small>${r.played?'Court '+inr(r.court):r.shuttle?'Group shuttles · didn’t play':'Didn’t play this day'}${r.shuttle?' · Shuttle '+inr(r.shuttle):''}${r.drinks?' · Others '+inr(r.drinks):''}${r.gAmt?' · 👥 '+esc(r.gList.join(', ')):''}</small></td><td>${inr(r.amt)}</td><td>${inr(r.bal)}</td></tr>`
     :r.type==='spent'?`<tr><td>${esc(dlabel(r.date,{day:'numeric',month:'short'}))}</td><td style="color:var(--ok)">Paid for the group<small>${esc(r.note)}</small></td><td style="color:var(--ok)">−${inr(r.amt)}</td><td>${inr(r.bal)}</td></tr>`
     :r.type==='adj'?`<tr><td>${esc(dlabel(r.date,{day:'numeric',month:'short'}))}</td><td style="color:${r.amt>=0?'var(--danger)':'var(--ok)'}">${r.amt>=0?'Extra charge':'Credit'}<small>${esc(r.note||'Adjustment')}</small></td><td style="color:${r.amt>=0?'var(--danger)':'var(--ok)'}">${r.amt>=0?'+':'−'}${inr(Math.abs(r.amt))}</td><td>${inr(r.bal)}</td></tr>`
     :`<tr><td>${esc(dlabel(r.date,{day:'numeric',month:'short'}))}</td><td style="color:${r.status==='confirmed'?'var(--ok)':'#B54708'}">${r.status==='confirmed'?'Paid':'Paid · awaiting confirmation'}<small>${r.method==='upi'?'UPI':r.method==='self'?'Own share':r.method==='manual'?'Marked received':esc(r.method||'')}${r.payer?' · paid by '+esc(r.payer):''}${r.note?' · '+esc(r.note):''}</small></td><td style="color:var(--ok)">−${inr(r.amt)}</td><td>${inr(r.bal)}</td></tr>`).join('')}
@@ -1329,7 +1334,7 @@ function renderDay(){
     <div id="drwrap" hidden>
       <div class="sub"><span class="sublbl">Items · who paid each one</span>
         ${itemsOf(d).map((it,i)=>`<div class="item"><input class="txt" data-it="${i}" data-f="what" value="${esc(it.what)}" placeholder="Drinks" aria-label="Item"><div class="amt"><span>₹</span><input type="number" inputmode="decimal" min="0" data-it="${i}" data-f="amt" value="${it.amt||''}" placeholder="0" aria-label="Amount"></div>
-          <select class="txt" data-it="${i}" data-f="by" aria-label="Paid by">${payerOpts(it.by,1)}</select>${itemsOf(d).length>1?`<button type="button" class="iconbtn" data-act="itrm" data-v="${i}" aria-label="Remove item">${ic('x')}</button>`:''}</div>`).join('')}
+          <select class="txt" data-it="${i}" data-f="by" aria-label="Paid by">${payerOpts(it.by,1)}</select>${shareSel(d,it,i)}${itemsOf(d).length>1?`<button type="button" class="iconbtn" data-act="itrm" data-v="${i}" aria-label="Remove item">${ic('x')}</button>`:''}</div>`).join('')}
         <button type="button" class="btn sm line" data-act="itadd" style="margin-top:6px">${ic('plus')}Add item</button></div>
       <div class="sub"><span class="sublbl">Shared by · tap anyone who didn’t take part</span><div class="tiles sm" id="drchips"></div></div>
     </div>
@@ -1388,7 +1393,7 @@ function refreshDay(){
     ${Object.keys(c.per).filter(k=>c.per[k].covers&&!c.per[k].played).map(p=>{const o=c.per[p];return`<div class="prow">${ini(p)}<span class="nm">${esc(withGuests(p,o.coverFor))}<small>Didn’t play · 👥 guests ${Object.entries(o.coverAmt||{}).map(([g,a])=>esc(guestBase(g))+' '+inr(a)).join(', ')}${o.shuttle?' · shuttle '+inr(o.shuttle):''}</small></span><span class="am">${inr(o.total)}</span></div>`}).join('')}
     ${(d.freeOff||[]).length&&canEdit()?`<div class="card-f"><button class="lnk" data-refree>Let today’s winners play free again</button></div>`:''}
     ${Object.keys(c.spent).filter(n=>!perOf(c,n)).map(n=>`<div class="prow">${ini(n)}<span class="nm">${esc(n)}<small><b style="color:var(--ok)">Paid ${esc(c.spent[n].what.join(', '))} · didn’t play → +${inr(c.spent[n].amt)} to wallet</b></small></span><span class="am">₹0</span></div>`).join('')}
-    ${(()=>{const ex=Object.keys(c.per).filter(k=>!c.per[k].played&&!c.per[k].covers);return ex.length?`<details class="inact"><summary>${plural(ex.length,'member')} who didn’t play · shuttle share ${inr(c.sEach)} each</summary><div class="split">${orderNames(ex).map(p=>`<div class="prow">${ini(p)}<span class="nm">${esc(p)}<small>Shuttle ${inr(c.sEach)}</small></span><span class="am">${inr(c.per[p].total)}</span></div>`).join('')}</div></details>`:''})()}
+    ${(()=>{const ex=Object.keys(c.per).filter(k=>!c.per[k].played&&!c.per[k].covers);return ex.length?`<details class="inact"><summary>${plural(ex.length,'member')} who didn’t play · ${inr(ex.reduce((a,k)=>a+c.per[k].total,0))} in shares</summary><div class="split">${orderNames(ex).map(p=>`<div class="prow">${ini(p)}<span class="nm">${esc(p)}<small>${[c.per[p].shuttle?'Shuttle '+inr(c.per[p].shuttle):'',...(c.per[p].dNote||[]).map(esc)].filter(Boolean).join(' · ')}</small></span><span class="am">${inr(c.per[p].total)}</span></div>`).join('')}</div></details>`:''})()}
     <div class="tot"><span>To collect${c.collected>c.actual?` <small style="font-weight:600;color:var(--muted)">(cost ${inr(c.actual)}, rounded up)</small>`:''}</span><b>${inr(c.collected)}</b></div>
     ${canEdit()?billFooter(d):''}`;
 }
@@ -1396,6 +1401,11 @@ function refreshDay(){
 const payerOpts=(v,pre)=>`<option value="">${pre?'Paid by organizer':'Organizer (from collections)'}</option>${allNames().map(n=>`<option value="${esc(n)}" ${nkey(n)===nkey(v||'')?'selected':''}>${pre?'Paid by ':''}${esc(n)}</option>`).join('')}`;
 const payerRow=(k,l,v)=>`<div class="row" style="padding-top:4px"><div class="l"><small>${l}</small></div><select class="txt" data-pb="${k}" style="width:auto;max-width:58%;height:38px;font-size:14px">${payerOpts(v)}</select></div>`;
 const itemsOf=d=>d.items&&d.items.length?d.items:[{what:'Drinks',amt:+d.drinks||0,by:''}];
+/* who shares an item: everyone ticked below, or only the players of an earlier game day (e.g. drinks bought on Sat, billed today) */
+const whoOfDay=x=>{const D=S.days[x]||{},cv=D.cover||{};return (D.present||[]).map(p=>{const h=Object.entries(cv).find(([g])=>nkey(g)===nkey(p));return h&&h[1]?h[1]:p})};
+const pastGameDays=(before,keep)=>Object.keys(S.days||{}).filter(x=>(x<before&&(S.days[x].present||[]).length&&!S.days[x].cancelled)||x===keep).sort().reverse().slice(0,8);
+function shareSel(d,it,i){const D=pastGameDays(d.date,it.wd);return`<select class="txt" data-it="${i}" data-f="share" aria-label="Shared by" style="grid-column:1/-1">
+  <option value="">Shared by: everyone ticked below</option>${D.map(x=>`<option value="${x}" ${it.wd===x?'selected':''}>Shared by: only who played ${esc(dlabel(x))} (${(S.days[x].present||[]).length})</option>`).join('')}</select>`}
 /* cancel a game day: nobody is charged, passes are cancelled, the poll date shows Cancelled; restore brings everything back */
 function cancelMsg(date,reason){const p=P.list.find(x=>(x.dates||[]).some(d=>d.date===date)),dt=p&&p.dates.find(d=>d.date===date);return fillTpl(tplOf('gameCancel'),{date:dlabel(date,{weekday:'long',day:'numeric',month:'short'}),time:(dt&&dt.note)||'',reason:reason||'the game is off',link:appLink('home'),group:S.groupName||'Badminton Family'}).replace(/\n{3,}/g,'\n\n')}
 function openCancelDay(){if(!canEdit())return;const date=curDate;let why='the weather isn’t good for playing';const R0=[['🌧️ Weather','the weather isn’t good for playing'],['🏟️ Courts unavailable','the courts aren’t available'],['👥 Not enough players','we didn’t have the minimum players needed'],['🏆 Tournament at venue','there’s a tournament at the venue'],['⚠️ Unforeseen issue','of an unforeseen issue'],['✏️ Other','']];
@@ -1474,7 +1484,7 @@ function bindDay1(v){
     const id=e.target.id,val=Math.max(0,+e.target.value||0);
     if(id==='rate')editDay(d=>{d.rate=val});
     else if(id==='shuttle')editDay(d=>{if(!(+d.shuttle)&&val>0){d.shuttleSkip=[];if(d.shuttleAll)d.shuttleGroup=shuttleMembers()}d.shuttle=val});
-    else if(e.target.dataset.it!==undefined){const i=+e.target.dataset.it,f=e.target.dataset.f,raw=e.target.value;
+    else if(e.target.dataset.it!==undefined&&e.target.dataset.f!=='share'&&e.target.dataset.f!=='by'){const i=+e.target.dataset.it,f=e.target.dataset.f,raw=e.target.value;
       editDay(d=>{d.items=itemsOf(d).map(x=>({...x}));d.items[i][f]=f==='amt'?Math.max(0,+raw||0):raw;d.drinks=r2(d.items.reduce((a,x)=>a+(+x.amt||0),0))})}
     else if(id==='guest')$('#guestwarn').hidden=true;
   });
@@ -1482,6 +1492,8 @@ function bindDay1(v){
     if(e.target.id==='date'&&e.target.value)setDate(e.target.value);
     else if(e.target.dataset.pb){const k=e.target.dataset.pb,v2=e.target.value;editDay(d=>{d.paidBy={...d.paidBy,[k]:v2};if(!v2)delete d.paidBy[k]})}
     else if(e.target.dataset.it!==undefined&&e.target.dataset.f==='by'){const i=+e.target.dataset.it,v2=e.target.value;editDay(d=>{d.items=itemsOf(d).map(x=>({...x}));d.items[i].by=v2})}
+    else if(e.target.dataset.it!==undefined&&e.target.dataset.f==='share'){const i=+e.target.dataset.it,v2=e.target.value;editDay(d=>{d.items=itemsOf(d).map(x=>({...x}));if(v2&&S.days[v2]){d.items[i].wd=v2;d.items[i].who=whoOfDay(v2)}else{delete d.items[i].wd;delete d.items[i].who}});
+      toast(v2?'Shared only by the '+plural((S.days[v2]||{present:[]}).present.length,'player')+' of '+dlabel(v2)+'. They’re charged on this bill.':'Shared by everyone ticked below.');renderTab(false)}
     else if(e.target.id==='dron'){const on=e.target.checked;editDay(d=>{d.drinksOn=on});if(on)setTimeout(()=>{const i=$('#drinks');if(i&&!i.value)i.focus()},60)}
   });
   v.addEventListener('keydown',e=>{if(e.target.id==='guest'&&e.key==='Enter'){e.preventDefault();addGuest(false)}});
@@ -3996,7 +4008,7 @@ function renderMe(){
   const status=x=>x.status==='confirmed'?`<span style="color:var(--ok)">Confirmed</span>`:`<span style="color:#B54708">Waiting</span>`;
   const meth=x=>x.method==='upi'?'UPI':x.method==='self'?'Own share':x.method==='manual'?'Recorded by organizer':esc(x.method||'');
   /* audit trail: every event in time order */
-  const ev=[];games.forEach(g=>ev.push({at:new Date(g.ds+'T12:00').getTime(),t:g.o.played?`Played ${fmtH(g.d.hours)} h · charged ${inr(g.o.total)}`:`Group shuttle share · charged ${inr(g.o.total)}`,s:`Court ${inr(g.o.court)} · Shuttle ${inr(g.o.shuttle)} · Others ${inr(g.o.drinks)}`,c:'bad',day:true}));
+  const ev=[];games.forEach(g=>ev.push({at:new Date(g.ds+'T12:00').getTime(),t:g.o.played?`Played ${fmtH(g.d.hours)} h · charged ${inr(g.o.total)}`:`${g.o.shuttle?'Group shuttle share':'Shared expense · didn’t play'} · charged ${inr(g.o.total)}`,s:`Court ${inr(g.o.court)} · Shuttle ${inr(g.o.shuttle)} · Others ${inr(g.o.drinks)}`,c:'bad',day:true}));
   spentL.forEach(x=>ev.push({at:new Date(x.ds+'T12:01').getTime(),t:'You paid for the group · +'+inr(x.sp.amt)+' credit',s:x.sp.what.join(', '),c:'good',day:true}));
   pays.forEach(x=>{const mineP=nkey(x.name)===k,payer=x.payer&&nkey(x.payer)===k;if(!mineP&&!payer)return;
     if(x.kind==='adjust'){if(mineP)ev.push({at:x.at,t:(x.amount>=0?'Extra charge ':'Credit ')+inr(Math.abs(x.amount)),s:(x.note||'')+(x.byName?' · by '+x.byName:''),c:x.amount>=0?'bad':'good'});return}
@@ -4020,7 +4032,7 @@ function renderMe(){
   ${ME.sec==='games'?`<section class="card">${cardH('shuttle','Games & costs',plural(games.length,'day'))}
     ${games.length?`<div class="acct" style="border-top:0;grid-template-columns:repeat(4,minmax(0,1fr))"><div><span>Court</span><b>${inr(gt.court)}</b></div><div><span>Shuttle</span><b>${inr(gt.sh)}</b></div><div><span>Others</span><b>${inr(gt.dr)}</b></div><div class="bad"><span>Total</span><b>${inr(gt.tot)}</b></div></div>
     ${games.map(g=>`<div class="prow"><span class="ini" style="font-size:11px;line-height:1.1;text-align:center">${esc(dlabel(g.ds,{day:'numeric'}))}<br>${esc(dlabel(g.ds,{month:'short'}))}</span><span class="nm">${esc(dlabel(g.ds,{weekday:'long'}))} · ${g.o.played?fmtH(g.d.hours)+' h, '+g.c.n+' played':'didn’t play'}
-      <small>${g.o.played?'Court '+inr(g.o.court)+' ('+fmtH(g.d.hours)+'h × '+inr(g.d.rate)+' ÷ '+g.c.n+')':''}${g.o.shuttle?(g.o.played?' · ':'')+'Shuttle '+inr(g.o.shuttle)+' ('+inr(g.c.shuttle)+' ÷ '+g.c.shN+')':''}${g.o.drinks?' · Drinks & others '+inr(g.o.drinks)+' ('+inr(g.c.drinks)+' ÷ '+g.c.drN+')':''}</small></span><span class="am">${inr(g.o.total)}</span></div>`).join('')}`:`<div class="empty">${ic('shuttle')}No games recorded yet.</div>`}</section>`:''}
+      <small>${g.o.played?'Court '+inr(g.o.court)+' ('+fmtH(g.d.hours)+'h × '+inr(g.d.rate)+' ÷ '+g.c.n+')':''}${g.o.shuttle?(g.o.played?' · ':'')+'Shuttle '+inr(g.o.shuttle)+' ('+inr(g.c.shuttle)+' ÷ '+g.c.shN+')':''}${g.o.drinks?(g.o.dNote?' · '+esc(g.o.dNote.join(' · ')):' · Drinks & others '+inr(g.o.drinks)+' ('+inr(g.c.drinks)+' ÷ '+g.c.drN+')'):''}</small></span><span class="am">${inr(g.o.total)}</span></div>`).join('')}`:`<div class="empty">${ic('shuttle')}No games recorded yet.</div>`}</section>`:''}
   ${ME.sec==='money'?`<section class="card">${cardH('wallet',PRE()?'Money loaded':'My payments',inr(sum(own.filter(x=>x.status==='confirmed'),x=>+x.amount||0)))}
     ${own.length?own.sort((a,b)=>(b.at||0)-(a.at||0)).map(x=>`<div class="prow"><span class="ini">${ic('rupee')}</span><span class="nm">${inr(x.amount)} · ${status(x)}<small>${dt(x.at)} · ${meth(x)}${x.note?' · '+esc(x.note):''}${x.proof?' · 📎':''}</small></span></div>`).join(''):`<div class="empty">${ic('wallet')}No payments yet.</div>`}</section>
     ${spentL.length?`<section class="card">${cardH('wallet','Expenses you paid for the group',inr(sum(spentL,x=>x.sp.amt)))}${spentL.map(x=>`<div class="prow"><span class="ini">${ic('check')}</span><span class="nm">+${inr(x.sp.amt)} credit<small>${esc(dlabel(x.ds,{weekday:'short',day:'numeric',month:'short'}))} · ${esc(x.sp.what.join(', '))}</small></span></div>`).join('')}</section>`:''}
@@ -4644,7 +4656,7 @@ async function autoBillFromPolls(){
       const per=Math.max(1,Math.min(4,+p.perCourt||4)),courts=Math.max(1,Math.ceil(yes.length/per)),h=slotHours(dt.note);
       const base=cur?getDay(dt.date):Object.assign(blankDay(dt.date),{hours:h?h*courts:2});
       const d=Object.assign(base,{present:yes,src:'poll',poll:p.id,slot:dt.note||'',courtsBooked:courts,autoSync:true,cover:gq.cover});
-      if(autoOn('carry')){const W=CARRY().filter(c=>c.from<dt.date);if(W.length){d.drinksOn=true;d.items=[...(d.items||[]).filter(i=>i.what||i.amt),...W.map(c=>({what:c.what+' (from '+dlabel(c.from)+')',amt:c.amt,by:c.by}))];d.drinks=d.items.reduce((a,i)=>a+(+i.amt||0),0);S.carry=CARRY().filter(c=>!W.includes(c));cfgChanged=true}}
+      if(autoOn('carry')){const W=CARRY().filter(c=>c.from<dt.date);if(W.length){d.drinksOn=true;d.items=[...(d.items||[]).filter(i=>i.what||i.amt),...W.map(carryItem)];d.drinks=d.items.reduce((a,i)=>a+(+i.amt||0),0);S.carry=CARRY().filter(c=>!W.includes(c));cfgChanged=true}}
       S.days[dt.date]=d;queueWrite('days/'+dt.date,d);made.push(dt.date)}}
   if(cfgChanged)saveConfig();
   if(made.length)toast('“Who played” auto-selected from Yes votes for '+made.map(x=>dlabel(x,{weekday:'short',day:'numeric'})).join(', ')+'. Review on Today.');
