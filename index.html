@@ -657,7 +657,7 @@ const FIREBASE_CONFIG = {
 /* Collections get this prefix so they never clash with the league app's data */
 const COLLECTION_PREFIX = "shuttleSplit_";
 /* App version shown in Team → About */
-const APP_VERSION = "4.17.0", APP_BUILD = "9 Nov 2026";
+const APP_VERSION = "4.17.1", APP_BUILD = "9 Nov 2026";
 /* Owner of the main group (the link without ?g=) */
 const LEGACY_OWNER = "pavankaki.cool@gmail.com";
 /* Starting player list, used only until the first save */
@@ -832,7 +832,7 @@ function useTick(){const now=Date.now();if(USE.from&&document.visibilityState===
 async function flushUse(final){useTick();const m=Math.floor(USE.ms/60e3);if(!db||!getMe()||(m<1&&!final))return;if(m<1)return;USE.ms-=m*60e3;
   const k='ss-use'+SUF;let st={};try{st=JSON.parse(localStorage.getItem(k)||'{}')}catch(e){}const d=todayStr();st.mins=st.mins||{};st.mins[d]=(st.mins[d]||0)+m;
   Object.keys(st.mins).sort().slice(0,-35).forEach(x=>delete st.mins[x]);try{localStorage.setItem(k,JSON.stringify(st))}catch(e){}
-  try{const u=await ensureAnon();if(u)await col('seen').doc(u.uid).set({name:getMe(),at:Date.now(),mins:st.mins,opens:st.opens||{},alerts:alertSt(),v:APP_VERSION},{merge:true})}catch(e){}}
+  try{const u=await ensureAnon();if(u)await col('seen').doc(u.uid).set({name:getMe()?canon(getMe()):'',at:Date.now(),mins:st.mins,opens:st.opens||{},alerts:alertSt(),v:APP_VERSION},{merge:true})}catch(e){}}
 function startUse(){if(USE.timer)return;USE.from=document.visibilityState==='visible'?Date.now():0;
   const k='ss-use'+SUF;try{const st=JSON.parse(localStorage.getItem(k)||'{}'),d=todayStr();st.opens=st.opens||{};st.opens[d]=(st.opens[d]||0)+1;Object.keys(st.opens).sort().slice(0,-35).forEach(x=>delete st.opens[x]);localStorage.setItem(k,JSON.stringify(st))}catch(e){}
   USE.timer=setInterval(()=>flushUse(false),120e3);document.addEventListener('visibilitychange',()=>{useTick();if(document.visibilityState==='hidden')flushUse(true)});window.addEventListener('pagehide',()=>flushUse(true))}
@@ -842,7 +842,7 @@ async function pingSeen(force){
   const key='ss-seen'+SUF;let last=0;try{last=+localStorage.getItem(key)||0}catch(e){}
   const ak='ss-alertst'+SUF;let la='';try{la=localStorage.getItem(ak)||''}catch(e){}if(la!==alertSt())force=true;
   if(!force&&Date.now()-last<6*3600e3)return;
-  try{const u=await ensureAnon();if(!u)return;await col('seen').doc(u.uid).set({name:me,at:Date.now(),alerts:alertSt()},{merge:true});try{localStorage.setItem(ak,alertSt())}catch(e){}try{localStorage.setItem(key,String(Date.now()))}catch(e){}}catch(e){}
+  try{const u=await ensureAnon();if(!u)return;await col('seen').doc(u.uid).set({name:me?canon(me):'',at:Date.now(),alerts:alertSt()},{merge:true});try{localStorage.setItem(ak,alertSt())}catch(e){}try{localStorage.setItem(key,String(Date.now()))}catch(e){}}catch(e){}
 }
 /* ---------- payments ledger: charges from every recorded day minus confirmed payments ---------- */
 const allPays=()=>db?PAYS:(S.payments||[]);
@@ -3886,13 +3886,18 @@ function reqText(list){const L=['Shuttle Split feedback · '+(S.groupName||'Badm
   list.forEach((r,i)=>{const [e,l]=REQK[r.kind]||REQK.idea,c=r.ctx||{};L.push((i+1)+'. '+e+' '+l+' from '+(r.name||'someone')+' · '+dlabel(ymd(new Date(r.at)),{day:'numeric',month:'short'})+' '+hm(r.at));
     L.push('   "'+r.text.replace(/\n/g,' ')+'"');L.push('   Page: '+(c.page||'?')+' · v'+(c.ver||'?')+' · '+(c.dev||'?')+(c.role?' · '+c.role:'')+(r.img?' · screenshot in the app':''));L.push('')});return L.join('\n')}
 /* players: everything they suggested or reported, with its status */
-const MYREQ={list:[],unsub:null,uid:''};
-function startMyReq(){if(!db||!auth||!auth.currentUser)return;const uid=auth.currentUser.uid;if(MYREQ.unsub&&MYREQ.uid===uid)return;if(MYREQ.unsub)MYREQ.unsub();MYREQ.uid=uid;
-  let init=true;MYREQ.unsub=col('requests').where('uid','==',uid).onSnapshot(q=>{const prev=MYREQ.list;MYREQ.list=q.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(b.at||0)-(a.at||0));
-    if(!init)MYREQ.list.forEach(r=>{const o=prev.find(x=>x.id===r.id);if(o&&o.status!==r.status&&SG(r.status,r.stageLabel))toast('🎫 '+codeOf(r)+' → '+SG(r.status,r.stageLabel)[0]+' '+SG(r.status,r.stageLabel)[1])});init=false;renderHeader();if($('#myreqs'))openMyRequests()},()=>{})}
+const MYREQ={list:[],unsub:null,uid:'',nm:'',A:[],B:[],tries:0};
+/* tickets are matched by this phone's ID and by the player's name, so ones sent from Safari still show in the installed app (iPhone keeps the two apart) */
+function startMyReq(){if(!db||!auth||!auth.currentUser)return;const uid=auth.currentUser.uid,me=getMe()?canon(getMe()):'';if(MYREQ.unsub&&MYREQ.uid===uid&&MYREQ.nm===me)return;if(MYREQ.unsub)MYREQ.unsub();MYREQ.uid=uid;MYREQ.nm=me;MYREQ.A=[];MYREQ.B=[];
+  let init=true,u2=null;const merge=()=>{const prev=MYREQ.list,m=new Map();[...MYREQ.A,...MYREQ.B].forEach(r=>m.set(r.id,r));MYREQ.list=[...m.values()].sort((a,b)=>(b.at||0)-(a.at||0));return prev};
+  const byName=()=>{if(!me)return;u2=col('requests').where('name','==',me).onSnapshot(q=>{MYREQ.B=q.docs.map(d=>({id:d.id,...d.data()}));MYREQ.tries=0;merge();renderHeader();if($('#myreqs'))openMyRequests()},()=>{u2=null;if(MYREQ.tries++<4)setTimeout(()=>{if(MYREQ.uid===uid&&MYREQ.nm===me&&!u2)byName()},6000)})};
+  // make sure this phone has said who it is (the rules check the name against it), then look up by name
+  if(me)col('seen').doc(uid).set({name:me,at:Date.now()},{merge:true}).catch(()=>{}).then(byName);
+  const u1=col('requests').where('uid','==',uid).onSnapshot(q=>{MYREQ.A=q.docs.map(d=>({id:d.id,...d.data()}));const prev=merge();
+    if(!init)MYREQ.list.forEach(r=>{const o=prev.find(x=>x.id===r.id);if(o&&o.status!==r.status&&SG(r.status,r.stageLabel))toast('🎫 '+codeOf(r)+' → '+SG(r.status,r.stageLabel)[0]+' '+SG(r.status,r.stageLabel)[1])});init=false;renderHeader();if($('#myreqs'))openMyRequests()},()=>{});MYREQ.unsub=()=>{u1();if(u2)u2()}}
 function openMyRequests(){startMyReq();startAvo();try{MYREQ.list.forEach(r=>{if(r.stageAt)markTk(r)})}catch(e){}const L=MYREQ.list,ideas=L.filter(r=>r.kind==='idea'),done=L.filter(r=>r.status==='done'||r.status==='prod');
   const postOf=r=>r.kind==='idea'&&(CLUB.list||[]).find(x=>x.kind==='idea'&&x.text===String(r.text).slice(0,1000)&&nkey(x.name)===nkey(r.name||''));
-  const bg=sheetOpen(`<div class="sheet-h" id="myreqs"><span class="ini">💡</span><div><b>My ideas & problems</b><small>Everything you sent from this phone, and what happened to it</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div>
+  const bg=sheetOpen(`<div class="sheet-h" id="myreqs"><span class="ini">💡</span><div><b>My ideas & problems</b><small>Everything you sent, and what happened to it</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div>
     ${tkTiles(L)}${(()=>{const B=tkBoardRows(),i=B.findIndex(x=>nkey(x.n)===nkey(getMe()||''));return i>=0?`<p class="hint" style="padding:0 16px;margin:0 0 6px">🏆 You’re <b>#${i+1}</b> of ${B.length} contributors with <b>${B[i].pts} pts</b>.</p>`:''})()}<p class="hint" style="padding:0 16px;margin:0">${Object.entries(REQK).map(([k,[e,l]])=>`${e} ${L.filter(r=>r.kind===k).length} ${l.toLowerCase()}${L.filter(r=>r.kind===k).length===1?'':'s'}`).join(' · ')} · 🥑 ${AVO.list.filter(g=>g.ref&&L.some(r=>r.id===g.ref)).reduce((a,g)=>a+(+g.amt||0),0)} rewards earned</p>
     ${L.map(r=>{const k=REQK[r.kind]||['💬',''],p=postOf(r),rc=p?Object.keys(p.likes||{}).length:0,cc=p?(CMT.list||[]).filter(c=>c.target==='post:'+p.id).length:0;
       return`<div class="sub myrq" style="border-top:1px solid var(--line2);padding:12px 16px" data-myrq="${esc(r.id)}"><div class="mix" style="justify-content:space-between;gap:8px"><b>${tkChip(r)} ${k[0]} ${esc(k[1])}</b>${stageChip(r)}</div>
