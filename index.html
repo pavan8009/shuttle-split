@@ -557,7 +557,8 @@ details.legend{padding:4px 16px 10px}details.legend summary{font-size:12.5px;fon
 .dlist{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;align-items:center}.dlist small{width:100%;font-size:11.5px;color:var(--muted);font-weight:700}.dlist span{font-size:12.5px;background:var(--field);border-radius:999px;padding:3px 9px}
 .dbar{display:grid;grid-template-columns:96px 1fr 40px;gap:8px;align-items:center;font-size:12.5px;margin:4px 0}.dbar i{height:8px;border-radius:99px;background:var(--line2);overflow:hidden}.dbar i b{display:block;height:100%;background:var(--accent)}.dbar em{font-style:normal;font-weight:700;text-align:right}
 .hrow{display:flex;gap:10px;align-items:center;width:100%;text-align:left;background:none;border:0;border-top:1px solid var(--line2);padding:9px 0;font:inherit;color:inherit}.hrow:disabled{opacity:1}.hrow .hi{font-size:18px;width:26px;text-align:center}.hrow .ht{flex:1;display:grid;min-width:0}.hrow .ht b{font-size:13.5px}.hrow .ht small{font-size:12px;color:var(--muted);overflow-wrap:anywhere}.hrow.ok .ht b{color:var(--muted);font-weight:600}
-.hn{font-style:normal;font-size:11px;font-weight:800;border-radius:99px;padding:1px 7px;margin-left:4px;background:#FEF0C7;color:#B54708}.hrow.bad .hn{background:#FEE4E2;color:#B42318}.hrow.info .hn{background:var(--field);color:var(--muted)}
+.rlist{max-height:58vh;overflow-y:auto;display:grid;gap:8px;align-content:start}.rmsg{display:flex;gap:8px;align-items:flex-end;max-width:86%}.rmsg.me{margin-left:auto;flex-direction:row-reverse}.rmsg .rb{background:var(--field);border-radius:16px 16px 16px 4px;padding:8px 11px;display:grid;gap:3px;min-width:0}.rmsg.me .rb{background:#DCF5E8;border-radius:16px 16px 4px 16px}.rmsg .rb b{font-size:12px;color:var(--accent)}.rmsg .rb small{font-size:11px;color:var(--muted)}.rmsg .ct{overflow-wrap:anywhere}.rmsg .cimg{max-width:220px;border-radius:10px}.rcomp{display:flex;gap:8px;align-items:center;padding:10px 16px calc(10px + env(safe-area-inset-bottom));border-top:1px solid var(--line2)}.rcomp .txt{flex:1}.rcomp .btn{height:44px;width:48px;padding:0}#rprev{margin:0 16px 8px}
+.hok1{display:block;margin:-4px 0 6px 36px;font-size:13px}.hn{font-style:normal;font-size:11px;font-weight:800;border-radius:99px;padding:1px 7px;margin-left:4px;background:#FEF0C7;color:#B54708}.hrow.bad .hn{background:#FEE4E2;color:#B42318}.hrow.info .hn{background:var(--field);color:var(--muted)}
 .erow{border-top:1px solid var(--line2);padding:7px 0;display:grid}.erow b{font-size:12.5px;font-family:ui-monospace,Menlo,monospace;overflow-wrap:anywhere}.erow small{font-size:11.5px;color:var(--muted)}
 .gtag{font-style:normal;font-size:10.5px;font-weight:800;background:#FEF0C7;color:#93370D;border-radius:999px;padding:1px 7px;vertical-align:1px}.gsec summary small{display:block;font-weight:600;color:var(--muted);font-size:12px}.btable tr.grow2 td{font-size:12.5px;color:var(--muted);background:var(--field)}.tplg{border-top:8px solid var(--line2)}.tplgh{display:flex;align-items:center;gap:10px;padding:14px 16px 4px}.tplgh>div{flex:1;display:grid}.tplgh b{font-size:16px}.tplgh small{color:var(--muted);font-size:12.5px}.tplgi{width:36px;height:36px;border-radius:10px;background:var(--field);display:grid;place-items:center;font-size:18px}.tplgn{font-size:12px;color:var(--muted);font-weight:700}
 .tpll{display:grid;gap:8px;padding:0 16px 14px}.tplc{border:1px solid var(--line);border-radius:12px;background:var(--surface)}.tplc>summary{list-style:none;display:flex;align-items:center;gap:8px;padding:11px 12px;cursor:pointer}.tplc>summary::-webkit-details-marker{display:none}.tplc>summary .ic{width:16px;height:16px;color:var(--muted);transition:transform .2s}.tplc[open]>summary .ic{transform:rotate(90deg)}
@@ -656,7 +657,7 @@ const FIREBASE_CONFIG = {
 /* Collections get this prefix so they never clash with the league app's data */
 const COLLECTION_PREFIX = "shuttleSplit_";
 /* App version shown in Team → About */
-const APP_VERSION = "4.16.0", APP_BUILD = "6 Nov 2026";
+const APP_VERSION = "4.17.0", APP_BUILD = "9 Nov 2026";
 /* Owner of the main group (the link without ?g=) */
 const LEGACY_OWNER = "pavankaki.cool@gmail.com";
 /* Starting player list, used only until the first save */
@@ -737,7 +738,7 @@ async function flush(path){
 function syncUI(){const el=$('#sync');if(!el||!db)return;const n=Object.keys(pending).length+Object.values(inflight).filter(Boolean).length;
   const st=!navigator.onLine?'off':n?'save':'live';el.className='sync '+st;el.textContent=st==='off'?'Offline · will sync':st==='save'?'Saving…':'Live';el.hidden=false}
 window.addEventListener('online',()=>syncUI());window.addEventListener('offline',()=>syncUI());
-function saveConfig(){queueWrite('config/main',{roster:S.roster,rate:S.rate,courts:1,groupName:S.groupName||'',skin:S.skin||'court',upiId:S.upiId||'',upiName:S.upiName||'',levels:S.levels||{},admins:S.admins||[],inactive:S.inactive||[],ignored:S.ignored||[],openNames:S.openNames!==false,idleWeeks:S.idleWeeks==null?4:S.idleWeeks,since:S.since||{},autoOff:S.autoOff||{},billed:(S.billed||[]).slice(-200),msg:S.msg||null,closeRule:S.closeRule||null,carry:CARRY(),auto:S.auto||null,duesSnap:S.duesSnap||null,tkBoard:S.tkBoard||null,passOn:!!S.passOn,passLead:S.passLead==null?30:S.passLead,sent:trimSent(S.sent),board:S.board||null,layout:S.layout||{},dupOk:(S.dupOk||[]).slice(-100),model:S.model||'post',load:+S.load||1000,low:S.low==null?200:+S.low,perms:S.perms||{},giphy:S.giphy||'',cats:S.cats||{},vapid:S.vapid||'',alerts:S.alerts||{},guestList:S.guestList||{},pollClose:S.pollClose||null})}
+function saveConfig(){queueWrite('config/main',{roster:S.roster,rate:S.rate,courts:1,groupName:S.groupName||'',skin:S.skin||'court',upiId:S.upiId||'',upiName:S.upiName||'',levels:S.levels||{},admins:S.admins||[],inactive:S.inactive||[],ignored:S.ignored||[],openNames:S.openNames!==false,roomsRead:S.roomsRead!==false,idleWeeks:S.idleWeeks==null?4:S.idleWeeks,since:S.since||{},autoOff:S.autoOff||{},billed:(S.billed||[]).slice(-200),msg:S.msg||null,closeRule:S.closeRule||null,carry:CARRY(),auto:S.auto||null,duesSnap:S.duesSnap||null,tkBoard:S.tkBoard||null,passOn:!!S.passOn,passLead:S.passLead==null?30:S.passLead,sent:trimSent(S.sent),board:S.board||null,layout:S.layout||{},dupOk:(S.dupOk||[]).slice(-100),model:S.model||'post',load:+S.load||1000,low:S.low==null?200:+S.low,perms:S.perms||{},giphy:S.giphy||'',cats:S.cats||{},vapid:S.vapid||'',alerts:S.alerts||{},guestList:S.guestList||{},pollClose:S.pollClose||null})}
 /* ---------- organizers ---------- */
 const userEmail=()=>{const u=auth&&auth.currentUser;return u&&!u.isAnonymous&&u.email?u.email.toLowerCase():''};
 const ownerEmail=()=>String((GID?(GROUP&&GROUP.owner):LEGACY_OWNER)||'').toLowerCase();
@@ -1128,6 +1129,7 @@ const ALERTS=[
   ['chal','⚔️','Challenges sent to you','Only the challenged players','me','on'],
   ['paid','✅','Payment confirmed','Only the player who paid','me','on'],
   ['ticket','🎫','Updates on your ideas & problems','When your ticket moves: planned, done…','me','on'],
+  ['msg','💬','Private chats & groups','Messages in your groups and private chats','me','on'],
   ['guest','👥','Guests','Admins: new guest requests · players: guest confirmed','me','on'],
   ['pay','💸','“I’ve paid” claims','Admins only','adm','on'],
   ['idea','💡','Ideas & problems','Admins only','adm','on']];
@@ -1561,7 +1563,11 @@ function renderPay(){
 }
 async function sharePoster(url,fname,cap){try{
   const blob=await(await fetch(url)).blob(),file=new File([blob],fname,{type:'image/png'});
-  if(navigator.canShare&&navigator.canShare({files:[file]})){try{await navigator.clipboard.writeText(cap)}catch(e){}await navigator.share({files:[file],text:cap});return true}
+  if(navigator.canShare&&navigator.canShare({files:[file]})){const ua=navigator.userActivation;
+    // iPhone forgets the tap while the picture is being made, so share straight away only if the tap is still fresh; otherwise ask for one more tap
+    if(!ua||ua.isActive){try{await navigator.share({files:[file],text:cap});return true}catch(e){if(e&&e.name==='AbortError')return false;if(!e||e.name!=='NotAllowedError')throw e}}
+    const bg=sheetOpen(`<div class="sheet-h"><span class="ini">📤</span><div><b>Ready to share</b><small>Tap Share to send it on WhatsApp or anywhere</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div><div class="sub" style="text-align:center"><img src="${url}" alt="" style="max-width:100%;max-height:52vh;border-radius:14px;box-shadow:0 4px 14px rgba(16,24,40,.12)"></div><div class="card-f"><button class="btn primary block" id="shnow">📤 Share</button></div>`,'Share');
+    $('#whoclose').onclick=closeWho;$('#shnow').onclick=()=>{navigator.share({files:[file],text:cap}).then(()=>closeWho()).catch(e=>{if(!e||e.name!=='AbortError'){try{navigator.clipboard.writeText(cap)}catch(x){}toast('Couldn’t open sharing. Long-press the picture to save it.')}})};return true}
   const a=document.createElement('a');a.href=url;a.download=fname;document.body.appendChild(a);a.click();a.remove();try{await navigator.clipboard.writeText(cap)}catch(e){}toast('Poster saved and message copied. Attach it in WhatsApp.');return true
 }catch(e){if(!e||e.name!=='AbortError')toast('Couldn’t share. Long-press the poster to save it.');return false}}
 /* ---------- bill queue: add finished days, then review and send them together ---------- */
@@ -2954,7 +2960,7 @@ function profTop0(n){const p=profOf(n),k=nkey(n),me=nkey(getMe())===k,pv=isOrg?P
     ${P.anniv&&!occasionsToday().some(o=>o.kind==='anniv'&&nkey(o.n)===k)?`<small class="hint" style="display:block;margin:4px 0 0">💍 Anniversary ${esc(bdayLabel(P.anniv))}</small>`:''}
     ${me||isOrg?`<button class="lnk" data-editprof="${esc(n)}" style="margin-top:8px">${ic('user')} Edit profile</button>`:''}</div>${profActs(n)}`}
 function profActs(n){const k=nkey(n),me=k===nkey(getMe()),R=avoRecv(n),tot=R.reduce((a,g)=>a+(+g.amt||0),0),r=avoBoard('').find(x=>nkey(x.n)===k);
-  return`${!me&&myName()?`<div class="sub" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;padding-top:4px">${perm('kudos')!=='off'?`<button class="btn sm primary" data-avo="${esc(n)}">🥑 Give</button>`:''}${perm('challenge')!=='off'?`<button class="btn sm line" data-chal="${esc(n)}">⚔️ Challenge</button>`:''}</div>`:''}
+  return`${!me&&myName()?`<div class="sub" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(92px,1fr));gap:8px;padding-top:4px">${perm('kudos')!=='off'?`<button class="btn sm primary" data-avo="${esc(n)}">🥑 Give</button>`:''}<button class="btn sm line" data-dm="${esc(n)}">💬 Message</button>${perm('challenge')!=='off'?`<button class="btn sm line" data-chal="${esc(n)}">⚔️ Challenge</button>`:''}</div>`:''}
     ${isOrg?`<div class="sub" style="padding-top:0"><button class="lnk" data-addocc="${esc(n)}">🎉 Add a special occasion</button></div>`:''}
     ${trophyHTML(n)}
     ${knownForHTML(n)}
@@ -3072,7 +3078,7 @@ function bindThread(root){bindReacts(root);
     {const kb=t.querySelector('[data-kb]');if(kb){kb.addEventListener('pointerdown',e=>e.preventDefault());kb.onclick=()=>openKB({mode:'input',input:inp,target,thread:t})}}
     const ap=t.querySelector('[data-attprev]'),setAtt=u=>{t._img=u||'';if(!ap)return;ap.hidden=!u;ap.innerHTML=u?`<img src="${u}" alt=""><span>📷 Photo ready · add a message or just tap Send</span><button type="button" class="iconbtn sm" aria-label="Remove photo">${ic('x')}</button>`:'';const x=ap.querySelector('button');if(x)x.onclick=()=>setAtt('')};
     attachImageInput(t.querySelector('[data-catt]'),inp,setAtt);
-    let sending=false;const send=async()=>{const text=norm(inp.value),parent=t._parent||'',img=t._img||'';if((!text&&!img)||sending)return;if(text&&!allOk(text))return;
+    let sending=false;const send=async()=>{const text=norm(inp.value),parent=t._parent||'',img=t._img||'';if(sending)return;if(!text&&!img){inp.focus();return toast('Type a message first ✍️')}if(text&&!allOk(text))return;
       if((tList(target)||[]).some(c=>c.target===target&&nkey(c.name)===nkey(getMe())&&c.text===text&&(c.parent||'')===parent&&Date.now()-(c.at||0)<10*60e3)){inp.value='';return toast('✋ Already sent.')}
       const me=allNames().find(n=>nkey(n)===nkey(getMe()));if(!me)return toast('Pick your name first (tap the person icon at the top).');if(target==='player:'+nkey(me)&&!parent)return toast('That’s your own card 🙂 Reply to someone’s kudos instead.');sending=true;setTimeout(()=>sending=false,1500);
       try{await ensureAnon();const d={target,name:canon(me),uid:auth.currentUser.uid,text,at:Date.now(),likes:{}};if(parent)d.parent=parent;if(img)d.img=img;inp.value='';setAtt('');closeMPop();await col(tCol(target)).add(d);t._parent='';rp.hidden=true;
@@ -3099,6 +3105,7 @@ function mentionPop(inp){closeMPop();const v=inp.value,pos=inp.selectionStart==n
   d.querySelectorAll('[data-mpick]').forEach(b=>{b.addEventListener('pointerdown',e=>e.preventDefault());b.onclick=()=>{const n=b.dataset.mpick==='@all'?'all':b.dataset.mpick,start=pos-m[2].length-1;
     inp.value=v.slice(0,start)+'@'+n+' '+v.slice(pos);const c=start+n.length+2;inp.focus();try{inp.setSelectionRange(c,c)}catch(e){}closeMPop()}})}
 document.addEventListener('input',e=>{const t=e.target;if(t&&t.matches&&t.matches('[data-cin],#ktext,#ctext,[data-mention]'))mentionPop(t)});
+document.addEventListener('pointerdown',e=>{if(e.target.closest&&e.target.closest('[data-csend],#qpost,#rsend'))e.preventDefault()},true);document.addEventListener('mousedown',e=>{if(e.target.closest&&e.target.closest('[data-csend],#qpost,#rsend'))e.preventDefault()},true);
 document.addEventListener('focusout',()=>setTimeout(()=>{const a=document.activeElement;if(!(a&&a.matches&&a.matches('[data-cin],#ktext,#ctext,[data-mention]')))closeMPop()},180));
 document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-mprof]');if(b){e.preventDefault();e.stopPropagation();openProfile(b.dataset.mprof)}
   const r=e.target.closest&&e.target.closest('[data-room]');if(r){e.preventDefault();openRoom(r.dataset.room)}
@@ -3474,7 +3481,7 @@ function openBoard(onDate,onNote){if(!canEdit())return;
     $('#bpoll').onclick=()=>{keep();const p=P.list.find(x=>!isArchived(x)&&(x.dates||[]).some(d=>d.date>=todayStr()));if(!p)return toast('No upcoming poll to copy from.');
       const t=tally(p,VOTES_BY[p.id]||[]),by={};t.res.forEach(r=>{(by[r.date]=by[r.date]||[]).push({t:r.note||'',c:r.courts||1})});days=Object.keys(by).sort().map(k=>({date:k,slots:by[k]}));draw();toast('Filled from “'+p.title+'”. Split the hours if courts change mid-way.')};
     $('#bclear').onclick=()=>{S.board=null;saveConfig();closeWho();renderTab(false);toast('Court bookings cleared.')};
-    $('#bsave').onclick=()=>{keep();S.board={venue:norm(venue),map:norm(map).slice(0,300),note:norm(note),days:days.filter(d=>d.date).map(d=>({date:d.date,slots:(d.slots||[]).filter(x=>norm(x.t)).map(x=>({t:norm(x.t),c:+x.c||0}))}))};saveConfig();closeWho();renderTab(false);toast('Court bookings saved for everyone.')};
+    $('#bsave').onclick=()=>{keep();S.board={venue:norm(venue),map:norm(map).slice(0,300),note:norm(note),days:days.filter(d=>d.date).map(d=>({date:d.date,...(d.ok?{ok:d.ok}:{}),slots:(d.slots||[]).filter(x=>norm(x.t)).map(x=>({t:norm(x.t),c:+x.c||0}))}))};saveConfig();closeWho();renderTab(false);toast('Court bookings saved for everyone.')};
   };draw()}
 
 /* ================= CLUB: photos, tips, shout-outs ================= */
@@ -3498,7 +3505,137 @@ function startClub(){if(!db||CLUB.unsub)return;CLUB.unsub=col('posts').orderBy('
   if(tab==='club'&&!typingIn('#view-club'))renderClub();clubDot();renderHeader();if(tab==='day'){refreshTasks();const a=$('#askslot');if(a&&!a.contains(document.activeElement))a.innerHTML=asksCard()}},()=>{})}
 function clubSeen(){try{localStorage.setItem('ss-clubseen'+SUF,String(Date.now()))}catch(e){}clubDot()}
 function clubDot(){const b=document.querySelector('.tabbar [data-tab="club"]');if(!b)return;let seen=0;try{seen=+localStorage.getItem('ss-clubseen'+SUF)||0}catch(e){}
-  b.classList.toggle('has-due',(tab!=='club'&&CLUB.list.some(x=>x.at>seen&&x.uid!==(auth&&auth.currentUser&&auth.currentUser.uid)))||(!(tab==='club'&&SUB.club==='chat')&&unreadChat()>0))}
+  b.classList.toggle('has-due',(tab!=='club'&&CLUB.list.some(x=>x.at>seen&&x.uid!==(auth&&auth.currentUser&&auth.currentUser.uid)))||(!(tab==='club'&&SUB.club==='chat')&&unreadChat()>0)||(!(tab==='club'&&SUB.club==='chats')&&roomsBadge()>0))}
+/* ================= 💬 PRIVATE CHATS: groups and 1-to-1 messages (Club › Chats; organizers manage in Manage › Chats & groups) ================= */
+const ROOMS={list:[],unsub:null,msgs:[],munsub:null,cur:''};
+const myUid=()=>(auth&&auth.currentUser&&auth.currentUser.uid)||'';
+const myCanon=()=>{const m=allNames().find(n=>nkey(n)===nkey(getMe()));return m?canon(m):''};
+const rIn=r=>(r.uids||[]).includes(myUid());
+const rInvited=r=>!rIn(r)&&!!getMe()&&(r.names||[]).some(n=>nkey(n)===nkey(getMe()));
+const rOwner=r=>!!myUid()&&r.owner===myUid();
+const rCan=r=>isOrg||rOwner(r);
+const orgRead=()=>isOrg&&S.roomsRead!==false;
+const rCanRead=r=>rIn(r)||orgRead();
+const rTitle=r=>r.kind==='dm'?((r.names||[]).find(n=>nkey(n)!==nkey(getMe()))||(r.names||[])[0]||'Chat'):(r.name||'Group');
+const rMembers=r=>Object.values(r.who||{});
+const rSeen=()=>{try{return JSON.parse(localStorage.getItem('ss-rseen'+SUF)||'{}')}catch(e){return{}}};
+const rMarkSeen=id=>{try{const s=rSeen();s[id]=Date.now();localStorage.setItem('ss-rseen'+SUF,JSON.stringify(s))}catch(e){}};
+const rUnread=r=>rIn(r)&&!!r.last&&r.lastBy!==myUid()&&(r.lastAt||0)>(rSeen()[r.id]||0);
+const roomsBadge=()=>ROOMS.list.filter(r=>rUnread(r)||rInvited(r)).length;
+const dmId=(a,b)=>'dm-'+[nkey(a),nkey(b)].sort().map(k=>k.replace(/[^a-z0-9]+/g,'_')).join('--');
+const R_EMO=['💬','💡','🏸','🎯','🏆','🛠️','🎉','🍻','🚗','📸','🧠','❤️'];
+function startRooms(){if(!db||ROOMS.unsub)return;ROOMS.unsub=()=>{};ensureAnon().then(()=>{
+  ROOMS.unsub=col('rooms').orderBy('lastAt','desc').limit(300).onSnapshot(q=>{ROOMS.list=q.docs.map(d=>({id:d.id,...d.data()}));try{clubDot()}catch(e){}
+    if(tab==='club'&&SUB.club==='chats'&&!$('#whosheet')&&!typingIn('#view-club'))renderTab(false);else if(tab==='club')try{const b=document.querySelector('#view-club [data-sub="club:chats"]');if(b){const n=roomsBadge();b.innerHTML='💬 Chats'+(n?`<i class="nb">${n}</i>`:'')}}catch(e){}
+    if($('#roomsheet'))drawRoom();if($('#roomsmgr')&&!typingIn('#whosheet'))openRoomsMgr(true)},()=>{ROOMS.unsub=null})}).catch(()=>{ROOMS.unsub=null})}
+function chatsHTML(me){if(!me)return`<section class="card"><div class="empty">Pick your name first (tap the person icon at the top) to chat.</div></section>`;
+  const uid=myUid(),L=ROOMS.list,mine=L.filter(rIn),inv=L.filter(rInvited),open=L.filter(r=>r.kind!=='dm'&&r.vis==='open'&&!rIn(r)&&!rInvited(r));
+  const row=r=>`<button class="mi" data-room2="${esc(r.id)}"><span class="mico">${r.kind==='dm'?ini(rTitle(r),'','sm'):`<span style="font-size:20px">${esc(r.emoji||'💬')}</span>`}</span><span class="mt"><b>${esc(rTitle(r))}${r.kind!=='dm'&&r.vis==='private'?' 🔒':''}</b><small>${r.last?(r.lastBy===uid?'You':esc(first(r.lastName||'')))+': '+esc(String(r.last).slice(0,60)):r.kind==='dm'?'Say hi 👋':plural(rMembers(r).length,'member')}</small></span>${rUnread(r)?'<span class="mm"><i class="nb">new</i></span>':r.lastAt&&r.last?`<span class="mm">${esc(timeAgo(r.lastAt))}</span>`:''}${ic('right')}</button>`;
+  return`${inv.length?`<section class="card">${cardH('users','Invitations',inv.length,true)}${inv.map(r=>`<div class="row"><div class="l"><b>${r.kind==='dm'?'✉️':esc(r.emoji||'💬')} ${esc(rTitle(r))}</b><small>${r.kind==='dm'?esc(first(rTitle(r)))+' wants to chat with you':'From '+esc(first(r.ownerName||''))+' · '+plural(rMembers(r).length,'member')+(r.about?' · '+esc(r.about):'')}</small></div><button class="btn sm primary" data-rjoin="${esc(r.id)}">${r.kind==='dm'?'Open':'Join'}</button></div>`).join('')}</section>`:''}
+  <section class="card">${cardH('chat','Your chats',mine.length||null)}<div class="pad" style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><button class="btn sm primary" data-rnew>👥 New group</button><button class="btn sm line" data-rdm>✉️ Message someone</button></div>
+    ${mine.length?`<div class="menu">${mine.map(row).join('')}</div>`:`<div class="empty">No chats yet. Start a group for an idea, a practice crew or a plan, and invite only the people you want.</div>`}</section>
+  ${open.length?`<section class="card">${cardH('users','Open groups you can join',open.length)}${open.map(r=>`<div class="row"><div class="l"><b>${esc(r.emoji||'💬')} ${esc(r.name)}</b><small>${plural(rMembers(r).length,'member')}${r.about?' · '+esc(r.about):''}</small></div><button class="btn sm line" data-rjoin="${esc(r.id)}">Join</button></div>`).join('')}</section>`:''}
+  <p class="hint" style="padding:0 8px">🔒 Chats are only for the people in them.${S.roomsRead!==false?' Organizers can also read them to keep the group safe.':' Organizers can’t read them.'}</p>`}
+function bindRooms(v){v.querySelectorAll('[data-room2]').forEach(b=>b.onclick=()=>openRoom2(b.dataset.room2));
+  v.querySelectorAll('[data-rjoin]').forEach(b=>b.onclick=()=>joinRoom(b.dataset.rjoin));
+  v.querySelectorAll('[data-rnew]').forEach(b=>b.onclick=()=>openRoomEdit());v.querySelectorAll('[data-rdm]').forEach(b=>b.onclick=()=>pickPeople({title:'Message someone',one:true,done:L=>openDM(L[0])}))}
+async function joinRoom(id){const r=ROOMS.list.find(x=>x.id===id),me=myCanon();if(!r)return;if(!me)return toast('Pick your name first (tap the person icon at the top).');
+  if(rIn(r))return openRoom2(id);try{await ensureAnon();const uid=myUid(),inv=(r.names||[]).find(n=>nkey(n)===nkey(me));
+    await col('rooms').doc(id).update({uids:[...(r.uids||[]),uid],who:Object.assign({},r.who||{},{[uid]:inv||me})});r.uids=[...(r.uids||[]),uid];r.who=Object.assign({},r.who||{},{[uid]:inv||me});
+    if(r.kind!=='dm')toast('👋 You joined '+r.name);openRoom2(id)}catch(e){toast(e.code==='permission-denied'?'Ask the organizer to publish the latest app rules.':'Couldn’t join ('+(e.code||'error')+').')}}
+async function openDM(name){const me=myCanon();if(!me)return toast('Pick your name first (tap the person icon at the top).');if(nkey(name)===nkey(me))return toast('That’s you 🙂');
+  const id=dmId(me,name),r=ROOMS.list.find(x=>x.id===id);if(r){if(!rIn(r))return joinRoom(id);return openRoom2(id)}
+  try{await ensureAnon();const uid=myUid(),at=Date.now(),d={kind:'dm',vis:'private',name:'',emoji:'',about:'',owner:uid,ownerName:me,uids:[uid],who:{[uid]:me},names:[me,canon(name)],at,lastAt:at,last:'',lastBy:'',lastName:''};
+    await col('rooms').doc(id).set(d);if(!ROOMS.list.some(x=>x.id===id))ROOMS.list.unshift({id,...d});openRoom2(id)}catch(e){toast(e.code==='permission-denied'?'Ask the organizer to publish the latest app rules.':'Couldn’t start the chat ('+(e.code||'error')+').')}}
+/* pick players: one (for a message) or several (invite) */
+function pickPeople(o){const me=nkey(getMe()),skip=new Set((o.skip||[]).map(nkey)),L=activeRoster().filter(n=>nkey(n)!==me&&!skip.has(nkey(n))),sel=new Set();
+  const bg=sheetOpen(`<div class="sheet-h"><span class="ini">${o.one?'✉️':'➕'}</span><div><b>${esc(o.title)}</b><small>${o.one?'Tap a name':'Tap names, then Done'}</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div>
+    <div class="sub"><input class="txt" id="ppq" placeholder="Search a name…" autocomplete="off"><div id="ppl" class="menu" style="margin-top:8px"></div></div>${o.one?'':`<div class="card-f"><button class="btn primary block" id="ppok" disabled>Done</button></div>`}`,o.title);
+  const draw=()=>{const q=nkey($('#ppq').value);$('#ppl').innerHTML=L.filter(n=>!q||nkey(n).includes(q)).map(n=>`<button class="mi" data-pp="${esc(n)}"><span class="mico">${ini(n,'','sm')}</span><span class="mt"><b>${esc(n)}</b></span>${o.one?ic('right'):`<span class="mm">${sel.has(n)?'✅':'○'}</span>`}</button>`).join('')||'<div class="empty">No one found</div>';
+    $('#ppl').querySelectorAll('[data-pp]').forEach(b=>b.onclick=()=>{const n=b.dataset.pp;if(o.one){closeWho();o.done([n]);return}sel.has(n)?sel.delete(n):sel.add(n);draw();const k=$('#ppok');k.disabled=!sel.size;k.textContent=sel.size?'Add '+plural(sel.size,'person'):'Done'})};
+  $('#whoclose').onclick=closeWho;$('#ppq').oninput=draw;draw();if(!o.one)$('#ppok').onclick=()=>{closeWho();o.done([...sel])}}
+/* create or edit a group (creator or organizer) */
+function openRoomEdit(id){const r=id?ROOMS.list.find(x=>x.id===id):null,me=myCanon();if(!me)return toast('Pick your name first (tap the person icon at the top).');if(r&&!rCan(r))return;
+  let emo=r?r.emoji||'💬':'💡',vis=r?r.vis||'private':'private';const inv=new Set();
+  const bg=sheetOpen(`<div class="sheet-h"><span class="ini">👥</span><div><b>${r?'Edit group':'New group'}</b><small>${r?'Only the creator and organizers can change this':'For an idea, a practice crew or a plan'}</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div>
+    <div class="sub" style="display:grid;gap:12px"><label class="fld"><span>Name</span><input class="txt" id="rnm" maxlength="40" value="${esc(r?r.name:'')}" placeholder="e.g. App ideas, Doubles practice"></label>
+      <label class="fld"><span>What’s it about? (optional)</span><input class="txt" id="rab" maxlength="80" value="${esc(r?r.about||'':'')}" placeholder="One line"></label>
+      <div><small class="hint" style="margin:0 0 6px;display:block">Icon</small><div id="remo" style="display:flex;flex-wrap:wrap;gap:6px">${R_EMO.map(e=>`<button type="button" class="chipbtn${e===emo?' on':''}" style="font-size:18px;padding:4px 9px" data-e="${e}">${e}</button>`).join('')}</div></div>
+      <div><small class="hint" style="margin:0 0 6px;display:block">Who can join</small><div class="seg" id="rvis" style="padding:0"><button type="button" data-v="private" class="${vis==='private'?'on':''}">🔒 Invite only</button><button type="button" data-v="open" class="${vis==='open'?'on':''}">🌐 Anyone can join</button></div></div>
+      ${r?'':`<div><button type="button" class="btn line block" id="rinv">➕ Invite people</button><small class="hint" id="rinvl" style="margin:6px 0 0;display:block"></small></div>`}</div>
+    <div class="card-f"><button class="btn primary block" id="rsave">${r?'Save':'Create group'}</button></div>`,r?'Edit group':'New group');
+  $('#whoclose').onclick=closeWho;
+  bg.querySelectorAll('#remo [data-e]').forEach(b=>b.onclick=()=>{emo=b.dataset.e;bg.querySelectorAll('#remo [data-e]').forEach(x=>x.classList.toggle('on',x===b))});
+  bg.querySelectorAll('#rvis [data-v]').forEach(b=>b.onclick=()=>{vis=b.dataset.v;bg.querySelectorAll('#rvis [data-v]').forEach(x=>x.classList.toggle('on',x===b))});
+  const ri=$('#rinv');if(ri)ri.onclick=()=>{const keep={n:$('#rnm').value,a:$('#rab').value,emo,vis};pickPeople({title:'Invite people',skip:[...inv],done:L=>{L.forEach(n=>inv.add(n));openRoomEdit.pend={...keep,inv:[...inv]};openRoomEdit()}})};
+  if(!r&&openRoomEdit.pend){const p=openRoomEdit.pend;openRoomEdit.pend=null;$('#rnm').value=p.n;$('#rab').value=p.a;emo=p.emo;vis=p.vis;p.inv.forEach(n=>inv.add(n));
+    bg.querySelectorAll('#remo [data-e]').forEach(x=>x.classList.toggle('on',x.dataset.e===emo));bg.querySelectorAll('#rvis [data-v]').forEach(x=>x.classList.toggle('on',x.dataset.v===vis))}
+  {const l=$('#rinvl');if(l)l.textContent=inv.size?'Invited: '+[...inv].map(first).join(', '):'You can also invite people later.'}
+  let busy=false;$('#rsave').onclick=async()=>{const name=norm($('#rnm').value),about=norm($('#rab').value);if(!name)return toast('Give the group a name.');if(busy)return;busy=true;$('#rsave').disabled=true;
+    try{await ensureAnon();if(r){await col('rooms').doc(r.id).update({name,about,emoji:emo,vis});closeWho();toast('✏️ Saved');openRoom2(r.id);return}
+      const uid=myUid(),at=Date.now(),d={kind:'group',vis,name,about,emoji:emo,owner:uid,ownerName:me,uids:[uid],who:{[uid]:me},names:[me,...[...inv].map(canon)],at,lastAt:at,last:'',lastBy:'',lastName:''};
+      const ref=await col('rooms').add(d);if(!ROOMS.list.some(x=>x.id===ref.id))ROOMS.list.unshift({id:ref.id,...d});closeWho();toast('👥 '+name+' created'+(inv.size?' · '+plural(inv.size,'invite')+' sent':''));openRoom2(ref.id)}
+    catch(e){busy=false;$('#rsave').disabled=false;toast(e.code==='permission-denied'?'Ask the organizer to publish the latest app rules.':'Couldn’t save ('+(e.code||'error')+').')}}}
+/* the chat itself */
+function openRoom2(id){const r=ROOMS.list.find(x=>x.id===id);if(!r)return toast('That chat isn’t available any more.');ROOMS.cur=id;ROOMS.msgs=[];rMarkSeen(id);
+  if(ROOMS.munsub){ROOMS.munsub();ROOMS.munsub=null}
+  sheetOpen(`<div id="roomsheet" data-id="${esc(id)}"></div>`,'Chat');drawRoom(true);
+  if(!rCanRead(r)){const l=$('#rmsgs');if(l)l.innerHTML=`<p class="hint" style="text-align:center">🔒 ${isOrg?'Reading private chats is turned off for organizers (Manage › Chats & groups).':'Join to see the messages.'}</p>`;return}
+  ROOMS.munsub=col('rooms').doc(id).collection('msgs').orderBy('at','desc').limit(150).onSnapshot(q=>{if(!$('#roomsheet')||ROOMS.cur!==id){if(ROOMS.munsub){ROOMS.munsub();ROOMS.munsub=null}return}
+    ROOMS.msgs=q.docs.map(d=>({id:d.id,...d.data()})).reverse();rMarkSeen(id);drawMsgs()},e=>{const l=$('#rmsgs');if(l)l.innerHTML=`<p class="hint">${e&&e.code==='permission-denied'?'Only members can read this chat.':'Couldn’t load messages.'}</p>`})}
+function drawRoom(fresh){const box=$('#roomsheet');if(!box)return;const r=ROOMS.list.find(x=>x.id===box.dataset.id);if(!r){closeWho();return toast('This chat was closed.')}
+  const mem=rIn(r),inv=rInvited(r),M=rMembers(r);
+  const head=`<div class="sheet-h"><span class="ini">${r.kind==='dm'?ini(rTitle(r),'','sm'):esc(r.emoji||'💬')}</span><div><b>${esc(rTitle(r))}${r.kind!=='dm'&&r.vis==='private'?' 🔒':''}</b><small>${r.kind==='dm'?'Private message':plural(M.length,'member')+' · '+esc(M.slice(0,4).map(first).join(', '))+(M.length>4?'…':'')}</small></div>${r.kind!=='dm'||isOrg?`<button class="iconbtn" id="rinfo" aria-label="Group info">${ic('users')}</button>`:''}<button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div>`;
+  const foot=mem?`<div class="rcomp"><label class="kbbtn attb" aria-label="Add a photo">${ic('camera')}<input type="file" accept="image/*" id="ratt" hidden></label><input class="txt" id="rin" maxlength="1000" placeholder="Message…" autocomplete="off" enterkeyhint="send"><button type="button" class="btn primary" id="rsend" aria-label="Send">${ic('right')}</button></div><div id="rprev" hidden class="attprev"></div>`
+    :inv||(r.vis==='open'&&r.kind!=='dm')?`<div class="card-f"><button class="btn primary block" data-rjoin="${esc(r.id)}">${r.kind==='dm'?'Reply':'Join to chat'}</button></div>`
+    :orgRead()?`<div class="card-f"><p class="hint" style="margin:0">👀 You’re viewing as an organizer. Only members can send messages.</p></div>`:'';
+  if(fresh||!box.querySelector('#rmsgs')){box.innerHTML=head+`<div class="sub rlist" id="rmsgs"><p class="hint">Loading…</p></div>`+foot;bindRoom(r)}
+  else{const h=box.querySelector('.sheet-h');if(h){h.outerHTML=head;const c=$('#whoclose');if(c)c.onclick=closeWho;const i=$('#rinfo');if(i)i.onclick=()=>openRoomInfo(r.id)}}}
+function drawMsgs(){const l=$('#rmsgs');if(!l)return;const r=ROOMS.list.find(x=>x.id===ROOMS.cur)||{},uid=myUid(),M=ROOMS.msgs,stick=l.scrollHeight-l.scrollTop-l.clientHeight<80;
+  l.innerHTML=M.map(m=>{const mine=m.uid===uid,canDel=mine||isOrg||rOwner(r);return`<div class="rmsg${mine?' me':''}">${mine?'':ini(m.name||'?','','sm')}<div class="rb">${mine||r.kind==='dm'?'':`<b>${esc(first(m.name||''))}</b>`}${m.text?`<div class="ct">${richText(m.text)}</div>`:''}${m.img?`<img class="cimg" src="${m.img}" alt="" loading="lazy" data-zoom>`:''}<small>${hm(m.at)}${canDel?` · <button class="lnk" data-rdel="${esc(m.id)}">Delete</button>`:''}</small></div></div>`}).join('')||`<p class="hint" style="text-align:center">${r.kind==='dm'?'Say hi 👋':'No messages yet. Start the conversation 💬'}</p>`;
+  if(stick||l.dataset.first!=='1'){l.scrollTop=l.scrollHeight;l.dataset.first='1'}
+  l.querySelectorAll('[data-rdel]').forEach(b=>b.onclick=async()=>{if(b.dataset.c!=='1'){b.dataset.c='1';b.textContent='Tap to delete';return}try{await col('rooms').doc(ROOMS.cur).collection('msgs').doc(b.dataset.rdel).delete()}catch(e){toast('Couldn’t delete.')}})}
+function bindRoom(r){$('#whoclose').onclick=closeWho;const i=$('#rinfo');if(i)i.onclick=()=>openRoomInfo(r.id);
+  const j=document.querySelector('#roomsheet [data-rjoin]');if(j)j.onclick=()=>joinRoom(r.id);
+  const inp=$('#rin');if(!inp)return;let img='';const pv=$('#rprev'),setImg=u=>{img=u||'';pv.hidden=!img;pv.innerHTML=img?`<img src="${img}" alt=""><span>📷 Photo ready · add a message or just send</span><button type="button" class="iconbtn sm" aria-label="Remove photo">${ic('x')}</button>`:'';const x=pv.querySelector('button');if(x)x.onclick=()=>setImg('')};
+  attachImageInput($('#ratt'),inp,setImg);let sending=false;
+  const send=async()=>{const text=norm(inp.value);if(sending)return;if(!text&&!img){inp.focus();return toast('Type a message first ✍️')}const me=myCanon();if(!me)return toast('Pick your name first.');sending=true;
+    const at=Date.now(),d={name:me,uid:myUid(),text,at};if(img)d.img=img;const keep=img;inp.value='';setImg('');
+    try{await ensureAnon();await col('rooms').doc(r.id).collection('msgs').add(d);col('rooms').doc(r.id).update({last:text||'📷 Photo',lastAt:at,lastBy:myUid(),lastName:me}).catch(()=>{})}
+    catch(e){inp.value=text;setImg(keep);toast(e.code==='permission-denied'?'Ask the organizer to publish the latest app rules.':'Couldn’t send ('+(e.code||'error')+').')}finally{sending=false}};
+  $('#rsend').onclick=send;inp.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();send()}}}
+/* members, invites, leave, edit, close */
+function openRoomInfo(id){const r=ROOMS.list.find(x=>x.id===id);if(!r)return;const can=rCan(r),mem=rIn(r),W=r.who||{},M=Object.entries(W),inM=new Set(Object.values(W).map(nkey)),pend=(r.names||[]).filter(n=>!inM.has(nkey(n)));
+  const bg=sheetOpen(`<div class="sheet-h"><span class="ini">${esc(r.emoji||'💬')}</span><div><b>${esc(rTitle(r))}</b><small>${r.kind==='dm'?'Private message':(r.vis==='open'?'🌐 Anyone can join':'🔒 Invite only')+' · made by '+esc(first(r.ownerName||''))}</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div>
+    ${r.about?`<div class="sub"><p style="margin:0">${esc(r.about)}</p></div>`:''}
+    <div class="sub"><span class="sublbl">Members · ${M.length}</span>${M.map(([u,n])=>`<div class="row"><div class="l" style="display:flex;gap:8px;align-items:center">${ini(n,'','sm')}<b>${esc(n)}</b>${u===r.owner?' <small>· creator</small>':''}</div>${can&&u!==r.owner&&r.kind!=='dm'?`<button class="lnk" data-rkick="${esc(u)}">Remove</button>`:''}</div>`).join('')}
+      ${pend.length?`<span class="sublbl" style="margin-top:10px">Invited · not joined yet</span>${pend.map(n=>`<div class="row"><div class="l" style="display:flex;gap:8px;align-items:center">${ini(n,'','sm')}<span>${esc(n)}</span></div>${can&&r.kind!=='dm'?`<button class="lnk" data-runinv="${esc(n)}">Cancel</button>`:''}</div>`).join('')}`:''}</div>
+    <div class="card-f" style="display:grid;gap:8px">${mem&&r.kind!=='dm'?`<button class="btn line block" id="rinvite">➕ Invite people</button>`:''}${can&&r.kind!=='dm'?`<button class="btn line block" id="redit">✏️ Edit name, icon or who can join</button>`:''}
+      ${mem&&!rOwner(r)&&r.kind!=='dm'?`<button class="btn line block" id="rleave">🚪 Leave group</button>`:''}${can?`<button class="btn line block" id="rclose" style="color:var(--bad,#B42318)">🗑️ ${r.kind==='dm'?'Delete this chat':'Close and delete the group'}</button>`:''}</div>`,'Group info');
+  $('#whoclose').onclick=()=>openRoom2(id);const ref=col('rooms').doc(id),err=e=>toast(e.code==='permission-denied'?'Only the creator or an organizer can do that.':'Couldn’t save ('+(e.code||'error')+').');
+  const ri=$('#rinvite');if(ri)ri.onclick=()=>pickPeople({title:'Invite people',skip:[...(r.names||[]),...Object.values(W)],done:async L=>{try{await ref.update({names:[...(r.names||[]),...L.map(canon)]});toast('➕ '+plural(L.length,'invite')+' sent')}catch(e){err(e)}openRoom2(id)}});
+  const re=$('#redit');if(re)re.onclick=()=>openRoomEdit(id);
+  const rl=$('#rleave');if(rl)rl.onclick=async()=>{if(rl.dataset.c!=='1'){rl.dataset.c='1';rl.textContent='Tap again to leave';return}const uid=myUid(),w=Object.assign({},W);delete w[uid];
+    try{await ref.update({uids:(r.uids||[]).filter(u=>u!==uid),who:w,names:(r.names||[]).filter(n=>nkey(n)!==nkey(W[uid]||getMe()))});closeWho();toast('You left '+r.name)}catch(e){err(e)}};
+  const rc=$('#rclose');if(rc)rc.onclick=async()=>{if(rc.dataset.c!=='1'){rc.dataset.c='1';rc.textContent='Tap again to delete for everyone';return}
+    try{const q=await ref.collection('msgs').get();await Promise.all(q.docs.map(d=>d.ref.delete()));await ref.delete();closeWho();toast('🗑️ Deleted')}catch(e){err(e)}};
+  bg.querySelectorAll('[data-rkick]').forEach(b=>b.onclick=async()=>{const u=b.dataset.rkick,n=W[u],w=Object.assign({},W);delete w[u];
+    try{await ref.update({uids:(r.uids||[]).filter(x=>x!==u),who:w,names:(r.names||[]).filter(x=>nkey(x)!==nkey(n))});toast(first(n)+' removed');openRoomInfo(id)}catch(e){err(e)}});
+  bg.querySelectorAll('[data-runinv]').forEach(b=>b.onclick=async()=>{try{await ref.update({names:(r.names||[]).filter(x=>nkey(x)!==nkey(b.dataset.runinv))});openRoomInfo(id)}catch(e){err(e)}})}
+/* Manage › Chats & groups: organizers see every group and private message; creators see the groups they made */
+function openRoomsMgr(keep){startRooms();const uid=myUid(),L=ROOMS.list.filter(r=>isOrg||r.owner===uid),G=L.filter(r=>r.kind!=='dm'),D=L.filter(r=>r.kind==='dm'),wk=Date.now()-7*864e5;
+  const row=r=>`<div class="hrow" style="cursor:default"><span class="hi">${r.kind==='dm'?'✉️':esc(r.emoji||'💬')}</span><span class="ht"><b>${esc(r.kind==='dm'?(r.names||[]).join(' ↔ '):r.name)}${r.kind!=='dm'?(r.vis==='open'?' 🌐':' 🔒'):''}</b><small>${r.kind==='dm'?'':plural(rMembers(r).length,'member')+': '+esc(rMembers(r).map(first).join(', '))+' · '}${r.last?'last message '+esc(timeAgo(r.lastAt)):'no messages yet'}${r.kind!=='dm'?' · by '+esc(first(r.ownerName||'')):''}</small>
+    <span style="display:flex;gap:14px;margin-top:4px">${rCanRead(r)?`<button class="lnk" data-mread="${esc(r.id)}">💬 ${rIn(r)?'Open':'Read messages'}</button>`:'<small>🔒 Messages hidden</small>'}<button class="lnk" data-minfo="${esc(r.id)}">👥 Members & settings</button></span></span></div>`;
+  const html=`<div id="roomsmgr"></div><div class="sheet-h"><span class="ini">💬</span><div><b>Chats & groups</b><small>${isOrg?'Every group and private message · organizers only':'Groups you created'}</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div>
+    ${isOrg?`<section class="dsec"><label style="display:flex;align-items:center;justify-content:space-between;gap:12px;cursor:pointer"><span style="flex:1;min-width:0"><b style="font-size:14px">👀 Organizers can read messages</b><br><small class="hint" style="margin:0">${S.roomsRead!==false?'On: organizers can open any group or private chat. Members see a note saying so.':'Off: organizers see groups and members only, not the messages. They can still close a group.'}</small></span><input type="checkbox" id="rreadtg" ${S.roomsRead!==false?'checked':''} style="width:22px;height:22px;flex:none"></label></section>`:''}
+    ${isOrg?`<section class="dsec"><div class="dkg"><div class="dk"><span>Groups</span><b>${G.length}</b><small>${G.filter(r=>r.vis==='open').length} open · ${G.filter(r=>r.vis!=='open').length} invite only</small></div><div class="dk"><span>Private messages</span><b>${D.length}</b></div><div class="dk"><span>Active this week</span><b>${L.filter(r=>r.last&&(r.lastAt||0)>wk).length}</b></div><div class="dk"><span>People in groups</span><b>${new Set(G.flatMap(r=>rMembers(r).map(nkey))).size}</b></div></div></section>`:''}
+    <section class="dsec"><span class="sublbl">👥 Groups · ${G.length}</span>${G.map(row).join('')||'<small class="hint">No groups yet. Players start them from Club › Chats.</small>'}</section>
+    ${isOrg?`<section class="dsec"><span class="sublbl">✉️ Private messages · ${D.length}</span>${D.map(row).join('')||'<small class="hint">None yet</small>'}</section>`:''}
+    <div class="card-f"><button class="btn line block" id="mnew">👥 Start a new group</button></div>`;
+  const bg=keep&&$('#roomsmgr')?sheetSwap(html,'Chats & groups'):(SWAP_KEY='',sheetOpen(html,'Chats & groups'));
+  $('#whoclose').onclick=closeWho;bg.querySelectorAll('[data-mread]').forEach(b=>b.onclick=()=>openRoom2(b.dataset.mread));bg.querySelectorAll('[data-minfo]').forEach(b=>b.onclick=()=>openRoomInfo(b.dataset.minfo));
+  $('#mnew').onclick=()=>openRoomEdit();const tg=$('#rreadtg');if(tg)tg.onchange=()=>{S.roomsRead=tg.checked;saveConfig();toast(tg.checked?'👀 Organizers can read chats':'🔒 Chats are now hidden from organizers');openRoomsMgr(true)}}
+document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-dm]');if(b){e.preventDefault();closeWho();openDM(b.dataset.dm)}});
 function tipOfDay(){const n=Math.floor(Date.now()/864e5);return TIPS[n%TIPS.length]}
 function renderClub(){
   const v=$('#view-club');if(!db){v.innerHTML=intro('Club','Photos, tips and shout-outs.')+`<section class="card"><div class="empty">${ic('chat')}The club needs the shared database.</div></section>`;return}
@@ -3517,7 +3654,8 @@ function renderClub(){
       ${CLUBOPEN.has(x.id)?`<div class="sub" style="border-top:1px solid var(--line2);padding-top:12px">${threadHTML('post:'+x.id,'Add a comment…')}</div>`:''}</article>`};
   const pins=posts.filter(x=>x.kind==='announce'&&(x.pin||0)>Date.now());
   v.innerHTML=`${intro('Club','Photos from our games, tips to play better and kudos for each other. Everyone can post.')}
-  ${subnav('club',[['feed','Feed'],['kudos','🥑 Kudos'],['tips','Tips']])}
+  ${subnav('club',[['feed','Feed'],['chats','💬 Chats',roomsBadge()||''],['kudos','🥑 Kudos'],['tips','Tips']])}
+  <div data-in="chats">${chatsHTML(me)}</div>
   <div data-in="feed">
     <div data-card="stories">${storiesStrip()}</div>
     <section class="card pbar" data-card="compose">${!me?`<div class="pad"><p class="hint" style="margin:0">Pick your name in Payouts → My wallet to post.</p></div>`:perm('post')==='off'?`<div class="pad"><p class="hint" style="margin:0">🔒 Posting is turned off by the admins.${perm('kudos')!=='off'?' <button class="lnk" data-avo>🥑 Give Avokudos</button>':''}</p></div>`
@@ -3538,7 +3676,7 @@ function renderClub(){
     <section class="card">${cardH('check','Quick tips')}${TIPS.map(([t,x])=>`<div class="row"><div class="l"><b style="font-size:13px;color:var(--accent)">${esc(t)}</b><small style="color:var(--ink);font-size:14px">${esc(x)}</small></div></div>`).join('')}</section>
   </div>
   </div>`;
-  applySub(v,'club');if(SUB.club==='chat'){SUB.club='feed';applySub(v,'club')}
+  applySub(v,'club');if(SUB.club==='chat'){SUB.club='feed';applySub(v,'club')}bindRooms(v);startRooms();
   v.querySelectorAll('[data-compose]').forEach(b=>b.onclick=()=>openCompose(b.dataset.compose));
   v.querySelectorAll('[data-announce]').forEach(b=>b.onclick=openAnnounce);v.querySelectorAll('[data-plus]').forEach(b=>b.onclick=openPlus);
   {const qn=$('#qnote'),pb=v.querySelector('.pbar');if(qn&&pb){const t=()=>pb.classList.toggle('typing',!!qn.value.trim());qn.addEventListener('input',t);t()}}
@@ -3924,7 +4062,8 @@ function valueCard(){const from=shift(todayStr(),-29),inMo=t=>ymd(new Date(t||0)
 function teamMenu(org,AD,att,act){const rev=org?att.fresh.length+att.dups.length:0;
   const groups=[
     org?['Insights',[menuItem('','poll','📊 Dashboard & app health','North Star, games, attendance, money, ideas & problems, health checks',(()=>{try{const n=healthChecks().filter(h=>h.sev!=='info'&&h.n).length;return n?`<i class="nb">${n}</i>`:'All good'}catch(e){return''}})(),'dash')]]:null,
-    ['Group',[menuItem('players','users','Players & levels','Roster, levels, rename, merge or pause',act.length+(rev?` · <i class="nb">${rev}</i>`:'')),
+    ['Group',[menuItem('','chat','💬 Chats & groups',org?'Every group and private message · read, manage or close':'Groups you created · members, invites, close',(()=>{try{const u=myUid(),L=ROOMS.list.filter(r=>org||r.owner===u);return L.length?String(L.length):''}catch(e){return''}})(),'rooms'),
+      menuItem('players','users','Players & levels','Roster, levels, rename, merge or pause',act.length+(rev?` · <i class="nb">${rev}</i>`:'')),
       org&&AD?menuItem('adoption','poll','App adoption',S.vapid?'Who’s on the app, who gets alerts, nudges':'Who’s using the app, nudges, auto-inactive',AD.joined+'%'+(S.vapid?' · 🔔'+alertPct()+'%':'')):'',
       menuItem('group','palette',org?'Name, photo & theme':'Group name, photo & theme',org?'How the app and posters look':(perm('name')==='allow'?'You can rename the group':perm('name')==='ask'?'Suggest a new name':''),esc(SKINS[S.skin]?SKINS[S.skin].name:'')),
       org?menuItem('perms','lock','Player permissions','What players can change: name, photo, theme, posts, chat',actOpen().length?`<i class="nb">${actOpen().length}</i>`:''):'']],
@@ -4358,6 +4497,7 @@ function bindTeam(){
     else if(a==='msgset2')openMsgSettings();
     else if(a==='autopilot')openAutopilot();
     else if(a==='dash')openDash();
+    else if(a==='rooms')openRoomsMgr();
     else if(a==='suggest')openSuggest();
     else if(a==='myreqs')openMyRequests();
     else if(a==='contactsxl')exportContacts();
@@ -4425,7 +4565,9 @@ const guestBase=n=>norm(String(n||'').replace(/\s*\(guest\)\s*$/i,''));
 const isGuestName=n=>{const k=nkey(n);if(/\(guest\)$/.test(k))return true;if((S.roster||[]).some(r=>nkey(r)===k))return false;return!!(S.guestList||{})[k]};
 const guestPlayName=n=>{const gn=canon(tcase(n));return(S.roster||[]).some(r=>nkey(r)===nkey(gn))?gn+' (guest)':gn};
 /* booked courts for a date, from the court-booking board: the most courts booked at the same time */
-function courtsBooked(date){if(typeof S==='undefined'||!S.board)return 0;const d=boardDays().find(x=>x.date===date);return d?Math.max(0,...(d.slots||[]).map(x=>+x.c||0)):0}
+function slotSpan(t){const a=slotHour(t),h=slotHours(t);return a&&h?[a,a+h]:[0,24]}
+function courtsBooked(date){if(typeof S==='undefined'||!S.board)return 0;const d=boardDays().find(x=>x.date===date);if(!d)return 0;const L=(d.slots||[]).filter(x=>+x.c).map(x=>({s:slotSpan(x.t),c:+x.c}));
+  return Math.max(0,...L.map(a=>L.filter(b=>b.s[0]<=a.s[0]&&a.s[0]<b.s[1]).reduce((n,b)=>n+b.c,0)))}
 function bookedTxt(date){const d=boardDays().find(x=>x.date===date),L=d?(d.slots||[]).filter(x=>+x.c):[];if(!L.length)return'';const c=courtsBooked(date),h=boardHours(date);
   return plural(c,'court')+(L.length>1?' ('+L.map(x=>x.c+' × '+x.t).join(', ')+')':' · '+L[0].t)+' · '+fmtH(h)+' h'}
 function tally(poll,votes){
@@ -4673,11 +4815,12 @@ let ERRS=[],ERR_UNSUB=null;
   window.addEventListener('error',e=>log(e.message,e.filename,e.lineno));window.addEventListener('unhandledrejection',e=>log('Promise: '+((e.reason&&e.reason.message)||e.reason),'',0))})();
 function startErrs(){if(!isOrg||!db||ERR_UNSUB)return;ERR_UNSUB=col('errors').orderBy('at','desc').limit(60).onSnapshot(q=>{ERRS=q.docs.map(d=>({id:d.id,...d.data()}));if($('#dashsheet'))openDash(true)},()=>{ERR_UNSUB=null})}
 /* data checks that catch mistakes like a court slot counted twice */
-function healthChecks(){const t=todayStr(),H=[],add=(sev,ic,title,detail,n,go)=>H.push({sev,ic,title,detail,n,go});
+function healthChecks(){const t=todayStr(),H=[],add=(sev,ic,title,detail,n,go,ok)=>H.push({sev,ic,title,detail,n,go,ok});
   const slotH=x=>slotHours(x.t)||0,bh=d=>(d.slots||[]).reduce((a,x)=>a+slotH(x)*(+x.c||0),0);
-  // 1 · court slots starting together (e.g. 5–7 PM × 2 and 5–6 PM × 1 = 5 court-hours, often meant as 3)
-  const ov=boardDays().filter(d=>d.date>=t).filter(d=>{const st=(d.slots||[]).map(x=>slotHour(x.t));return st.length>1&&new Set(st).size<st.length});
-  add('warn','🏟️','Court slots that start at the same time',ov.map(d=>dlabel(d.date)+': '+(d.slots||[]).map(x=>x.t+' × '+x.c).join(' + ')+' = '+fmtH(bh(d))+' court-hours').join(' · ')||'None',ov.length,()=>{closeWho();go('day')});
+  // 1 · rows that start together but end at different times (5–7 PM × 2 + 5–6 PM × 1 = 5 court-hours: right, or meant 3?). Same time twice = more courts, that's fine.
+  const sig=d=>(d.slots||[]).map(x=>x.t+'×'+x.c).join('|');
+  const ov=boardDays().filter(d=>d.date>=t&&d.ok!==sig(d)).filter(d=>{const L=(d.slots||[]).filter(x=>+x.c);return L.some(a=>L.some(b=>a!==b&&slotHour(a.t)===slotHour(b.t)&&slotHours(a.t)!==slotHours(b.t)))});
+  add('warn','🏟️','Court slots that start together but end differently',ov.map(d=>dlabel(d.date)+': '+(d.slots||[]).map(x=>x.t+' × '+x.c).join(' + ')+' = '+plural(courtsBooked(d.date),'court')+', '+fmtH(bh(d))+' court-hours').join(' · ')||'None',ov.length,()=>{closeWho();go('day')},ov.length?{lbl:'✓ Looks right',fn:()=>{const B=JSON.parse(JSON.stringify(S.board||{}));(B.days||[]).forEach(d=>{if(ov.some(o=>o.date===d.date))d.ok=sig(d)});S.board=B;saveConfig();toast('👍 Marked as right');openDash(true)}}:null);
   // 2 · bill hours differ from the booking
   const mm=Object.keys(S.days).filter(k=>k>=shift(t,-21)&&k<=t).map(k=>getDay(k)).filter(d=>!d.cancelled&&d.present.length).map(d=>{const b=boardDays().find(x=>x.date===d.date);return b&&Math.abs(bh(b)-(+d.hours||0))>=.5?{d,b:bh(b)}:null}).filter(Boolean);
   add('warn','⏱️','Bill hours differ from court bookings',mm.map(x=>dlabel(x.d.date)+': bill '+fmtH(x.d.hours)+' h, booked '+fmtH(x.b)+' h').join(' · ')||'None',mm.length,()=>{closeWho();if(mm[0]){curDate=mm[0].d.date;go('game')}});
@@ -4742,7 +4885,7 @@ function openDash(keep){if(!isOrg)return;startErrs();startRequests&&startRequest
       const oi=(REQ.list||[]).filter(r=>!reqClosed(r)).length;if(oi)I.push(['💡',`${plural(oi,'idea or problem','ideas & problems')} open.`,`<button type="button" class="btn sm line" data-dgo="requests">Open inbox</button>`]);
       return I.length?`<section class="dsec"><span class="sublbl">⚡ Do this now</span>${I.map(([e,t,a])=>`<div class="drow"><span class="hi">${e}</span><span class="dt">${t}</span>${a||''}</div>`).join('')}</section>`:`<section class="dsec"><span class="sublbl">⚡ Do this now</span><small class="hint">Nothing needs you right now 🎉</small></section>`})()}
     <section class="dsec"><span class="sublbl">🩺 Health checks ${bad.length?`· <b style="color:#B42318">${plural(bad.length,'thing')} to look at</b>`:'· <b style="color:#027A48">all good</b>'}</span>
-      ${(()=>{const row=(h,i)=>`<button type="button" class="hrow ${h.n?h.sev:'ok'}" data-hc="${i}" ${h.go?'':'disabled'}><span class="hi">${h.n?h.ic:'✅'}</span><span class="ht"><b>${esc(h.title)}${h.n?` <i class="hn">${h.n}</i>`:''}</b><small>${esc(h.detail)}</small></span>${h.go&&h.n?ic('right'):''}</button>`,I=H.map((h,i)=>[h,i]),sv={bad:0,warn:1,info:2};
+      ${(()=>{const row=(h,i)=>`<button type="button" class="hrow ${h.n?h.sev:'ok'}" data-hc="${i}" ${h.go?'':'disabled'}><span class="hi">${h.n?h.ic:'✅'}</span><span class="ht"><b>${esc(h.title)}${h.n?` <i class="hn">${h.n}</i>`:''}</b><small>${esc(h.detail)}</small></span>${h.go&&h.n?ic('right'):''}</button>${h.n&&h.ok?`<button type="button" class="lnk hok1" data-hok="${i}">${esc(h.ok.lbl)}</button>`:''}`,I=H.map((h,i)=>[h,i]),sv={bad:0,warn:1,info:2};
         const F=I.filter(([h])=>h.n).sort((a,b)=>sv[a[0].sev]-sv[b[0].sev]),OK=I.filter(([h])=>!h.n);
         return F.map(([h,i])=>row(h,i)).join('')+(OK.length?`<details class="hok"><summary>✅ ${plural(OK.length,'check')} passing</summary>${OK.map(([h,i])=>row(h,i)).join('')}</details>`:'')})()}</section>
     <section class="dsec"><span class="sublbl">🏸 Games · last 30 days</span><div class="dkg">${kpi('Game days',D.P30.length,D.C30.length?D.C30.length+' cancelled':'')}${kpi('Players per game',D.P30.length?(D.pg/D.P30.length).toFixed(1):'–')}${kpi('Court-hours',fmtH(D.ch))}${kpi('Court cost per player',D.pg?inr(Math.round(D.cost/D.pg)):'–','per game')}</div></section>
@@ -4757,7 +4900,7 @@ function openDash(keep){if(!isOrg)return;startErrs();startRequests&&startRequest
     <section class="dsec"><span class="sublbl">📲 App use</span><div class="dkg">${kpi('People who opened the app · 7 days',D.users7+' / '+D.act.length)}${kpi('Phone alerts on',D.alerts+'%')}</div></section>
     <section class="dsec" id="errlog"><span class="sublbl">🐞 Error log · from players’ phones</span>${ERRS.length?ERRS.slice(0,15).map(x=>`<div class="erow"><b>${esc(x.msg)}</b><small>${esc(first(x.name||'someone'))} · v${esc(x.v||'?')} · ${esc(x.tab||'')} · ${whenD(x.at)} ${hm(x.at)}${/iPhone|iPad/.test(x.ua||'')?' · iPhone':/Android/.test(x.ua||'')?' · Android':''}</small></div>`).join('')+`<button type="button" class="lnk" data-errclear>Clear the log</button>`:'<small class="hint">No errors reported 🎉</small>'}</section>`;
   const bg=keep&&$('#dashsheet')?sheetSwap(html,'Dashboard'):(SWAP_KEY='',sheetOpen(html,'Dashboard'));
-  $('#whoclose').onclick=closeWho;bg.querySelectorAll('[data-hc]').forEach(b=>b.onclick=()=>{const h=H[+b.dataset.hc];if(h&&h.go&&h.n)h.go()});
+  $('#whoclose').onclick=closeWho;bg.querySelectorAll('[data-hc]').forEach(b=>b.onclick=()=>{const h=H[+b.dataset.hc];if(h&&h.go&&h.n)h.go()});bg.querySelectorAll('[data-hok]').forEach(b=>b.onclick=()=>{const h=H[+b.dataset.hok];if(h&&h.ok)h.ok.fn()});
   bg.querySelectorAll('[data-dgo]').forEach(b=>b.onclick=()=>{closeWho();const g=b.dataset.dgo;if(g==='requests')goSub('team','requests');else go(g)});
   const ec=bg.querySelector('[data-errclear]');if(ec)ec.onclick=async()=>{for(const x of ERRS)try{await col('errors').doc(x.id).delete()}catch(e){}toast('Error log cleared')}}
 function openAutopilot(){if(!isOrg)return;const A=AUTO(),W=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
@@ -4825,7 +4968,7 @@ function openPoll(id){if(!db)return;stopPoll();P.vOpen=false;P.gDirty=false;P.vT
 function stopPoll(){if(P.unsubPoll)P.unsubPoll();if(P.unsubVotes)P.unsubVotes();P.unsubPoll=P.unsubVotes=null}
 function pollRender(){if(tab!=='polls')return;const a=document.activeElement;if(a&&a.tagName==='INPUT'&&a.type==='text'&&$('#view-polls').contains(a))return;renderPolls()}
 const goPoll=id=>{const h='#poll-'+id;if(location.hash===h)routeHash();else location.hash=h};
-function routeHash(){{const m=location.hash.match(/^#pass-([A-Za-z0-9_-]+?)-(\d{4}-\d{2}-\d{2})(?:-(.+))?$/);if(m){go('day');const k=m[3]?decodeURIComponent(m[3]):'';setTimeout(()=>k?openPass(m[1],m[2],k):openPassList(m[1],m[2]),500);return}}if(location.hash==='#mytickets'){go('day');setTimeout(openMyRequests,300);return}if(location.hash==='#proposals'){go('day');setTimeout(()=>{if(isOrg)openActions()},300);return}if(location.hash==='#confirm'){SUB.pay='dues';go('pay');setTimeout(()=>{const c=$('#confirmcard');if(c)c.scrollIntoView({behavior:'smooth',block:'start'})},200);return}if(location.hash==='#team'||location.hash==='#ideas'){go('team');return}if(location.hash==='#home'){go('day');return}if(location.hash==='#payouts'){SUB.pay='mine';go('pay');return}if(location.hash==='#cup'){go('cup');return}{const m=location.hash.match(/^#cup-([A-Za-z0-9_-]+)$/);if(m){CUP.sel=m[1];go('cup');return}}if(location.hash==='#club'){go('club');return}if(location.hash==='#me'){go('me');return}if(location.hash==='#remind'){P.mode='list';P.scrollRem=true;go('polls');return}const m=location.hash.match(/^#poll-([A-Za-z0-9_-]+)$/);if(m){openPoll(m[1]);go('polls')}}
+function routeHash(){{const m=location.hash.match(/^#room-(.+)$/);if(m){const id=decodeURIComponent(m[1]);SUB.club='chats';go('club');startRooms();let n=0;const t=setInterval(()=>{if(ROOMS.list.some(x=>x.id===id)||++n>20){clearInterval(t);if(ROOMS.list.some(x=>x.id===id))openRoom2(id)}},300);return}}{const m=location.hash.match(/^#pass-([A-Za-z0-9_-]+?)-(\d{4}-\d{2}-\d{2})(?:-(.+))?$/);if(m){go('day');const k=m[3]?decodeURIComponent(m[3]):'';setTimeout(()=>k?openPass(m[1],m[2],k):openPassList(m[1],m[2]),500);return}}if(location.hash==='#mytickets'){go('day');setTimeout(openMyRequests,300);return}if(location.hash==='#proposals'){go('day');setTimeout(()=>{if(isOrg)openActions()},300);return}if(location.hash==='#confirm'){SUB.pay='dues';go('pay');setTimeout(()=>{const c=$('#confirmcard');if(c)c.scrollIntoView({behavior:'smooth',block:'start'})},200);return}if(location.hash==='#team'||location.hash==='#ideas'){go('team');return}if(location.hash==='#home'){go('day');return}if(location.hash==='#payouts'){SUB.pay='mine';go('pay');return}if(location.hash==='#cup'){go('cup');return}{const m=location.hash.match(/^#cup-([A-Za-z0-9_-]+)$/);if(m){CUP.sel=m[1];go('cup');return}}if(location.hash==='#club'){go('club');return}if(location.hash==='#me'){go('me');return}if(location.hash==='#remind'){P.mode='list';P.scrollRem=true;go('polls');return}const m=location.hash.match(/^#poll-([A-Za-z0-9_-]+)$/);if(m){openPoll(m[1]);go('polls')}}
 function leavePoll(){if(P.gDirty&&P.sel&&P.sel.id){saveVote();toast('👥 Your guests were sent for approval.')}P.gDirty=false;P.vOpen=false;P.vTouched=false;stopPoll();P.mode='list';P.sel=null;P.justCreated=null;try{history.replaceState(null,'',location.pathname)}catch(e){}renderPolls()}
 function renderPolls(){
   const v=$('#view-polls');
@@ -5171,7 +5314,7 @@ if('serviceWorker' in navigator)window.addEventListener('load',()=>{const had=!!
     if(!s.metadata.fromCache)CFG_READY=true;
     if(!s.exists&&!s.metadata.fromCache){cfgMissing=true;if(isOrg){cfgMissing=false;saveConfig()}}
     if(s.exists&&!s.metadata.hasPendingWrites)CFG_CLOUD=JSON.parse(JSON.stringify(s.data()));
-    if(s.exists){const d=s.data();if(Array.isArray(d.roster))S.roster=[...d.roster];S.rate=+d.rate||300;S.groupName=d.groupName||'';S.upiId=d.upiId||'';S.upiName=d.upiName||'';S.levels=d.levels&&typeof d.levels==='object'?d.levels:{};S.admins=Array.isArray(d.admins)?d.admins:[];S.inactive=Array.isArray(d.inactive)?d.inactive:[];S.ignored=Array.isArray(d.ignored)?d.ignored:[];S.openNames=d.openNames!==false;S.idleWeeks=d.idleWeeks==null?4:+d.idleWeeks;S.since=d.since||{};S.autoOff=d.autoOff||{};S.billed=Array.isArray(d.billed)?d.billed:[];S.msg=d.msg||null;S.closeRule=d.closeRule||null;S.carry=Array.isArray(d.carry)?d.carry:[];S.auto=d.auto||null;S.duesSnap=d.duesSnap||null;S.tkBoard=d.tkBoard||null;S.passOn=d.passOn!==false;S.passLead=d.passLead==null?30:d.passLead;S.sent=d.sent||{};S.board=d.board&&typeof d.board==='object'?d.board:null;S.layout=d.layout&&typeof d.layout==='object'?d.layout:{};S.dupOk=Array.isArray(d.dupOk)?d.dupOk:[];S.model=d.model==='pre'?'pre':'post';S.load=+d.load||1000;S.low=d.low==null?200:+d.low;S.perms=d.perms&&typeof d.perms==='object'?d.perms:{};S.giphy=String(d.giphy||'').slice(0,80);S.cats=d.cats&&typeof d.cats==='object'?d.cats:{};S.vapid=String(d.vapid||'').slice(0,200);S.alerts=d.alerts&&typeof d.alerts==='object'?d.alerts:{};S.guestList=d.guestList&&typeof d.guestList==='object'?d.guestList:{};S.pollClose=d.pollClose&&typeof d.pollClose==='object'?d.pollClose:null;setTimeout(autoInactive,0);S.skin=SKINS[d.skin]?d.skin:'court';applySkin();saveLocal();if(GID)rememberGroup();renderHeader();if(computeOrg()&&!typingIn('#view-'+tab)&&!$('#whosheet'))renderTab(true)}
+    if(s.exists){const d=s.data();if(Array.isArray(d.roster))S.roster=[...d.roster];S.rate=+d.rate||300;S.groupName=d.groupName||'';S.upiId=d.upiId||'';S.upiName=d.upiName||'';S.levels=d.levels&&typeof d.levels==='object'?d.levels:{};S.admins=Array.isArray(d.admins)?d.admins:[];S.inactive=Array.isArray(d.inactive)?d.inactive:[];S.ignored=Array.isArray(d.ignored)?d.ignored:[];S.openNames=d.openNames!==false;S.roomsRead=d.roomsRead!==false;S.idleWeeks=d.idleWeeks==null?4:+d.idleWeeks;S.since=d.since||{};S.autoOff=d.autoOff||{};S.billed=Array.isArray(d.billed)?d.billed:[];S.msg=d.msg||null;S.closeRule=d.closeRule||null;S.carry=Array.isArray(d.carry)?d.carry:[];S.auto=d.auto||null;S.duesSnap=d.duesSnap||null;S.tkBoard=d.tkBoard||null;S.passOn=d.passOn!==false;S.passLead=d.passLead==null?30:d.passLead;S.sent=d.sent||{};S.board=d.board&&typeof d.board==='object'?d.board:null;S.layout=d.layout&&typeof d.layout==='object'?d.layout:{};S.dupOk=Array.isArray(d.dupOk)?d.dupOk:[];S.model=d.model==='pre'?'pre':'post';S.load=+d.load||1000;S.low=d.low==null?200:+d.low;S.perms=d.perms&&typeof d.perms==='object'?d.perms:{};S.giphy=String(d.giphy||'').slice(0,80);S.cats=d.cats&&typeof d.cats==='object'?d.cats:{};S.vapid=String(d.vapid||'').slice(0,200);S.alerts=d.alerts&&typeof d.alerts==='object'?d.alerts:{};S.guestList=d.guestList&&typeof d.guestList==='object'?d.guestList:{};S.pollClose=d.pollClose&&typeof d.pollClose==='object'?d.pollClose:null;setTimeout(autoInactive,0);S.skin=SKINS[d.skin]?d.skin:'court';applySkin();saveLocal();if(GID)rememberGroup();renderHeader();if(computeOrg()&&!typingIn('#view-'+tab)&&!$('#whosheet'))renderTab(true)}
     renderTab(false)},e=>toast('Couldn’t load shared data ('+e.code+').'));
   fsDoc('config/photo').onSnapshot(s=>{if(busy('config/photo'))return;photo=s.exists?(s.data().data||''):'';try{photo?localStorage.setItem(LSP,photo):localStorage.removeItem(LSP)}catch(e){}renderHeader();if(tab==='team'&&!typingIn('#view-team'))renderTeam()},()=>{});
   col('days').onSnapshot(q=>{
@@ -5182,7 +5325,7 @@ if('serviceWorker' in navigator)window.addEventListener('load',()=>{const had=!!
   payCol().onSnapshot(q=>{PAYS=q.docs.map(d=>({id:d.id,...d.data()}));if(!typingIn('#view-day')&&!typingIn('#view-team')&&!typingIn('#view-me'))renderTab(false);else STALE=true},()=>{});
   document.addEventListener('focusout',()=>setTimeout(()=>{if(STALE&&!typingIn('#view-'+tab)){STALE=false;renderTab(false)}},120));
   document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){renderTab(false);syncUI()}});
-  startPollsListener();startProfiles();startChal();startCup();routeHash();setTimeout(()=>{startClub();startComments();startChat();startAvo();startOcc();startChal();startMyReq();startPresence();startStories()},tab==='club'||tab==='cup'?0:1200);setTimeout(startRequests,1200);setTimeout(takeShared,1600);window.addEventListener('hashchange',routeHash);
+  startPollsListener();startProfiles();startChal();startCup();routeHash();setTimeout(()=>{startClub();startComments();startChat();startRooms();startAvo();startOcc();startChal();startMyReq();startPresence();startStories()},tab==='club'||tab==='cup'?0:1200);setTimeout(startRequests,1200);setTimeout(takeShared,1600);window.addEventListener('hashchange',routeHash);
   setTimeout(()=>pingSeen(false),1500);startUse();
 })();
 })();
