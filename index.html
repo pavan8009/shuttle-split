@@ -644,7 +644,7 @@ const FIREBASE_CONFIG = {
 /* Collections get this prefix so they never clash with the league app's data */
 const COLLECTION_PREFIX = "shuttleSplit_";
 /* App version shown in Team → About */
-const APP_VERSION = "4.14.0", APP_BUILD = "6 Nov 2026";
+const APP_VERSION = "4.14.1", APP_BUILD = "6 Nov 2026";
 /* Owner of the main group (the link without ?g=) */
 const LEGACY_OWNER = "pavankaki.cool@gmail.com";
 /* Starting player list, used only until the first save */
@@ -4799,7 +4799,7 @@ function renderPollDetail(v){
       <small class="hint" style="margin:4px 0 0">Default: when voting closes${p.closesAt?' ('+esc(closeText(p.closesAt))+')':''}. It can’t stay open after voting closes.</small></div>
     <div class="card-f" style="display:grid;grid-template-columns:1fr auto;gap:8px"><a class="btn wa" id="gwsend" href="${waHref(fillTpl(tplOf('guests'),pollVars(p).v))}" target="_blank" rel="noopener">${ic('chat')}Send guest window</a><button type="button" class="btn line" id="gwcopy">${ic('copy')}Copy</button></div></section>`})():''}
   ${isOrg?orgGrid(p,t)+`<section class="card">${cardH('gear','Manage poll')}
-    <div class="pad"><div class="grid2"><button class="btn line" id="toggleclose">${p.closed?'Reopen poll':'Close poll'}</button>${P.confirmDel?`<button class="btn danger" id="delok">Delete for good</button>`:`<button class="btn line" id="delpoll">${ic('trash')}Delete</button>`}</div>
+    <div class="pad"><div class="grid2"><button class="btn line" id="toggleclose">${isClosed(p)?'Reopen poll':'Close poll'}</button>${P.confirmDel?`<button class="btn danger" id="delok">Delete for good</button>`:`<button class="btn line" id="delpoll">${ic('trash')}Delete</button>`}</div>
     <p class="hint">When voting closes, the yes voters are pre-filled as “Who played” for each date. You can still change it on Today.</p></div></section>`:''}
   ${prev?recapHTML(prev,'Previous poll'):''}`;
   $('#back').onclick=leavePoll;
@@ -4847,7 +4847,13 @@ function renderPollDetail(v){
       try{await pollsCol().doc(p.id).update({guestBy:ms&&ms!==p.closesAt?ms:null});toast(ms?'👥 Guest window closes '+closeText(ms):'👥 Guest window closes with voting')}catch(e){toast('Couldn’t save ('+(e.code||'error')+').')}};
     const gc=$('#gwcopy');if(gc)gc.onclick=()=>copyText(fillTpl(tplOf('guests'),pollVars(p).v),'Guest window message copied.');
     const gw=$('#gwsend');if(gw)gw.addEventListener('click',()=>{S.sent=S.sent||{};S.sent[p.id+'|guests']=Date.now();saveConfig()})}
-  const tc=$('#toggleclose');if(tc)tc.onclick=async()=>{try{await pollsCol().doc(p.id).update({closed:!p.closed});if(!p.closed){PDATA.at=0;await loadOrgData(true)}}catch(e){toast('Couldn’t update the poll ('+e.code+').')}};
+  const tc=$('#toggleclose');if(tc)tc.onclick=async()=>{try{
+    if(!isClosed(p)){await pollsCol().doc(p.id).update({closed:true});PDATA.at=0;await loadOrgData(true);return}
+    /* reopen: works whether it was closed by hand or because the closing time passed */
+    const t=todayStr(),fut=(p.dates||[]).map(d=>d.date).filter(d=>d>=t).sort();
+    if(!fut.length)return toast('All dates in this poll have passed. Start a new poll instead.');
+    const R0=CLOSE_RULE();let ca=new Date(shift(fut[0],-(+R0.d||0))+'T'+(R0.at||'22:00')).getTime();if(!(ca>Date.now()+3600e3))ca=null;
+    await pollsCol().doc(p.id).update({closed:false,closesAt:ca});toast('🔓 Poll reopened'+(ca?' · voting now closes '+closeText(ca)+'. Change it in Edit.':' · open until you close it.'))}catch(e){toast('Couldn’t update the poll ('+e.code+').')}};
   const dp=$('#delpoll');if(dp)dp.onclick=()=>{P.confirmDel=true;renderPolls()};
   const dk=$('#delok');if(dk)dk.onclick=async()=>{try{const ref=pollsCol().doc(p.id);const vs=await ref.collection('votes').get();await Promise.all(vs.docs.map(d=>d.ref.delete()));await ref.delete();leavePoll();toast('Poll deleted.')}catch(e){toast('Couldn’t delete ('+e.code+').')}};
 }
