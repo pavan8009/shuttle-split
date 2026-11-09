@@ -547,6 +547,7 @@ details.legend{padding:4px 16px 10px}details.legend summary{font-size:12.5px;fon
 .badge.pend{background:#FFFAEB;color:#B54708;border:1px solid #FEDF89}.pendc{background:#FFFCF5}
 .carryw{background:#FFFAEB;border-radius:12px;margin:0 12px 8px}
 .orgout{position:fixed;left:12px;right:12px;bottom:calc(76px + env(safe-area-inset-bottom));z-index:40;display:flex;align-items:center;gap:8px;background:#101828;color:#fff;border-radius:14px;padding:10px 12px;font-size:13px;box-shadow:0 8px 24px rgba(0,0,0,.25)}.orgout span{flex:1}.orgout .iconbtn{background:transparent;color:#fff}
+.cancelled-day{border:1.5px solid #FDA29B;background:#FEF3F2}.cancelled-day b{color:#B42318}
 .gtag{font-style:normal;font-size:10.5px;font-weight:800;background:#FEF0C7;color:#93370D;border-radius:999px;padding:1px 7px;vertical-align:1px}.gsec summary small{display:block;font-weight:600;color:var(--muted);font-size:12px}.btable tr.grow2 td{font-size:12.5px;color:var(--muted);background:var(--field)}.tplg{border-top:8px solid var(--line2)}.tplgh{display:flex;align-items:center;gap:10px;padding:14px 16px 4px}.tplgh>div{flex:1;display:grid}.tplgh b{font-size:16px}.tplgh small{color:var(--muted);font-size:12.5px}.tplgi{width:36px;height:36px;border-radius:10px;background:var(--field);display:grid;place-items:center;font-size:18px}.tplgn{font-size:12px;color:var(--muted);font-weight:700}
 .tpll{display:grid;gap:8px;padding:0 16px 14px}.tplc{border:1px solid var(--line);border-radius:12px;background:var(--surface)}.tplc>summary{list-style:none;display:flex;align-items:center;gap:8px;padding:11px 12px;cursor:pointer}.tplc>summary::-webkit-details-marker{display:none}.tplc>summary .ic{width:16px;height:16px;color:var(--muted);transition:transform .2s}.tplc[open]>summary .ic{transform:rotate(90deg)}
 .tplt{flex:1;display:grid;min-width:0}.tplt b{font-size:14px}.tplt small{font-size:12px;color:var(--muted)}.tpled{font-style:normal;font-size:11px;font-weight:800;color:#B54708;background:#FFFAEB;border-radius:999px;padding:2px 8px}.tplb{padding:0 12px 12px}
@@ -644,7 +645,7 @@ const FIREBASE_CONFIG = {
 /* Collections get this prefix so they never clash with the league app's data */
 const COLLECTION_PREFIX = "shuttleSplit_";
 /* App version shown in Team → About */
-const APP_VERSION = "4.14.2", APP_BUILD = "6 Nov 2026";
+const APP_VERSION = "4.15.0", APP_BUILD = "6 Nov 2026";
 /* Owner of the main group (the link without ?g=) */
 const LEGACY_OWNER = "pavankaki.cool@gmail.com";
 /* Starting player list, used only until the first save */
@@ -1246,7 +1247,7 @@ function slotEnd(note){const t=String(note||''),m=t.match(/(\d{1,2})(?:[:.](\d{2
   let b=+m[4]+(+m[5]||0)/60;const pm=(m[6]||'').toLowerCase()==='pm'||(!m[6]&&/pm/i.test(t)),am=(m[6]||'').toLowerCase()==='am';if(pm&&b<12)b+=12;if(!pm&&!am&&b<8)b+=12;return Math.min(24,b)}
 function nextGame(){const now=Date.now(),t=todayStr();let best=null;
   (P.list||[]).filter(p=>!isArchived(p)).forEach(p=>(p.dates||[]).forEach(dt=>{if(!dt.date||dt.date<t)return;const end=new Date(dt.date+'T00:00').getTime()+slotEnd(dt.note)*3600e3;if(end<=now)return;
-    const V=VOTES_BY[p.id];if(V){const st=new Date(dt.date+'T00:00').getTime()+(slotHour(dt.note)||17)*3600e3,yes=V.filter(v=>(v.answers||{})[dt.date]==='yes').length;if(!yes&&(isClosed(p)||now>=st))return}
+    if((p.cancelled||{})[dt.date])return;const V=VOTES_BY[p.id];if(V){const st=new Date(dt.date+'T00:00').getTime()+(slotHour(dt.note)||17)*3600e3,yes=V.filter(v=>(v.answers||{})[dt.date]==='yes').length;if(!yes&&(isClosed(p)||now>=st))return}
     if(!best||end<best.end)best={p,dt,end}}));return best}
 function ensureVotes(pl){if(!db||!pl||VOTE_UNSUB[pl.id])return;try{VOTE_UNSUB[pl.id]=pollsCol().doc(pl.id).collection('votes').onSnapshot(q=>{VOTES_BY[pl.id]=q.docs.map(d=>({poll:pl.id,id:d.id,...d.data()}));
   if(isOrg)orgChanged();else if(tab==='day'){const ns=$('#nextslot');if(ns){ns.innerHTML=nextGameCard();bindNextGame($('#view-day'))}refreshTasks()}},()=>{delete VOTE_UNSUB[pl.id]})}catch(e){}}
@@ -1285,6 +1286,7 @@ function renderDay(){
       <label class="iconbtn" aria-label="Pick a date">${ic('cal')}<input type="date" id="date" value="${curDate}"></label></div>
     <div class="week">${days.map(k=>`<button class="day${k===curDate?' sel':''}${k===t?' today':''}${S.days[k]&&S.days[k].present&&S.days[k].present.length?' has':''}" data-act="pick" data-v="${k}"><small>${dlabel(k,{weekday:'short'}).slice(0,3)}</small><b>${new Date(k+'T00:00').getDate()}</b><i></i></button>`).join('')}</div>
   </section>
+  ${d.cancelled?`<section class="card cancelled-day"><div class="pad"><b>🚫 Game cancelled</b><p class="hint" style="margin:4px 0 0">${esc(d.cancelled.reason||'')} · nobody is charged for this day${(d.cancelled.present||[]).length?' · '+plural(d.cancelled.present.length,'player')+' had said Yes':''}</p></div>${canEdit()?`<div class="card-f" style="display:grid;grid-template-columns:1fr auto;gap:8px"><a class="btn wa" href="${waHref(cancelMsg(d.date,d.cancelled.reason))}" target="_blank" rel="noopener">${ic('chat')}Tell the group</a><button type="button" class="btn line" data-restoreday>↩️ Restore</button></div>`:''}</section>`:''}
   ${canEdit()?'':`<section class="card" id="whoplayed"></section>`}
   <section class="card" id="viewsum" ${canEdit()?'hidden':''}></section>
   <fieldset id="dayfs" ${canEdit()?'':'disabled hidden'}>
@@ -1321,6 +1323,7 @@ function renderDay(){
   </section>
   </fieldset>
   <section class="card" id="splitcard"></section>
+  ${canEdit()&&!d.cancelled&&(d.present.length||P.list.some(x=>(x.dates||[]).some(y=>y.date===curDate)))?`<div style="text-align:center;margin:6px 0"><button type="button" class="lnk" data-cancelday style="color:#B42318">🚫 Game didn’t happen? Cancel this game day</button></div>`:''}
   ${S.days[curDate]&&canEdit()?`<div style="text-align:center" class="clearday">${dayConfirmClear?`<span class="hint">Remove everything recorded for this day?</span> <button class="lnk" data-act="clear-no">Keep</button> · <button class="lnk danger" data-act="clear-yes">Clear day</button>`:`<button class="lnk danger" data-act="clear">Clear this day</button>`}</div>`:''}</div>`;
   refreshDay();refreshTasks();bindBoard(v);bindNextGame(v);try{applyLayout('game')}catch(e){}
   attachSuggest($('#guest'),()=>allNames(),n=>{$('#guestwarn').hidden=true;const c=canon(n);const k0=nkey(c);if(!S.roster.some(r=>nkey(r)===k0)){S.roster.push(c);S.since=S.since||{};S.since[k0]=Date.now();saveConfig()}if((S.inactive||[]).includes(k0)){S.inactive=S.inactive.filter(x=>x!==k0);if(S.autoOff)delete S.autoOff[k0];saveConfig()}editDay(d=>{if(!d.present.some(x=>nkey(x)===nkey(c)))d.present.push(c)});toast(c+' marked as played.')},'in the group');
@@ -1380,6 +1383,31 @@ function refreshDay(){
 const payerOpts=(v,pre)=>`<option value="">${pre?'Paid by organizer':'Organizer (from collections)'}</option>${allNames().map(n=>`<option value="${esc(n)}" ${nkey(n)===nkey(v||'')?'selected':''}>${pre?'Paid by ':''}${esc(n)}</option>`).join('')}`;
 const payerRow=(k,l,v)=>`<div class="row" style="padding-top:4px"><div class="l"><small>${l}</small></div><select class="txt" data-pb="${k}" style="width:auto;max-width:58%;height:38px;font-size:14px">${payerOpts(v)}</select></div>`;
 const itemsOf=d=>d.items&&d.items.length?d.items:[{what:'Drinks',amt:+d.drinks||0,by:''}];
+/* cancel a game day: nobody is charged, passes are cancelled, the poll date shows Cancelled; restore brings everything back */
+function cancelMsg(date,reason){const p=P.list.find(x=>(x.dates||[]).some(d=>d.date===date)),dt=p&&p.dates.find(d=>d.date===date);return fillTpl(tplOf('gameCancel'),{date:dlabel(date,{weekday:'long',day:'numeric',month:'short'}),time:(dt&&dt.note)||'',reason:reason||'the game is off',link:appLink('home'),group:S.groupName||'Badminton Family'}).replace(/\n{3,}/g,'\n\n')}
+function openCancelDay(){if(!canEdit())return;const date=curDate;let why='the weather isn’t good for playing';const R0=[['🌧️ Weather','the weather isn’t good for playing'],['🏟️ Courts unavailable','the courts aren’t available'],['👥 Not enough players','we didn’t have the minimum players needed'],['🏆 Tournament at venue','there’s a tournament at the venue'],['⚠️ Unforeseen issue','of an unforeseen issue'],['✏️ Other','']];
+  const bg=sheetOpen(`<div class="sheet-h"><span class="ini">🚫</span><div><b>Cancel ${esc(dlabel(date,{weekday:'long',day:'numeric',month:'short'}))}?</b><small>Nobody is charged · you can restore it</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div>
+    <div class="pad"><span class="sublbl">Why</span><div class="chips">${R0.map(([l,v],i)=>`<button type="button" class="chipbtn${i===0?' on':''}" data-why="${esc(v)}">${l}</button>`).join('')}</div>
+      <input class="txt" id="cwhy" value="${esc(why)}" maxlength="80" style="margin-top:8px" placeholder="Reason players will see">
+      <p class="hint">Everyone’s charges for this day are removed (court, shuttles, drinks). Passes show <b>Cancelled</b>. Any drinks or items move to the next game day so the person who paid still gets it back.</p></div>
+    <div class="card-f" style="display:grid;gap:8px"><button class="btn primary block" id="cdok" style="background:#B42318;border-color:#B42318">🚫 Cancel this game day</button></div>`,'Cancel day');
+  bg.querySelectorAll('[data-why]').forEach(b=>b.onclick=()=>{bg.querySelectorAll('[data-why]').forEach(x=>x.classList.toggle('on',x===b));$('#cwhy').value=b.dataset.why;if(!b.dataset.why)$('#cwhy').focus()});
+  $('#cdok').onclick=async()=>{const reason=norm($('#cwhy').value)||'the game is off';const d0=getDay(date);
+    (d0.items||[]).filter(i=>i.amt&&i.by).forEach(i=>carryAdd({what:i.what||'Drinks',amt:i.amt,by:i.by,from:date}));
+    editDay(d=>{d.cancelled={at:Date.now(),reason,present:d.present,items:d.items,drinksOn:d.drinksOn,by:userEmail()||''};d.present=[];d.items=[];d.drinks=0;d.drinksOn=false;d.autoSync=false;d.bill='';});
+    for(const p of P.list.filter(x=>!isArchived(x)&&(x.dates||[]).some(d=>d.date===date)))if(db)try{await pollsCol().doc(p.id).update(new firebase.firestore.FieldPath('cancelled',date),{at:Date.now(),reason})}catch(e){}
+    try{const B=JSON.parse(JSON.stringify(S.board||{}));if(B.days){B.days=B.days.filter(d=>d.date!==date);S.board=B;saveConfig()}}catch(e){}
+    closeWho();renderTab(true);
+    const bg2=sheetOpen(`<div class="sheet-h"><span class="ini">✅</span><div><b>Game day cancelled</b><small>Nobody is charged for ${esc(dlabel(date))}</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div>
+      <div class="pad"><pre class="tplprev">${esc(cancelMsg(date,reason))}</pre></div>
+      <div class="card-f" style="display:grid;grid-template-columns:1fr auto;gap:8px"><a class="btn wa" href="${waHref(cancelMsg(date,reason))}" target="_blank" rel="noopener">${ic('chat')}Tell the group</a><button class="btn line" id="cdcopy">${ic('copy')}Copy</button></div>`,'Cancelled');
+    $('#cdcopy').onclick=()=>copyText(cancelMsg(date,reason),'Message copied.')}}
+async function restoreDay(){if(!canEdit())return;const date=curDate,c=getDay(date).cancelled;if(!c)return;
+  editDay(d=>{d.present=c.present||[];d.items=c.items||[];d.drinksOn=!!c.drinksOn;d.drinks=(d.items||[]).reduce((a,i)=>a+(+i.amt||0),0);delete d.cancelled});
+  S.carry=CARRY().filter(x=>!(x.from===date&&(c.items||[]).some(i=>i.by===x.by&&+i.amt===+x.amt)));saveConfig();
+  for(const p of P.list.filter(x=>(x.cancelled||{})[date]))if(db)try{await pollsCol().doc(p.id).update(new firebase.firestore.FieldPath('cancelled',date),firebase.firestore.FieldValue.delete())}catch(e){}
+  renderTab(true);toast('↩️ '+dlabel(date)+' restored. Charges are back.')}
+document.addEventListener('click',e=>{const t=e.target.closest&&e.target.closest('[data-cancelday],[data-restoreday]');if(!t)return;if(t.dataset.cancelday!==undefined)openCancelDay();else restoreDay()});
 function editDay(fn){
   if(!canEdit()){toast('Sign in as the organizer to make changes.');return}
   const d=getDay(curDate),before=JSON.stringify(d.present);const snap=JSON.stringify(d);fn(d);if(d.autoSync&&JSON.stringify(d.present)!==before)d.autoSync=false;
@@ -3325,6 +3353,7 @@ function passesFor(p,votes,date){const dt=(p.dates||[]).find(d=>d.date===date)||
   const L=[];(r.yes||[]).forEach(n=>{const k=nkey(n);L.push({key:k,n:canon(n),st:now>b?'used':'valid',sent:sent[k]&&sent[k].st==='valid'?sent[k].at:0})});
   (r.guests||[]).filter(g=>g.st==='ok').forEach(g=>{const k='g~'+g.key;L.push({key:k,n:tcase(g.n),guestOf:canon(g.host),st:now>b?'used':'valid',sent:sent[k]&&sent[k].st==='valid'?sent[k].at:0})});
   Object.entries(sent).forEach(([k,x])=>{if(L.some(y=>y.key===k))return;const v=(votes||[]).find(v=>nkey(v.name)===k);L.push({key:k,n:x.n,guestOf:x.g||'',st:'cancel',at:(v&&v.updatedAt)||x.at,sent:x.st==='cancel'?x.at:0,reason:x.g?'Guest not confirmed':v&&(v.answers||{})[date]==='no'?'Changed vote to No':'Vote removed'})});
+  const gc=(p.cancelled||{})[date];if(gc)L.forEach(x=>{if(x.st!=='cancel'){x.st='cancel';x.at=gc.at;x.reason='Game cancelled: '+(gc.reason||'')}});
   L.forEach(x=>{x.code=passCode(p.id,date,x.key);x.link=passLink(p.id,date,x.key)});
   return{dt,from,to:b,start:a,list:L,valid:L.filter(x=>x.st==='valid'),cancel:L.filter(x=>x.st==='cancel')}}
 const passWhen=(date,P0)=>dlabel(date,{weekday:'short',day:'numeric',month:'short'})+' · '+fmtTime(P0.start)+'–'+fmtTime(P0.to);
@@ -3394,7 +3423,7 @@ const GG_MAP='https://maps.app.goo.gl/8LitvJW5ozHjpuwW8';
 const venueMap=B=>{const m=String((B&&B.map)||'').trim();if(/^https:\/\/(maps\.app\.goo\.gl|goo\.gl\/maps|(www\.)?google\.[a-z.]+\/maps)/i.test(m))return m;return/gg\s*sports/i.test((B&&B.venue)||'')?GG_MAP:''};
 /* every upcoming poll date (weekend or custom, e.g. Mon 9 Nov) that has no booking yet: hours depend on the votes */
 function pendingCourts(){const t=todayStr(),have=new Set(boardDays().map(d=>d.date)),out=[];
-  (P.list||[]).filter(p=>!isArchived(p)).forEach(p=>(p.dates||[]).forEach(dt=>{if(!dt.date||dt.date<t||have.has(dt.date)||out.some(o=>o.date===dt.date))return;ensureVotes(p);
+  (P.list||[]).filter(p=>!isArchived(p)).forEach(p=>(p.dates||[]).forEach(dt=>{if(!dt.date||dt.date<t||have.has(dt.date)||out.some(o=>o.date===dt.date)||(p.cancelled||{})[dt.date])return;ensureVotes(p);
     const V=VOTES_BY[p.id],yes=V?V.filter(v=>(v.answers||{})[dt.date]==='yes').length:null,per=Math.max(1,Math.min(4,+p.perCourt||4)),courts=yes?Math.max(1,Math.round(yes/per)):0;
     if(V&&!yes&&isClosed(p))return;out.push({date:dt.date,note:dt.note||'',p,yes,courts,closed:isClosed(p)})}));return out.sort((a,b)=>a.date.localeCompare(b.date))}
 async function bookPending(date){const x=pendingCourts().find(o=>o.date===date);if(!x||!canEdit())return;const B=JSON.parse(JSON.stringify(S.board||{venue:'GG SPORTS',days:[]}));B.days=(B.days||[]).filter(d=>d.date!==date);
@@ -4441,7 +4470,7 @@ async function autoBillFromPolls(){
     const voters=latestByName(PDATA.votes.filter(v=>v.poll===p.id));
     for(const dt of p.dates||[]){
       if(!(isClosed(p)||dt.date<=today))continue;
-      const key=p.id+'|'+dt.date,cur=S.days[dt.date];
+      const key=p.id+'|'+dt.date,cur=S.days[dt.date];if((cur&&cur.cancelled)||((p.cancelled||{})[dt.date]))continue;
       const yesRaw=voters.filter(v=>(v.answers||{})[dt.date]==='yes');
       if(cur&&cur.autoSync&&cur.poll===p.id){
         const gq=guestsFor(p,voters,dt.date),yes=uniq([...yesRaw.map(v=>toRoster(v.name)),...gq.out]);
@@ -4469,6 +4498,7 @@ const TPL_DEFAULT={
   last:"⏰ *Last call! Voting closes in 1 hour* ({closes})\n\n{status}\n\n👉 {link}\nOnly app votes count for the game 🙏",
   game:"🏸 *Game in {lead} hours!* {date} · {time}\n\nPlaying ({count}): {players}\n{guest_line}\n🏟️ Courts: {courts}\n\nSee you on court! 💚",
   wallet:"🔋 *{group}: wallet top-up*\n\nThese wallets are below {low}:\n{dues_lines}\n\n📲 UPI: {upi}\n👛 Check your wallet: {payouts_link}\n\n✅ After loading, open the app → tap “I’ve paid” so it’s added to your wallet 🙏\n\nThank you! 💚",
+  gameCancel:"🚫 *Game cancelled · {date}*\n⏰ {time}\n\nSorry folks, {reason}. Nobody is charged for this game 💚\nWe’ll miss the fun this time. See you at the next one 🏸\n👉 {link}",
   results:"📋 *{title} — results*\n\n{results}\n\n{no_vote_line}",
   guests:"👥 *Guest window is open!* {title}\n\nA few spots are still free on the courts. Bring a friend 🙌\n{guest_status}\n\nVote Yes in the app and add your guest 👉 {link}\n⏰ Guest window closes {guest_close}.\n\nMembers get priority. Admins confirm guests 1–2 days before the game, and a guest’s share goes on the inviter’s bill 💚",
   bill:"🏸 *{group} — Payouts*\n{dates}\n\nThank you all for turning up and making it a great game! 🙌\nYour share is in the poster above. Whenever it suits you, please settle up. It keeps the courts booked and the shuttles flying for all of us. 💚\n\n{upi_line}\n📊 Full charges & your dues: {payouts_link}\n✅ Once paid, open the app → Payouts → My wallet → tap “I’ve paid” so it can be confirmed. Thank you!",
@@ -4481,7 +4511,7 @@ const TPL_DEFAULT={
 /* message templates, grouped by the event that sends them */
 const TPL_VARS={name:'Player’s first name',full:'Full name',venue:'Venue name',code:'Pass number',valid:'Pass valid from–to',list:'Every pass, one per line',count:'Number of valid passes',cancel_line:'“❌ Cancelled: …” line',map:'Venue map link',reason:'Why it was cancelled',guest_of:'Who invited the guest',title:'Poll title',dates:'Game dates',slots:'Each date and time, one per line',link:'Link to the poll',closes:'When voting closes',group:'Group name',
   status:'Yes count per date + how many more are needed',pending:'Names who haven’t voted',pending_count:'How many haven’t voted',threshold:'Players needed per slot',
-  results:'Result block for each date (players, guests, courts)',no_vote_line:'“No vote: …” line',guest_close:'When the guest window closes',names:'Everyone who played',guest_status:'Free spots per date',
+  results:'Result block for each date (players, guests, courts)',no_vote_line:'“No vote: …” line',reason:'Why it was cancelled',guest_close:'When the guest window closes',names:'Everyone who played',guest_status:'Free spots per date',
   date:'Game date',time:'Start time',lead:'Hours before the game',players:'Who’s playing',count:'How many are playing',guest_line:'“👥 Guests (2): …” line',guests:'Guest names',guest_count:'Number of guests',courts:'Courts booked',
   dues_lines:'One line per player with dues',upi:'Your UPI ID',upi_line:'“📲 UPI: …” line',upi_via:'“ via UPI: …”',payouts_link:'Link to Payouts',me_link:'Link to My wallet',low:'Low-balance limit',load:'Suggested top-up'};
 const TPL_GROUPS=[
@@ -4499,6 +4529,7 @@ const TPL_GROUPS=[
     ['passCancel','Pass cancelled','“One by one”, for anyone who changed to No',['name','date','time','venue','code','reason','link']],
     ['passThanks','Thank you after the game (group post)','When you tap “Send thank-you” after the slot ends',['date','time','venue','names','count','link']]]],
   ['game','🏸','Game day','Before each game',[
+    ['gameCancel','Game cancelled','When you cancel a game day in Bill',['date','time','reason','link','group']],
     ['game','Game-day reminder','The set hours before the game starts',['date','time','lead','players','count','guest_line','guests','guest_count','courts','group']]]],
   ['pay','💸','Payments','After a game is billed, and for dues',[
     ['bill','Bill posted (pay after the game)','With the payouts poster',['group','dates','upi_line','payouts_link']],
@@ -4613,6 +4644,7 @@ function exportICS(){
 /* sample fill-ins for the live preview of each template */
 function tplSample(k){try{
   const p=P.list.find(x=>!isArchived(x)&&!isClosed(x))||P.list[0];
+  if(k==='gameCancel')return{date:dlabel(curDate||todayStr(),{weekday:'long',day:'numeric',month:'short'}),time:'6–8 PM',reason:'it’s raining heavily',link:appLink('home'),group:S.groupName||'Badminton Family'};
   if(k==='passThanks'){const p=P.list.find(x=>!isArchived(x))||P.list[0];if(!p||!(p.dates||[])[0])return null;const d=p.dates[0].date,P0=passesFor(p,VOTES_BY[p.id]||[],d);return thanksVars(p,d,P0)}
   if(['pass','passCancel','passGroup'].includes(k)){if(!p||!(p.dates||[])[0])return null;const d=p.dates[0].date,P0=passesFor(p,VOTES_BY[p.id]||[],d),x=P0.valid[0]||{n:getMe()||'Ravi',code:passCode(p.id,d,'x'),link:passLink(p.id,d,'x'),reason:'Changed vote to No'};
     return k==='passGroup'?{title:p.title,date:dlabel(d,{weekday:'long',day:'numeric',month:'short'}),time:fmtTime(P0.start)+'–'+fmtTime(P0.to),venue:venueName(),valid:fmtTime(P0.from)+'–'+fmtTime(P0.to),list:'1. Manju · '+x.code+'\n2. Ram · …',count:P0.valid.length,cancel_line:'❌ Cancelled: Kiran · …',link:passLink(p.id,d,''),map:venueMap(S.board||{})}:Object.assign(passVars(p,d,P0,x),{reason:x.reason||'Changed vote to No'})}
