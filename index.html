@@ -657,7 +657,7 @@ const FIREBASE_CONFIG = {
 /* Collections get this prefix so they never clash with the league app's data */
 const COLLECTION_PREFIX = "shuttleSplit_";
 /* App version shown in Team → About */
-const APP_VERSION = "4.19.0", APP_BUILD = "9 Nov 2026";
+const APP_VERSION = "4.19.1", APP_BUILD = "9 Nov 2026";
 /* Owner of the main group (the link without ?g=) */
 const LEGACY_OWNER = "pavankaki.cool@gmail.com";
 /* Starting player list, used only until the first save */
@@ -3390,8 +3390,11 @@ function passesFor(p,votes,date){const dt=(p.dates||[]).find(d=>d.date===date)||
 const passWhen=(date,P0)=>dlabel(date,{weekday:'short',day:'numeric',month:'short'})+' · '+fmtTime(P0.start)+'–'+fmtTime(P0.to);
 function passVars(p,date,P0,x){return{name:first(x.n),full:x.n,date:dlabel(date,{weekday:'long',day:'numeric',month:'short'}),time:fmtTime(P0.start)+'–'+fmtTime(P0.to),venue:venueName(),code:x.code,
   valid:fmtTime(P0.from)+'–'+fmtTime(P0.to),report:fmtTime(P0.report),link:x.link,map:venueMap(S.board||{})||'',reason:x.reason||'',guest_of:x.guestOf?first(x.guestOf):'',group:S.groupName||'Badminton Family'}}
-function passGroupMsg(p,date,P0){const v=P0.valid.filter(x=>!x.guestOf),g=P0.valid.filter(x=>x.guestOf);
-  return fillTpl(tplOf('passGroup'),{title:p.title||'Game',date:dlabel(date,{weekday:'long',day:'numeric',month:'short'}),time:fmtTime(P0.start)+'–'+fmtTime(P0.to),venue:venueName(),valid:fmtTime(P0.from)+'–'+fmtTime(P0.to),
+/* while voting is still open, the pass message also names who hasn't voted yet */
+function pendingLine(p){if(isClosed(p))return'';let T;try{T=tally(p,(P.sel===p.id&&P.votes.length?P.votes:VOTES_BY[p.id])||[])}catch(e){return''}
+  const L=T.pending||[];if(!L.length)return'';return'⏳ *Not voted yet ('+L.length+'):* '+L.join(', ')+'\nPlease vote at the earliest to get your pass 🎟️ 👉 '+pollLink(p.id)+(p.closesAt?'\n⏰ Voting closes '+closeText(p.closesAt):'')}
+function passGroupMsg(p,date,P0){const v=P0.valid.filter(x=>!x.guestOf),g=P0.valid.filter(x=>x.guestOf),pl=pendingLine(p),tp=tplOf('passGroup');
+  return fillTpl(tp.includes('{pending_line}')?tp:tp+'\n\n{pending_line}',{pending_line:pl,title:p.title||'Game',date:dlabel(date,{weekday:'long',day:'numeric',month:'short'}),time:fmtTime(P0.start)+'–'+fmtTime(P0.to),venue:venueName(),valid:fmtTime(P0.from)+'–'+fmtTime(P0.to),
     list:v.map((x,i)=>(i+1)+'. '+x.n+' · '+x.code).join('\n')+(g.length?'\n👥 Guests: '+g.map(x=>x.n+' ('+first(x.guestOf)+'’s guest) · '+x.code).join(', '):''),count:P0.valid.length,
     report:fmtTime(P0.report),cancel_line:P0.cancel.length?'❌ Cancelled: '+P0.cancel.map(x=>x.n+' · '+x.code).join(', '):'',link:passLink(p.id,date,''),map:venueMap(S.board||{})||'',group:S.groupName||'Badminton Family'}).replace(/\n{3,}/g,'\n\n').trim()}
 async function markPasses(p,date,L){const cur=Object.assign({},((p.passes||{})[date])||{}),now=Date.now();L.forEach(x=>{cur[x.key]={n:x.n,st:x.st==='cancel'?'cancel':'valid',at:now,...(x.guestOf?{g:x.guestOf}:{})}});
@@ -3467,8 +3470,10 @@ async function drawPassImg(p,date,P0,x){try{await Promise.all(['500','700','800'
   g.fillStyle='rgba(255,255,255,.85)';g.font='800 26px '+F;g.textAlign='left';fit(g,'🏸  '+(S.groupName||'Badminton Family').toUpperCase(),P,Y+72,TW-360);
   g.font='800 22px '+F;const lab=x.guestOf?'GUEST PASS':'ENTRY PASS',lw=g.measureText(lab).width+44;g.fillStyle=sk.pop;rr(g,RX-lw,Y+40,lw,46,23);g.fill();g.fillStyle=sk.popInk;g.textAlign='center';g.fillText(lab,RX-lw/2,Y+71);
   // route: player → court
-  const pc=pCode3(x.n),vc=pCode3(venueName());g.fillStyle='#FFFFFF';g.textAlign='left';g.font='800 132px '+F;g.fillText(pc,P,Y+232);g.textAlign='right';g.fillText(vc,RX,Y+232);
-  g.font='600 26px '+F;g.globalAlpha=.85;g.textAlign='left';fit(g,first(x.n),P,Y+282,330);g.textAlign='right';fit(g,venueName(),RX,Y+282,330);g.globalAlpha=1;
+  const big=(t,max)=>{let z=120;g.font='800 '+z+'px '+F;while(g.measureText(t).width>max&&z>44){z-=4;g.font='800 '+z+'px '+F}return z};
+  const half=(TW-112-130)/2,pn=first(x.n),vn=venueName();g.fillStyle='#FFFFFF';
+  const z1=big(pn,half),z2=big(vn,half),z=Math.min(z1,z2);g.font='800 '+z+'px '+F;g.textAlign='left';fit(g,pn,P,Y+232,half);g.textAlign='right';fit(g,vn,RX,Y+232,half);
+  g.font='700 24px '+F;g.globalAlpha=.8;g.textAlign='left';g.fillText(x.guestOf?'GUEST':'PLAYER',P,Y+282);g.textAlign='right';g.fillText('COURT',RX,Y+282);g.globalAlpha=1;
   // flight path with a shuttle
   const my=Y+190;g.save();g.strokeStyle='rgba(255,255,255,.7)';g.lineWidth=4;g.setLineDash([10,12]);g.beginPath();g.moveTo(X+TW/2-120,my);g.quadraticCurveTo(X+TW/2,my-70,X+TW/2+120,my);g.stroke();g.restore();
   g.font='64px '+F;g.textAlign='center';g.fillText('🏸',X+TW/2,my-18);
@@ -4754,7 +4759,7 @@ const TPL_DEFAULT={
   passThanks:"💚 *Thank you for playing! · {venue}*\n📅 {date} · ⏰ {time}\n\nWhat a game! Thank you {names} for turning up and making it fun 🙌\n\nRest up, stretch, and see you on court next time 🏸\nScores, photos & your share 👉 {link}",
   dues:"🔔 *{group}: gentle reminder*\n\n{dues_lines}\n\n📲 UPI: {upi}\n👉 Details & pay: {payouts_link}\n\n✅ *Already paid?* Open the app → Payouts → My wallet → tap “I’ve paid”. It takes 5 seconds and keeps the books straight for everyone 🙏\n\nThank you! 💚"};
 /* message templates, grouped by the event that sends them */
-const TPL_VARS={name:'Player’s first name',full:'Full name',venue:'Venue name',code:'Pass number',valid:'Game time (start–end)',report:'Report time for warm-up',list:'Every pass, one per line',count:'Number of valid passes',cancel_line:'“❌ Cancelled: …” line',map:'Venue map link',reason:'Why it was cancelled',guest_of:'Who invited the guest',title:'Poll title',dates:'Game dates',slots:'Each date and time, one per line',link:'Link to the poll',closes:'When voting closes',group:'Group name',
+const TPL_VARS={name:'Player’s first name',full:'Full name',venue:'Venue name',code:'Pass number',valid:'Game time (start–end)',pending_line:'Who hasn’t voted yet (only while voting is open)',report:'Report time for warm-up',list:'Every pass, one per line',count:'Number of valid passes',cancel_line:'“❌ Cancelled: …” line',map:'Venue map link',reason:'Why it was cancelled',guest_of:'Who invited the guest',title:'Poll title',dates:'Game dates',slots:'Each date and time, one per line',link:'Link to the poll',closes:'When voting closes',group:'Group name',
   status:'Yes count per date + how many more are needed',pending:'Names who haven’t voted',pending_count:'How many haven’t voted',threshold:'Players needed per slot',
   results:'Result block for each date (players, guests, courts)',no_vote_line:'“No vote: …” line',reason:'Why it was cancelled',guest_close:'When the guest window closes',names:'Everyone who played',guest_status:'Free spots per date',
   date:'Game date',time:'Start time',lead:'Hours before the game',players:'Who’s playing',count:'How many are playing',guest_line:'“👥 Guests (2): …” line',guests:'Guest names',guest_count:'Number of guests',courts:'Courts booked',
