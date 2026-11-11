@@ -657,7 +657,7 @@ const FIREBASE_CONFIG = {
 /* Collections get this prefix so they never clash with the league app's data */
 const COLLECTION_PREFIX = "shuttleSplit_";
 /* App version shown in Team → About */
-const APP_VERSION = "4.19.1", APP_BUILD = "9 Nov 2026";
+const APP_VERSION = "4.20.0", APP_BUILD = "9 Nov 2026";
 /* Owner of the main group (the link without ?g=) */
 const LEGACY_OWNER = "pavankaki.cool@gmail.com";
 /* Starting player list, used only until the first save */
@@ -3402,12 +3402,12 @@ async function markPasses(p,date,L){const cur=Object.assign({},((p.passes||{})[d
 /* admin card on a poll */
 function thanksVars(p,date,P0){const N=P0.valid.concat(P0.list.filter(x=>x.st==='used')).map(x=>first(x.n));return{date:dlabel(date,{weekday:'long',day:'numeric',month:'short'}),time:fmtTime(P0.start)+'–'+fmtTime(P0.to),venue:venueName(),names:N.length?N.join(', '):'everyone',count:N.length,link:appLink('payouts')}}
 function passCard(p){if(!isOrg||!db||!S.passOn)return'';const today=todayStr(),D=(p.dates||[]).filter(d=>d.date>=today);if(!D.length)return'';
-  return`<section class="card" id="passcard">${cardH('cal','Entry passes',venueName())}${D.map(dt=>{const P0=passesFor(p,P.votes,dt.date),ns=P0.valid.filter(x=>!x.sent).length,nc=P0.cancel.filter(x=>!x.sent).length;
+  return`<section class="card" id="passcard">${cardH('cal','Entry passes',venueName())}${multiCard(p)}${D.map(dt=>{const P0=passesFor(p,P.votes,dt.date),ns=P0.valid.filter(x=>!x.sent).length,nc=P0.cancel.filter(x=>!x.sent).length;
     return`<div class="pad" style="border-top:1px solid var(--line2)"><b>${esc(passWhen(dt.date,P0))}</b><small class="hint" style="display:block;margin:2px 0 8px">✅ ${plural(P0.valid.length,'valid pass','valid passes')}${ns?' · '+ns+' not sent yet':''}${P0.cancel.length?' · ❌ '+P0.cancel.length+' cancelled'+(nc?' ('+nc+' to tell)':''):''} · valid ${fmtTime(P0.from)}–${fmtTime(P0.to)}</small>
       ${Date.now()>P0.to?`<a class="btn wa block" href="${waHref(fillTpl(tplOf('passThanks'),thanksVars(p,dt.date,P0)))}" target="_blank" rel="noopener">💚 Send thank-you to the group</a>`:`<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><a class="btn wa" data-passall="${dt.date}" href="${waHref(passGroupMsg(p,dt.date,P0))}" target="_blank" rel="noopener">${ic('chat')}Send all passes</a><button type="button" class="btn line" data-passeach="${dt.date}">📲 One by one${ns+nc?' ('+(ns+nc)+')':''}</button><button type="button" class="btn primary" data-passimgs="${dt.date}" style="grid-column:1/-1">🎟️ Send pass cards (images) to the group</button></div>`}
       <button type="button" class="lnk" data-passview="${dt.date}" style="margin-top:6px">🎟️ See all passes</button></div>`}).join('')}
     <div class="card-f"><small class="hint" style="margin:0">“Send all” posts the list to your WhatsApp group. “Pass cards” shares every pass as a boarding-pass image in one go. “One by one” opens each player’s chat. Passes are valid for the booked time only; players report ${REPORT_MIN()} min early to warm up.</small></div></section>`}
-function bindPassCard(p){document.querySelectorAll('[data-passall]').forEach(a=>a.addEventListener('click',()=>{const d=a.dataset.passall,P0=passesFor(p,P.votes,d);markPasses(p,d,P0.list.filter(x=>x.st!=='used'));toast('🎟️ '+plural(P0.valid.length,'pass','passes')+' posted'+(P0.cancel.length?' · '+P0.cancel.length+' cancelled':''))}));
+function bindPassCard(p){bindMultiCard(p);document.querySelectorAll('[data-passall]').forEach(a=>a.addEventListener('click',()=>{const d=a.dataset.passall,P0=passesFor(p,P.votes,d);markPasses(p,d,P0.list.filter(x=>x.st!=='used'));toast('🎟️ '+plural(P0.valid.length,'pass','passes')+' posted'+(P0.cancel.length?' · '+P0.cancel.length+' cancelled':''))}));
   document.querySelectorAll('[data-passeach]').forEach(b=>b.onclick=()=>openPassQueue(p,b.dataset.passeach));
   document.querySelectorAll('[data-passimgs]').forEach(b=>{const d=b.dataset.passimgs,P0=passesFor(p,P.votes,d);P0.valid.forEach(x=>passFile(p,d,P0,x).catch(()=>{}));
     b.onclick=async()=>{const P0=passesFor(p,P.votes,d);if(!P0.valid.length)return toast('No valid passes yet.');b.disabled=true;const t=b.textContent;b.textContent='🎨 Making '+P0.valid.length+' pass cards…';
@@ -3453,10 +3453,10 @@ async function openPassList(pid,date){const D=await passData(pid,date);if(!D)ret
 /* ================= 🎟️ BOARDING-PASS STYLE PASS IMAGES ================= */
 const PASSIMG={};
 const pCode3=t=>{const w=String(t||'').replace(/[^A-Za-z ]/g,' ').trim().split(/\s+/).filter(Boolean);if(!w.length)return'---';return(w.length>1?(w[0].slice(0,2)+w[1][0]):w[0].slice(0,3)).toUpperCase()};
-async function drawPassImg(p,date,P0,x){try{await Promise.all(['500','700','800'].map(w=>document.fonts.load(w+' 30px Manrope')))}catch(e){}
+async function drawPassImg(p,date,P0,x,days){const multi=days&&days.length>1;if(multi){const nx=days.find(d=>Date.now()<=d.P0.to)||days[days.length-1];date=nx.date;P0=nx.P0;x=Object.assign({},x,{st:nx.x.st})}try{await Promise.all(['500','700','800'].map(w=>document.fonts.load(w+' 30px Manrope')))}catch(e){}
   const k=SKINS[S.skin]?S.skin:'court',sk=SKINS[k],acc=sk.accent,F='Manrope,system-ui,sans-serif',M='ui-monospace,SFMono-Regular,Menlo,monospace';
   const now=Date.now(),st=x.st==='cancel'?'cancel':now>P0.to?'used':now>=P0.start?'live':now>=P0.report?'report':'valid';
-  const W=1080,H=1420,X=60,Y=60,TW=W-120,TH=H-120,cutY=Y+900,R=46;
+  const extra=multi?Math.max(0,days.length*96-250):0,W=1080,H=1420+extra,X=60,Y=60,TW=W-120,TH=H-120,cutY=Y+900+extra,R=46;
   const cv=document.createElement('canvas');cv.width=W;cv.height=H;const g=cv.getContext('2d');
   // backdrop: soft court lines
   g.fillStyle=mix(acc,'#FFFFFF',.10);g.fillRect(0,0,W,H);g.save();g.globalAlpha=.10;g.strokeStyle=acc;g.lineWidth=6;
@@ -3468,7 +3468,7 @@ async function drawPassImg(p,date,P0,x){try{await Promise.all(['500','700','800'
   g.globalAlpha=.10;g.strokeStyle='#FFFFFF';g.lineWidth=3;for(let i=-3;i<10;i++){g.beginPath();g.moveTo(X+i*150,Y+360);g.lineTo(X+i*150+260,Y);g.stroke()}g.restore();
   const P=X+56,RX=X+TW-56;g.textBaseline='alphabetic';
   g.fillStyle='rgba(255,255,255,.85)';g.font='800 26px '+F;g.textAlign='left';fit(g,'🏸  '+(S.groupName||'Badminton Family').toUpperCase(),P,Y+72,TW-360);
-  g.font='800 22px '+F;const lab=x.guestOf?'GUEST PASS':'ENTRY PASS',lw=g.measureText(lab).width+44;g.fillStyle=sk.pop;rr(g,RX-lw,Y+40,lw,46,23);g.fill();g.fillStyle=sk.popInk;g.textAlign='center';g.fillText(lab,RX-lw/2,Y+71);
+  g.font='800 22px '+F;const lab=(multi?days.length+'-DAY ':'')+(x.guestOf?'GUEST PASS':'ENTRY PASS'),lw=g.measureText(lab).width+44;g.fillStyle=sk.pop;rr(g,RX-lw,Y+40,lw,46,23);g.fill();g.fillStyle=sk.popInk;g.textAlign='center';g.fillText(lab,RX-lw/2,Y+71);
   // route: player → court
   const big=(t,max)=>{let z=120;g.font='800 '+z+'px '+F;while(g.measureText(t).width>max&&z>44){z-=4;g.font='800 '+z+'px '+F}return z};
   const half=(TW-112-130)/2,pn=first(x.n),vn=venueName();g.fillStyle='#FFFFFF';
@@ -3486,20 +3486,26 @@ async function drawPassImg(p,date,P0,x){try{await Promise.all(['500','700','800'
   // details grid
   const cell=(lbl,val,cx2,cy2,w,big,col)=>{g.textAlign='left';g.fillStyle='#667085';g.font='700 21px '+F;g.fillText(lbl,cx2,cy2);g.fillStyle=col||'#101828';g.font='800 '+(big||40)+'px '+F;fit(g,val,cx2,cy2+(big||40)+12,w)};
   const cw=(TW-112)/3;y+=170;
+  if(multi){g.textAlign='left';g.fillStyle='#667085';g.font='700 21px '+F;g.fillText('YOUR GAME DAYS · REPORT '+REPORT_MIN()+' MIN EARLY TO WARM UP',P,y);let yy=y+20;
+    days.forEach((d,i)=>{const done=Date.now()>d.P0.to;g.fillStyle=i%2?'#FFFFFF':mix(acc,'#FFFFFF',.06);rr(g,P-16,yy,TW-112+32,86,16);g.fill();
+      g.globalAlpha=done?.45:1;g.fillStyle='#101828';g.font='800 34px '+F;g.textAlign='left';g.fillText(dlabel(d.date,{weekday:'short',day:'numeric',month:'short'}),P,yy+40);
+      g.fillStyle='#667085';g.font='600 22px '+F;g.fillText('Report by '+fmtTime(d.P0.report)+' · '+d.x.code,P,yy+72);
+      g.fillStyle=acc;g.font='800 34px '+F;g.textAlign='right';g.fillText(fmtTime(d.P0.start)+'–'+fmtTime(d.P0.to),RX,yy+40);g.fillStyle='#667085';g.font='600 22px '+F;g.fillText(done?'played ✓':venueName(),RX,yy+72);g.globalAlpha=1;yy+=96});
+  }else{
   cell('DATE',dlabel(date,{weekday:'short',day:'numeric',month:'short'}),P,y,cw-16);cell('GAME TIME',fmtTime(P0.start)+'–'+fmtTime(P0.to),P+cw,y,cw*2-16);
   y+=120;const cb=courtsBooked(date);
   cell('REPORT BY',fmtTime(P0.report),P,y,cw-16,40,acc);cell('VENUE',venueName(),P+cw,y,cw*(cb?1:2)-16);if(cb)cell('COURTS',String(cb),P+cw*2,y,cw-16);
-  g.fillStyle='#667085';g.font='600 23px '+F;g.textAlign='left';fit(g,REPORT_MIN()?'🏃 Be there '+REPORT_MIN()+' min early to warm up · play starts '+fmtTime(P0.start)+' sharp':'Play starts '+fmtTime(P0.start)+' sharp',P,y+108,TW-112);
+  g.fillStyle='#667085';g.font='600 23px '+F;g.textAlign='left';fit(g,REPORT_MIN()?'🏃 Be there '+REPORT_MIN()+' min early to warm up · play starts '+fmtTime(P0.start)+' sharp':'Play starts '+fmtTime(P0.start)+' sharp',P,y+108,TW-112);}
   // perforation
   g.save();g.globalCompositeOperation='destination-out';[X,X+TW].forEach(nx=>{g.beginPath();g.arc(nx,cutY,34,0,7);g.fill()});g.restore();
   g.save();g.fillStyle=mix(acc,'#FFFFFF',.10);[X,X+TW].forEach(nx=>{g.beginPath();g.arc(nx,cutY,34,0,7);g.fill()});g.restore();
   g.save();g.strokeStyle='#D0D5DD';g.lineWidth=4;g.setLineDash([14,12]);g.beginPath();g.moveTo(X+50,cutY);g.lineTo(X+TW-50,cutY);g.stroke();g.restore();
   // stub: pass number, barcode, status
-  y=cutY+70;cell('PASS NO.','',P,y,400);g.fillStyle='#101828';g.font='800 40px '+M;g.textAlign='left';g.fillText(x.code,P,y+52);
+  y=cutY+70;cell(multi?'PASS NOS.':'PASS NO.','',P,y,400);g.fillStyle='#101828';g.font=(multi?'800 30px ':'800 40px ')+M;g.textAlign='left';fit(g,multi?days.map(d=>d.x.code).join(' · '):x.code,P,y+52,TW-112-300);
   const chip={valid:['✅ VALID','#067647','#ECFDF3'],report:['🏃 REPORT NOW','#B54708','#FFFAEB'],live:['🟢 PLAY ON','#067647','#ECFDF3'],used:['💚 USED','#475467','#F2F4F7'],cancel:['❌ CANCELLED','#B42318','#FEF3F2']}[st];
   g.font='800 26px '+F;const chw=g.measureText(chip[0]).width+48;g.fillStyle=chip[2];rr(g,RX-chw,y-6,chw,56,28);g.fill();g.fillStyle=chip[1];g.textAlign='center';g.fillText(chip[0],RX-chw/2,y+31);
   // barcode
-  const bx0=P,bw=TW-112,by=y+96,bh=150,seed=[...x.code].map(c=>c.charCodeAt(0));let bxp=bx0,i=0;g.fillStyle='#101828';
+  const bx0=P,bw=TW-112,by=y+96,bh=150,seed=[...(multi?days.map(d=>d.x.code).join(''):x.code)].map(c=>c.charCodeAt(0));let bxp=bx0,i=0;g.fillStyle='#101828';
   while(bxp<bx0+bw-4){const v=seed[i%seed.length]+i*7,w=2+v%5,gap=2+(v>>3)%4;if(bxp+w>bx0+bw)break;g.fillRect(bxp,by,w,bh);bxp+=w+gap;i++}
   g.fillStyle='#667085';g.font='600 22px '+F;g.textAlign='center';fit(g,'Show this pass at the venue · '+(S.groupName||'Badminton Family'),X+TW/2,by+bh+48,TW-112);
   // cancelled stamp
@@ -3517,6 +3523,40 @@ async function sharePassFiles(files,text,title){if(!files.length)return false;
     <div class="sub" style="display:grid;grid-template-columns:${files.length>1?'1fr 1fr':'1fr'};gap:10px">${urls.map(u=>`<img src="${u}" alt="" style="width:100%;border-radius:12px;box-shadow:0 4px 14px rgba(16,24,40,.12)">`).join('')}</div>
     ${can?`<div class="card-f"><button class="btn primary block" id="shnow">📤 Share ${files.length>1?files.length+' passes':'pass'}</button></div>`:''}`,'Share passes');
   $('#whoclose').onclick=closeWho;const b=$('#shnow');if(b)b.onclick=()=>{navigator.share({files,text}).then(()=>closeWho()).catch(e=>{if(!e||e.name!=='AbortError')toast('Couldn’t open sharing. Long-press a pass to save it.')})};return true}
+/* ================= 🎟️ ONE PASS FOR ALL YOUR DAYS (multi-day polls) ================= */
+// every upcoming, not-cancelled date of the poll, with each player's passes across those dates combined into one
+function passBundles(p,votes){const t=todayStr(),D=(p.dates||[]).filter(d=>d.date>=t&&!(p.cancelled||{})[d.date]).map(d=>({date:d.date,P0:passesFor(p,votes,d.date)}));
+  const B=new Map();D.forEach(({date,P0})=>P0.valid.forEach(x=>{if(!B.has(x.key))B.set(x.key,{key:x.key,n:x.n,guestOf:x.guestOf||'',days:[]});B.get(x.key).days.push({date,P0,x})}));
+  return{D,list:[...B.values()].sort((a,b)=>(b.days.length-a.days.length)||a.n.localeCompare(b.n))}}
+const dayLine=d=>dlabel(d.date,{weekday:'short',day:'numeric',month:'short'})+' · '+fmtTime(d.P0.start)+'–'+fmtTime(d.P0.to)+' · report '+fmtTime(d.P0.report)+' · 🔖 '+d.x.code;
+function multiVars(p,b){return{name:first(b.n),full:b.n,venue:venueName(),count:b.days.length,days:b.days.map(d=>'📅 '+dayLine(d)).join('\n'),
+  link:b.days[0].x.link,map:venueMap(S.board||{})||'',report_min:REPORT_MIN(),group:S.groupName||'Badminton Family'}}
+function multiGroupMsg(p,BB){const D=BB.D.filter(d=>d.P0.valid.length),pl=pendingLine(p);
+  return['🎟️ *Entry passes · '+venueName()+'*',D.map(d=>'📅 '+dlabel(d.date,{weekday:'short',day:'numeric',month:'short'})+' · ⏰ '+fmtTime(d.P0.start)+'–'+fmtTime(d.P0.to)+' · 🏃 report '+fmtTime(d.P0.report)).join('\n'),
+    BB.list.map((b,i)=>(i+1)+'. '+b.n+(b.guestOf?' ('+first(b.guestOf)+'’s guest)':'')+' · '+b.days.map(d=>dlabel(d.date,{weekday:'short',day:'numeric'})).join(' & ')).join('\n'),
+    'One pass covers all your days. Open yours 👉 '+passLink(p.id,D[0]?D[0].date:'',''),venueMap(S.board||{})?'📍 '+venueMap(S.board||{}):'',
+    'Can’t make a day? Change your vote and that day is cancelled automatically.',pl].filter(Boolean).join('\n\n')}
+async function multiFile(p,b){const id='M|'+b.days.map(d=>d.x.code).join(',')+'|'+REPORT_MIN();if(PASSIMG[id])return PASSIMG[id];
+  const bl=b.days.length===1?await drawPassImg(p,b.days[0].date,b.days[0].P0,b.days[0].x):await drawPassImg(p,b.days[0].date,b.days[0].P0,b.days[0].x,b.days);
+  const f=new File([bl],'pass-'+b.n.replace(/[^A-Za-z0-9]+/g,'-')+'-'+b.days.map(d=>d.date.slice(5)).join('_')+'.png',{type:'image/png'});PASSIMG[id]=f;return f}
+function multiMark(p,b){const by={};b.days.forEach(d=>{(by[d.date]=by[d.date]||[]).push(d.x)});return Promise.all(Object.entries(by).map(([dt,L])=>markPasses(p,dt,L)))}
+function multiCard(p){const BB=passBundles(p,P.votes);if(BB.D.length<2||!BB.list.length)return'';const two=BB.list.filter(b=>b.days.length>1).length;
+  return`<div class="pad" style="background:var(--field)"><b>🎟️ One pass for all days</b><small class="hint" style="display:block;margin:2px 0 8px">${plural(BB.list.length,'player')} · ${two} playing more than one day get a single pass listing every day; others get a pass for their day only.</small>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><button type="button" class="btn primary" data-mpimgs>🎟️ Pass cards to group</button><button type="button" class="btn line" data-mpeach>📲 One by one (${BB.list.length})</button></div></div>`}
+function bindMultiCard(p){const a=document.querySelector('[data-mpimgs]');if(a){const BB=passBundles(p,P.votes);BB.list.forEach(b=>multiFile(p,b).catch(()=>{}));
+    a.onclick=async()=>{const BB=passBundles(p,P.votes);if(!BB.list.length)return toast('No valid passes yet.');a.disabled=true;const t=a.textContent;a.textContent='🎨 Making '+BB.list.length+' pass cards…';
+      try{const F=await Promise.all(BB.list.map(b=>multiFile(p,b)));const ok=await sharePassFiles(F,multiGroupMsg(p,BB),plural(F.length,'pass card')+' ready');if(ok)await Promise.all(BB.list.map(b=>multiMark(p,b)))}
+      catch(e){toast('Couldn’t make the pass cards.')}finally{a.disabled=false;a.textContent=t}}}
+  const e=document.querySelector('[data-mpeach]');if(e)e.onclick=()=>openMultiQueue(p)}
+function openMultiQueue(p){startPrivate();const draw=()=>{const BB=passBundles(p,P.votes),ph=b=>{const v=PROF.priv[nkey(b.guestOf||b.n)]||{};return waNum(v.phone)};BB.list.forEach(b=>multiFile(p,b).catch(()=>{}));
+  const bg=sheetSwap(`<div class="sheet-h"><span class="ini">🎟️</span><div><b>One pass per player</b><small>${esc(BB.D.map(d=>dlabel(d.date,{weekday:'short',day:'numeric',month:'short'})).join(' & '))} · ${esc(venueName())}</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div>
+    <p class="hint" style="padding:0 16px"><b>Send</b> opens their WhatsApp chat with every day they’re playing. <b>🎟️</b> shares their pass card: pick WhatsApp, then their name.</p>
+    <div class="pql">${BB.list.map(b=>{const n=ph(b),msg=fillTpl(tplOf('passMulti'),multiVars(p,b)),sent=b.days.every(d=>d.x.sent);return`<div class="pqr${sent?' done':''}">${ini(b.guestOf||b.n)}<span class="pqn"><b>${esc(b.n)}${b.guestOf?' <small>· '+esc(first(b.guestOf))+'’s guest</small>':''}</b><small>${b.days.length>1?'🎟️ '+b.days.length+' days: ':''}${esc(b.days.map(d=>dlabel(d.date,{weekday:'short',day:'numeric'})).join(' & '))}${sent?' · ✓ sent':''}</small></span><button type="button" class="btn sm line" data-mqi="${esc(b.key)}" aria-label="Send pass card">🎟️</button>${n?`<a class="btn sm ${sent?'line':'wa'}" data-mq="${esc(b.key)}" href="https://wa.me/${n}?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener">${sent?'Resend':'Send'}</a>`:`<button type="button" class="btn sm line" data-mqc="${esc(b.key)}" data-msg="${esc(msg)}">Copy</button>`}</div>`}).join('')||'<div class="empty">No valid passes yet.</div>'}</div>`,'Pass queue');
+  bg.querySelector('#whoclose').onclick=closeWho;const find=k=>passBundles(p,P.votes).list.find(b=>b.key===k);
+  bg.querySelectorAll('[data-mq]').forEach(a=>a.addEventListener('click',()=>{const b=find(a.dataset.mq);if(b)multiMark(p,b).then(()=>setTimeout(draw,400))}));
+  bg.querySelectorAll('[data-mqc]').forEach(x=>x.onclick=()=>{copyText(x.dataset.msg,'Pass copied.');const b=find(x.dataset.mqc);if(b)multiMark(p,b).then(()=>setTimeout(draw,400))});
+  bg.querySelectorAll('[data-mqi]').forEach(x=>x.onclick=async()=>{const b=find(x.dataset.mqi);if(!b)return;const f=await multiFile(p,b);if(await sharePassFiles([f],fillTpl(tplOf('passMulti'),multiVars(p,b)),'Pass card for '+first(b.n)))multiMark(p,b)})};
+  SWAP_KEY='';draw()}
 /* ================= COURT BOARD: this week's bookings ================= */
 function slotHours(t){const m=String(t||'').match(/(\d{1,2})(?:[:.](\d{2}))?\s*(am|pm)?\s*(?:-|–|to)\s*(\d{1,2})(?:[:.](\d{2}))?\s*(am|pm)?/i);if(!m)return 0;
   let a=+m[1]+(+m[2]||0)/60,b=+m[4]+(+m[5]||0)/60;if((m[3]||'').toLowerCase()==='pm'&&a<12)a+=12;if((m[6]||'').toLowerCase()==='pm'&&b<12)b+=12;
@@ -4754,12 +4794,13 @@ const TPL_DEFAULT={
   bill:"🏸 *{group} — Payouts*\n{dates}\n\nThank you all for turning up and making it a great game! 🙌\nYour share is in the poster above. Whenever it suits you, please settle up. It keeps the courts booked and the shuttles flying for all of us. 💚\n\n{upi_line}\n📊 Full charges & your dues: {payouts_link}\n✅ Once paid, open the app → Payouts → My wallet → tap “I’ve paid” so it can be confirmed. Thank you!",
   billPre:"🏸 *{group}*\n{dates}\n\nThanks for a great game! 🙌 The amounts in the poster have been deducted from your wallets.\n\n👛 Check your balance & history: {me_link}\n🔋 Wallet below {low}? Please load {load}{upi_via} and tap “I’ve paid” in the app. 💚",
   passGroup:"🎟️ *Entry passes · {venue}*\n📅 {date} · ⏰ {time}\n🏃 Report by {report} to warm up, play starts on time\n\n{list}\n\n{cancel_line}\n\nOpen your pass 👉 {link}\n📍 {map}\nShow it at the venue. Can’t make it? Change your vote and your pass is cancelled automatically.",
+  passMulti:"🎟️ *Your entry pass · {venue}*\nHi {name}! You’re in for {count} days 🙌 One pass covers them all.\n\n{days}\n\n🏃 Report {report_min} min early to warm up, play starts on time.\nOpen your pass 👉 {link}\n📍 {map}\n\nCan’t make a day? Just change your vote for that day and we’ll free up your spot 💚",
   pass:"🎟️ *Your entry pass · {venue}*\nHi {name}! Great, you’re in 🙌 See you on court! 🏸\n\n📅 {date}\n⏰ {time}\n🏃 Report by {report} to warm up\n🔖 Pass {code}\n\nOpen your pass 👉 {link}\n📍 {map}\n\nPlans changed? No worries, just change your vote in the app and we’ll free up your spot for someone else 💚",
   passCancel:"💔 *We’ll miss you this time · {venue}*\nHi {name}, your pass {code} for {date} ({time}) is now cancelled ({reason}).\n\nYou’ll miss the fun, but we’re looking forward to having you at the next game 🏸💚\nIf plans change again, just vote Yes in the app while voting is open 👉 {link}",
   passThanks:"💚 *Thank you for playing! · {venue}*\n📅 {date} · ⏰ {time}\n\nWhat a game! Thank you {names} for turning up and making it fun 🙌\n\nRest up, stretch, and see you on court next time 🏸\nScores, photos & your share 👉 {link}",
   dues:"🔔 *{group}: gentle reminder*\n\n{dues_lines}\n\n📲 UPI: {upi}\n👉 Details & pay: {payouts_link}\n\n✅ *Already paid?* Open the app → Payouts → My wallet → tap “I’ve paid”. It takes 5 seconds and keeps the books straight for everyone 🙏\n\nThank you! 💚"};
 /* message templates, grouped by the event that sends them */
-const TPL_VARS={name:'Player’s first name',full:'Full name',venue:'Venue name',code:'Pass number',valid:'Game time (start–end)',pending_line:'Who hasn’t voted yet (only while voting is open)',report:'Report time for warm-up',list:'Every pass, one per line',count:'Number of valid passes',cancel_line:'“❌ Cancelled: …” line',map:'Venue map link',reason:'Why it was cancelled',guest_of:'Who invited the guest',title:'Poll title',dates:'Game dates',slots:'Each date and time, one per line',link:'Link to the poll',closes:'When voting closes',group:'Group name',
+const TPL_VARS={name:'Player’s first name',full:'Full name',venue:'Venue name',code:'Pass number',valid:'Game time (start–end)',days:'Each day with time, report time and pass number',report_min:'Minutes to report early',pending_line:'Who hasn’t voted yet (only while voting is open)',report:'Report time for warm-up',list:'Every pass, one per line',count:'Number of valid passes',cancel_line:'“❌ Cancelled: …” line',map:'Venue map link',reason:'Why it was cancelled',guest_of:'Who invited the guest',title:'Poll title',dates:'Game dates',slots:'Each date and time, one per line',link:'Link to the poll',closes:'When voting closes',group:'Group name',
   status:'Yes count per date + how many more are needed',pending:'Names who haven’t voted',pending_count:'How many haven’t voted',threshold:'Players needed per slot',
   results:'Result block for each date (players, guests, courts)',no_vote_line:'“No vote: …” line',reason:'Why it was cancelled',guest_close:'When the guest window closes',names:'Everyone who played',guest_status:'Free spots per date',
   date:'Game date',time:'Start time',lead:'Hours before the game',players:'Who’s playing',count:'How many are playing',guest_line:'“👥 Guests (2): …” line',guests:'Guest names',guest_count:'Number of guests',courts:'Courts booked',
@@ -4774,6 +4815,7 @@ const TPL_GROUPS=[
   ['guests','👥','Guests','While the guest window is open on a poll',[
     ['guests','Guest window is open','When you tap “Send guest window” on a poll',['title','guest_status','guest_close','link','closes','group']]]],
   ['pass','🎟️','Entry passes','When you send passes from a poll (admin only)',[
+    ['passMulti','One pass for several days (to a player)','When a player is playing more than one day of the poll',['name','full','venue','count','days','report_min','link','map']],
     ['passGroup','All passes (group post)','When you tap “Send all passes”',['title','date','time','venue','valid','list','count','cancel_line','link','map']],
     ['pass','Pass to one player','“One by one”, for each Yes voter',['name','full','date','time','venue','code','valid','link','map','guest_of']],
     ['passCancel','Pass cancelled','“One by one”, for anyone who changed to No',['name','date','time','venue','code','reason','link']],
@@ -4896,6 +4938,7 @@ function tplSample(k){try{
   const p=P.list.find(x=>!isArchived(x)&&!isClosed(x))||P.list[0];
   if(k==='gameCancel')return{date:dlabel(curDate||todayStr(),{weekday:'long',day:'numeric',month:'short'}),time:'6–8 PM',reason:'it’s raining heavily',link:appLink('home'),group:S.groupName||'Badminton Family'};
   if(k==='passThanks'){const p=P.list.find(x=>!isArchived(x))||P.list[0];if(!p||!(p.dates||[])[0])return null;const d=p.dates[0].date,P0=passesFor(p,VOTES_BY[p.id]||[],d);return thanksVars(p,d,P0)}
+  if(k==='passMulti'){if(!p)return null;const BB=passBundles(p,VOTES_BY[p.id]||[]),b=BB.list.find(b=>b.days.length>1)||BB.list[0];return b?multiVars(p,b):null}
   if(['pass','passCancel','passGroup'].includes(k)){if(!p||!(p.dates||[])[0])return null;const d=p.dates[0].date,P0=passesFor(p,VOTES_BY[p.id]||[],d),x=P0.valid[0]||{n:getMe()||'Ravi',code:passCode(p.id,d,'x'),link:passLink(p.id,d,'x'),reason:'Changed vote to No'};
     return k==='passGroup'?{title:p.title,date:dlabel(d,{weekday:'long',day:'numeric',month:'short'}),time:fmtTime(P0.start)+'–'+fmtTime(P0.to),venue:venueName(),valid:fmtTime(P0.from)+'–'+fmtTime(P0.to),list:'1. Manju · '+x.code+'\n2. Ram · …',count:P0.valid.length,cancel_line:'❌ Cancelled: Kiran · …',link:passLink(p.id,d,''),map:venueMap(S.board||{})}:Object.assign(passVars(p,d,P0,x),{reason:x.reason||'Changed vote to No'})}
   if(['start','startRule','remind','last','results','guests'].includes(k)){if(!p)return null;const {t,v}=pollVars(p);return k==='results'?Object.assign({},v,{results:resultsBlock(t),no_vote_line:t.pending.length?'No vote: '+t.pending.join(', '):''}):v}
