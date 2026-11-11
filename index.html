@@ -657,7 +657,7 @@ const FIREBASE_CONFIG = {
 /* Collections get this prefix so they never clash with the league app's data */
 const COLLECTION_PREFIX = "shuttleSplit_";
 /* App version shown in Team → About */
-const APP_VERSION = "4.18.0", APP_BUILD = "9 Nov 2026";
+const APP_VERSION = "4.19.0", APP_BUILD = "9 Nov 2026";
 /* Owner of the main group (the link without ?g=) */
 const LEGACY_OWNER = "pavankaki.cool@gmail.com";
 /* Starting player list, used only until the first save */
@@ -738,7 +738,7 @@ async function flush(path){
 function syncUI(){const el=$('#sync');if(!el||!db)return;const n=Object.keys(pending).length+Object.values(inflight).filter(Boolean).length;
   const st=!navigator.onLine?'off':n?'save':'live';el.className='sync '+st;el.textContent=st==='off'?'Offline · will sync':st==='save'?'Saving…':'Live';el.hidden=false}
 window.addEventListener('online',()=>syncUI());window.addEventListener('offline',()=>syncUI());
-function saveConfig(){queueWrite('config/main',{roster:S.roster,rate:S.rate,courts:1,groupName:S.groupName||'',skin:S.skin||'court',upiId:S.upiId||'',upiName:S.upiName||'',levels:S.levels||{},admins:S.admins||[],inactive:S.inactive||[],ignored:S.ignored||[],openNames:S.openNames!==false,roomsRead:S.roomsRead!==false,idleWeeks:S.idleWeeks==null?4:S.idleWeeks,since:S.since||{},autoOff:S.autoOff||{},billed:(S.billed||[]).slice(-200),msg:S.msg||null,closeRule:S.closeRule||null,carry:CARRY(),auto:S.auto||null,duesSnap:S.duesSnap||null,tkBoard:S.tkBoard||null,passOn:!!S.passOn,passLead:S.passLead==null?30:S.passLead,sent:trimSent(S.sent),board:S.board||null,layout:S.layout||{},dupOk:(S.dupOk||[]).slice(-100),model:S.model||'post',load:+S.load||1000,low:S.low==null?200:+S.low,perms:S.perms||{},giphy:S.giphy||'',cats:S.cats||{},vapid:S.vapid||'',alerts:S.alerts||{},guestList:S.guestList||{},pollClose:S.pollClose||null})}
+function saveConfig(){queueWrite('config/main',{roster:S.roster,rate:S.rate,courts:1,groupName:S.groupName||'',skin:S.skin||'court',upiId:S.upiId||'',upiName:S.upiName||'',levels:S.levels||{},admins:S.admins||[],inactive:S.inactive||[],ignored:S.ignored||[],openNames:S.openNames!==false,roomsRead:S.roomsRead!==false,idleWeeks:S.idleWeeks==null?4:S.idleWeeks,since:S.since||{},autoOff:S.autoOff||{},billed:(S.billed||[]).slice(-200),msg:S.msg||null,closeRule:S.closeRule||null,carry:CARRY(),auto:S.auto||null,duesSnap:S.duesSnap||null,tkBoard:S.tkBoard||null,passOn:!!S.passOn,passLead:S.passLead==null?30:S.passLead,passReport:S.passReport==null?15:+S.passReport,sent:trimSent(S.sent),board:S.board||null,layout:S.layout||{},dupOk:(S.dupOk||[]).slice(-100),model:S.model||'post',load:+S.load||1000,low:S.low==null?200:+S.low,perms:S.perms||{},giphy:S.giphy||'',cats:S.cats||{},vapid:S.vapid||'',alerts:S.alerts||{},guestList:S.guestList||{},pollClose:S.pollClose||null})}
 /* ---------- organizers ---------- */
 const userEmail=()=>{const u=auth&&auth.currentUser;return u&&!u.isAnonymous&&u.email?u.email.toLowerCase():''};
 const ownerEmail=()=>String((GID?(GROUP&&GROUP.owner):LEGACY_OWNER)||'').toLowerCase();
@@ -3372,27 +3372,28 @@ function openNewCup(){if(!canEdit())return;SWAP_KEY='';const DAY=cupDay(),allAct
    Admins send them in one tap (group post) or one by one to each player's WhatsApp. poll.passes[date][key] records what was sent. */
 function slotWin(date,note){const a=slotStart(date,note);const m=String(note||'').match(/(\d{1,2})(?:[:.](\d{2}))?\s*(am|pm)?\s*(?:-|–|to)\s*(\d{1,2})(?:[:.](\d{2}))?\s*(am|pm)?/i);
   let b=a+2*36e5;if(m){let h=+m[4],mi=+m[5]||0;const s2=(m[6]||'').toLowerCase(),d=new Date(a);if(s2==='pm'&&h<12)h+=12;else if(s2==='am'&&h===12)h=0;const e=new Date(date+'T00:00');e.setHours(h,mi,0,0);let t=e.getTime();while(t<=a)t+=12*36e5;b=t}return[a,b]}
-const PASS_LEAD=()=>S.passLead==null?30:+S.passLead;
+const PASS_LEAD=()=>0;
+const REPORT_MIN=()=>S.passReport==null?15:+S.passReport;
 const venueName=()=>norm((S.board||{}).venue||'')||'GG SPORTS';
 const vCode=()=>{const w=venueName().toUpperCase().replace(/[^A-Z0-9 ]/g,'').split(/\s+/).filter(Boolean);return(w.length>1?w.map(x=>x[0]).join(''):(w[0]||'GGS').slice(0,3)).slice(0,4)||'GGS'};
 const hash36=t=>{let h=2166136261;for(const c of String(t)){h^=c.charCodeAt(0);h=Math.imul(h,16777619)}return(h>>>0).toString(36).toUpperCase().padStart(4,'0').slice(-4)};
 const passCode=(pid,date,key)=>vCode()+'-'+date.slice(8,10)+date.slice(5,7)+'-'+hash36(pid+'|'+date+'|'+key);
 const passLink=(pid,date,key)=>appLink('pass-'+pid+'-'+date+(key?'-'+encodeURIComponent(key):''));
 /* every pass for one date of a poll: valid ones (Yes voters + confirmed guests) and cancelled ones (sent before, now not Yes) */
-function passesFor(p,votes,date){const dt=(p.dates||[]).find(d=>d.date===date)||{date},[a,b]=slotWin(date,dt.note),from=a-PASS_LEAD()*6e4,T=tally(p,votes),r=T.res.find(x=>x.date===date)||{yes:[],guestsIn:[]},sent=((p.passes||{})[date])||{},now=Date.now();
+function passesFor(p,votes,date){const dt=(p.dates||[]).find(d=>d.date===date)||{date},[a,b]=slotWin(date,dt.note),from=a,report=a-REPORT_MIN()*6e4,T=tally(p,votes),r=T.res.find(x=>x.date===date)||{yes:[],guestsIn:[]},sent=((p.passes||{})[date])||{},now=Date.now();
   const L=[];(r.yes||[]).forEach(n=>{const k=nkey(n);L.push({key:k,n:canon(n),st:now>b?'used':'valid',sent:sent[k]&&sent[k].st==='valid'?sent[k].at:0})});
   (r.guests||[]).filter(g=>g.st==='ok').forEach(g=>{const k='g~'+g.key;L.push({key:k,n:tcase(g.n),guestOf:canon(g.host),st:now>b?'used':'valid',sent:sent[k]&&sent[k].st==='valid'?sent[k].at:0})});
   Object.entries(sent).forEach(([k,x])=>{if(L.some(y=>y.key===k))return;const v=(votes||[]).find(v=>nkey(v.name)===k);L.push({key:k,n:x.n,guestOf:x.g||'',st:'cancel',at:(v&&v.updatedAt)||x.at,sent:x.st==='cancel'?x.at:0,reason:x.g?'Guest not confirmed':v&&(v.answers||{})[date]==='no'?'Changed vote to No':'Vote removed'})});
   const gc=(p.cancelled||{})[date];if(gc)L.forEach(x=>{if(x.st!=='cancel'){x.st='cancel';x.at=gc.at;x.reason='Game cancelled: '+(gc.reason||'')}});
   L.forEach(x=>{x.code=passCode(p.id,date,x.key);x.link=passLink(p.id,date,x.key)});
-  return{dt,from,to:b,start:a,list:L,valid:L.filter(x=>x.st==='valid'),cancel:L.filter(x=>x.st==='cancel')}}
+  return{dt,from,report,to:b,start:a,list:L,valid:L.filter(x=>x.st==='valid'),cancel:L.filter(x=>x.st==='cancel')}}
 const passWhen=(date,P0)=>dlabel(date,{weekday:'short',day:'numeric',month:'short'})+' · '+fmtTime(P0.start)+'–'+fmtTime(P0.to);
 function passVars(p,date,P0,x){return{name:first(x.n),full:x.n,date:dlabel(date,{weekday:'long',day:'numeric',month:'short'}),time:fmtTime(P0.start)+'–'+fmtTime(P0.to),venue:venueName(),code:x.code,
-  valid:fmtTime(P0.from)+'–'+fmtTime(P0.to),link:x.link,map:venueMap(S.board||{})||'',reason:x.reason||'',guest_of:x.guestOf?first(x.guestOf):'',group:S.groupName||'Badminton Family'}}
+  valid:fmtTime(P0.from)+'–'+fmtTime(P0.to),report:fmtTime(P0.report),link:x.link,map:venueMap(S.board||{})||'',reason:x.reason||'',guest_of:x.guestOf?first(x.guestOf):'',group:S.groupName||'Badminton Family'}}
 function passGroupMsg(p,date,P0){const v=P0.valid.filter(x=>!x.guestOf),g=P0.valid.filter(x=>x.guestOf);
   return fillTpl(tplOf('passGroup'),{title:p.title||'Game',date:dlabel(date,{weekday:'long',day:'numeric',month:'short'}),time:fmtTime(P0.start)+'–'+fmtTime(P0.to),venue:venueName(),valid:fmtTime(P0.from)+'–'+fmtTime(P0.to),
     list:v.map((x,i)=>(i+1)+'. '+x.n+' · '+x.code).join('\n')+(g.length?'\n👥 Guests: '+g.map(x=>x.n+' ('+first(x.guestOf)+'’s guest) · '+x.code).join(', '):''),count:P0.valid.length,
-    cancel_line:P0.cancel.length?'❌ Cancelled: '+P0.cancel.map(x=>x.n+' · '+x.code).join(', '):'',link:passLink(p.id,date,''),map:venueMap(S.board||{})||'',group:S.groupName||'Badminton Family'}).replace(/\n{3,}/g,'\n\n').trim()}
+    report:fmtTime(P0.report),cancel_line:P0.cancel.length?'❌ Cancelled: '+P0.cancel.map(x=>x.n+' · '+x.code).join(', '):'',link:passLink(p.id,date,''),map:venueMap(S.board||{})||'',group:S.groupName||'Badminton Family'}).replace(/\n{3,}/g,'\n\n').trim()}
 async function markPasses(p,date,L){const cur=Object.assign({},((p.passes||{})[date])||{}),now=Date.now();L.forEach(x=>{cur[x.key]={n:x.n,st:x.st==='cancel'?'cancel':'valid',at:now,...(x.guestOf?{g:x.guestOf}:{})}});
   try{await pollsCol().doc(p.id).update(new firebase.firestore.FieldPath('passes',date),cur);p.passes=Object.assign({},p.passes,{[date]:cur})}catch(e){toast('Couldn’t record the passes ('+(e.code||'error')+').')}}
 /* admin card on a poll */
@@ -3400,45 +3401,117 @@ function thanksVars(p,date,P0){const N=P0.valid.concat(P0.list.filter(x=>x.st===
 function passCard(p){if(!isOrg||!db||!S.passOn)return'';const today=todayStr(),D=(p.dates||[]).filter(d=>d.date>=today);if(!D.length)return'';
   return`<section class="card" id="passcard">${cardH('cal','Entry passes',venueName())}${D.map(dt=>{const P0=passesFor(p,P.votes,dt.date),ns=P0.valid.filter(x=>!x.sent).length,nc=P0.cancel.filter(x=>!x.sent).length;
     return`<div class="pad" style="border-top:1px solid var(--line2)"><b>${esc(passWhen(dt.date,P0))}</b><small class="hint" style="display:block;margin:2px 0 8px">✅ ${plural(P0.valid.length,'valid pass','valid passes')}${ns?' · '+ns+' not sent yet':''}${P0.cancel.length?' · ❌ '+P0.cancel.length+' cancelled'+(nc?' ('+nc+' to tell)':''):''} · valid ${fmtTime(P0.from)}–${fmtTime(P0.to)}</small>
-      ${Date.now()>P0.to?`<a class="btn wa block" href="${waHref(fillTpl(tplOf('passThanks'),thanksVars(p,dt.date,P0)))}" target="_blank" rel="noopener">💚 Send thank-you to the group</a>`:`<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><a class="btn wa" data-passall="${dt.date}" href="${waHref(passGroupMsg(p,dt.date,P0))}" target="_blank" rel="noopener">${ic('chat')}Send all passes</a><button type="button" class="btn line" data-passeach="${dt.date}">📲 One by one${ns+nc?' ('+(ns+nc)+')':''}</button></div>`}
+      ${Date.now()>P0.to?`<a class="btn wa block" href="${waHref(fillTpl(tplOf('passThanks'),thanksVars(p,dt.date,P0)))}" target="_blank" rel="noopener">💚 Send thank-you to the group</a>`:`<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><a class="btn wa" data-passall="${dt.date}" href="${waHref(passGroupMsg(p,dt.date,P0))}" target="_blank" rel="noopener">${ic('chat')}Send all passes</a><button type="button" class="btn line" data-passeach="${dt.date}">📲 One by one${ns+nc?' ('+(ns+nc)+')':''}</button><button type="button" class="btn primary" data-passimgs="${dt.date}" style="grid-column:1/-1">🎟️ Send pass cards (images) to the group</button></div>`}
       <button type="button" class="lnk" data-passview="${dt.date}" style="margin-top:6px">🎟️ See all passes</button></div>`}).join('')}
-    <div class="card-f"><small class="hint" style="margin:0">“Send all” posts every pass to your WhatsApp group in one tap. “One by one” opens each player’s own chat. Passes are valid from ${PASS_LEAD()} min before the slot until it ends.</small></div></section>`}
+    <div class="card-f"><small class="hint" style="margin:0">“Send all” posts the list to your WhatsApp group. “Pass cards” shares every pass as a boarding-pass image in one go. “One by one” opens each player’s chat. Passes are valid for the booked time only; players report ${REPORT_MIN()} min early to warm up.</small></div></section>`}
 function bindPassCard(p){document.querySelectorAll('[data-passall]').forEach(a=>a.addEventListener('click',()=>{const d=a.dataset.passall,P0=passesFor(p,P.votes,d);markPasses(p,d,P0.list.filter(x=>x.st!=='used'));toast('🎟️ '+plural(P0.valid.length,'pass','passes')+' posted'+(P0.cancel.length?' · '+P0.cancel.length+' cancelled':''))}));
   document.querySelectorAll('[data-passeach]').forEach(b=>b.onclick=()=>openPassQueue(p,b.dataset.passeach));
+  document.querySelectorAll('[data-passimgs]').forEach(b=>{const d=b.dataset.passimgs,P0=passesFor(p,P.votes,d);P0.valid.forEach(x=>passFile(p,d,P0,x).catch(()=>{}));
+    b.onclick=async()=>{const P0=passesFor(p,P.votes,d);if(!P0.valid.length)return toast('No valid passes yet.');b.disabled=true;const t=b.textContent;b.textContent='🎨 Making '+P0.valid.length+' pass cards…';
+      try{const F=await Promise.all(P0.valid.map(x=>passFile(p,d,P0,x)));const ok=await sharePassFiles(F,passGroupMsg(p,d,P0),plural(F.length,'pass card')+' ready');if(ok)markPasses(p,d,P0.list.filter(x=>x.st!=='used'))}
+      catch(e){toast('Couldn’t make the pass cards.')}finally{b.disabled=false;b.textContent=t}}});
   document.querySelectorAll('[data-passview]').forEach(b=>b.onclick=()=>openPassList(p.id,b.dataset.passview))}
 /* one-by-one: each player's WhatsApp chat with their own pass, then the next */
 function openPassQueue(p,date){startPrivate();const draw=()=>{const P0=passesFor(p,P.votes,date),L=[...P0.valid,...P0.cancel].sort((a,b)=>(!!a.sent-!!b.sent)||a.n.localeCompare(b.n));
   const ph=x=>{const v=PROF.priv[nkey(x.guestOf||x.n)]||{};return waNum(v.phone)};
   const bg=sheetSwap(`<div class="sheet-h"><span class="ini">🎟️</span><div><b>Send passes one by one</b><small>${esc(passWhen(date,P0))} · ${esc(venueName())}</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div>
-    <p class="hint" style="padding:0 16px">Tap a name: their WhatsApp chat opens with their pass. Send it, come back, and tap the next one. Guests’ passes go to the member who invited them.</p>
-    <div class="pql">${L.map(x=>{const n=ph(x),msg=fillTpl(tplOf(x.st==='cancel'?'passCancel':'pass'),passVars(p,date,P0,x));return`<div class="pqr${x.sent?' done':''}">${ini(x.guestOf||x.n)}<span class="pqn"><b>${esc(x.n)}${x.guestOf?' <small>· '+esc(first(x.guestOf))+'’s guest</small>':''}</b><small>${x.st==='cancel'?'❌ Cancelled · ':''}${esc(x.code)}${x.sent?' · ✓ sent '+esc(whenD(x.sent)):''}</small></span>${n?`<a class="btn sm ${x.sent?'line':'wa'}" data-pq="${esc(x.key)}" href="https://wa.me/${n}?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener">${x.sent?'Resend':'Send'}</a>`:`<button type="button" class="btn sm line" data-pqc="${esc(x.key)}" data-msg="${esc(msg)}">Copy</button>`}</div>`}).join('')}</div>
+    <p class="hint" style="padding:0 16px"><b>Send</b> opens their WhatsApp chat with the pass message. <b>🎟️</b> shares their pass card image: pick WhatsApp, then their name. Guests’ passes go to the member who invited them.</p>
+    <div class="pql">${L.map(x=>{const n=ph(x),msg=fillTpl(tplOf(x.st==='cancel'?'passCancel':'pass'),passVars(p,date,P0,x));return`<div class="pqr${x.sent?' done':''}">${ini(x.guestOf||x.n)}<span class="pqn"><b>${esc(x.n)}${x.guestOf?' <small>· '+esc(first(x.guestOf))+'’s guest</small>':''}</b><small>${x.st==='cancel'?'❌ Cancelled · ':''}${esc(x.code)}${x.sent?' · ✓ sent '+esc(whenD(x.sent)):''}</small></span><button type="button" class="btn sm line" data-pqi="${esc(x.key)}" aria-label="Send pass card">🎟️</button>${n?`<a class="btn sm ${x.sent?'line':'wa'}" data-pq="${esc(x.key)}" href="https://wa.me/${n}?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener">${x.sent?'Resend':'Send'}</a>`:`<button type="button" class="btn sm line" data-pqc="${esc(x.key)}" data-msg="${esc(msg)}">Copy</button>`}</div>`}).join('')}</div>
     ${L.some(x=>!ph(x))?'<p class="hint" style="padding:0 16px">No number saved for some players: tap Copy and send it yourself, or add numbers in Manage › Players › Contacts.</p>':''}`,'Pass queue');
   bg.querySelector('#whoclose').onclick=closeWho;
   bg.querySelectorAll('[data-pq]').forEach(a=>a.addEventListener('click',()=>{const P0=passesFor(p,P.votes,date),x=P0.list.find(y=>y.key===a.dataset.pq);if(x)markPasses(p,date,[x]).then(()=>setTimeout(draw,400))}));
+  {const P0=passesFor(p,P.votes,date);P0.list.forEach(x=>passFile(p,date,P0,x).catch(()=>{}))}
+  bg.querySelectorAll('[data-pqi]').forEach(b=>b.onclick=async()=>{const P0=passesFor(p,P.votes,date),x=P0.list.find(y=>y.key===b.dataset.pqi);if(!x)return;const f=await passFile(p,date,P0,x);
+    const ok=await sharePassFiles([f],fillTpl(tplOf(x.st==='cancel'?'passCancel':'pass'),passVars(p,date,P0,x)),'Pass card for '+first(x.n));if(ok)markPasses(p,date,[x])});
   bg.querySelectorAll('[data-pqc]').forEach(b=>b.onclick=()=>{copyText(b.dataset.msg,'Pass copied.');const P0=passesFor(p,P.votes,date),x=P0.list.find(y=>y.key===b.dataset.pqc);if(x)markPasses(p,date,[x]).then(()=>setTimeout(draw,400))})};
   SWAP_KEY='';draw()}
 /* the pass itself (anyone with the link), and the list of passes for a date */
 async function passData(pid,date){let p=P.list.find(x=>x.id===pid);try{if(!p){const d=await pollsCol().doc(pid).get();if(d.exists)p={id:d.id,...d.data()}}}catch(e){}if(!p)return null;
   let votes=VOTES_BY[pid];try{if(!votes){const q=await pollsCol().doc(pid).collection('votes').get();votes=q.docs.map(d=>({id:d.id,...d.data()}))}}catch(e){votes=[]}return{p,votes,P0:passesFor(p,votes||[],date)}}
-function passTicket(p,date,P0,x){const now=Date.now(),st=x.st==='cancel'?'cancel':now>P0.to?'used':now>=P0.from?'live':'valid',ph=photoOf(x.guestOf?'':x.n);
+function passTicket(p,date,P0,x){const now=Date.now(),st=x.st==='cancel'?'cancel':now>P0.to?'used':now>=P0.from?'live':now>=P0.report?'live':'valid',ph=photoOf(x.guestOf?'':x.n);
   return`<div class="ptk ${st}"><div class="ptk-top"><span>🏸 ${esc(S.groupName||'Badminton Family')}</span><b>ENTRY PASS</b></div>
     <div class="ptk-v"><small>VENUE</small><b>${esc(venueName())}</b></div>
     <div class="ptk-who">${ph?`<img src="${ph}" alt="">`:`<span class="ptk-ini">${esc((x.n||'?')[0])}</span>`}<div><b>${esc(x.n)}</b><small>${x.guestOf?'Guest of '+esc(x.guestOf):'Player'}</small></div></div>
     <div class="ptk-g"><div><small>DATE</small><b>${esc(dlabel(date,{weekday:'short',day:'numeric',month:'short'}))}</b></div><div><small>TIME</small><b>${fmtTime(P0.start)}–${fmtTime(P0.to)}</b></div></div>
     <div class="ptk-cut"></div>
-    <div class="ptk-g"><div><small>PASS NO.</small><b class="mono">${esc(x.code)}</b></div><div><small>VALID</small><b>${fmtTime(P0.from)}–${fmtTime(P0.to)}</b></div></div>
+    <div class="ptk-g"><div><small>PASS NO.</small><b class="mono">${esc(x.code)}</b></div><div><small>REPORT BY</small><b>${fmtTime(P0.report)}</b></div></div>
     <div class="ptk-bar" aria-hidden="true">${[...x.code.replace(/-/g,'')].map((c,i)=>`<i style="width:${1+(c.charCodeAt(0)+i)%4}px"></i>`).join('<i class="gap"></i>')}</div>
-    <div class="ptk-st">${st==='cancel'?`❌ CANCELLED${x.at?' · '+esc(whenD(x.at)):''}<small>${esc(x.reason||'')} · You’ll miss the fun. Hope to see you at the next game 💚</small>`:st==='used'?'💚 USED · thanks for playing!<small>Hope you had fun. See you at the next game 🏸</small>':st==='live'?'🟢 VALID NOW · show at the venue<small>Enjoy the game! 🏸</small>':'✅ VALID · from '+fmtTime(P0.from)+', '+esc(dlabel(date))+'<small>Great, see you on court! 🙌</small>'}</div></div>`}
+    <div class="ptk-st">${st==='cancel'?`❌ CANCELLED${x.at?' · '+esc(whenD(x.at)):''}<small>${esc(x.reason||'')} · You’ll miss the fun. Hope to see you at the next game 💚</small>`:st==='used'?'💚 USED · thanks for playing!<small>Hope you had fun. See you at the next game 🏸</small>':st==='live'?'🟢 VALID NOW · show at the venue<small>Enjoy the game! 🏸</small>':'✅ VALID · '+esc(dlabel(date))+', '+fmtTime(P0.start)+'–'+fmtTime(P0.to)+'<small>Report by '+fmtTime(P0.report)+' to warm up. See you on court! 🙌</small>'}</div></div>`}
 async function openPass(pid,date,key){const D=await passData(pid,date);if(!D)return toast('That pass isn’t available.');const x=D.P0.list.find(y=>y.key===key);
   if(!x)return openPassList(pid,date);const mp=venueMap(S.board||{});
   const bg=sheetSwap(`<div class="sheet-h"><span class="ini">🎟️</span><div><b>Entry pass</b><small>${esc(passWhen(date,D.P0))}</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div>
     <div style="padding:6px 16px 4px">${passTicket(D.p,date,D.P0,x)}</div>
     <div class="card-f" style="display:grid;grid-template-columns:${mp?'1fr 1fr':'1fr'};gap:8px">${mp?`<a class="btn line" href="${esc(mp)}" target="_blank" rel="noopener">📍 Directions</a>`:''}<button type="button" class="btn primary" id="pshare">${ic('share')}Share pass</button></div>`,'Pass');
-  bg.querySelector('#whoclose').onclick=closeWho;bg.querySelector('#pshare').onclick=async()=>{const t='🎟️ '+x.n+' · '+venueName()+' · '+passWhen(date,D.P0)+' · '+x.code;try{if(navigator.share){await navigator.share({title:'Entry pass',text:t,url:x.link});return}}catch(e){return}copyText(t+'\n'+x.link,'Pass link copied.')}}
+  bg.querySelector('#whoclose').onclick=closeWho;const pf=passFile(D.p,date,D.P0,x).catch(()=>null);bg.querySelector('#pshare').onclick=async()=>{const t='🎟️ '+x.n+' · '+venueName()+' · '+passWhen(date,D.P0)+' · '+x.code+'\n'+x.link,f=await pf;if(f){sharePassFiles([f],t,'Your pass card');return}try{if(navigator.share){await navigator.share({title:'Entry pass',text:t});return}}catch(e){return}copyText(t,'Pass link copied.')}}
 async function openPassList(pid,date){const D=await passData(pid,date);if(!D)return toast('Those passes aren’t available.');const me=nkey(getMe()||'');
   const bg=sheetSwap(`<div class="sheet-h"><span class="ini">🎟️</span><div><b>Entry passes</b><small>${esc(venueName())} · ${esc(passWhen(date,D.P0))}</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div>
     <p class="hint" style="padding:0 16px">Tap your name to open your pass.</p><div class="pql">${D.P0.list.map(x=>`<button type="button" class="pqr${x.key===me?' me':''}" data-popen="${esc(x.key)}">${ini(x.guestOf||x.n)}<span class="pqn"><b>${esc(x.n)}${x.guestOf?' <small>· guest</small>':''}</b><small>${esc(x.code)}</small></span><i class="pst ${x.st}">${x.st==='cancel'?'Cancelled':x.st==='used'?'Used':'Valid'}</i></button>`).join('')||'<div class="empty">No passes yet.</div>'}</div>`,'Pass list');
   bg.querySelector('#whoclose').onclick=closeWho;bg.querySelectorAll('[data-popen]').forEach(b=>b.onclick=()=>openPass(pid,date,b.dataset.popen))}
+/* ================= 🎟️ BOARDING-PASS STYLE PASS IMAGES ================= */
+const PASSIMG={};
+const pCode3=t=>{const w=String(t||'').replace(/[^A-Za-z ]/g,' ').trim().split(/\s+/).filter(Boolean);if(!w.length)return'---';return(w.length>1?(w[0].slice(0,2)+w[1][0]):w[0].slice(0,3)).toUpperCase()};
+async function drawPassImg(p,date,P0,x){try{await Promise.all(['500','700','800'].map(w=>document.fonts.load(w+' 30px Manrope')))}catch(e){}
+  const k=SKINS[S.skin]?S.skin:'court',sk=SKINS[k],acc=sk.accent,F='Manrope,system-ui,sans-serif',M='ui-monospace,SFMono-Regular,Menlo,monospace';
+  const now=Date.now(),st=x.st==='cancel'?'cancel':now>P0.to?'used':now>=P0.start?'live':now>=P0.report?'report':'valid';
+  const W=1080,H=1420,X=60,Y=60,TW=W-120,TH=H-120,cutY=Y+900,R=46;
+  const cv=document.createElement('canvas');cv.width=W;cv.height=H;const g=cv.getContext('2d');
+  // backdrop: soft court lines
+  g.fillStyle=mix(acc,'#FFFFFF',.10);g.fillRect(0,0,W,H);g.save();g.globalAlpha=.10;g.strokeStyle=acc;g.lineWidth=6;
+  [[0,280,W,280],[0,H-280,W,H-280],[W/2,0,W/2,H],[120,0,120,H],[W-120,0,W-120,H]].forEach(a=>{g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(a[2],a[3]);g.stroke()});g.restore();
+  // ticket with notches
+  g.save();g.shadowColor='rgba(16,24,40,.18)';g.shadowBlur=40;g.shadowOffsetY=14;rr(g,X,Y,TW,TH,R);g.fillStyle='#FFFFFF';g.fill();g.restore();
+  // header band
+  g.save();rr(g,X,Y,TW,TH,R);g.clip();const gr=g.createLinearGradient(X,Y,X+TW,Y+360);gr.addColorStop(0,acc);gr.addColorStop(1,mix(acc,'#000000',.78));g.fillStyle=gr;g.fillRect(X,Y,TW,360);
+  g.globalAlpha=.10;g.strokeStyle='#FFFFFF';g.lineWidth=3;for(let i=-3;i<10;i++){g.beginPath();g.moveTo(X+i*150,Y+360);g.lineTo(X+i*150+260,Y);g.stroke()}g.restore();
+  const P=X+56,RX=X+TW-56;g.textBaseline='alphabetic';
+  g.fillStyle='rgba(255,255,255,.85)';g.font='800 26px '+F;g.textAlign='left';fit(g,'🏸  '+(S.groupName||'Badminton Family').toUpperCase(),P,Y+72,TW-360);
+  g.font='800 22px '+F;const lab=x.guestOf?'GUEST PASS':'ENTRY PASS',lw=g.measureText(lab).width+44;g.fillStyle=sk.pop;rr(g,RX-lw,Y+40,lw,46,23);g.fill();g.fillStyle=sk.popInk;g.textAlign='center';g.fillText(lab,RX-lw/2,Y+71);
+  // route: player → court
+  const pc=pCode3(x.n),vc=pCode3(venueName());g.fillStyle='#FFFFFF';g.textAlign='left';g.font='800 132px '+F;g.fillText(pc,P,Y+232);g.textAlign='right';g.fillText(vc,RX,Y+232);
+  g.font='600 26px '+F;g.globalAlpha=.85;g.textAlign='left';fit(g,first(x.n),P,Y+282,330);g.textAlign='right';fit(g,venueName(),RX,Y+282,330);g.globalAlpha=1;
+  // flight path with a shuttle
+  const my=Y+190;g.save();g.strokeStyle='rgba(255,255,255,.7)';g.lineWidth=4;g.setLineDash([10,12]);g.beginPath();g.moveTo(X+TW/2-120,my);g.quadraticCurveTo(X+TW/2,my-70,X+TW/2+120,my);g.stroke();g.restore();
+  g.font='64px '+F;g.textAlign='center';g.fillText('🏸',X+TW/2,my-18);
+  // player row
+  let y=Y+360+70;const ph=await loadImg(photoOf(x.guestOf?'':x.n));const cx=P+60,cy=y+30;
+  g.save();g.beginPath();g.arc(cx,cy,60,0,7);g.closePath();g.fillStyle=mix(acc,'#FFFFFF',.15);g.fill();g.clip();
+  if(ph){const s=Math.max(120/ph.width,120/ph.height);g.drawImage(ph,cx-ph.width*s/2,cy-ph.height*s/2,ph.width*s,ph.height*s)}else{g.fillStyle=acc;g.font='800 54px '+F;g.textAlign='center';g.fillText((x.n||'?')[0].toUpperCase(),cx,cy+19)}g.restore();
+  g.textAlign='left';g.fillStyle='#667085';g.font='700 22px '+F;g.fillText(x.guestOf?'GUEST':'PLAYER',P+150,y+6);g.fillStyle='#101828';g.font='800 50px '+F;fit(g,x.n,P+150,y+62,TW-56*2-150);
+  if(x.guestOf){g.fillStyle='#667085';g.font='600 24px '+F;fit(g,'Guest of '+x.guestOf,P+150,y+98,TW-260)}
+  // details grid
+  const cell=(lbl,val,cx2,cy2,w,big,col)=>{g.textAlign='left';g.fillStyle='#667085';g.font='700 21px '+F;g.fillText(lbl,cx2,cy2);g.fillStyle=col||'#101828';g.font='800 '+(big||40)+'px '+F;fit(g,val,cx2,cy2+(big||40)+12,w)};
+  const cw=(TW-112)/3;y+=170;
+  cell('DATE',dlabel(date,{weekday:'short',day:'numeric',month:'short'}),P,y,cw-16);cell('GAME TIME',fmtTime(P0.start)+'–'+fmtTime(P0.to),P+cw,y,cw*2-16);
+  y+=120;const cb=courtsBooked(date);
+  cell('REPORT BY',fmtTime(P0.report),P,y,cw-16,40,acc);cell('VENUE',venueName(),P+cw,y,cw*(cb?1:2)-16);if(cb)cell('COURTS',String(cb),P+cw*2,y,cw-16);
+  g.fillStyle='#667085';g.font='600 23px '+F;g.textAlign='left';fit(g,REPORT_MIN()?'🏃 Be there '+REPORT_MIN()+' min early to warm up · play starts '+fmtTime(P0.start)+' sharp':'Play starts '+fmtTime(P0.start)+' sharp',P,y+108,TW-112);
+  // perforation
+  g.save();g.globalCompositeOperation='destination-out';[X,X+TW].forEach(nx=>{g.beginPath();g.arc(nx,cutY,34,0,7);g.fill()});g.restore();
+  g.save();g.fillStyle=mix(acc,'#FFFFFF',.10);[X,X+TW].forEach(nx=>{g.beginPath();g.arc(nx,cutY,34,0,7);g.fill()});g.restore();
+  g.save();g.strokeStyle='#D0D5DD';g.lineWidth=4;g.setLineDash([14,12]);g.beginPath();g.moveTo(X+50,cutY);g.lineTo(X+TW-50,cutY);g.stroke();g.restore();
+  // stub: pass number, barcode, status
+  y=cutY+70;cell('PASS NO.','',P,y,400);g.fillStyle='#101828';g.font='800 40px '+M;g.textAlign='left';g.fillText(x.code,P,y+52);
+  const chip={valid:['✅ VALID','#067647','#ECFDF3'],report:['🏃 REPORT NOW','#B54708','#FFFAEB'],live:['🟢 PLAY ON','#067647','#ECFDF3'],used:['💚 USED','#475467','#F2F4F7'],cancel:['❌ CANCELLED','#B42318','#FEF3F2']}[st];
+  g.font='800 26px '+F;const chw=g.measureText(chip[0]).width+48;g.fillStyle=chip[2];rr(g,RX-chw,y-6,chw,56,28);g.fill();g.fillStyle=chip[1];g.textAlign='center';g.fillText(chip[0],RX-chw/2,y+31);
+  // barcode
+  const bx0=P,bw=TW-112,by=y+96,bh=150,seed=[...x.code].map(c=>c.charCodeAt(0));let bxp=bx0,i=0;g.fillStyle='#101828';
+  while(bxp<bx0+bw-4){const v=seed[i%seed.length]+i*7,w=2+v%5,gap=2+(v>>3)%4;if(bxp+w>bx0+bw)break;g.fillRect(bxp,by,w,bh);bxp+=w+gap;i++}
+  g.fillStyle='#667085';g.font='600 22px '+F;g.textAlign='center';fit(g,'Show this pass at the venue · '+(S.groupName||'Badminton Family'),X+TW/2,by+bh+48,TW-112);
+  // cancelled stamp
+  if(st==='cancel'||st==='used'){g.save();g.translate(X+TW/2,Y+640);g.rotate(-.22);g.globalAlpha=.9;g.strokeStyle=chip[1];g.lineWidth=10;g.font='900 110px '+F;const t=st==='cancel'?'CANCELLED':'USED',tw=g.measureText(t).width+70;
+    rr(g,-tw/2,-80,tw,140,24);g.stroke();g.fillStyle=chip[1];g.textAlign='center';g.fillText(t,0,38);g.restore()}
+  return new Promise(r=>cv.toBlob(b=>r(b),'image/png'))}
+async function passFile(p,date,P0,x){const id=x.code+'|'+(x.st==='cancel'?'c':'v')+'|'+REPORT_MIN();if(PASSIMG[id])return PASSIMG[id];const b=await drawPassImg(p,date,P0,x);
+  const f=new File([b],'pass-'+x.n.replace(/[^A-Za-z0-9]+/g,'-')+'-'+date+'.png',{type:'image/png'});PASSIMG[id]=f;return f}
+/* share pass images (one or many) to WhatsApp through the phone's share sheet; if iPhone forgets the tap while drawing, one more tap shares them */
+async function sharePassFiles(files,text,title){if(!files.length)return false;
+  const can=navigator.canShare&&navigator.canShare({files});
+  if(can){const ua=navigator.userActivation;if(!ua||ua.isActive){try{await navigator.share({files,text});return true}catch(e){if(e&&e.name==='AbortError')return false;if(!e||e.name!=='NotAllowedError')console.warn(e)}}}
+  const urls=files.map(f=>URL.createObjectURL(f));
+  const bg=sheetOpen(`<div class="sheet-h"><span class="ini">🎟️</span><div><b>${esc(title||'Ready to share')}</b><small>${can?'Tap Share and pick WhatsApp':'Long-press a pass to save or share it'}</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div>
+    <div class="sub" style="display:grid;grid-template-columns:${files.length>1?'1fr 1fr':'1fr'};gap:10px">${urls.map(u=>`<img src="${u}" alt="" style="width:100%;border-radius:12px;box-shadow:0 4px 14px rgba(16,24,40,.12)">`).join('')}</div>
+    ${can?`<div class="card-f"><button class="btn primary block" id="shnow">📤 Share ${files.length>1?files.length+' passes':'pass'}</button></div>`:''}`,'Share passes');
+  $('#whoclose').onclick=closeWho;const b=$('#shnow');if(b)b.onclick=()=>{navigator.share({files,text}).then(()=>closeWho()).catch(e=>{if(!e||e.name!=='AbortError')toast('Couldn’t open sharing. Long-press a pass to save it.')})};return true}
 /* ================= COURT BOARD: this week's bookings ================= */
 function slotHours(t){const m=String(t||'').match(/(\d{1,2})(?:[:.](\d{2}))?\s*(am|pm)?\s*(?:-|–|to)\s*(\d{1,2})(?:[:.](\d{2}))?\s*(am|pm)?/i);if(!m)return 0;
   let a=+m[1]+(+m[2]||0)/60,b=+m[4]+(+m[5]||0)/60;if((m[3]||'').toLowerCase()==='pm'&&a<12)a+=12;if((m[6]||'').toLowerCase()==='pm'&&b<12)b+=12;
@@ -4675,13 +4748,13 @@ const TPL_DEFAULT={
   guests:"👥 *Guest window is open!* {title}\n\nA few spots are still free on the courts. Bring a friend 🙌\n{guest_status}\n\nVote Yes in the app and add your guest 👉 {link}\n⏰ Guest window closes {guest_close}.\n\nMembers get priority. Admins confirm guests 1–2 days before the game, and a guest’s share goes on the inviter’s bill 💚",
   bill:"🏸 *{group} — Payouts*\n{dates}\n\nThank you all for turning up and making it a great game! 🙌\nYour share is in the poster above. Whenever it suits you, please settle up. It keeps the courts booked and the shuttles flying for all of us. 💚\n\n{upi_line}\n📊 Full charges & your dues: {payouts_link}\n✅ Once paid, open the app → Payouts → My wallet → tap “I’ve paid” so it can be confirmed. Thank you!",
   billPre:"🏸 *{group}*\n{dates}\n\nThanks for a great game! 🙌 The amounts in the poster have been deducted from your wallets.\n\n👛 Check your balance & history: {me_link}\n🔋 Wallet below {low}? Please load {load}{upi_via} and tap “I’ve paid” in the app. 💚",
-  passGroup:"🎟️ *Entry passes · {venue}*\n📅 {date} · ⏰ {time}\n✅ Valid {valid}\n\n{list}\n\n{cancel_line}\n\nOpen your pass 👉 {link}\n📍 {map}\nShow it at the venue. Can’t make it? Change your vote and your pass is cancelled automatically.",
-  pass:"🎟️ *Your entry pass · {venue}*\nHi {name}! Great, you’re in 🙌 See you on court! 🏸\n\n📅 {date}\n⏰ {time} (valid {valid})\n🔖 Pass {code}\n\nOpen your pass 👉 {link}\n📍 {map}\n\nPlans changed? No worries, just change your vote in the app and we’ll free up your spot for someone else 💚",
+  passGroup:"🎟️ *Entry passes · {venue}*\n📅 {date} · ⏰ {time}\n🏃 Report by {report} to warm up, play starts on time\n\n{list}\n\n{cancel_line}\n\nOpen your pass 👉 {link}\n📍 {map}\nShow it at the venue. Can’t make it? Change your vote and your pass is cancelled automatically.",
+  pass:"🎟️ *Your entry pass · {venue}*\nHi {name}! Great, you’re in 🙌 See you on court! 🏸\n\n📅 {date}\n⏰ {time}\n🏃 Report by {report} to warm up\n🔖 Pass {code}\n\nOpen your pass 👉 {link}\n📍 {map}\n\nPlans changed? No worries, just change your vote in the app and we’ll free up your spot for someone else 💚",
   passCancel:"💔 *We’ll miss you this time · {venue}*\nHi {name}, your pass {code} for {date} ({time}) is now cancelled ({reason}).\n\nYou’ll miss the fun, but we’re looking forward to having you at the next game 🏸💚\nIf plans change again, just vote Yes in the app while voting is open 👉 {link}",
   passThanks:"💚 *Thank you for playing! · {venue}*\n📅 {date} · ⏰ {time}\n\nWhat a game! Thank you {names} for turning up and making it fun 🙌\n\nRest up, stretch, and see you on court next time 🏸\nScores, photos & your share 👉 {link}",
   dues:"🔔 *{group}: gentle reminder*\n\n{dues_lines}\n\n📲 UPI: {upi}\n👉 Details & pay: {payouts_link}\n\n✅ *Already paid?* Open the app → Payouts → My wallet → tap “I’ve paid”. It takes 5 seconds and keeps the books straight for everyone 🙏\n\nThank you! 💚"};
 /* message templates, grouped by the event that sends them */
-const TPL_VARS={name:'Player’s first name',full:'Full name',venue:'Venue name',code:'Pass number',valid:'Pass valid from–to',list:'Every pass, one per line',count:'Number of valid passes',cancel_line:'“❌ Cancelled: …” line',map:'Venue map link',reason:'Why it was cancelled',guest_of:'Who invited the guest',title:'Poll title',dates:'Game dates',slots:'Each date and time, one per line',link:'Link to the poll',closes:'When voting closes',group:'Group name',
+const TPL_VARS={name:'Player’s first name',full:'Full name',venue:'Venue name',code:'Pass number',valid:'Game time (start–end)',report:'Report time for warm-up',list:'Every pass, one per line',count:'Number of valid passes',cancel_line:'“❌ Cancelled: …” line',map:'Venue map link',reason:'Why it was cancelled',guest_of:'Who invited the guest',title:'Poll title',dates:'Game dates',slots:'Each date and time, one per line',link:'Link to the poll',closes:'When voting closes',group:'Group name',
   status:'Yes count per date + how many more are needed',pending:'Names who haven’t voted',pending_count:'How many haven’t voted',threshold:'Players needed per slot',
   results:'Result block for each date (players, guests, courts)',no_vote_line:'“No vote: …” line',reason:'Why it was cancelled',guest_close:'When the guest window closes',names:'Everyone who played',guest_status:'Free spots per date',
   date:'Game date',time:'Start time',lead:'Hours before the game',players:'Who’s playing',count:'How many are playing',guest_line:'“👥 Guests (2): …” line',guests:'Guest names',guest_count:'Number of guests',courts:'Courts booked',
@@ -4941,7 +5014,7 @@ function openMsgSettings(){
       <div class="row"><div class="l"><b>Stop when each slot has</b><small>Players voting Yes per day (when courts aren’t booked yet)</small></div><div class="stp"><button type="button" data-th="-1" aria-label="Fewer">${ic('minus')}</button><output id="m_th">${M.threshold}</output><button type="button" data-th="1" aria-label="More">${ic('plus')}</button></div></div>
       <div class="row"><div class="l"><b>Last call 1 hour before voting closes</b></div><label class="switch"><input type="checkbox" id="m_last" ${M.lastCall?'checked':''}><i></i></label></div>`,
     pass:`<div class="row"><div class="l"><b>Entry passes</b><small>Shows the “Entry passes” card on each poll for admins</small></div><label class="switch"><input type="checkbox" id="m_pass" ${S.passOn?'checked':''}><i></i></label></div>
-      <div class="row"><div class="l"><b>Pass valid from</b><small>Before the slot starts · ends when the slot ends</small></div><select class="txt" id="m_plead" style="width:130px">${[0,15,30,45,60].map(v=>`<option value="${v}" ${PASS_LEAD()===v?'selected':''}>${v?v+' min before':'Slot start'}</option>`).join('')}</select></div>`,
+      <div class="row"><div class="l"><b>Report time</b><small>Warm-up before the game · passes are valid only for the booked start–end time</small></div><select class="txt" id="m_plead" style="width:130px">${[0,10,15,20,30].map(v=>`<option value="${v}" ${REPORT_MIN()===v?'selected':''}>${v?v+' min before':'At start time'}</option>`).join('')}</select></div>`,
     guests:`<div class="row"><div class="l"><b>Guest window</b><small>Closes when voting closes. Change it per poll in the poll’s “Guest window” card.</small></div></div>`,
     game:`<div class="row"><div class="l"><b>Game reminder</b><small>Hours before the game starts</small></div><select class="txt" id="m_lead" style="width:118px">${[[0,'Off'],[1,'1 hour'],[2,'2 hours'],[3,'3 hours']].map(([v,l])=>`<option value="${v}"${M.gameLead===v?' selected':''}>${l}</option>`).join('')}</select></div>`,
     pay:`<div class="row"><div class="l"><b>Payment reminders</b><small>Lists only players with dues. Skipped when nobody owes.</small></div><label class="switch"><input type="checkbox" id="m_dues" ${M.duesOn?'checked':''}><i></i></label></div>
@@ -4973,7 +5046,7 @@ function openMsgSettings(){
   bg.querySelectorAll('[data-reset]').forEach(b=>b.onclick=()=>{bg.querySelector(`[data-tpl="${b.dataset.reset}"]`).value=TPL_DEFAULT[b.dataset.reset];prev(b.dataset.reset)});
   $('#m_save').onclick=()=>{const tpl={};bg.querySelectorAll('[data-tpl]').forEach(t=>{const k=t.dataset.tpl,val=t.value.trim();if(val&&val!==TPL_DEFAULT[k].trim())tpl[k]=val});
     S.msg={on:$('#m_on').checked,days:days.sort(),at:$('#m_at').value||'20:00',threshold:th,lastCall:$('#m_last').checked,gameLead:+$('#m_lead').value,duesOn:$('#m_dues').checked,duesDays:ddays.sort(),duesAt:$('#m_dat').value||'19:00',tpl};
-    S.closeRule={d:+$('#m_crd').value,at:$('#m_crat').value||'22:00'};S.passOn=$('#m_pass').checked;S.passLead=+$('#m_plead').value;
+    S.closeRule={d:+$('#m_crd').value,at:$('#m_crat').value||'22:00'};S.passOn=$('#m_pass').checked;S.passReport=+$('#m_plead').value;
     saveConfig();closeWho();renderTab(true);toast('Messages & reminders saved.')};
 }
 function startPollsListener(){if(P.listening||!db)return;P.listening=true;
@@ -5331,7 +5404,7 @@ if('serviceWorker' in navigator)window.addEventListener('load',()=>{const had=!!
     if(!s.metadata.fromCache)CFG_READY=true;
     if(!s.exists&&!s.metadata.fromCache){cfgMissing=true;if(isOrg){cfgMissing=false;saveConfig()}}
     if(s.exists&&!s.metadata.hasPendingWrites)CFG_CLOUD=JSON.parse(JSON.stringify(s.data()));
-    if(s.exists){const d=s.data();if(Array.isArray(d.roster))S.roster=[...d.roster];S.rate=+d.rate||300;S.groupName=d.groupName||'';S.upiId=d.upiId||'';S.upiName=d.upiName||'';S.levels=d.levels&&typeof d.levels==='object'?d.levels:{};S.admins=Array.isArray(d.admins)?d.admins:[];S.inactive=Array.isArray(d.inactive)?d.inactive:[];S.ignored=Array.isArray(d.ignored)?d.ignored:[];S.openNames=d.openNames!==false;S.roomsRead=d.roomsRead!==false;S.idleWeeks=d.idleWeeks==null?4:+d.idleWeeks;S.since=d.since||{};S.autoOff=d.autoOff||{};S.billed=Array.isArray(d.billed)?d.billed:[];S.msg=d.msg||null;S.closeRule=d.closeRule||null;S.carry=Array.isArray(d.carry)?d.carry:[];S.auto=d.auto||null;S.duesSnap=d.duesSnap||null;S.tkBoard=d.tkBoard||null;S.passOn=d.passOn!==false;S.passLead=d.passLead==null?30:d.passLead;S.sent=d.sent||{};S.board=d.board&&typeof d.board==='object'?d.board:null;S.layout=d.layout&&typeof d.layout==='object'?d.layout:{};S.dupOk=Array.isArray(d.dupOk)?d.dupOk:[];S.model=d.model==='pre'?'pre':'post';S.load=+d.load||1000;S.low=d.low==null?200:+d.low;S.perms=d.perms&&typeof d.perms==='object'?d.perms:{};S.giphy=String(d.giphy||'').slice(0,80);S.cats=d.cats&&typeof d.cats==='object'?d.cats:{};S.vapid=String(d.vapid||'').slice(0,200);S.alerts=d.alerts&&typeof d.alerts==='object'?d.alerts:{};S.guestList=d.guestList&&typeof d.guestList==='object'?d.guestList:{};S.pollClose=d.pollClose&&typeof d.pollClose==='object'?d.pollClose:null;setTimeout(autoInactive,0);S.skin=SKINS[d.skin]?d.skin:'court';applySkin();saveLocal();if(GID)rememberGroup();renderHeader();if(computeOrg()&&!typingIn('#view-'+tab)&&!$('#whosheet'))renderTab(true)}
+    if(s.exists){const d=s.data();if(Array.isArray(d.roster))S.roster=[...d.roster];S.rate=+d.rate||300;S.groupName=d.groupName||'';S.upiId=d.upiId||'';S.upiName=d.upiName||'';S.levels=d.levels&&typeof d.levels==='object'?d.levels:{};S.admins=Array.isArray(d.admins)?d.admins:[];S.inactive=Array.isArray(d.inactive)?d.inactive:[];S.ignored=Array.isArray(d.ignored)?d.ignored:[];S.openNames=d.openNames!==false;S.roomsRead=d.roomsRead!==false;S.idleWeeks=d.idleWeeks==null?4:+d.idleWeeks;S.since=d.since||{};S.autoOff=d.autoOff||{};S.billed=Array.isArray(d.billed)?d.billed:[];S.msg=d.msg||null;S.closeRule=d.closeRule||null;S.carry=Array.isArray(d.carry)?d.carry:[];S.auto=d.auto||null;S.duesSnap=d.duesSnap||null;S.tkBoard=d.tkBoard||null;S.passOn=d.passOn!==false;S.passLead=d.passLead==null?30:d.passLead;S.passReport=d.passReport==null?15:+d.passReport;S.sent=d.sent||{};S.board=d.board&&typeof d.board==='object'?d.board:null;S.layout=d.layout&&typeof d.layout==='object'?d.layout:{};S.dupOk=Array.isArray(d.dupOk)?d.dupOk:[];S.model=d.model==='pre'?'pre':'post';S.load=+d.load||1000;S.low=d.low==null?200:+d.low;S.perms=d.perms&&typeof d.perms==='object'?d.perms:{};S.giphy=String(d.giphy||'').slice(0,80);S.cats=d.cats&&typeof d.cats==='object'?d.cats:{};S.vapid=String(d.vapid||'').slice(0,200);S.alerts=d.alerts&&typeof d.alerts==='object'?d.alerts:{};S.guestList=d.guestList&&typeof d.guestList==='object'?d.guestList:{};S.pollClose=d.pollClose&&typeof d.pollClose==='object'?d.pollClose:null;setTimeout(autoInactive,0);S.skin=SKINS[d.skin]?d.skin:'court';applySkin();saveLocal();if(GID)rememberGroup();renderHeader();if(computeOrg()&&!typingIn('#view-'+tab)&&!$('#whosheet'))renderTab(true)}
     renderTab(false)},e=>toast('Couldn’t load shared data ('+e.code+').'));
   fsDoc('config/photo').onSnapshot(s=>{if(busy('config/photo'))return;photo=s.exists?(s.data().data||''):'';try{photo?localStorage.setItem(LSP,photo):localStorage.removeItem(LSP)}catch(e){}renderHeader();if(tab==='team'&&!typingIn('#view-team'))renderTeam()},()=>{});
   col('days').onSnapshot(q=>{
