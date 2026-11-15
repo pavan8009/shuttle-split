@@ -657,7 +657,7 @@ const FIREBASE_CONFIG = {
 /* Collections get this prefix so they never clash with the league app's data */
 const COLLECTION_PREFIX = "shuttleSplit_";
 /* App version shown in Team → About */
-const APP_VERSION = "4.21.0", APP_BUILD = "15 Nov 2026";
+const APP_VERSION = "4.21.1", APP_BUILD = "15 Nov 2026";
 /* Owner of the main group (the link without ?g=) */
 const LEGACY_OWNER = "pavankaki.cool@gmail.com";
 /* Starting player list, used only until the first save */
@@ -1012,7 +1012,7 @@ function myTasks(){if(!db)return[];const me=allNames().find(n=>nkey(n)===nkey(ge
   if(isOrg)try{const t0=todayStr(),t2=shift(t0,2);P.list.forEach(p=>{if(isArchived(p))return;const T=tally(p,VOTES_BY[p.id]||[]);T.res.forEach(r=>{if(r.date<t0||r.date>t2)return;const pend=(r.guests||[]).filter(g=>g.st==='fits'||g.st==='wait');if(pend.length)out.unshift({ic:'users',t:'👥 Confirm '+plural(pend.length,'guest')+' for '+dlabel(r.date,{weekday:'short',day:'numeric',month:'short'}),s:pend.slice(0,3).map(g=>g.n+' ('+first(g.host)+')').join(', ')+' · '+(r.guests.filter(g=>g.st==='fits').length)+' fit the courts',go:()=>goPoll(p.id)})})})}catch(e){}
   /* daily nudge for organizers until the courts are booked for every upcoming poll date */
   if(isOrg)try{pendingCourts().filter(x=>x.yes).forEach(x=>out.unshift({ic:'cal',t:'🏟️ Book courts for '+dlabel(x.date,{weekday:'short',day:'numeric',month:'short'}),s:x.yes+' said Yes → about '+plural(x.courts,'court')+(x.note?' · '+x.note:'')+' · tap to review',go:()=>{go('day');setTimeout(()=>{const c=document.querySelector('#view-day .pendc');if(c)c.scrollIntoView({block:'center',behavior:'smooth'})},250)}}))}catch(e){}
-  if(isOrg)try{boardDays().filter(d=>d.auto&&d.date>=todayStr()).forEach(d=>out.unshift({ic:'cal',t:'🏟️ Confirm courts with the venue for '+dlabel(d.date,{weekday:'short',day:'numeric',month:'short'}),s:'Filled in from the votes: '+(d.slots||[]).map(x=>x.t+' × '+plural(+x.c||0,'court')).join(', ')+' · tap ✓ Booked once done',go:()=>go('day')}))}catch(e){}
+  if(isOrg)try{boardDays().filter(d=>d.auto&&d.date>=todayStr()&&!dayOver(d.date,(d.slots||[]).map(x=>x.t))).forEach(d=>out.unshift({ic:'cal',t:'🏟️ Confirm courts with the venue for '+dlabel(d.date,{weekday:'short',day:'numeric',month:'short'}),s:'Filled in from the votes: '+(d.slots||[]).map(x=>x.t+' × '+plural(+x.c||0,'court')).join(', ')+' · tap ✓ Booked once done',go:()=>go('day')}))}catch(e){}
   if(isOrg&&CARRY().length)out.push({ic:'wallet',t:'⏭ '+plural(CARRY().length,'expense')+' waiting for the next game day',s:CARRY().map(c=>c.what+' '+inr(c.amt)+(c.by?' ('+first(c.by)+')':'')).join(', ')+' · add it on that day under Drinks & others',go:()=>openCarry()});
   if(isOrg)ACT.list.filter(a=>a.kind==='poll'&&a.status==='pending').forEach(a=>out.unshift({ic:'cal',t:'Review '+first(a.name)+'’s game proposal',s:schedTxt(propX(a))+' · accept, change or decline',go:()=>openActions()}));
   return out}
@@ -3600,19 +3600,23 @@ function boardDays(){const B=S.board;if(!B||!Array.isArray(B.days))return[];retu
 function boardHours(date){if(typeof S==='undefined'||!S.board)return 0;const d=boardDays().find(x=>x.date===date);return d?r2((d.slots||[]).reduce((a,x)=>a+slotHours(x.t)*(+x.c||0),0)):0}
 /* only today and later, in step with the polls (past bookings stay in the bills) */
 function boardCurrent(){const t=todayStr();return boardDays().filter(d=>d.date>=t)}
+/* a game day is over once its last slot has ended (or its bill went out); it then leaves the bookings card and the "to be booked" list */
+function dayOver(date,notes){const t=todayStr();if(date<t)return true;if(date>t)return false;const d=S.days&&S.days[date];if(d&&d.bill==='sent')return true;
+  const N=(notes||[]).filter(Boolean);if(!N.length)return false;const end=Math.max(...N.map(slotEnd));if(end>=24)return false;const n=new Date();return n.getHours()+n.getMinutes()/60>=end}
+function boardShown(){return boardCurrent().filter(d=>!dayOver(d.date,(d.slots||[]).map(x=>x.t)))}
 /* venue map link: the organizer's link, or GG Sports by default */
 const MAPPIN='<svg class="ci" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21Z"/><circle cx="12" cy="9.5" r="2.5"/></svg>';
 const GG_MAP='https://maps.app.goo.gl/8LitvJW5ozHjpuwW8';
 const venueMap=B=>{const m=String((B&&B.map)||'').trim();if(/^https:\/\/(maps\.app\.goo\.gl|goo\.gl\/maps|(www\.)?google\.[a-z.]+\/maps)/i.test(m))return m;return/gg\s*sports/i.test((B&&B.venue)||'')?GG_MAP:''};
 /* every upcoming poll date (weekend or custom, e.g. Mon 9 Nov) that has no booking yet: hours depend on the votes */
 function pendingCourts(){const t=todayStr(),have=new Set(boardDays().map(d=>d.date)),out=[];
-  (P.list||[]).filter(p=>!isArchived(p)).forEach(p=>(p.dates||[]).forEach(dt=>{if(!dt.date||dt.date<t||have.has(dt.date)||out.some(o=>o.date===dt.date)||(p.cancelled||{})[dt.date])return;ensureVotes(p);
+  (P.list||[]).filter(p=>!isArchived(p)).forEach(p=>(p.dates||[]).forEach(dt=>{if(!dt.date||dt.date<t||dayOver(dt.date,[dt.note])||have.has(dt.date)||out.some(o=>o.date===dt.date)||(p.cancelled||{})[dt.date])return;ensureVotes(p);
     const V=VOTES_BY[p.id],yes=V?V.filter(v=>(v.answers||{})[dt.date]==='yes').length:null,per=Math.max(1,Math.min(4,+p.perCourt||4)),courts=yes?Math.max(1,Math.round(yes/per)):0;
     if(V&&!yes&&isClosed(p))return;out.push({date:dt.date,note:dt.note||'',p,yes,courts,closed:isClosed(p)})}));return out.sort((a,b)=>a.date.localeCompare(b.date))}
 async function bookPending(date){const x=pendingCourts().find(o=>o.date===date);if(!x||!canEdit())return;const B=JSON.parse(JSON.stringify(S.board||{venue:'GG SPORTS',days:[]}));B.days=(B.days||[]).filter(d=>d.date!==date);
   B.days.push({date,slots:[{t:x.note||'Time to be set',c:Math.max(1,x.courts||1)}]});S.board=B;saveConfig();renderTab(false);toast('🏟️ '+plural(Math.max(1,x.courts||1),'court')+' booked for '+dlabel(date)+'. Tap Edit to fine-tune.')}
 document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-bookp]');if(b)bookPending(b.dataset.bookp);const c=e.target.closest&&e.target.closest('[data-bconf]');if(c&&canEdit()){const B=JSON.parse(JSON.stringify(S.board||{}));(B.days||[]).forEach(d=>{if(d.date===c.dataset.bconf)delete d.auto});S.board=B;saveConfig();renderTab(false);toast('🏟️ Courts confirmed for '+dlabel(c.dataset.bconf))}});
-function boardCard(){const days=boardCurrent(),B=S.board||{},PD=pendingCourts();
+function boardCard(){const days=boardShown(),B=S.board||{},PD=pendingCourts();
   if(!days.length&&!PD.length)return canEdit()&&db?`<section class="card">${cardH('cal','Court bookings','Not set')}<div class="card-f"><p class="hint">Show everyone which courts are booked this week.</p><button class="btn sm primary" data-board style="margin-left:auto">${ic('plus')}Add</button></div></section>`:'';
   return`<section class="card courts">${(()=>{const mp=venueMap(B);return'<div class="venue"><span class="vico">🏟️</span><div><small>Court bookings</small>'+'<b>'+esc(B.venue||'Our courts')+'</b>'+'</div><span class="vhrs">'+(days.length?fmtH(days.reduce((a,d)=>a+boardHours(d.date),0))+' h':'?')+(PD.length&&days.length?' +?':'')+'</span></div>'+(mp?'<a class="vmap" href="'+esc(mp)+'" target="_blank" rel="noopener">'+MAPPIN+'<span><b>Get directions</b><small>Open '+esc(B.venue||'the venue')+' in Google Maps</small></span><span class="go">›</span></a>':'')})()}
     ${days.map(d=>`<div class="row" style="flex-direction:column;align-items:stretch;gap:6px"><div style="display:flex;justify-content:space-between"><b>${esc(dlabel(d.date,{weekday:'long',day:'numeric',month:'short'}))}</b><small class="hint" style="margin:0">${fmtH(boardHours(d.date))} court-hours</small></div>
@@ -3646,7 +3650,7 @@ function openBoard(onDate,onNote){if(!canEdit())return;
     $('#bpoll').onclick=()=>{keep();const p=P.list.find(x=>!isArchived(x)&&(x.dates||[]).some(d=>d.date>=todayStr()));if(!p)return toast('No upcoming poll to copy from.');
       const t=tally(p,VOTES_BY[p.id]||[]),by={};t.res.forEach(r=>{(by[r.date]=by[r.date]||[]).push({t:r.note||'',c:r.courts||1})});days=Object.keys(by).sort().map(k=>({date:k,slots:by[k]}));draw();toast('Filled from “'+p.title+'”. Split the hours if courts change mid-way.')};
     $('#bclear').onclick=()=>{S.board=null;saveConfig();closeWho();renderTab(false);toast('Court bookings cleared.')};
-    $('#bsave').onclick=()=>{keep();S.board={venue:norm(venue),map:norm(map).slice(0,300),note:norm(note),days:days.filter(d=>d.date).map(d=>({date:d.date,...(d.ok?{ok:d.ok}:{}),slots:(d.slots||[]).filter(x=>norm(x.t)).map(x=>({t:norm(x.t),c:+x.c||0}))}))};saveConfig();closeWho();renderTab(false);toast('Court bookings saved for everyone.')};
+    $('#bsave').onclick=()=>{keep();S.board={venue:norm(venue),map:norm(map).slice(0,300),note:norm(note),days:[...(B.days||[]).filter(d=>d.date<todayStr()&&d.date>=shift(todayStr(),-60)&&!days.some(x=>x.date===d.date)),...days.filter(d=>d.date).map(d=>({date:d.date,...(d.ok?{ok:d.ok}:{}),slots:(d.slots||[]).filter(x=>norm(x.t)).map(x=>({t:norm(x.t),c:+x.c||0}))}))]};saveConfig();closeWho();renderTab(false);toast('Court bookings saved for everyone.')};
   };draw()}
 
 /* ================= CLUB: photos, tips, shout-outs ================= */
