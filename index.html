@@ -657,7 +657,7 @@ const FIREBASE_CONFIG = {
 /* Collections get this prefix so they never clash with the league app's data */
 const COLLECTION_PREFIX = "shuttleSplit_";
 /* App version shown in Team → About */
-const APP_VERSION = "4.20.0", APP_BUILD = "9 Nov 2026";
+const APP_VERSION = "4.21.0", APP_BUILD = "15 Nov 2026";
 /* Owner of the main group (the link without ?g=) */
 const LEGACY_OWNER = "pavankaki.cool@gmail.com";
 /* Starting player list, used only until the first save */
@@ -811,7 +811,7 @@ function calc(d){
   /* money players paid out of pocket for this day (court, shuttles, drinks & others) */
   const spent={},addS=(n,a,what)=>{if(!n||!(a>0))return;const k=canon(n);spent[k]=spent[k]||{amt:0,what:[]};spent[k].amt=r2(spent[k].amt+a);spent[k].what.push(what+' '+inr(a))};
   addS(d.paidBy.court,court,'court');addS(d.paidBy.shuttle,shuttle,'shuttles');if(d.drinksOn)(d.items||[]).forEach(i=>addS(i.by,i.amt,(i.what||'item').toLowerCase()));
-  return{n,court,shuttle,drinks,cEach,sEach,dEach,shN:shS.length,drN:drS.length,per,actual,collected,spent,free};
+  return{n,court,shuttle,drinks,gen,own:own.map(i=>({what:i.what||'Item',amt:+i.amt,n:i.who.length,each:Math.ceil((+i.amt||0)/i.who.length),wd:i.wd||''})),cEach,sEach,dEach,shN:shS.length,drN:drS.length,per,actual,collected,spent,free};
 }
 /* ---------- player levels + who is using this phone ---------- */
 const LEVELS=[['beginner','Beginner','#12B76A'],['intermediate','Intermediate','#2E90FA'],['advanced','Advanced','#F79009'],['pro','Pro','#7A5AF8']];
@@ -1381,7 +1381,7 @@ function refreshDay(){
   const vs=$('#viewsum');if(vs&&!canEdit()){vs.innerHTML=cardH('rupee','Costs for the day',inr(c.actual))+(c.n?`
     <div class="row"><div class="l"><b>Court</b><small>${fmtH(d.hours)} h × ${inr(d.rate)}</small></div><span class="v">${inr(c.court)}</span></div>
     ${c.shuttle?`<div class="row"><div class="l"><b>Shuttles</b><small>Shared by ${c.shN}</small></div><span class="v">${inr(c.shuttle)}</span></div>`:''}
-    ${c.drinks?`<div class="row"><div class="l"><b>Drinks & others</b><small>Shared by ${c.drN}</small></div><span class="v">${inr(c.drinks)}</span></div>`:''}`
+    ${c.drinks?`<div class="row"><div class="l"><b>Drinks & others</b><small>${esc(drinksParts(c).join(' · '))}</small></div><span class="v">${inr(c.drinks)}</span></div>`:''}`
     :`<div class="empty">${ic('cal')}Nothing recorded for this day yet.</div>`)}
   const sc=$('#splitcard');
   if(!c.n){sc.innerHTML=cardH('wallet','Split')+`<div class="empty">${ic('users')}Tick who played to see each person’s share.</div>`;return}
@@ -1400,6 +1400,8 @@ function refreshDay(){
 /* who paid an expense: blank = the organizer, from collections */
 const payerOpts=(v,pre)=>`<option value="">${pre?'Paid by organizer':'Organizer (from collections)'}</option>${allNames().map(n=>`<option value="${esc(n)}" ${nkey(n)===nkey(v||'')?'selected':''}>${pre?'Paid by ':''}${esc(n)}</option>`).join('')}`;
 const payerRow=(k,l,v)=>`<div class="row" style="padding-top:4px"><div class="l"><small>${l}</small></div><select class="txt" data-pb="${k}" style="width:auto;max-width:58%;height:38px;font-size:14px">${payerOpts(v)}</select></div>`;
+/* how drinks & others were split: the shared pool, plus items shared only by an earlier day's players */
+function drinksParts(c){const P=[];if(c.gen)P.push(inr(c.gen)+' ÷ '+c.drN+' = '+inr(c.dEach));(c.own||[]).forEach(i=>P.push(i.what+' '+inr(i.amt)+' ÷ '+i.n+(i.wd?' ('+dlabel(i.wd,{day:'numeric',month:'short'})+' players)':'')+' = '+inr(i.each)));return P}
 const itemsOf=d=>d.items&&d.items.length?d.items:[{what:'Drinks',amt:+d.drinks||0,by:''}];
 /* who shares an item: everyone ticked below, or only the players of an earlier game day (e.g. drinks bought on Sat, billed today) */
 const whoOfDay=x=>{const D=S.days[x]||{},cv=D.cover||{};return (D.present||[]).map(p=>{const h=Object.entries(cv).find(([g])=>nkey(g)===nkey(p));return h&&h[1]?h[1]:p})};
@@ -1431,9 +1433,27 @@ async function restoreDay(){if(!canEdit())return;const date=curDate,c=getDay(dat
   for(const p of P.list.filter(x=>(x.cancelled||{})[date]))if(db)try{await pollsCol().doc(p.id).update(new firebase.firestore.FieldPath('cancelled',date),firebase.firestore.FieldValue.delete())}catch(e){}
   renderTab(true);toast('↩️ '+dlabel(date)+' restored. Charges are back.')}
 document.addEventListener('click',e=>{const t=e.target.closest&&e.target.closest('[data-cancelday],[data-restoreday]');if(!t)return;if(t.dataset.cancelday!==undefined)openCancelDay();else restoreDay()});
+const billPaidSince=date=>{const pr=new Set((getDay(date).present||[]).map(nkey));return allPays().some(x=>x.kind!=='adjust'&&(x.status==='confirmed'||x.status==='claimed')&&pr.has(nkey(x.name))&&ymd(new Date(x.at||0))>=date)};
+function corrRows(d){if(!d.prev)return[];const c=calc(d),T=d.prev.tot||{},N=new Set([...Object.keys(T),...Object.keys(c.per)]);
+  return orderNames([...N]).map(n=>{const was=+T[n]||0,now=c.per[n]?c.per[n].total:0;return{n,was,now,diff:r2(now-was)}}).filter(r=>r.diff)}
+function corrWhy(d){const a=d.prev||{},W=[];if(a.hours!==d.hours)W.push('court time was '+fmtH(d.hours)+' h, not '+fmtH(a.hours)+' h');if(a.rate!==d.rate)W.push('rate is '+inr(d.rate)+'/h, not '+inr(a.rate));
+  if(a.shuttle!==d.shuttle)W.push('shuttles '+inr(d.shuttle)+', not '+inr(a.shuttle));if(a.drinks!==d.drinks)W.push('drinks & others '+inr(d.drinks)+', not '+inr(a.drinks));if(a.n!==d.present.length)W.push('players '+d.present.length+', not '+a.n);return W}
+function corrMsg(d){const R=corrRows(d),W=corrWhy(d),dl=dlabel(d.date,{weekday:'short',day:'numeric',month:'short'});
+  return['✏️ *Bill correction · '+dl+'*',(W.length?'Sorry, a small mix-up: '+W.join(', ')+'. 🙏':'Sorry, a small mix-up in the bill. 🙏'),'',
+    ...R.map(r=>'• '+r.n+': '+inr(r.was)+' → *'+inr(r.now)+'*'+(r.diff<0?' · '+inr(-r.diff)+' back 💚':' · '+inr(r.diff)+' more')),'',
+    R.some(r=>r.diff<0)?'💚 Already paid? The extra is saved in your *wallet* and taken off your next game automatically. Not paid yet? Just pay the new amount.':'',
+    R.some(r=>r.diff>0)?'Please pay the difference when you can. Thank you!':'','👉 Check yours: '+appLink('payouts')].filter((x,i,a)=>x!==''||a[i-1]!=='').join('\n').trim()}
+function corrCard(d){if(!d.prev)return'';const R=corrRows(d);if(!R.length)return`<div class="sub" style="background:var(--field)"><div class="mix" style="justify-content:space-between"><span>✏️ Bill is back to what was sent.</span><button class="lnk" data-act="corrok">Dismiss</button></div></div>`;
+  const back=R.filter(r=>r.diff<0).reduce((a,r)=>a-r.diff,0),more=R.filter(r=>r.diff>0).reduce((a,r)=>a+r.diff,0),W=corrWhy(d);
+  return`<div class="sub" style="background:#FFFAEB;border-top:1px solid #FEDF89;border-bottom:1px solid #FEDF89"><b>✏️ Corrected after it was sent</b><small class="hint" style="display:block;margin:2px 0 8px">${esc((W.join(' · ')||'Bill changed').replace(/^./,m=>m.toUpperCase()))}. ${back?inr(back)+' goes back to wallets':''}${back&&more?' · ':''}${more?inr(more)+' more to collect':''}. Anyone who already paid gets the extra as wallet credit automatically.</small>
+    ${R.map(r=>`<div class="mix" style="justify-content:space-between;font-size:14px"><span>${esc(r.n)}</span><span>${inr(r.was)} → <b>${inr(r.now)}</b> <small style="color:${r.diff<0?'var(--ok)':'var(--danger)'}">${r.diff<0?'−'+inr(-r.diff)+' to wallet':'+'+inr(r.diff)}</small></span></div>`).join('')}
+    <div style="display:grid;grid-template-columns:1fr auto;gap:8px;margin-top:10px"><a class="btn wa" href="${waHref(corrMsg(d))}" target="_blank" rel="noopener" data-act="corrsent">📲 Send correction to group</a><button class="btn line" data-act="corrok">Done</button></div></div>`}
 function editDay(fn){
   if(!canEdit()){toast('Sign in as the organizer to make changes.');return}
   const d=getDay(curDate),before=JSON.stringify(d.present);const snap=JSON.stringify(d);fn(d);if(d.autoSync&&JSON.stringify(d.present)!==before)d.autoSync=false;
+  /* bill changed after it went out or after people started paying: remember what everyone was charged, so the correction can be explained and the extra goes to wallets */
+  if(JSON.stringify(d)!==snap&&!d.prev&&(d.bill==='sent'||billPaidSince(curDate))){try{const o=normDay(JSON.parse(snap),curDate),c0=calc(o),T={};Object.entries(c0.per).forEach(([n,x])=>T[n]=x.total);
+    if(Object.keys(T).length)d.prev={at:Date.now(),tot:T,hours:o.hours,rate:o.rate,shuttle:o.shuttle,drinks:o.drinks,n:o.present.length}}catch(e){}}
   if(d.bill==='sent'&&JSON.stringify(d)!==snap&&d.present.length){d.bill='queued';d.billChanged=true;toast('Changed after it was sent, so it’s back in the bill to send again.')}S.days[curDate]=d;queueWrite('days/'+curDate,d);dayConfirmClear=false;
   const back=d.present.filter(p=>(S.inactive||[]).includes(nkey(p))&&S.autoOff&&S.autoOff[nkey(p)]);
   if(back.length){back.forEach(p=>{delete S.autoOff[nkey(p)];S.inactive=S.inactive.filter(x=>x!==nkey(p))});saveConfig()}
@@ -1478,6 +1498,8 @@ function bindDay1(v){
       case'billadd':setBill([curDate],'queued');toast(dlabel(curDate,{weekday:'short',day:'numeric',month:'short'})+' added to the bill.');break;
       case'billrm':setBill([curDate],null);toast('Taken out of the bill.');break;
       case'billsend':openBillSend();break;
+      case'corrok':{const d=getDay(curDate);delete d.prev;S.days[curDate]=d;queueWrite('days/'+curDate,d);renderDay();toast('👍 Correction closed');break}
+      case'corrsent':setTimeout(()=>{const d=getDay(curDate);delete d.prev;if(d.bill==='queued'){d.bill='sent';d.billAt=Date.now();delete d.billChanged}S.days[curDate]=d;queueWrite('days/'+curDate,d);renderDay()},800);break;
     }
   });
   v.addEventListener('input',e=>{
@@ -1571,7 +1593,7 @@ function renderPay(){
   $('#copytext').onclick=()=>copyText(msg);
   const fname='payouts-'+R.days.map(d=>d.date.slice(5)).join('_')+'.png';
   drawPoster(R).then(url=>{const img=$('#poster');if(img)img.src=url;const sb=$('#shareimg');if(!sb)return;
-    sb.onclick=()=>sharePoster(url,fname,posterCaption(R))});
+    sb.onclick=()=>billCheck(R.days.map(d=>d.date),()=>sharePoster(url,fname,posterCaption(R)))});
 }
 async function sharePoster(url,fname,cap){try{
   const blob=await(await fetch(url)).blob(),file=new File([blob],fname,{type:'image/png'});
@@ -1586,7 +1608,8 @@ async function sharePoster(url,fname,cap){try{
 const billQueue=()=>Object.keys(S.days).filter(k=>S.days[k].bill==='queued'&&S.days[k].present&&S.days[k].present.length).sort();
 const shortD=k=>dlabel(k,{weekday:'short',day:'numeric',month:'short'});
 function setBill(keys,state){keys.forEach(k=>{const d=getDay(k);if(state)d.bill=state;else delete d.bill;if(state==='sent'){d.billAt=Date.now();delete d.billChanged}S.days[k]=d;queueWrite('days/'+k,d)});renderTab(false)}
-function billFooter(d){
+function billFooter(d){return corrCard(d)+billFooter0(d)}
+function billFooter0(d){
   const q=billQueue(),tot=q.reduce((a,k)=>a+calc(getDay(k)).collected,0),me=shortD(curDate);
   const sendBtn=q.length?`<button class="btn primary block" data-act="billsend">${ic('share')}Review & send bill · ${plural(q.length,'day')} · ${inr(tot)}</button>`:'';
   if(d.bill==='queued')return`<div class="card-f" style="display:grid;gap:10px"><div class="mix" style="justify-content:space-between"><span class="ok-chip">${ic('check')}${d.billChanged?'Updated · in the bill again':'Added to the bill'}</span><button class="lnk" data-act="billrm">Take out</button></div>
@@ -1597,7 +1620,19 @@ function billFooter(d){
 function billTray(){if(!canEdit())return'';const q=billQueue();if(!q.length)return'';const tot=q.reduce((a,k)=>a+calc(getDay(k)).collected,0);
   return`<section class="card due-card">${cardH('share','Bill waiting to be sent',inr(tot))}<div class="row"><div class="l"><b>${q.map(shortD).join(' · ')}</b><small>Not shared with the group yet</small></div></div>
     <div class="card-f"><button class="btn sm primary" data-act="billsend">${ic('share')}Review & send</button></div></section>`}
-function openBillSend(){
+/* safety check before a bill or payouts poster goes out: court hours, courts booked, rate and players for each day */
+function billCheck(keys,ok){keys=[...new Set(keys)].filter(k=>S.days[k]).sort();if(!keys.length)return ok();
+  const rows=keys.map(k=>{const d=getDay(k),c=calc(d),bh=boardHours(k),cb=courtsBooked(k),bad=bh>0&&Math.abs(bh-d.hours)>.01;return{k,d,c,bh,cb,bad}}),nbad=rows.filter(r=>r.bad).length;
+  const bg=sheetOpen(`<div class="sheet-h"><span class="ini">🔎</span><div><b>Check before sending</b><small>${nbad?'⚠️ '+plural(nbad,'day')+(nbad===1?' doesn’t':' don’t')+' match the court bookings':'Make sure the hours and courts are right'}</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div>
+    ${rows.map(r=>`<div class="sub" style="${r.bad?'background:#FEF3F2;':''}border-bottom:1px solid var(--line2)"><div class="mix" style="justify-content:space-between"><b>${esc(dlabel(r.k,{weekday:'short',day:'numeric',month:'short'}))}</b><button class="lnk" data-bfix="${r.k}">✏️ Fix</button></div>
+      <div class="dkg" style="margin-top:6px"><div class="dk"><span>Court hours on bill</span><b style="${r.bad?'color:var(--danger)':''}">${fmtH(r.d.hours)} h</b></div><div class="dk"><span>Booked</span><b>${r.bh?fmtH(r.bh)+' h':'—'}</b><small>${r.cb?plural(r.cb,'court'):'no booking entered'}</small></div><div class="dk"><span>Rate</span><b>${inr(r.d.rate)}/h</b></div><div class="dk"><span>Players</span><b>${r.c.n}</b></div></div>
+      <small class="hint" style="display:block;margin:6px 0 0">${fmtH(r.d.hours)} h × ${inr(r.d.rate)} = ${inr(r.c.court)} ÷ ${r.c.n} = <b>${inr(r.c.cEach)}</b> each${r.c.drinks?' · drinks & others '+inr(r.c.drinks):''}${r.c.shuttle?' · shuttles '+inr(r.c.shuttle):''}</small>
+      ${r.bad?`<small style="display:block;color:var(--danger);margin-top:4px">⚠️ The court bookings add up to ${fmtH(r.bh)} court-hours, but the bill uses ${fmtH(r.d.hours)} h.</small>`:''}</div>`).join('')}
+    <div class="card-f" style="display:grid;gap:8px"><label class="mix" style="gap:10px"><input type="checkbox" class="chk" id="bcok"><span>I’ve checked the hours, courts and players</span></label><button class="btn primary block" id="bcgo" disabled>${nbad?'Send anyway':'Looks right, continue'}</button></div>`,'Check bill');
+  $('#whoclose').onclick=closeWho;$('#bcok').onchange=e=>{$('#bcgo').disabled=!e.target.checked};$('#bcgo').onclick=()=>{closeWho();ok()};
+  bg.querySelectorAll('[data-bfix]').forEach(b=>b.onclick=()=>{closeWho();curDate=b.dataset.bfix;go('game');setTimeout(()=>{const h=document.querySelector('[data-act="h-"]');if(h)h.scrollIntoView({block:'center'})},300)})}
+function openBillSend(){billCheck(billQueue(),openBillSend0)}
+function openBillSend0(){
   const q=billQueue();if(!q.length)return toast('No days in the bill yet. Open a day and tap “Add to the bill”.');
   const pick=new Set(q);let url='',step='review';
   const draw=()=>{const R=report([...pick]),tot=R.total;
@@ -1814,7 +1849,7 @@ function payText(R){
   R.days.forEach((d,i)=>{const c=R.calcs[i];L.push('📅 *'+dlabel(d.date)+'* · '+c.n+' players');
     L.push('   Court: '+fmtH(d.hours)+' h × '+inr(d.rate)+' = '+inr(c.court)+' → '+inr(c.cEach)+' each');
     if(c.shuttle)L.push('   Shuttles: '+inr(c.shuttle)+' ÷ '+c.shN+' → '+inr(c.sEach)+' each');
-    if(c.drinks)L.push('   Drinks & others: '+inr(c.drinks)+' ÷ '+c.drN+' → '+inr(c.dEach)+' each'+((getDay(d.date).items||[]).length?' ('+getDay(d.date).items.filter(i=>i.amt).map(i=>(i.what||'item')+' '+inr(i.amt)).join(', ')+')':''));
+    if(c.drinks)L.push('   Drinks & others: '+drinksParts(c).join(' · ')+((getDay(d.date).items||[]).length?' ('+getDay(d.date).items.filter(i=>i.amt).map(i=>(i.what||'item')+' '+inr(i.amt)).join(', ')+')':''));
     Object.entries(c.spent||{}).forEach(([n,sp])=>L.push('   💚 '+n+' paid '+sp.what.join(', ')+' → credited'));});
   const spT=r2(R.calcs.reduce((a,c)=>a+Object.values(c.spent||{}).reduce((x,y)=>x+y.amt,0),0));
   L.push('');L.push(spT?'💰 *Total '+inr(R.total)+'* · already paid by players '+inr(spT)+' → *to collect '+inr(Math.max(0,r2(R.total-spT)))+'*':'💰 *Total to collect: '+inr(R.total)+'*');
@@ -1843,7 +1878,7 @@ function openWho(name,R){
     <div class="how"><span class="sublbl">How each day was worked out</span>
       ${rows.map(x=>{const d=x.d,c=x.c,p=[`Court ${fmtH(d.hours)} h × ${inr(d.rate)} = ${inr(c.court)} ÷ ${c.n} players = ${inr(c.cEach)}`];
         if(c.shuttle)p.push(x.o.shuttle?`Shuttles ${inr(c.shuttle)} ÷ ${c.shN} = ${inr(c.sEach)}`:'Shuttles: not included');
-        if(c.drinks)p.push(x.o.drinks?`Drinks & others ${inr(c.drinks)} ÷ ${c.drN} = ${inr(c.dEach)}`:'Drinks & others: not included');
+        if(c.drinks)p.push(x.o.drinks?`Drinks & others ${drinksParts(c).join(' · ')}`:'Drinks & others: not included');
         if(x.o.covers)p.push('👥 Your guests: '+Object.entries(x.o.coverAmt||{}).map(([g,a])=>esc(gName(g))+' '+inr(a)).join(' + ')+' = '+inr(x.o.covers)+' (on your bill)');
         return`<div><b>${esc(dlabel(d.date,{weekday:'long',day:'numeric',month:'short'}))}</b><br>${p.join('<br>')}</div>`}).join('')}
       <p class="hint">Each share is rounded up to the next rupee.</p></div>
@@ -1981,7 +2016,7 @@ async function drawPoster(R){
     g.textAlign='left';g.fillStyle='#101828';g.font='600 23px '+F;let ly=yy+98;
     fit(g,'Court  '+fmtH(d.hours)+' h × ₹'+d.rate+' ÷ '+c.n+' = ₹'+c.cEach,x+26,ly,cw-52);ly+=40;
     if(c.shuttle){fit(g,'Shuttles  ₹'+c.shuttle+' ÷ '+c.shN+' = ₹'+c.sEach,x+26,ly,cw-52);ly+=40}
-    if(c.drinks)fit(g,'Drinks & others  ₹'+c.drinks+' ÷ '+c.drN+' = ₹'+c.dEach,x+26,ly,cw-52)});
+    if(c.drinks)fit(g,'Drinks & others  '+drinksParts(c).join(' · '),x+26,ly,cw-52)});
   y+=crow*(cardH+18)+8;
   g.fillStyle=acc;rr(g,P,y,W-P*2,160,26);g.fill();
   g.fillStyle=sk.ink;g.textAlign='left';g.font='800 24px '+F;g.fillText('TOTAL TO COLLECT',P+36,y+70);
