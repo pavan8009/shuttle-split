@@ -657,7 +657,7 @@ const FIREBASE_CONFIG = {
 /* Collections get this prefix so they never clash with the league app's data */
 const COLLECTION_PREFIX = "shuttleSplit_";
 /* App version shown in Team → About */
-const APP_VERSION = "4.21.1", APP_BUILD = "15 Nov 2026";
+const APP_VERSION = "4.22.0", APP_BUILD = "16 Nov 2026";
 /* Owner of the main group (the link without ?g=) */
 const LEGACY_OWNER = "pavankaki.cool@gmail.com";
 /* Starting player list, used only until the first save */
@@ -3616,17 +3616,49 @@ function pendingCourts(){const t=todayStr(),have=new Set(boardDays().map(d=>d.da
 async function bookPending(date){const x=pendingCourts().find(o=>o.date===date);if(!x||!canEdit())return;const B=JSON.parse(JSON.stringify(S.board||{venue:'GG SPORTS',days:[]}));B.days=(B.days||[]).filter(d=>d.date!==date);
   B.days.push({date,slots:[{t:x.note||'Time to be set',c:Math.max(1,x.courts||1)}]});S.board=B;saveConfig();renderTab(false);toast('🏟️ '+plural(Math.max(1,x.courts||1),'court')+' booked for '+dlabel(date)+'. Tap Edit to fine-tune.')}
 document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-bookp]');if(b)bookPending(b.dataset.bookp);const c=e.target.closest&&e.target.closest('[data-bconf]');if(c&&canEdit()){const B=JSON.parse(JSON.stringify(S.board||{}));(B.days||[]).forEach(d=>{if(d.date===c.dataset.bconf)delete d.auto});S.board=B;saveConfig();renderTab(false);toast('🏟️ Courts confirmed for '+dlabel(c.dataset.bconf))}});
-function boardCard(){const days=boardShown(),B=S.board||{},PD=pendingCourts();
+/* ================= 🧾 BOOKING PROOFS: the venue's confirmation, shown to the venue staff when they ask ================= */
+const BPF={list:[],unsub:null};
+function startProofs(){if(!db||BPF.unsub)return;BPF.unsub=()=>{};ensureAnon().then(()=>{BPF.unsub=col('bookproofs').onSnapshot(q=>{BPF.list=q.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(b.at||0)-(a.at||0));
+  if((tab==='day'||tab==='play')&&!$('#whosheet'))renderTab(false);if($('#bpsheet'))openProofs(true)},()=>{BPF.unsub=null})}).catch(()=>{BPF.unsub=null})}
+const proofsFor=date=>BPF.list.filter(x=>(x.dates||[]).includes(date));
+function proofDates(){const t=todayStr();return[...new Set([...boardDays().filter(d=>d.date>=shift(t,-1)).map(d=>d.date),...pendingCourts().map(x=>x.date)])].sort()}
+function proofBtn(date){const n=proofsFor(date).length;return n?`<button type="button" class="btn sm line" data-bpview="${date}" style="align-self:flex-start">🧾 Booking proof${n>1?' ('+n+')':''}</button>`:''}
+function viewBookProof(date){const L=proofsFor(date),d=boardDays().find(x=>x.date===date);if(!L.length)return;
+  const bg=sheetOpen(`<div class="sheet-h"><span class="ini">🧾</span><div><b>Booking proof · ${esc(dlabel(date,{weekday:'short',day:'numeric',month:'short'}))}</b><small>${esc((S.board||{}).venue||'Venue')}${d?' · '+esc((d.slots||[]).map(x=>x.t+' × '+plural(+x.c||0,'court')).join(', ')):''}</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div>
+    ${L.map((x,i)=>`<div class="sub"><img src="${x.img}" alt="Booking proof" data-zoom style="width:100%;border-radius:12px;box-shadow:0 4px 14px rgba(16,24,40,.12)">${x.note?`<p style="margin:8px 0 0">${esc(x.note)}</p>`:''}<small class="hint" style="display:block;margin:6px 0 0">Added by ${esc(first(x.by||'organizer'))} · ${esc(timeAgo(x.at))} · tap the photo for full screen</small>
+      <button type="button" class="btn sm line" data-bpshare="${i}" style="margin-top:8px">${ic('share')}Share</button></div>`).join('')}`,'Booking proof');
+  $('#whoclose').onclick=closeWho;bg.querySelectorAll('[data-bpshare]').forEach(b=>b.onclick=()=>{const x=L[+b.dataset.bpshare];sharePoster(x.img,'booking-'+date+'.jpg','🧾 Booking proof · '+((S.board||{}).venue||'')+' · '+dlabel(date))})}
+/* organizers add proofs in one place: pick the photo, tick the days it covers */
+function openProofs(keep){if(!canEdit())return;startProofs();const D=proofDates(),t=todayStr();let img=openProofs.img||'',sel=openProofs.sel||new Set(D.filter(x=>x>=t).slice(0,2)),note=openProofs.note||'';
+  const html=`<div id="bpsheet"></div><div class="sheet-h"><span class="ini">🧾</span><div><b>Booking proofs</b><small>Upload the venue’s confirmation once; everyone can show it at the counter</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div>
+    <div class="sub" style="display:grid;gap:10px"><label class="btn line block" style="cursor:pointer">📷 ${img?'Change photo':'Choose screenshot or photo'}<input type="file" accept="image/*" id="bpfile" hidden></label>
+      ${img?`<img src="${img}" alt="" style="width:100%;max-height:40vh;object-fit:contain;border-radius:12px;background:var(--field)">`:''}
+      <span class="sublbl">Which days does it cover?</span>${D.length?`<div style="display:flex;flex-wrap:wrap;gap:6px">${D.map(x=>`<button type="button" class="chipbtn${sel.has(x)?' on':''}" data-bpd="${x}">${esc(dlabel(x,{weekday:'short',day:'numeric',month:'short'}))}</button>`).join('')}</div>`:'<small class="hint">Add the court bookings first.</small>'}
+      <input class="txt" id="bpnote" maxlength="120" placeholder="Note (optional), e.g. Booking ID 4521, paid ₹900" value="${esc(note)}">
+      <button class="btn primary block" id="bpsave" ${img&&sel.size?'':'disabled'}>Save proof</button></div>
+    <div class="sub"><span class="sublbl">Saved proofs</span>${BPF.list.length?BPF.list.map(x=>`<div class="row"><div class="l" style="display:flex;gap:10px;align-items:center"><img src="${x.img}" alt="" data-zoom style="width:56px;height:56px;object-fit:cover;border-radius:8px"><span><b>${esc((x.dates||[]).map(d=>dlabel(d,{weekday:'short',day:'numeric',month:'short'})).join(' & '))}</b><small style="display:block">${esc(x.note||'')}${x.note?' · ':''}${esc(timeAgo(x.at))}</small></span></div><button class="lnk" data-bpdel="${esc(x.id)}" style="color:var(--danger)">Remove</button></div>`).join(''):'<small class="hint">None yet</small>'}</div>`;
+  const bg=keep&&$('#bpsheet')?sheetSwap(html,'Booking proofs'):(SWAP_KEY='',sheetOpen(html,'Booking proofs'));
+  const remember=()=>{openProofs.img=img;openProofs.sel=sel;openProofs.note=$('#bpnote')?$('#bpnote').value:note};
+  $('#whoclose').onclick=()=>{openProofs.img='';openProofs.sel=null;openProofs.note='';closeWho();renderTab(false)};
+  $('#bpfile').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{img=await shrinkImage(f,1600);remember();openProofs(true)}catch(x){toast('Couldn’t read that image.')}};
+  bg.querySelectorAll('[data-bpd]').forEach(b=>b.onclick=()=>{const x=b.dataset.bpd;sel.has(x)?sel.delete(x):sel.add(x);remember();openProofs(true)});
+  $('#bpsave').onclick=async()=>{const b=$('#bpsave');b.disabled=true;try{await ensureAnon();await col('bookproofs').add({img,dates:[...sel].sort(),note:norm($('#bpnote').value).slice(0,120),at:Date.now(),by:myName()||'Organizer'});
+      BPF.list.filter(x=>(x.dates||[]).every(d=>d<shift(t,-45))).forEach(x=>col('bookproofs').doc(x.id).delete().catch(()=>{}));
+      openProofs.img='';openProofs.sel=null;openProofs.note='';img='';toast('🧾 Booking proof saved. Everyone can open it from Court bookings.');openProofs(true)}
+    catch(e){b.disabled=false;toast(e.code==='permission-denied'?'Publish the latest rules first (v1.28.0).':'Couldn’t save ('+(e.code||'error')+').')}};
+  bg.querySelectorAll('[data-bpdel]').forEach(b=>b.onclick=async()=>{if(b.dataset.c!=='1'){b.dataset.c='1';b.textContent='Tap to remove';return}try{await col('bookproofs').doc(b.dataset.bpdel).delete();toast('Removed')}catch(e){toast('Couldn’t remove.')}})}
+document.addEventListener('click',e=>{const v=e.target.closest&&e.target.closest('[data-bpview]');if(v){viewBookProof(v.dataset.bpview);return}const m=e.target.closest&&e.target.closest('[data-bpman]');if(m)openProofs()});
+function boardCard(){startProofs();const days=boardShown(),B=S.board||{},PD=pendingCourts();
   if(!days.length&&!PD.length)return canEdit()&&db?`<section class="card">${cardH('cal','Court bookings','Not set')}<div class="card-f"><p class="hint">Show everyone which courts are booked this week.</p><button class="btn sm primary" data-board style="margin-left:auto">${ic('plus')}Add</button></div></section>`:'';
   return`<section class="card courts">${(()=>{const mp=venueMap(B);return'<div class="venue"><span class="vico">🏟️</span><div><small>Court bookings</small>'+'<b>'+esc(B.venue||'Our courts')+'</b>'+'</div><span class="vhrs">'+(days.length?fmtH(days.reduce((a,d)=>a+boardHours(d.date),0))+' h':'?')+(PD.length&&days.length?' +?':'')+'</span></div>'+(mp?'<a class="vmap" href="'+esc(mp)+'" target="_blank" rel="noopener">'+MAPPIN+'<span><b>Get directions</b><small>Open '+esc(B.venue||'the venue')+' in Google Maps</small></span><span class="go">›</span></a>':'')})()}
     ${days.map(d=>`<div class="row" style="flex-direction:column;align-items:stretch;gap:6px"><div style="display:flex;justify-content:space-between"><b>${esc(dlabel(d.date,{weekday:'long',day:'numeric',month:'short'}))}</b><small class="hint" style="margin:0">${fmtH(boardHours(d.date))} court-hours</small></div>
-      ${(d.slots||[]).map(x=>`<div class="mix" style="justify-content:space-between"><span>${esc(x.t)}</span><span class="badge solid">${plural(+x.c||0,'court')}</span></div>`).join('')}${d.auto?`<div class="mix" style="justify-content:space-between;gap:8px"><small class="hint" style="margin:0">🤖 Filled in from the votes${canEdit()?' · confirm with the venue':''}</small>${canEdit()?`<button type="button" class="btn sm line" data-bconf="${d.date}">✓ Booked</button>`:''}</div>`:''}</div>`).join('')}
+      ${(d.slots||[]).map(x=>`<div class="mix" style="justify-content:space-between"><span>${esc(x.t)}</span><span class="badge solid">${plural(+x.c||0,'court')}</span></div>`).join('')}${proofBtn(d.date)}${d.auto?`<div class="mix" style="justify-content:space-between;gap:8px"><small class="hint" style="margin:0">🤖 Filled in from the votes${canEdit()?' · confirm with the venue':''}</small>${canEdit()?`<button type="button" class="btn sm line" data-bconf="${d.date}">✓ Booked</button>`:''}</div>`:''}</div>`).join('')}
     ${PD.map(x=>`<div class="row pendc" style="flex-direction:column;align-items:stretch;gap:6px"><div style="display:flex;justify-content:space-between;gap:8px"><b>${esc(dlabel(x.date,{weekday:'long',day:'numeric',month:'short'}))}</b><small class="hint" style="margin:0">Hours: depend on votes</small></div>
       <div class="mix" style="justify-content:space-between"><span>${esc(x.note||'Time to be set')}</span><span class="badge pend">⏳ To be booked</span></div>
       <small class="hint" style="margin:0">${x.yes==null?'Counting votes…':x.yes?`🗳️ ${plural(x.yes,'player')} said Yes so far → about ${plural(x.courts,'court')}${x.closed?' · voting closed':''}`:'🗳️ No Yes votes yet. Courts are booked once players vote.'}</small>
-      ${canEdit()&&x.yes?`<button type="button" class="btn sm primary" data-bookp="${x.date}" style="align-self:flex-start">🏟️ Mark ${plural(x.courts,'court')} booked</button>`:''}</div>`).join('')}
+      ${canEdit()&&x.yes?`<button type="button" class="btn sm primary" data-bookp="${x.date}" style="align-self:flex-start">🏟️ Mark ${plural(x.courts,'court')} booked</button>`:''}${proofBtn(x.date)}</div>`).join('')}
     ${B.note&&days.length?`<div class="sub"><p class="hint" style="margin:0">📌 ${esc(B.note)}</p></div>`:''}
-    ${canEdit()?`<div class="card-f"><span class="hint">Only organizers can change this</span><button class="btn sm line" data-board style="margin-left:auto">${ic('gear')}Edit</button></div>`:''}</section>`}
+    ${canEdit()?`<div class="card-f"><button class="btn sm line" data-bpman>🧾 Booking proofs${BPF.list.length?' ('+BPF.list.length+')':''}</button><button class="btn sm line" data-board style="margin-left:auto">${ic('gear')}Edit</button></div>`:''}</section>`}
 document.addEventListener('click',e=>{const t=e.target.closest&&e.target.closest('[data-carry],[data-cuse]');if(!t)return;if(t.dataset.cuse)carryUse(t.dataset.cuse,curDate);else openCarry()});
 function bindBoard(v){v.querySelectorAll('[data-board]').forEach(b=>b.onclick=openBoard)}
 function openBoard(onDate,onNote){if(!canEdit())return;
