@@ -657,7 +657,7 @@ const FIREBASE_CONFIG = {
 /* Collections get this prefix so they never clash with the league app's data */
 const COLLECTION_PREFIX = "shuttleSplit_";
 /* App version shown in Team → About */
-const APP_VERSION = "4.22.0", APP_BUILD = "16 Nov 2026";
+const APP_VERSION = "4.22.1", APP_BUILD = "16 Nov 2026";
 /* Owner of the main group (the link without ?g=) */
 const LEGACY_OWNER = "pavankaki.cool@gmail.com";
 /* Starting player list, used only until the first save */
@@ -1497,6 +1497,7 @@ function bindDay1(v){
       case'clear-yes':delete S.days[curDate];queueWrite('days/'+curDate,null);dayConfirmClear=false;renderDay();toast('Day cleared.');break;
       case'billadd':setBill([curDate],'queued');toast(dlabel(curDate,{weekday:'short',day:'numeric',month:'short'})+' added to the bill.');break;
       case'billrm':setBill([curDate],null);toast('Taken out of the bill.');break;
+      case'billdone':{const q=billQueue();if(q.length){setBill(q,'sent');toast('👍 Marked as shared: '+q.map(shortD).join(', '))}break}
       case'billsend':openBillSend();break;
       case'corrok':{const d=getDay(curDate);delete d.prev;S.days[curDate]=d;queueWrite('days/'+curDate,d);renderDay();toast('👍 Correction closed');break}
       case'corrsent':setTimeout(()=>{const d=getDay(curDate);delete d.prev;if(d.bill==='queued'){d.bill='sent';d.billAt=Date.now();delete d.billChanged}S.days[curDate]=d;queueWrite('days/'+curDate,d);renderDay()},800);break;
@@ -1590,10 +1591,13 @@ function renderPay(){
   v.querySelectorAll('[data-who]').forEach(b=>b.onclick=()=>openWho(b.dataset.who,R));
   const msg=payText(R);
   $('#watext').href=waHref(msg);
+  /* sharing the payouts (poster or text) counts as sending the bill for those days */
+  const markSent=()=>{const K=R.days.map(d=>d.date).filter(k=>S.days[k]&&S.days[k].bill!=='sent');if(K.length)setTimeout(()=>setBill(K,'sent'),600)};
+  $('#watext').addEventListener('click',markSent);
   $('#copytext').onclick=()=>copyText(msg);
   const fname='payouts-'+R.days.map(d=>d.date.slice(5)).join('_')+'.png';
   drawPoster(R).then(url=>{const img=$('#poster');if(img)img.src=url;const sb=$('#shareimg');if(!sb)return;
-    sb.onclick=()=>billCheck(R.days.map(d=>d.date),()=>sharePoster(url,fname,posterCaption(R)))});
+    sb.onclick=()=>billCheck(R.days.map(d=>d.date),async()=>{if(await sharePoster(url,fname,posterCaption(R)))markSent()})});
 }
 async function sharePoster(url,fname,cap){try{
   const blob=await(await fetch(url)).blob(),file=new File([blob],fname,{type:'image/png'});
@@ -1619,7 +1623,7 @@ function billFooter0(d){
     ${sendBtn}<p class="hint" style="margin:0">Nothing is sent yet. Add each day when its details are final, then send them together in one message.${q.length?' Waiting: '+q.map(shortD).join(', ')+'.':''}</p></div>`}
 function billTray(){if(!canEdit())return'';const q=billQueue();if(!q.length)return'';const tot=q.reduce((a,k)=>a+calc(getDay(k)).collected,0);
   return`<section class="card due-card">${cardH('share','Bill waiting to be sent',inr(tot))}<div class="row"><div class="l"><b>${q.map(shortD).join(' · ')}</b><small>Not shared with the group yet</small></div></div>
-    <div class="card-f"><button class="btn sm primary" data-act="billsend">${ic('share')}Review & send</button></div></section>`}
+    <div class="card-f"><button class="btn sm primary" data-act="billsend">${ic('share')}Review & send</button><button class="btn sm line" data-act="billdone" style="margin-left:auto">✓ Already shared</button></div></section>`}
 /* safety check before a bill or payouts poster goes out: court hours, courts booked, rate and players for each day */
 function billCheck(keys,ok){keys=[...new Set(keys)].filter(k=>S.days[k]).sort();if(!keys.length)return ok();
   const rows=keys.map(k=>{const d=getDay(k),c=calc(d),bh=boardHours(k),cb=courtsBooked(k),bad=bh>0&&Math.abs(bh-d.hours)>.01;return{k,d,c,bh,cb,bad}}),nbad=rows.filter(r=>r.bad).length;
