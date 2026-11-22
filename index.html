@@ -558,6 +558,7 @@ details.legend{padding:4px 16px 10px}details.legend summary{font-size:12.5px;fon
 .dbar{display:grid;grid-template-columns:96px 1fr 40px;gap:8px;align-items:center;font-size:12.5px;margin:4px 0}.dbar i{height:8px;border-radius:99px;background:var(--line2);overflow:hidden}.dbar i b{display:block;height:100%;background:var(--accent)}.dbar em{font-style:normal;font-weight:700;text-align:right}
 .hrow{display:flex;gap:10px;align-items:center;width:100%;text-align:left;background:none;border:0;border-top:1px solid var(--line2);padding:9px 0;font:inherit;color:inherit}.hrow:disabled{opacity:1}.hrow .hi{font-size:18px;width:26px;text-align:center}.hrow .ht{flex:1;display:grid;min-width:0}.hrow .ht b{font-size:13.5px}.hrow .ht small{font-size:12px;color:var(--muted);overflow-wrap:anywhere}.hrow.ok .ht b{color:var(--muted);font-weight:600}
 .rlist{max-height:58vh;overflow-y:auto;display:grid;gap:8px;align-content:start}.rmsg{display:flex;gap:8px;align-items:flex-end;max-width:86%}.rmsg.me{margin-left:auto;flex-direction:row-reverse}.rmsg .rb{background:var(--field);border-radius:16px 16px 16px 4px;padding:8px 11px;display:grid;gap:3px;min-width:0}.rmsg.me .rb{background:#DCF5E8;border-radius:16px 16px 4px 16px}.rmsg .rb b{font-size:12px;color:var(--accent)}.rmsg .rb small{font-size:11px;color:var(--muted)}.rmsg .ct{overflow-wrap:anywhere}.rmsg .cimg{max-width:220px;border-radius:10px}.rcomp{display:flex;gap:8px;align-items:center;padding:10px 16px calc(10px + env(safe-area-inset-bottom));border-top:1px solid var(--line2)}.rcomp .txt{flex:1}.rcomp .btn{height:44px;width:48px;padding:0}#rprev{margin:0 16px 8px}
+.pebar{margin:8px 16px 0;padding:10px 12px;border-radius:12px;background:var(--field);font-size:14px}.pebar.on{background:#EEF4FF;color:#1849A9}.pebar.ok{background:#ECFDF3;color:#067647}.pecard{border:1px solid var(--line2);border-radius:14px;padding:10px;display:grid;gap:8px}.perow{display:flex;gap:8px;align-items:center}.pe-amp{color:var(--muted);font-weight:700}.pet{flex:1;min-width:0;display:flex;align-items:center;gap:8px;padding:8px;border-radius:12px;border:2px solid var(--line2);background:var(--card,#fff);text-align:left;font:inherit;color:inherit}.pet span{display:grid;min-width:0}.pet b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.pet small{color:var(--muted);font-size:11px}.pet.sel{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 25%,transparent);transform:scale(1.02)}.pet.tgt{border-style:dashed}.pestr{width:90px;height:8px;border-radius:4px;background:var(--line2);overflow:hidden}.pestr i{display:block;height:100%;background:var(--accent)}
 .hok1{display:block;margin:-4px 0 6px 36px;font-size:13px}.hn{font-style:normal;font-size:11px;font-weight:800;border-radius:99px;padding:1px 7px;margin-left:4px;background:#FEF0C7;color:#B54708}.hrow.bad .hn{background:#FEE4E2;color:#B42318}.hrow.info .hn{background:var(--field);color:var(--muted)}
 .erow{border-top:1px solid var(--line2);padding:7px 0;display:grid}.erow b{font-size:12.5px;font-family:ui-monospace,Menlo,monospace;overflow-wrap:anywhere}.erow small{font-size:11.5px;color:var(--muted)}
 .gtag{font-style:normal;font-size:10.5px;font-weight:800;background:#FEF0C7;color:#93370D;border-radius:999px;padding:1px 7px;vertical-align:1px}.gsec summary small{display:block;font-weight:600;color:var(--muted);font-size:12px}.btable tr.grow2 td{font-size:12.5px;color:var(--muted);background:var(--field)}.tplg{border-top:8px solid var(--line2)}.tplgh{display:flex;align-items:center;gap:10px;padding:14px 16px 4px}.tplgh>div{flex:1;display:grid}.tplgh b{font-size:16px}.tplgh small{color:var(--muted);font-size:12.5px}.tplgi{width:36px;height:36px;border-radius:10px;background:var(--field);display:grid;place-items:center;font-size:18px}.tplgn{font-size:12px;color:var(--muted);font-weight:700}
@@ -657,7 +658,7 @@ const FIREBASE_CONFIG = {
 /* Collections get this prefix so they never clash with the league app's data */
 const COLLECTION_PREFIX = "shuttleSplit_";
 /* App version shown in Team → About */
-const APP_VERSION = "4.23.0", APP_BUILD = "22 Nov 2026";
+const APP_VERSION = "4.24.0", APP_BUILD = "22 Nov 2026";
 /* Owner of the main group (the link without ?g=) */
 const LEGACY_OWNER = "pavankaki.cool@gmail.com";
 /* Starting player list, used only until the first save */
@@ -3353,20 +3354,28 @@ function balancePairs(players,str){const P=[...players].sort((a,b)=>str(b)-str(a
 function noLevelCount(L){return L.filter(n=>!levelOf(n)).length}
 /* editor: tap one name, then another, to swap them (sitting-out players can be swapped in). Shuffle and Balance rebuild the pairs. */
 function openPairEditor(o){let pairs=o.pairs.map(p=>[...p]),out=[...(o.out||[])],sel=null;const str=pairStrength();
-  const draw=()=>{const avg=p=>(str(p[0])+str(p[1]))/2,A=pairs.map(avg),spread=A.length?Math.max(...A)-Math.min(...A):0,nl=noLevelCount([...pairs.flat(),...out]);
-    const chip=(n,key)=>`<button type="button" class="chipbtn${sel===key?' on':''}" data-pe="${key}" style="flex:1;min-width:0;justify-content:center">${esc(first(n))}${levelOf(n)?` <i class="cattag" style="background:${levelOf(n)[2]};color:#fff">${levelOf(n)[1][0]}</i>`:''}</button>`;
-    const bg=sheetSwap(`<div class="sheet-h"><span class="ini">🤝</span><div><b>${esc(o.title||'Pairs')}</b><small>Tap a name, then another, to swap them</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div>
-      ${o.warn?`<p class="warn" style="margin:8px 16px">${esc(o.warn)}</p>`:''}
-      <div class="sub" style="display:grid;gap:8px">${pairs.map((p,i)=>`<div style="display:flex;gap:8px;align-items:center"><b style="width:22px;color:var(--muted)">${i+1}</b>${chip(p[0],i+':0')}<span>&</span>${chip(p[1],i+':1')}</div>`).join('')}
-        ${out.length?`<span class="sublbl" style="margin-top:6px">Sitting out</span><div style="display:flex;gap:8px;flex-wrap:wrap">${out.map((n,j)=>chip(n,'o:'+j)).join('')}</div>`:''}</div>
-      <div class="sub"><small class="hint" style="margin:0">${spread<.6?'⚖️ Pairs look evenly matched.':'⚠️ Some pairs are much stronger than others. Try ⚖️ Balance.'}${nl?' '+plural(nl,'player')+' have no level set, so their Cup record is used'+(nl>2?'. Set levels in Manage › Players for fairer pairs.':'.'):''}</small></div>
-      <div class="card-f" style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><button class="btn line" id="peshuf">🔀 Shuffle</button><button class="btn line" id="pebal">⚖️ Balance</button><button class="btn primary" id="peok" style="grid-column:1/-1">${esc(o.okLabel||'Save pairs')}</button></div>`,'Pairs');
+  let undo=null,last='';
+  const draw=()=>{const avg=p=>(str(p[0])+str(p[1]))/2,A=pairs.map(avg),mx=Math.max(3,...A),spread=A.length?Math.max(...A)-Math.min(...A):0,nl=noLevelCount([...pairs.flat(),...out]);
+    const nameOf=k=>{const[a,b]=k.split(':');return a==='o'?out[+b]:pairs[+a][+b]};
+    const tile=(n,key)=>`<button type="button" class="pet${sel===key?' sel':''}${sel&&sel!==key?' tgt':''}" data-pe="${key}">${ini(n,'','sm')}<span><b>${esc(first(n))}</b>${levelOf(n)?`<small>${esc(levelOf(n)[1])}</small>`:'<small>no level</small>'}</span></button>`;
+    const banner=sel?`<div class="pebar on">👆 <b>${esc(first(nameOf(sel)))}</b> picked. Now tap the player to swap with. <button class="lnk" id="pecancel">Cancel</button></div>`
+      :last?`<div class="pebar ok">✅ ${esc(last)} ${undo?'<button class="lnk" id="peundo">Undo</button>':''}</div>`
+      :`<div class="pebar">👆 Tap a player, then tap another player to swap them. Pairs, sitting-out players, anyone.</div>`;
+    const bg=sheetSwap(`<div class="sheet-h"><span class="ini">🤝</span><div><b>${esc(o.title||'Pairs')}</b><small>${plural(pairs.length,'pair')}${out.length?' · '+out.length+' sitting out':''}</small></div><button class="iconbtn" id="whoclose" aria-label="Close">${ic('x')}</button></div>
+      ${o.warn?`<p class="warn" style="margin:8px 16px">${esc(o.warn)}</p>`:''}${banner}
+      <div class="sub" style="display:grid;gap:10px">${pairs.map((p,i)=>`<div class="pecard"><div class="mix" style="justify-content:space-between"><b>Pair ${i+1}</b><span class="pestr" title="Pair strength"><i style="width:${Math.round(A[i]/mx*100)}%"></i></span></div><div class="perow">${tile(p[0],i+':0')}<span class="pe-amp">&</span>${tile(p[1],i+':1')}</div></div>`).join('')}
+        ${out.length?`<div class="pecard" style="background:var(--field)"><b>Sitting out</b><div class="perow" style="flex-wrap:wrap">${out.map((n,j)=>tile(n,'o:'+j)).join('')}</div></div>`:''}</div>
+      <div class="sub"><small class="hint" style="margin:0">${spread<.6?'⚖️ Pairs look evenly matched.':'⚠️ Some pairs are much stronger than others (see the bars). Try ⚖️ Balance.'}${nl?' '+plural(nl,'player')+' have no level, so their Cup record is used.':''}</small></div>
+      <div class="card-f" style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><button class="btn line" id="peshuf">🔀 Shuffle all</button><button class="btn line" id="pebal">⚖️ Balance</button><button class="btn primary" id="peok" style="grid-column:1/-1">${esc(o.okLabel||'Save pairs')}</button></div>`,'Pairs');
     bg.querySelector('#whoclose').onclick=()=>{closeWho();if(o.onCancel)o.onCancel()};
     const get=k=>{const[a,b]=k.split(':');return a==='o'?[out,+b]:[pairs[+a],+b]};
-    bg.querySelectorAll('[data-pe]').forEach(b=>b.onclick=()=>{const k=b.dataset.pe;if(!sel){sel=k;return draw()}if(sel===k){sel=null;return draw()}
-      const[x,i]=get(sel),[y,j]=get(k);[x[i],y[j]]=[y[j],x[i]];sel=null;draw()});
-    bg.querySelector('#peshuf').onclick=()=>{const all=[...pairs.flat(),...out];for(let i=all.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[all[i],all[j]]=[all[j],all[i]]}const k=pairs.length*2;pairs=[];for(let i=0;i<k;i+=2)pairs.push([all[i],all[i+1]]);out=all.slice(k);sel=null;draw()};
-    bg.querySelector('#pebal').onclick=()=>{const all=pairs.flat();pairs=balancePairs(all,str);sel=null;draw();toast('⚖️ Strongest paired with the least experienced')};
+    const snap=()=>({pairs:pairs.map(p=>[...p]),out:[...out]});
+    const c=bg.querySelector('#pecancel');if(c)c.onclick=()=>{sel=null;draw()};
+    const u=bg.querySelector('#peundo');if(u)u.onclick=()=>{pairs=undo.pairs;out=undo.out;undo=null;last='Swap undone.';draw()};
+    bg.querySelectorAll('[data-pe]').forEach(b=>b.onclick=()=>{const k=b.dataset.pe;if(!sel){sel=k;last='';return draw()}if(sel===k){sel=null;return draw()}
+      undo=snap();const[x,i]=get(sel),[y,j]=get(k),n1=x[i],n2=y[j];[x[i],y[j]]=[y[j],x[i]];sel=null;last='Swapped '+first(n1)+' ↔ '+first(n2)+'.';draw()});
+    bg.querySelector('#peshuf').onclick=()=>{undo=snap();const all=[...pairs.flat(),...out];for(let i=all.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[all[i],all[j]]=[all[j],all[i]]}const k=pairs.length*2;pairs=[];for(let i=0;i<k;i+=2)pairs.push([all[i],all[i+1]]);out=all.slice(k);sel=null;last='Shuffled.';draw()};
+    bg.querySelector('#pebal').onclick=()=>{undo=snap();const all=pairs.flat();pairs=balancePairs(all,str);sel=null;last='Balanced: strongest with the least experienced.';draw()};
     bg.querySelector('#peok').onclick=()=>o.onSave(pairs.map(p=>[...p]),[...out])};
   SWAP_KEY='';draw()}
 /* edit the pairs of a tournament that already exists: match ids stay, only who is in each pair changes */
@@ -4178,9 +4187,51 @@ async function textCard(o){try{await document.fonts.load('800 40px Manrope')}cat
   g.globalAlpha=.75;g.font='700 28px '+F;g.fillText('🏸 Shuttle Split',80,H-50);g.globalAlpha=1;return cv.toDataURL('image/jpeg',.88)}
 async function sharePostCard(x){let url=x.img;if(!url){const kind=x.kind;url=await textCard({emoji:kind==='tip'?'💡':kind==='shout'?'👏':'🏸',title:kind==='tip'?'Badminton tip'+(x.tag?' · '+x.tag:''):kind==='shout'?'Shout-out!':'From the club',body:(x.text||'').replace(/^👏\s*/,''),foot:'— '+(x.name||'')+' · '+dlabel(ymd(new Date(x.at||Date.now())),{day:'numeric',month:'short'})})}
   sharePoster(url,'badminton-'+(x.kind||'post')+'.jpg',(x.text?x.text+'\n\n':'')+'🏸 '+(S.groupName||'Badminton Family'))}
-async function shareCupCard(T){const ch=cupChampion(T),body=T.format==='rr'||!ch?standings(T).slice(0,5).map((x,i)=>(i+1)+'. '+x.name+'  '+x.w+'W '+x.l+'L').join('   '):'Champion'+(T.type==='doubles'?'s':'')+': '+ch;
+async function shareCupCard(T){const ch=cupChampion(T);if(ch){try{const u=await champPoster(T);if(u)return sharePoster(u,'champions.jpg',cupText(T))}catch(e){}}const body=T.format==='rr'||!ch?standings(T).slice(0,5).map((x,i)=>(i+1)+'. '+x.name+'  '+x.w+'W '+x.l+'L').join('   '):'Champion'+(T.type==='doubles'?'s':'')+': '+ch;
   const url=await textCard({emoji:ch?'🏆':'🏸',title:T.name,body:ch&&T.format!=='rr'?'👑 '+ch+'  ·  '+evName(T)+' · '+fmtName(T.format):body,foot:(T.type==='doubles'?'Doubles':'Singles')+' · '+plural((T.entries||[]).length,T.type==='doubles'?'pair':'player')+' · '+dlabel(ymd(new Date(T.createdAt||Date.now())),{day:'numeric',month:'short'})});
   sharePoster(url,'badminton-cup.jpg',cupText(T))}
+/* ================= 🏆 CHAMPIONS POSTER: winners' photos up front, podium, and every player thanked ================= */
+async function champPoster(T){const md=medalsOf(T);if(!md||!md.g.length)return null;try{await Promise.all(['600','700','800','900'].map(w=>document.fonts.load(w+' 40px Manrope')))}catch(e){}
+  const F='Manrope,system-ui,sans-serif',W=1080,H=1350,cv=document.createElement('canvas');cv.width=W;cv.height=H;const g=cv.getContext('2d');
+  const GOLD='#F5C451',GOLD2='#FFE7A3',win=entNames(T,md.g[0]),silver=md.s.flatMap(id=>[entNames(T,id)]),bronze=md.b.map(id=>entNames(T,id));
+  const all=[...new Set((T.entries||[]).flatMap(e=>e.players||[]))];
+  // night sky with a warm spotlight
+  const bg=g.createLinearGradient(0,0,0,H);bg.addColorStop(0,'#14112B');bg.addColorStop(.55,'#2A1B55');bg.addColorStop(1,'#120E24');g.fillStyle=bg;g.fillRect(0,0,W,H);
+  const sp=g.createRadialGradient(W/2,470,40,W/2,470,520);sp.addColorStop(0,'rgba(255,214,120,.42)');sp.addColorStop(1,'rgba(255,214,120,0)');g.fillStyle=sp;g.fillRect(0,0,W,H);
+  // confetti (same pattern every time for the same tournament)
+  let sd=[...String(T.id||T.name)].reduce((a,c)=>a*31+c.charCodeAt(0)>>>0,7);const rnd=()=>(sd=(sd*1664525+1013904223)>>>0)/4294967296;
+  const CC=['#F5C451','#FF6B8B','#5EEAD4','#A78BFA','#FFFFFF','#60A5FA'];
+  for(let i=0;i<160;i++){const x=rnd()*W,y=rnd()*H*.62,s=6+rnd()*10;if(x>140&&x<W-140&&(y<270||(y>620&&y<800)))continue;g.save();g.translate(x,y);g.rotate(rnd()*6.28);g.globalAlpha=.35+rnd()*.5;g.fillStyle=CC[i%CC.length];if(i%3)g.fillRect(-s/2,-s/4,s,s/2);else{g.beginPath();g.arc(0,0,s/3,0,7);g.fill()}g.restore()}
+  g.textAlign='center';g.textBaseline='alphabetic';
+  g.fillStyle='rgba(255,255,255,.75)';g.font='800 28px '+F;g.fillText((S.groupName||'Badminton Family').toUpperCase().split('').join(' '),W/2,86);
+  g.fillStyle='#FFFFFF';g.font='700 34px '+F;fit(g,T.name,W/2,138,W-160);
+  // CHAMPIONS
+  const tg=g.createLinearGradient(0,170,0,250);tg.addColorStop(0,GOLD2);tg.addColorStop(1,GOLD);g.fillStyle=tg;g.font='900 96px '+F;g.fillText(win.length>1?'CHAMPIONS':'CHAMPION',W/2,252);
+  // winners' photos
+  const ring=async(n,cx,cy,r,gold)=>{g.save();g.shadowColor=gold?'rgba(245,196,81,.75)':'rgba(0,0,0,.4)';g.shadowBlur=gold?50:20;g.beginPath();g.arc(cx,cy,r+(gold?12:6),0,7);g.fillStyle=gold?GOLD:'#C7CBD6';g.fill();g.restore();
+    const ph=await loadImg(photoOf(n));g.save();g.beginPath();g.arc(cx,cy,r,0,7);g.closePath();g.fillStyle='#3B2F72';g.fill();g.clip();
+    if(ph){const s=Math.max(2*r/ph.width,2*r/ph.height);g.drawImage(ph,cx-ph.width*s/2,cy-ph.height*s/2,ph.width*s,ph.height*s)}else{g.fillStyle='#fff';g.font='800 '+Math.round(r*.8)+'px '+F;g.textAlign='center';g.fillText(initials(n),cx,cy+r*.28)}g.restore()};
+  const R1=win.length>1?150:180,cy=480,xs=win.length>1?[W/2-175,W/2+175]:[W/2];
+  for(let i=0;i<win.length;i++)await ring(win[i],xs[i],cy,R1,true);
+  g.font='72px '+F;xs.forEach((x,i)=>{g.save();g.translate(x,cy-R1-6);g.rotate(i?.18:-.18);g.fillText('👑',0,0);g.restore()});
+  g.fillStyle='#FFFFFF';g.font='800 54px '+F;xs.forEach((x,i)=>fit(g,first(win[i]),x,cy+R1+78,330));
+  // final result line
+  let y=cy+R1+138;const K=(T.format==='ko'||stg(T))?koMs(T):[],R=K.length?Math.max(...K.map(m=>m.r)):0,fm=K.find(m=>m.r===R&&m.w);
+  if(fm){const lo=fm.w===fm.a?fm.b:fm.a,sc=(fm.score||[]).map(x=>fm.w===fm.a?x.a+'–'+x.b:x.b+'–'+x.a).join(', ');g.fillStyle=GOLD2;g.font='700 32px '+F;fit(g,'Won the final vs '+entNames(T,lo).map(first).join(' & ')+(sc?'  ·  '+sc:''),W/2,y,W-160);y+=20}
+  // podium: runners-up and third
+  const pod=[...silver.map(p=>['🥈',p]),...bronze.slice(0,2).map(p=>['🥉',p])];
+  if(pod.length){y+=50;const cw=(W-120)/pod.length;for(let i=0;i<pod.length;i++){const[m,P]=pod[i],cx=60+cw*i+cw/2;
+      g.fillStyle='rgba(255,255,255,.08)';rr(g,60+cw*i+10,y,cw-20,190,26);g.fill();
+      const pr=34,ox=P.length>1?[cx-40,cx+40]:[cx];for(let j=0;j<P.length;j++)await ring(P[j],ox[j],y+62,pr,false);
+      g.textAlign='center';g.fillStyle='#fff';g.font='700 28px '+F;fit(g,m+' '+P.map(first).join(' & '),cx,y+140,cw-40);g.fillStyle='rgba(255,255,255,.6)';g.font='600 22px '+F;g.fillText(m==='🥈'?'Runners-up':'Semi-finalists',cx,y+172)}
+    y+=190}
+  // thank everyone who played
+  y=Math.max(y+60,H-250);g.fillStyle='rgba(255,255,255,.85)';g.font='700 30px '+F;g.textAlign='center';g.fillText('Thank you all '+all.length+' players for the fight 💛',W/2,y);
+  const show=all.slice(0,12),ar=30,gap=12,tw=show.length*(2*ar+gap)-gap;let ax=W/2-tw/2+ar;
+  for(const n of show){await ring(n,ax,y+62,ar,false);ax+=2*ar+gap}
+  if(all.length>12){g.fillStyle='#fff';g.font='700 24px '+F;g.fillText('+'+(all.length-12),ax,y+70)}
+  g.fillStyle='rgba(255,255,255,.55)';g.font='600 24px '+F;g.fillText(evName(T)+' · '+fmtName(T.format)+' · '+dlabel(ymd(new Date(T.doneAt||T.createdAt||Date.now())),{weekday:'short',day:'numeric',month:'short'})+'  ·  🏸 Shuttle Split',W/2,H-40);
+  return cv.toDataURL('image/jpeg',.92)}
 /* ---------- 1A. activity feed: new posts, comments on yours, replies, kudos and shout-outs for you ---------- */
 const actSeen=()=>{try{return+localStorage.getItem('ss-actseen'+SUF)||0}catch(e){return 0}};
 function activityItems(){const me=nkey(getMe()),uid=auth&&auth.currentUser&&auth.currentUser.uid;if(!me)return[];const out=[];
